@@ -1,0 +1,51 @@
+/* Add your custom styles below */
+.footer {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background-color: #fff;
+  width: 100%;
+  padding: 10px 0;
+}
+
+.content {
+  flex: 1 0 auto;
+  margin-bottom: 0;
+}
+
+.footer .border-top-thick {
+  padding: 10px 0;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.footer-link {
+  border-bottom: none !important;
+}
+
+.tag-container {
+  min-height: 70vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.main-content {
+  padding-bottom: 170px;
+}
+
+.tag-item {
+  display: inline-block;
+  margin-right: 0.5rem;
+  padding: 0.2rem 0.5rem;
+  background-color: #f0f0f0;
+  border-radius: 3px;
+  font-size: 0.9em;
+  color: #666;
+  border-bottom: none !important;
+}
+
+.tag-item:hover {
+  background-color: #e0e0e0;
+}

@@ -1,0 +1,22 @@
+---
+layout: default
+---
+<div class="container mx-auto px-2 py-2 tag-container">
+  <div class="tag-cloud" style="text-align: center; padding: 20px;">
+    {% assign tags = site.tags | sort %}
+    {% for tag in tags %}
+    {% assign tag_name = tag | first %}
+    {% assign posts = tag | last %}
+    {% assign tag_size = posts.size | times: 100 | divided_by: site.tags.size | plus: 100 %}
+    <a href="{{ site.baseurl }}/tags/{{ tag_name }}" style="font-size: {{ tag_size }}%; 
+                  text-decoration: none;
+                  display: inline-block;
+                  margin: 8px;
+                  color: #333;
+                  transition: color 0.3s ease;" onmouseover="this.style.color='#007acc'"
+      onmouseout="this.style.color='#333'">
+      {{ tag_name }} ({{ posts.size }})
+    </a>
+    {% endfor %}
+  </div>
+</div>

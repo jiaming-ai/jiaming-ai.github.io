@@ -1,0 +1,33 @@
+---
+layout: default
+---
+
+<div class="container mx-auto px-2 py-4">
+  <h1 class="h0 py-4">#{{ page.tag }}</h1>
+
+  <div class="py-2">
+    {% for post in site.tags[page.tag] %}
+      <article class="post-entry mb-4">
+        <h2 class="h3 mb-2">
+          <a href="{{ post.url | relative_url }}" class="text-accent">
+            {{ post.title }}
+          </a>
+        </h2>
+        
+        <div class="post-meta mb-2">
+          <time datetime="{{ post.date | date_to_xmlschema }}">
+            {{ post.date | date: "%B %-d, %Y" }}
+          </time>
+        </div>
+
+        {% if post.description %}
+          <p class="post-excerpt">{{ post.description }}</p>
+        {% endif %}
+      </article>
+    {% endfor %}
+  </div>
+
+  <!-- <div class="py-2">
+    <a href="{{ site.baseurl }}/tags" class="text-accent">&larr; Back to all tags</a>
+  </div> -->
+</div>

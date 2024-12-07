@@ -32,9 +32,10 @@ repository: jiaming-ai/jiaming-ai.github.io
 
 # Build settings
 # theme: minima
-theme: jekyll-athena
-plugins:
-  - jekyll-feed
+# theme: jekyll-athena
+theme: null
+# plugins:
+#   - jekyll-feed
 
 # Exclude from processing.
 # The following items will not be processed, by default.
