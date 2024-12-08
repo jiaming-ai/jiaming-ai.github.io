@@ -40,4 +40,4 @@ They’re growing up in a digital world, and I want them to see technology as bo
 ### Ethical and Moral Frameworks
 As intelligent machines become more capable, questions about fairness, privacy, and responsibility will matter more than ever. As my children mature, I plan to involve them in conversations about what’s right, what’s fair, and how our actions affect others. Even at a young age, talking about why we share, why we apologize, and why we stand up for others can lay the foundation for the moral compass they’ll need in an AI-driven world.
 
-In the next post, I'll try to come with more detailed guidelines on how to foster those human skills.
+In the next [post](https://jiaming.im/2024/12/08/future-edu-guidelines.html), I'll try to come with more detailed guidelines on how to foster those human skills.

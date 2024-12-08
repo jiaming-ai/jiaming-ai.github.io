@@ -62,4 +62,4 @@ In my previous [post](https://jiaming.im/2024/12/07/future-edu.html), I discusse
 - Reinforce that ethical thinking involves balancing one’s own interests with the well-being of others, fostering a sense of responsibility and integrity.
 
 
-The guidelines listed here are general guidelines. In my following posts I'll try to give more detailed actionable guidelines and daily life examples.
+The principles outlined here are broad and foundational. In future posts, I’ll dive deeper into specific, actionable strategies and share practical, real-life examples to help bring these ideas to life in everyday parenting.
