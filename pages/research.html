@@ -22,135 +22,83 @@
     <!-- Main Content -->
     <div class="main-content-with-sidebar">
 
-    <!-- Past Projects Section -->
+    <!-- Ongoing Projects Section -->
     <section class="section-container" style="padding-top: 3rem;">
-        <h2 class="section-title">Past Research Projects</h2>
+        <h2 class="section-title">Ongoing Projects</h2>
         <p class="narrative-text">
-            Below are selected completed research projects that have been published or presented at major conferences. 
-            These projects represent my past work in robotics, AI, and computer vision.
+            Below are my current research projects that I am actively working on. 
+            These projects represent ongoing investigations in robotics, AI, and computer vision.
         </p>
+        
+        <div class="space-y-6 mt-8">
+            <!-- Project: Pose-aware Topological Mapping -->
+            <div class="card project-card">
+                <div class="project-layout">
+                    <div class="project-media">
+                        <video autoplay loop muted playsinline class="project-video">
+                            <source src="../assets/video/ptm_occlusion.mp4" type="video/mp4">
+                            Your browser does not support the video tag.
+                        </video>
+                    </div>
+                    <div class="project-info">
+                        <h3 class="project-title">Pose-aware Topological Mapping</h3>
+                        <p class="project-duration" style="color: var(--text-tertiary); font-size: 0.85rem; margin-bottom: 0.75rem;">
+                            <i class="far fa-calendar"></i> 2024 - Present
+                        </p>
+                        <p class="project-tldr">
+                            A pose-aware online topological mapping system that performs sequential hypothesis testing directly in continuous SE(3) space to achieve human-like, robust relocalization under perceptual aliasing and environmental change.
+                        </p>
+                        <button class="read-more-btn" onclick="openProjectModal('ptm-modal')">
+                            Read Full Abstract <i class="fas fa-arrow-right"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
     </section>
+    
+    <!-- Project Modals -->
+    <div id="ptm-modal" class="modal">
+        <div class="modal-content">
+            <button class="modal-close" onclick="closeProjectModal('ptm-modal')" style="position: absolute; top: 1.5rem; right: 1.5rem; background: none; border: none; font-size: 1.5rem; cursor: pointer; color: var(--text-secondary);">
+                <i class="fas fa-times"></i>
+            </button>
+            <h2 style="font-size: 1.75rem; font-weight: 600; margin-bottom: 1rem; color: var(--text-primary);">
+                Pose-aware Topological Mapping
+            </h2>
+            <div style="margin-bottom: 1.5rem;">
+                <video autoplay loop muted playsinline style="width: 100%; border-radius: 0.5rem; border: 1px solid var(--border);">
+                    <source src="../assets/video/ptm_occlusion.mp4" type="video/mp4">
+                    Your browser does not support the video tag.
+                </video>
+            </div>
+            <h3 style="font-size: 1.25rem; font-weight: 600; margin-bottom: 1rem; color: var(--text-primary);">Abstract</h3>
+            <div style="color: var(--text-secondary); line-height: 1.8; font-size: 0.95rem;">
+                <p style="margin-bottom: 1rem;">
+                    Humans navigate large, open-world environments not by maintaining a globally consistent metric map, but by forming cognitive maps—topological representations that support robust relocalization even under severe perceptual changes. This paradigm is inherently resilient to tracking failures, dynamic environments, and long-term appearance variations. A fundamental enabler of this robustness is sequential hypothesis testing (SHT), which humans implicitly perform to disambiguate perceptually aliased places over time.
+                </p>
+                <p style="margin-bottom: 1rem;">
+                    Despite its importance, most robotic systems either (i) avoid aliasing through conservative data-association thresholds, or (ii) apply filtering only in a discrete place space constructed from keyframes. Such discretization restricts the hypothesis space, prevents reasoning in between stored views, and leads to brittle relocalization when observations do not perfectly overlap past frames.
+                </p>
+                <p style="margin-bottom: 1rem;">
+                    We propose a pose-aware online topological mapping system that performs SHT directly in continuous SE(3) space. Our approach maintains and updates a multi-hypothesis belief over the robot pose and the map topology, allowing robust relocalization and loop closure without relying on global metric consistency. Addressing continuous-domain SHT introduces two major challenges: (1) how to represent and update distributions in SE(3) efficiently, and (2) how to manage map uncertainty—as each perceptual aliasing event can spawn multiple plausible map branches, whose number can grow rapidly if not controlled.
+                </p>
+                <p>
+                    We introduce a Gaussian-mixture–based representation and a principled branch management strategy that together enable real-time inference, scalable map maintenance, and robust operation in dynamic, ambiguous, or previously unseen environments. This work provides the first practical continuous-space SHT framework for topological mapping, bringing robots closer to the reliability and flexibility of human navigation.
+                </p>
+            </div>
+        </div>
+    </div>
 
     <!-- Publications Section -->
     <section class="section-container bg-gradient-subtle" id="publications">
-        <h2 class="section-title">Selected Publications</h2>
+        <h2 class="section-title">Past Projects</h2>
         
         <div id="publications-list" class="space-y-6">
             <!-- Publications will be inserted here by JavaScript -->
         </div>
     </section>
 
-    <!-- Project Details -->
-    <section class="section-container">
-        <h2 class="section-title">Project Highlights</h2>
-        
-        <div class="space-y-8">
-            <div class="card">
-                <div class="flex justify-between items-start mb-3">
-                    <h3 class="text-2xl font-semibold" style="color: var(--text-primary);">Safe Navigation in Dynamic Environments</h3>
-                    <span class="tag">ICRA 2024</span>
-                </div>
-                <p class="narrative-text">
-                    Developed a topological mapping approach that enables robots to navigate safely in crowded, dynamic environments. 
-                    The system uses probabilistic inference to handle uncertainty and predict human motion patterns. This work received 
-                    the Best Paper Award at ICRA 2024.
-                </p>
-                <div class="mb-4">
-                    <h4 class="font-semibold mb-2" style="color: var(--text-primary);">Key Contributions:</h4>
-                    <ul class="list-disc list-inside space-y-1" style="color: var(--text-secondary);">
-                        <li>Novel topological representation that scales to large environments</li>
-                        <li>Real-time human motion prediction with uncertainty quantification</li>
-                        <li>Deployed and tested on physical robots in real-world scenarios</li>
-                    </ul>
-                </div>
-                <div class="flex gap-3 flex-wrap">
-                    <a href="#" class="btn-primary">View Paper</a>
-                    <a href="https://github.com/jiamingwang/safe-nav" target="_blank" class="btn-primary">Code</a>
-                    <a href="#" class="btn-primary">Video Demo</a>
-                </div>
-            </div>
-
-            <div class="card">
-                <div class="flex justify-between items-start mb-3">
-                    <h3 class="text-2xl font-semibold" style="color: var(--text-primary);">Vision-Language Models for Robot Tasks</h3>
-                    <span class="tag">CoRL 2023</span>
-                </div>
-                <p class="narrative-text">
-                    Created a multimodal framework that enables robots to understand and execute tasks described in natural language. 
-                    The system combines vision transformers with large language models to ground language instructions in visual perception.
-                </p>
-                <div class="mb-4">
-                    <h4 class="font-semibold mb-2" style="color: var(--text-primary);">Key Contributions:</h4>
-                    <ul class="list-disc list-inside space-y-1" style="color: var(--text-secondary);">
-                        <li>End-to-end vision-language-action model for robot control</li>
-                        <li>Zero-shot generalization to novel objects and tasks</li>
-                        <li>Extensive evaluation on real robot manipulation tasks</li>
-                    </ul>
-                </div>
-                <div class="flex gap-3 flex-wrap">
-                    <a href="#" class="btn-primary">View Paper</a>
-                    <a href="#" class="btn-primary">Code</a>
-                </div>
-            </div>
-
-            <div class="card">
-                <div class="flex justify-between items-start mb-3">
-                    <h3 class="text-2xl font-semibold" style="color: var(--text-primary);">Uncertainty-Aware SLAM</h3>
-                    <span class="tag">IROS 2023</span>
-                </div>
-                <p class="narrative-text">
-                    Developed a SLAM system that explicitly models and propagates uncertainty throughout the mapping and localization 
-                    pipeline. The approach improves robustness in challenging environments with sensor noise and dynamic obstacles.
-                </p>
-                <div class="mb-4">
-                    <h4 class="font-semibold mb-2" style="color: var(--text-primary);">Key Contributions:</h4>
-                    <ul class="list-disc list-inside space-y-1" style="color: var(--text-secondary);">
-                        <li>Probabilistic framework for uncertainty quantification in SLAM</li>
-                        <li>Robust loop closure detection under perceptual aliasing</li>
-                        <li>Real-time performance on embedded systems</li>
-                    </ul>
-                </div>
-                <div class="flex gap-3 flex-wrap">
-                    <a href="#" class="btn-primary">View Paper</a>
-                    <a href="#" class="btn-primary">Code</a>
-                    <a href="#" class="btn-primary">Video Demo</a>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- Impact Section -->
-    <section class="section-container bg-gradient-subtle">
-        <h2 class="section-title">Impact & Recognition</h2>
-        
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div class="card">
-                <h3 class="text-xl font-semibold mb-3" style="color: var(--accent);">Citations & Reach</h3>
-                <p class="narrative-text">
-                    Our published work has been cited over 200 times and has influenced subsequent research in robot navigation 
-                    and vision-language grounding.
-                </p>
-            </div>
-            <div class="card">
-                <h3 class="text-xl font-semibold mb-3" style="color: var(--accent);">Open Source Impact</h3>
-                <p class="narrative-text">
-                    Released code repositories have accumulated over 500 GitHub stars and are being used by research labs worldwide.
-                </p>
-            </div>
-            <div class="card">
-                <h3 class="text-xl font-semibold mb-3" style="color: var(--accent);">Awards</h3>
-                <p class="narrative-text">
-                    Best Paper Award at ICRA 2024, Outstanding Research Award at NUS, and winner of the IEEE Robotics Navigation Challenge 2023.
-                </p>
-            </div>
-            <div class="card">
-                <h3 class="text-xl font-semibold mb-3" style="color: var(--accent);">Media Coverage</h3>
-                <p class="narrative-text">
-                    Featured in IEEE Spectrum, TechCrunch, and various robotics podcasts discussing the future of autonomous navigation.
-                </p>
-            </div>
-        </div>
-    </section>
 
     <!-- Footer -->
     <footer class="border-t py-8" style="border-color: var(--border); background-color: var(--bg-secondary);">

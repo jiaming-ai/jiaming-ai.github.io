@@ -104,8 +104,30 @@ let publications = [];
 let ongoingProjects = [];
 let people = [];
 let blogPosts = [];
-let teaching = [];
-let awards = [];
+
+// Cache duration: 5 minutes
+const CACHE_DURATION = 5 * 60 * 1000;
+
+// Helper function to fetch with cache
+async function fetchWithCache(url, cacheKey) {
+    const cached = localStorage.getItem(cacheKey);
+    const cacheTime = localStorage.getItem(`${cacheKey}_time`);
+    
+    if (cached && cacheTime) {
+        const age = Date.now() - parseInt(cacheTime);
+        if (age < CACHE_DURATION) {
+            return JSON.parse(cached);
+        }
+    }
+    
+    const response = await fetch(url);
+    const data = await response.json();
+    
+    localStorage.setItem(cacheKey, JSON.stringify(data));
+    localStorage.setItem(`${cacheKey}_time`, Date.now().toString());
+    
+    return data;
+}
 
 // Load data from JSON files
 async function loadData() {
@@ -114,21 +136,17 @@ async function loadData() {
         const isSubdirectory = window.location.pathname.includes('/pages/');
         const pathPrefix = isSubdirectory ? '../' : '';
         
-        const [pubRes, projectRes, peopleRes, blogRes, teachRes, awardRes] = await Promise.all([
-            fetch(pathPrefix + 'data/publications.json'),
-            fetch(pathPrefix + 'data/projects.json'),
-            fetch(pathPrefix + 'data/people.json'),
-            fetch(pathPrefix + 'data/blog.json'),
-            fetch(pathPrefix + 'data/teaching.json'),
-            fetch(pathPrefix + 'data/awards.json')
+        const [pubData, projectData, peopleData, blogData] = await Promise.all([
+            fetchWithCache(pathPrefix + 'data/publications.json', 'cache_publications'),
+            fetchWithCache(pathPrefix + 'data/projects.json', 'cache_projects'),
+            fetchWithCache(pathPrefix + 'data/people.json', 'cache_people'),
+            fetchWithCache(pathPrefix + 'data/blog.json', 'cache_blog')
         ]);
         
-        publications = await pubRes.json();
-        ongoingProjects = await projectRes.json();
-        people = await peopleRes.json();
-        blogPosts = await blogRes.json();
-        teaching = await teachRes.json();
-        awards = await awardRes.json();
+        publications = pubData;
+        ongoingProjects = projectData;
+        people = peopleData;
+        blogPosts = blogData;
     } catch (error) {
         console.error('Error loading data:', error);
     }
@@ -289,6 +307,21 @@ function closeBlogModal() {
     }
 }
 
+// Project Modal Functions
+function openProjectModal(modalId) {
+    const modal = document.getElementById(modalId);
+    if (modal) {
+        modal.classList.add('active');
+    }
+}
+
+function closeProjectModal(modalId) {
+    const modal = document.getElementById(modalId);
+    if (modal) {
+        modal.classList.remove('active');
+    }
+}
+
 // Smooth scrolling
 function initSmoothScroll() {
     document.querySelectorAll('a[href^="#"]').forEach(anchor => {
@@ -351,8 +384,6 @@ document.addEventListener('DOMContentLoaded', function() {
         renderOngoingProjects();
         renderPeople();
         renderBlogPosts();
-        renderTeaching();
-        renderAwards();
         initBlogSearch();
         initSmoothScroll();
     });
@@ -366,4 +397,13 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         });
     }
+    
+    // Close project modals on outside click
+    document.querySelectorAll('.modal').forEach(modal => {
+        modal.addEventListener('click', (e) => {
+            if (e.target.classList.contains('modal')) {
+                closeProjectModal(e.target.id);
+            }
+        });
+    });
 });
