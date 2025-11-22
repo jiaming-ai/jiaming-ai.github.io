@@ -1,0 +1,55 @@
+<!-- Side Navigation (Desktop/Tablet) -->
+<nav class="side-nav">
+    <div class="side-nav-header">
+        <div class="side-nav-title">Hi, I'm Jiaming</div>
+    </div>
+    <div class="side-nav-links">
+        <a href="../index.html" class="side-nav-link"><i class="fas fa-home"></i> <span class="nav-text">Home</span></a>
+        <a href="../pages/about.html" class="side-nav-link"><i class="fas fa-user"></i> <span class="nav-text">About</span></a>
+        <a href="../pages/research.html" class="side-nav-link"><i class="fas fa-flask"></i> <span class="nav-text">Research</span></a>
+        <a href="../pages/blog.html" class="side-nav-link"><i class="fas fa-blog"></i> <span class="nav-text">Blog</span></a>
+        <a href="../pages/contact.html" class="side-nav-link"><i class="fas fa-envelope"></i> <span class="nav-text">Contact</span></a>
+    </div>
+    <div class="side-nav-footer">
+        <div class="footer-icons">
+            <a href="https://linkedin.com/in/jiamingwang" target="_blank" class="footer-icon-link" title="LinkedIn">
+                <i class="fab fa-linkedin"></i>
+            </a>
+            <a href="mailto:jiaming@example.com" class="footer-icon-link" title="Email">
+                <i class="fas fa-envelope"></i>
+            </a>
+            <div class="footer-icon-link theme-toggle" onclick="toggleTheme()" title="Toggle theme">
+                <i class="fas fa-moon theme-icon"></i>
+            </div>
+        </div>
+        <div class="footer-text">
+            Building intelligent robots<br>one algorithm at a time
+        </div>
+    </div>
+</nav>
+
+<!-- Top Navigation (Mobile) -->
+<nav class="top-nav fixed top-0 left-0 right-0 z-50 border-b" style="border-color: var(--border); background-color: var(--bg-primary); box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1);">
+    <div class="max-w-7xl mx-auto px-6 py-4 flex justify-between items-center">
+        <a href="../index.html" class="text-xl font-semibold" style="color: var(--text-primary);">Hi, I'm Jiaming</a>
+        <div class="flex items-center gap-6">
+            <a href="../index.html" class="nav-link hidden md:inline">Home</a>
+            <a href="../pages/about.html" class="nav-link hidden md:inline">About</a>
+            <a href="../pages/research.html" class="nav-link hidden md:inline">Research</a>
+            <a href="../pages/blog.html" class="nav-link hidden md:inline">Blog</a>
+            <a href="../pages/contact.html" class="nav-link hidden md:inline">Contact</a>
+            <div class="theme-toggle-mobile hidden md:inline-flex" onclick="toggleTheme()" title="Toggle theme">
+                <i class="fas fa-moon theme-icon"></i>
+            </div>
+            
+            <!-- Mobile icons (visible only on small screens) -->
+            <a href="../pages/about.html" class="nav-link-icon md:hidden" title="About"><i class="fas fa-user"></i></a>
+            <a href="../pages/research.html" class="nav-link-icon md:hidden" title="Research"><i class="fas fa-flask"></i></a>
+            <a href="../pages/blog.html" class="nav-link-icon md:hidden" title="Blog"><i class="fas fa-blog"></i></a>
+            <a href="../pages/contact.html" class="nav-link-icon md:hidden" title="Contact"><i class="fas fa-envelope"></i></a>
+            <div class="theme-toggle-mobile md:hidden" onclick="toggleTheme()" title="Toggle theme">
+                <i class="fas fa-moon theme-icon"></i>
+            </div>
+        </div>
+    </div>
+</nav>

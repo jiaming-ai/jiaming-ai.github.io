@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ongoing Projects - Jiaming Wang</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link rel="stylesheet" href="../css/styles.css">
+</head>
+<body>
+    <!-- Side Navigation (Desktop/Tablet) -->
+    <nav class="side-nav" id="side-nav-placeholder">
+        <!-- Navigation will be injected by JavaScript -->
+    </nav>
+
+    <!-- Top Navigation (Mobile) -->
+    <nav class="top-nav fixed top-0 left-0 right-0 z-50 border-b" style="border-color: var(--border); background-color: var(--bg-primary); box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1);" id="top-nav-placeholder">
+        <!-- Navigation will be injected by JavaScript -->
+    </nav>
+
+    <!-- Main Content -->
+    <div class="main-content-with-sidebar">
+
+    <!-- Hero Section -->
+    <section class="section-container" style="padding-top: 3rem;">
+        <h2 class="section-title">Ongoing Research & Opportunities</h2>
+        <p class="narrative-text">
+            I'm currently working on several exciting research projects in robotics and AI. Below you'll find information 
+            about ongoing work and opportunities for prospective students and collaborators.
+        </p>
+    </section>
+
+    <!-- Current Projects -->
+    <section class="section-container bg-gradient-subtle">
+        <h2 class="section-title">Current Research Projects</h2>
+        
+        <div id="ongoing-projects-list" class="space-y-6">
+            <!-- Ongoing projects will be inserted here by JavaScript -->
+        </div>
+    </section>
+
+    <!-- Prospective Students Section -->
+    <section class="section-container" id="join">
+        <h2 class="section-title">Prospective Students & Collaborators</h2>
+        
+        <p class="narrative-text">
+            I'm always looking for motivated students and collaborators who are passionate about robotics, AI, and building systems that work in the real world. Whether you're an undergraduate, master's student, or visiting researcher, there are opportunities to work on cutting-edge projects in robot navigation, mapping, and vision-language interaction.
+        </p>
+        
+        <div class="card mb-6">
+            <h3 class="text-xl font-semibold mb-3" style="color: var(--text-primary);">Current Research Areas</h3>
+            <ul class="space-y-2" style="color: var(--text-secondary);">
+                <li>• Safe and generalizable robot navigation in complex environments</li>
+                <li>• Topological mapping and SLAM under uncertainty</li>
+                <li>• Vision-language models for robot task understanding</li>
+                <li>• Multi-modal perception and sensor fusion</li>
+                <li>• Real-world deployment and human-robot interaction</li>
+            </ul>
+        </div>
+        
+        <div class="card mb-6">
+            <h3 class="text-xl font-semibold mb-3" style="color: var(--text-primary);">What I Look For</h3>
+            <p class="narrative-text">
+                I value curiosity, independence, and a willingness to get your hands dirty with real systems. Strong programming skills (Python, C++) and experience with robotics frameworks (ROS2) are essential. Familiarity with SLAM/VIO, PyTorch, or computer vision is a plus. But beyond technical skills, I'm looking for people who think critically, communicate clearly, and are excited about solving real problems.
+            </p>
+        </div>
+        
+        <div class="card mb-6">
+            <h3 class="text-xl font-semibold mb-3" style="color: var(--text-primary);">My Advising Philosophy</h3>
+            <p class="narrative-text">
+                I believe in hands-on mentorship and giving students ownership of their projects. I provide guidance, resources, and regular feedback, but I also encourage independence and creative problem-solving. My goal is not just to produce papers, but to help you develop as a researcher and thinker. Past students I've worked with have been admitted to top PhD programs and research labs worldwide.
+            </p>
+        </div>
+        
+        <div class="card mb-6">
+            <h3 class="text-xl font-semibold mb-3" style="color: var(--text-primary);">Available Positions</h3>
+            <div class="space-y-4">
+                <div>
+                    <h4 class="font-semibold mb-2" style="color: var(--accent);">Research Assistants (Undergraduate/Master's)</h4>
+                    <p class="narrative-text">
+                        Work on specific components of ongoing projects. Ideal for students looking to gain research experience 
+                        and potentially co-author publications. Time commitment: 10-20 hours/week.
+                    </p>
+                </div>
+                <div>
+                    <h4 class="font-semibold mb-2" style="color: var(--accent);">Final Year Project Students</h4>
+                    <p class="narrative-text">
+                        Undertake a substantial research project as part of your degree. I have several project ideas in robot 
+                        navigation, perception, and learning that can be tailored to your interests.
+                    </p>
+                </div>
+                <div>
+                    <h4 class="font-semibold mb-2" style="color: var(--accent);">Visiting Researchers</h4>
+                    <p class="narrative-text">
+                        Short-term (3-6 months) research collaborations for graduate students or researchers from other institutions. 
+                        Must have prior research experience and clear project goals.
+                    </p>
+                </div>
+            </div>
+        </div>
+        
+        <div class="text-center">
+            <p class="narrative-text mb-4">
+                If you're interested in collaborating, reach out via email or connect with me on LinkedIn. Please include a brief description of your background and what you're interested in working on.
+            </p>
+            <div class="flex gap-4 justify-center flex-wrap">
+                <a href="mailto:jiaming@example.com" class="btn-primary">Email Me</a>
+                <a href="https://linkedin.com/in/jiamingwang" target="_blank" class="btn-primary">LinkedIn</a>
+                <a href="https://github.com/jiamingwang" target="_blank" class="btn-primary">GitHub</a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Research Resources -->
+    <section class="section-container bg-gradient-subtle">
+        <h2 class="section-title">Resources for Students</h2>
+        
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div class="card">
+                <h3 class="text-xl font-semibold mb-3" style="color: var(--accent);">Lab Resources</h3>
+                <ul class="space-y-2" style="color: var(--text-secondary);">
+                    <li>• State-of-the-art robots (mobile platforms, manipulators)</li>
+                    <li>• GPU compute cluster for deep learning</li>
+                    <li>• Motion capture system for precise evaluation</li>
+                    <li>• Comprehensive sensor suite (LiDAR, cameras, IMU)</li>
+                </ul>
+            </div>
+            <div class="card">
+                <h3 class="text-xl font-semibold mb-3" style="color: var(--accent);">Training & Support</h3>
+                <ul class="space-y-2" style="color: var(--text-secondary);">
+                    <li>• Weekly lab meetings and paper discussions</li>
+                    <li>• Technical workshops on ROS2, PyTorch, etc.</li>
+                    <li>• Conference travel funding for presenting work</li>
+                    <li>• Career mentorship and networking opportunities</li>
+                </ul>
+            </div>
+        </div>
+    </section>
+
+    <!-- Success Stories -->
+    <section class="section-container">
+        <h2 class="section-title">Student Success Stories</h2>
+        
+        <div class="space-y-4">
+            <div class="card">
+                <div class="flex items-start gap-4">
+                    <span class="text-2xl">🎓</span>
+                    <div>
+                        <h3 class="font-semibold mb-1" style="color: var(--text-primary);">Alice Chen - Admitted to MIT CSAIL PhD Program</h3>
+                        <p class="text-sm mb-2" style="color: var(--text-secondary);">Former Research Assistant (2022-2023)</p>
+                        <p style="color: var(--text-secondary);">
+                            "Working with Jiaming gave me the foundation I needed to pursue a PhD. His hands-on mentorship 
+                            and emphasis on real-world systems prepared me for graduate research."
+                        </p>
+                    </div>
+                </div>
+            </div>
+            <div class="card">
+                <div class="flex items-start gap-4">
+                    <span class="text-2xl">💼</span>
+                    <div>
+                        <h3 class="font-semibold mb-1" style="color: var(--text-primary);">Bob Lee - Joined Google Robotics Team</h3>
+                        <p class="text-sm mb-2" style="color: var(--text-secondary);">Former Master's Student (2023)</p>
+                        <p style="color: var(--text-secondary);">
+                            "The research experience and publication we achieved together was instrumental in landing my 
+                            dream job. Jiaming's entrepreneurial perspective made the work practical and impactful."
+                        </p>
+                    </div>
+                </div>
+            </div>
+            <div class="card">
+                <div class="flex items-start gap-4">
+                    <span class="text-2xl">🔬</span>
+                    <div>
+                        <h3 class="font-semibold mb-1" style="color: var(--text-primary);">Carol Zhang - Continuing as Visiting Researcher</h3>
+                        <p class="text-sm mb-2" style="color: var(--text-secondary);">Current Visiting Researcher from Tsinghua University</p>
+                        <p style="color: var(--text-secondary);">
+                            "The collaborative environment and access to cutting-edge robotics infrastructure has 
+                            accelerated my research significantly. This has been an invaluable experience."
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="border-t py-8" style="border-color: var(--border); background-color: var(--bg-secondary);">
+        <div class="max-w-7xl mx-auto px-6 text-center">
+            <p style="color: var(--text-secondary);">© 2025 Jiaming Wang. All rights reserved.</p>
+        </div>
+    </footer>
+
+    </div>
+
+    <script src="../js/main.js"></script>
+</body>
+</html>

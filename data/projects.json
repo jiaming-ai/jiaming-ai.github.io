@@ -1,0 +1,16 @@
+[
+    {
+        "title": "Multi-Modal Robot Perception",
+        "description": "Developing vision-language-action models for robust robot understanding in complex environments.",
+        "status": "Active",
+        "funding": "NUS Research Grant",
+        "collaborators": ["Prof. Jane Smith", "Dr. John Doe"]
+    },
+    {
+        "title": "Safe Navigation in Crowded Spaces",
+        "description": "Building predictive models for human-aware robot navigation in dynamic environments.",
+        "status": "Active",
+        "funding": "AI Singapore",
+        "collaborators": ["Prof. Bob Chen"]
+    }
+]

@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Blog - Jiaming Wang</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link rel="stylesheet" href="../css/styles.css">
+</head>
+<body>
+    <!-- Side Navigation (Desktop/Tablet) -->
+    <nav class="side-nav" id="side-nav-placeholder">
+        <!-- Navigation will be injected by JavaScript -->
+    </nav>
+
+    <!-- Top Navigation (Mobile) -->
+    <nav class="top-nav fixed top-0 left-0 right-0 z-50 border-b" style="border-color: var(--border); background-color: var(--bg-primary); box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1);" id="top-nav-placeholder">
+        <!-- Navigation will be injected by JavaScript -->
+    </nav>
+
+    <!-- Main Content -->
+    <div class="main-content-with-sidebar">
+
+    <!-- Blog Header -->
+    <section class="section-container" style="padding-top: 3rem;">
+        <h2 class="section-title">Blog</h2>
+        <p class="narrative-text">
+            Thoughts on robotics, AI, research, entrepreneurship, and the intersection of technology and meaning. 
+            I write about technical deep dives, career reflections, and lessons learned along the way.
+        </p>
+        
+        <div class="mb-6">
+            <input type="text" id="blog-search" class="search-input" placeholder="Search blog posts...">
+        </div>
+    </section>
+
+    <!-- Blog Posts -->
+    <section class="section-container bg-gradient-subtle">
+        <div id="blog-list" class="space-y-6">
+            <!-- Blog posts will be inserted here by JavaScript -->
+        </div>
+    </section>
+
+    <!-- Blog Categories -->
+    <section class="section-container">
+        <h2 class="section-title">Categories</h2>
+        <div class="flex flex-wrap gap-3">
+            <button onclick="filterBlogByTag('all')" class="tag" style="cursor: pointer;">All Posts</button>
+            <button onclick="filterBlogByTag('Technical')" class="tag" style="cursor: pointer;">Technical</button>
+            <button onclick="filterBlogByTag('Research')" class="tag" style="cursor: pointer;">Research</button>
+            <button onclick="filterBlogByTag('Reflection')" class="tag" style="cursor: pointer;">Reflection</button>
+            <button onclick="filterBlogByTag('Entrepreneurship')" class="tag" style="cursor: pointer;">Entrepreneurship</button>
+        </div>
+    </section>
+
+    <!-- Subscribe Section -->
+    <section class="section-container bg-gradient-subtle">
+        <div class="text-center">
+            <h2 class="section-title">Stay Updated</h2>
+            <p class="narrative-text max-w-2xl mx-auto mb-6">
+                Subscribe to get notified about new blog posts, research updates, and opportunities to collaborate.
+            </p>
+            <div class="flex gap-4 justify-center flex-wrap">
+                <a href="/rss.xml" class="btn-primary">RSS Feed</a>
+                <a href="https://twitter.com/jiamingwang" target="_blank" class="btn-primary">Follow on Twitter</a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="border-t py-8" style="border-color: var(--border); background-color: var(--bg-secondary);">
+        <div class="max-w-7xl mx-auto px-6 text-center">
+            <p style="color: var(--text-secondary);">© 2025 Jiaming Wang. All rights reserved.</p>
+        </div>
+    </footer>
+
+    </div>
+
+    <!-- Blog Modal -->
+    <div id="blog-modal" class="modal">
+        <div class="modal-content">
+            <button onclick="closeBlogModal()" style="position: absolute; top: 1rem; right: 1rem; color: var(--text-secondary); font-size: 1.5rem; background: none; border: none; cursor: pointer;">&times;</button>
+            <div id="modal-blog-content"></div>
+        </div>
+    </div>
+
+    <script src="../js/main.js"></script>
+    <script>
+        // Filter blog posts by tag
+        function filterBlogByTag(tag) {
+            const filtered = tag === 'all' 
+                ? blogPosts 
+                : blogPosts.filter(post => post.tags.includes(tag));
+            renderBlogPosts(filtered);
+        }
+    </script>
+</body>
+</html>

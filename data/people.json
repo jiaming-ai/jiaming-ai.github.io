@@ -1,0 +1,29 @@
+[
+    {
+        "name": "Alice Chen",
+        "role": "PhD Student → MIT",
+        "avatar": "https://via.placeholder.com/80",
+        "links": {
+            "website": "#",
+            "github": "https://github.com/alicechen"
+        }
+    },
+    {
+        "name": "Bob Lee",
+        "role": "Master's Student → Google",
+        "avatar": "https://via.placeholder.com/80",
+        "links": {
+            "website": "#",
+            "github": "https://github.com/boblee"
+        }
+    },
+    {
+        "name": "Carol Zhang",
+        "role": "Visiting Researcher",
+        "avatar": "https://via.placeholder.com/80",
+        "links": {
+            "website": "#",
+            "github": "https://github.com/carolzhang"
+        }
+    }
+]

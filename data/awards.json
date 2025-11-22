@@ -1,0 +1,23 @@
+[
+    {
+        "title": "Best Paper Award",
+        "organization": "WIR-M Workshop at IROS 2025",
+        "description": "TOG: Training-free Task-oriented Grasp Generation",
+        "year": 2025,
+        "link": "https://arxiv.org/abs/2502.04873"
+    },
+    {
+        "title": "1st Place Winner",
+        "organization": "Earth Rover Challenge at ICRA 2025",
+        "description": "NUS Computing team achievement in autonomous navigation",
+        "year": 2025,
+        "link": "https://www.comp.nus.edu.sg/bytes/nus-computing-has-taken-1st-place-at-the-earth-rover-challenge-2025/"
+    },
+    {
+        "title": "Forbes 30 Under 30",
+        "organization": "Forbes China",
+        "description": "Recognized for innovation in car-sharing technology",
+        "year": 2014,
+        "link": "https://auto.sina.com.cn/car/2014-02-28/09241274953.shtml"
+    }
+]

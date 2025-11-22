@@ -1,0 +1,91 @@
+[
+    {
+        "year": 2025,
+        "title": "Genie: A generalizable navigation system for in-the-wild environments",
+        "authors": "Jiaming Wang, Diwen Liu, Jiaming Chen, Jiafei Da, Nancy Qian, Mai Minh Tram, Harold Soh",
+        "venue": "IEEE Robotics and Automation Letters (RA-L)",
+        "links": {
+            "pdf": "#",
+            "code": "#",
+            "video": "#"
+        },
+        "bibtex": "@article{wang2025genie,\n  title={Genie: A generalizable navigation system for in-the-wild environments},\n  author={Wang, Jiaming and Liu, Diwen and Chen, Jiaming and Da, Jiafei and Qian, Nancy and Tram, Mai Minh and Soh, Harold},\n  journal={IEEE Robotics and Automation Letters},\n  year={2025}\n}",
+        "type": "past",
+        "citations": 1,
+        "selected": true,
+        "note": "🏆 Winner of Earth Rover Challenge @ICRA'25"
+    },
+    {
+        "year": 2025,
+        "title": "TOPO-Bench: An Open-Source Topological Mapping Evaluation Framework with Quantifiable Perceptual Aliasing",
+        "authors": "Jiaming Wang, Diwen Liu, Jiaming Chen, Harold Soh",
+        "venue": "arXiv preprint arXiv:2510.04100",
+        "links": {
+            "pdf": "https://arxiv.org/abs/2510.04100",
+            "code": "#",
+            "video": "#"
+        },
+        "bibtex": "@article{wang2025topo,\n  title={TOPO-Bench: An Open-Source Topological Mapping Evaluation Framework with Quantifiable Perceptual Aliasing},\n  author={Wang, Jiaming and Liu, Diwen and Chen, Jiaming and Soh, Harold},\n  journal={arXiv preprint arXiv:2510.04100},\n  year={2025}\n}",
+        "type": "preprint",
+        "selected": true,
+        "note": "Under review"
+    },
+    {
+        "year": 2025,
+        "title": "Training-free Task-oriented Grasp Generation",
+        "authors": "Jiaming Wang, Diwen Liu, Jiaming Chen, Harold Soh",
+        "venue": "WIR-M, IROS 2025",
+        "links": {
+            "pdf": "https://arxiv.org/abs/2502.04873",
+            "code": "#",
+            "video": "#"
+        },
+        "bibtex": "@article{wang2025training,\n  title={Training-free Task-oriented Grasp Generation},\n  author={Wang, Jiaming and Liu, Diwen and Chen, Jiaming and Soh, Harold},\n  journal={arXiv preprint arXiv:2502.04873},\n  year={2025}\n}",
+        "type": "preprint",
+        "selected": true,
+        "note": "🏆 Best Paper Award"
+    },
+    {
+        "year": 2024,
+        "title": "Probable object location (polo) score estimation for efficient object goal navigation",
+        "authors": "Jiaming Wang, Harold Soh",
+        "venue": "2024 IEEE International Conference on Robotics and Automation (ICRA)",
+        "links": {
+            "pdf": "#",
+            "code": "#",
+            "video": "#"
+        },
+        "bibtex": "@inproceedings{wang2024polo,\n  title={Probable object location (polo) score estimation for efficient object goal navigation},\n  author={Wang, Jiaming and Soh, Harold},\n  booktitle={2024 IEEE International Conference on Robotics and Automation (ICRA)},\n  pages={5221--5227},\n  year={2024}\n}",
+        "type": "past",
+        "citations": 3,
+        "selected": true
+    },
+    {
+        "year": 2023,
+        "title": "Small Object Navigation with Context Information",
+        "authors": "Jiaming Wang, Harold Soh",
+        "venue": "Proceedings of the AAAI Symposium Series",
+        "links": {
+            "pdf": "#",
+            "code": "#",
+            "video": "#"
+        },
+        "bibtex": "@inproceedings{wang2023small,\n  title={Small Object Navigation with Context Information},\n  author={Wang, Jiaming and Soh, Harold},\n  booktitle={Proceedings of the AAAI Symposium Series},\n  volume={1},\n  number={1},\n  pages={117--120},\n  year={2023}\n}",
+        "type": "past",
+        "selected": false
+    },
+    {
+        "year": 2023,
+        "title": "Pre-training with Graph Transformers",
+        "authors": "Jiaming Wang, Xavier Bresson, Thomas Laurent",
+        "venue": "KDD Workshop on Deep Learning on Graphs",
+        "links": {
+            "pdf": "#",
+            "code": "#",
+            "video": "#"
+        },
+        "bibtex": "@inproceedings{wang2023pretraining,\n  title={Pre-training with Graph Transformers},\n  author={Wang, Jiaming and Bresson, Xavier and Laurent, Thomas},\n  booktitle={KDD Workshop on Deep Learning on Graphs},\n  year={2023}\n}",
+        "type": "past",
+        "selected": false
+    }
+]
