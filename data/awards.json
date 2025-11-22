@@ -1,5 +1,12 @@
 [
     {
+        "title": "Best Poster Award",
+        "organization": "RoDGE Workshop at IROS 2025",
+        "description": "GBPP: Grasp-Aware Base Placement Prediction for Robots via Two-Stage Learning",
+        "year": 2025,
+        "link": "#"
+    },
+    {
         "title": "Best Paper Award",
         "organization": "WIR-M Workshop at IROS 2025",
         "description": "TOG: Training-free Task-oriented Grasp Generation",

@@ -17,6 +17,20 @@
     },
     {
         "year": 2025,
+        "title": "GBPP: Grasp-Aware Base Placement Prediction for Robots via Two-Stage Learning",
+        "authors": "Jizhuo Chen, Diwen Liu, Jiaming Wang, Harold Soh",
+        "venue": "arXiv preprint arXiv:2509.11594",
+        "links": {
+            "code": "#",
+            "video": "#"
+        },
+        "bibtex": "@article{chen2025gbpp,\n  title={GBPP: Grasp-Aware Base Placement Prediction for Robots via Two-Stage Learning},\n  author={Chen, Jizhuo and Liu, Diwen and Wang, Jiaming and Soh, Harold},\n  journal={arXiv preprint arXiv:2509.11594},\n  year={2025}\n}",
+        "type": "preprint",
+        "selected": true,
+        "note": "🏆 Best Poster Award @IROS'25 RoDGE Workshop"
+    },
+    {
+        "year": 2025,
         "title": "TOPO-Bench: An Open-Source Topological Mapping Evaluation Framework with Quantifiable Perceptual Aliasing",
         "authors": "Jiaming Wang, Diwen Liu, Jiaming Chen, Harold Soh",
         "venue": "arXiv preprint arXiv:2510.04100",
