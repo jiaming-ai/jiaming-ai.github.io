@@ -27,10 +27,10 @@ function initNavigation() {
         </div>
         <div class="side-nav-footer">
             <div class="footer-icons">
-                <a href="https://linkedin.com/in/jiamingwang" target="_blank" class="footer-icon-link" title="LinkedIn">
+                <a href="https://www.linkedin.com/in/jiaming-wang-ai/" target="_blank" class="footer-icon-link" title="LinkedIn">
                     <i class="fab fa-linkedin"></i>
                 </a>
-                <a href="mailto:jiaming@example.com" class="footer-icon-link" title="Email">
+                <a href="mailto:jiaming@comp.nus.edu.sg" class="footer-icon-link" title="Email">
                     <i class="fas fa-envelope"></i>
                 </a>
                 <div class="footer-icon-link theme-toggle" onclick="toggleTheme()" title="Toggle theme">
