@@ -1,5 +1,20 @@
 [
     {
+        "year": 2026,
+        "title": "CROSS: Change Robust Online Topological Mapping System",
+        "authors": "Jiaming Wang, Diwen Liu, Jiaming Chen, Harold Soh",
+        "venue": "arXiv preprint",
+        "links": {
+            "pdf": "#",
+            "code": "#",
+            "video": "#"
+        },
+        "bibtex": "@article{wang2026cross,\n  title={CROSS: Change Robust Online Topological Mapping System},\n  author={Wang, Jiaming and Liu, Diwen and Chen, Jiaming and Soh, Harold},\n  journal={arXiv preprint},\n  year={2026}\n}",
+        "type": "preprint",
+        "selected": true,
+        "note": "Under review"
+    },
+    {
         "year": 2025,
         "title": "Genie: A generalizable navigation system for in-the-wild environments",
         "authors": "Jiaming Wang, Diwen Liu, Jiaming Chen, Jiafei Da, Nancy Qian, Mai Minh Tram, Harold Soh",
@@ -16,19 +31,18 @@
         "note": "🏆 Winner of Earth Rover Challenge @ICRA'25"
     },
     {
-        "year": 2025,
+        "year": 2026,
         "title": "TOPO-Bench: An Open-Source Topological Mapping Evaluation Framework with Quantifiable Perceptual Aliasing",
         "authors": "Jiaming Wang, Diwen Liu, Jiaming Chen, Harold Soh",
-        "venue": "arXiv preprint arXiv:2510.04100",
+        "venue": "2026 IEEE International Conference on Robotics and Automation (ICRA)",
         "links": {
             "pdf": "https://arxiv.org/abs/2510.04100",
             "code": "#",
             "video": "#"
         },
         "bibtex": "@article{wang2025topo,\n  title={TOPO-Bench: An Open-Source Topological Mapping Evaluation Framework with Quantifiable Perceptual Aliasing},\n  author={Wang, Jiaming and Liu, Diwen and Chen, Jiaming and Soh, Harold},\n  journal={arXiv preprint arXiv:2510.04100},\n  year={2025}\n}",
-        "type": "preprint",
-        "selected": true,
-        "note": "Under review"
+        "type": "past",
+        "selected": true
     },
     {
         "year": 2025,
