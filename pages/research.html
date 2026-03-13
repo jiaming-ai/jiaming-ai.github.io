@@ -43,12 +43,75 @@
                     <div class="project-info">
                         <h3 class="project-title">Pose-aware Topological Mapping</h3>
                         <p class="project-duration" style="color: var(--text-tertiary); font-size: 0.85rem; margin-bottom: 0.75rem;">
-                            <i class="far fa-calendar"></i> 2024 - Present
+                            <i class="far fa-calendar"></i> 2025 - Present
                         </p>
                         <p class="project-tldr">
                             A pose-aware online topological mapping system that performs sequential hypothesis testing directly in continuous SE(3) space to achieve human-like, robust relocalization under perceptual aliasing and environmental change.
                         </p>
                         <button class="read-more-btn" onclick="openProjectModal('ptm-modal')">
+                            Read Full Abstract <i class="fas fa-arrow-right"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Project: Data-Driven RL for Social Navigation -->
+            <div class="card project-card">
+                <div class="project-layout">
+                    <div class="project-media">
+                        <img src="../assets/img/social_nav.png" alt="Data-Driven RL for Social Navigation" class="project-image">
+                    </div>
+                    <div class="project-info">
+                        <h3 class="project-title">Data-Driven RL for Social Navigation</h3>
+                        <p class="project-duration" style="color: var(--text-tertiary); font-size: 0.85rem; margin-bottom: 0.75rem;">
+                            <i class="far fa-calendar"></i> 2025 - Present
+                        </p>
+                        <p class="project-tldr">
+                            A data-driven RL framework for social navigation that turns real-world human–robot navigation logs into replayable "imagination environments," where a robot learns policies from BEV maps reconstructed from RGB-D data and replayed human trajectories, without relying on a conventional simulator.
+                        </p>
+                        <button class="read-more-btn" onclick="openProjectModal('social-nav-modal')">
+                            Read Full Abstract <i class="fas fa-arrow-right"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Project: Vision-Language Navigation -->
+            <div class="card project-card">
+                <div class="project-layout">
+                    <div class="project-media">
+                        <img src="../assets/img/vln.png" alt="Vision-Language Navigation" class="project-image">
+                    </div>
+                    <div class="project-info">
+                        <h3 class="project-title">Vision-Language Navigation</h3>
+                        <p class="project-duration" style="color: var(--text-tertiary); font-size: 0.85rem; margin-bottom: 0.75rem;">
+                            <i class="far fa-calendar"></i> 2025 - Present
+                        </p>
+                        <p class="project-tldr">
+                            Use a vision–language model to translate natural-language navigation instructions into differentiable cost functions over a BEV scene, then optimize or select trajectories that minimize this cost—enabling zero-shot visual-language navigation without policy training.
+                        </p>
+                        <button class="read-more-btn" onclick="openProjectModal('vln-modal')">
+                            Read Full Abstract <i class="fas fa-arrow-right"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Project: Offline RL for Vision-Language-Action Models -->
+            <div class="card project-card">
+                <div class="project-layout">
+                    <div class="project-media">
+                        <img src="../assets/img/rl.png" alt="Offline RL for VLA Models" class="project-image">
+                    </div>
+                    <div class="project-info">
+                        <h3 class="project-title">Offline RL for Vision-Language-Action Models</h3>
+                        <p class="project-duration" style="color: var(--text-tertiary); font-size: 0.85rem; margin-bottom: 0.75rem;">
+                            <i class="far fa-calendar"></i> 2025 - Present
+                        </p>
+                        <p class="project-tldr">
+                            Using offline reinforcement learning to fine-tune vision–language–action (VLA) models from real robot interaction datasets collected in laboratory environments.
+                        </p>
+                        <button class="read-more-btn" onclick="openProjectModal('offline-rl-modal')">
                             Read Full Abstract <i class="fas fa-arrow-right"></i>
                         </button>
                     </div>
@@ -85,6 +148,87 @@
                 </p>
                 <p>
                     We introduce a Gaussian-mixture–based representation and a principled branch management strategy that together enable real-time inference, scalable map maintenance, and robust operation in dynamic, ambiguous, or previously unseen environments. This work provides the first practical continuous-space SHT framework for topological mapping, bringing robots closer to the reliability and flexibility of human navigation.
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Social Navigation Modal -->
+    <div id="social-nav-modal" class="modal">
+        <div class="modal-content">
+            <button class="modal-close" onclick="closeProjectModal('social-nav-modal')" style="position: absolute; top: 1.5rem; right: 1.5rem; background: none; border: none; font-size: 1.5rem; cursor: pointer; color: var(--text-secondary);">
+                <i class="fas fa-times"></i>
+            </button>
+            <h2 style="font-size: 1.75rem; font-weight: 600; margin-bottom: 1rem; color: var(--text-primary);">
+                Data-Driven RL for Social Navigation
+            </h2>
+            <div style="margin-bottom: 1.5rem;">
+                <img src="../assets/img/social_nav.png" alt="Data-Driven RL for Social Navigation" style="width: 100%; border-radius: 0.5rem; border: 1px solid var(--border);">
+            </div>
+            <h3 style="font-size: 1.25rem; font-weight: 600; margin-bottom: 1rem; color: var(--text-primary);">Abstract</h3>
+            <div style="color: var(--text-secondary); line-height: 1.8; font-size: 0.95rem;">
+                <p style="margin-bottom: 1rem;">
+                    We propose a data-driven reinforcement learning framework for social navigation that turns real-world human–robot navigation logs into replayable "imagination environments." This approach allows robots to learn navigation policies directly from logged RGB-D data and human trajectories, eliminating the need for conventional simulators.
+                </p>
+                <p style="margin-bottom: 1rem;">
+                    The system reconstructs bird's-eye-view (BEV) maps from RGB-D observations and replays recorded human trajectories within these environments. The robot can then train and refine its navigation policies by interacting with these reconstructed scenarios, learning socially-aware behaviors from real-world data.
+                </p>
+                <p>
+                    This framework bridges the gap between simulation-based training and real-world deployment, enabling robots to learn from actual human–robot interactions without the complexities and limitations of traditional simulation environments.
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Vision-Language Navigation Modal -->
+    <div id="vln-modal" class="modal">
+        <div class="modal-content">
+            <button class="modal-close" onclick="closeProjectModal('vln-modal')" style="position: absolute; top: 1.5rem; right: 1.5rem; background: none; border: none; font-size: 1.5rem; cursor: pointer; color: var(--text-secondary);">
+                <i class="fas fa-times"></i>
+            </button>
+            <h2 style="font-size: 1.75rem; font-weight: 600; margin-bottom: 1rem; color: var(--text-primary);">
+                Vision-Language Navigation
+            </h2>
+            <div style="margin-bottom: 1.5rem;">
+                <img src="../assets/img/vln.png" alt="Vision-Language Navigation" style="width: 100%; border-radius: 0.5rem; border: 1px solid var(--border);">
+            </div>
+            <h3 style="font-size: 1.25rem; font-weight: 600; margin-bottom: 1rem; color: var(--text-primary);">Abstract</h3>
+            <div style="color: var(--text-secondary); line-height: 1.8; font-size: 0.95rem;">
+                <p style="margin-bottom: 1rem;">
+                    This project leverages vision–language models to enable zero-shot visual-language navigation without the need for explicit policy training. The system translates natural-language navigation instructions into differentiable cost functions defined over bird's-eye-view (BEV) scene representations.
+                </p>
+                <p style="margin-bottom: 1rem;">
+                    By optimizing or selecting trajectories that minimize these learned cost functions, the robot can follow complex natural language instructions while navigating through real-world environments. This approach eliminates the traditional requirement for large-scale policy training on navigation datasets.
+                </p>
+                <p>
+                    The method enables flexible, instruction-following navigation that can adapt to diverse language commands and environmental contexts, bridging vision, language, and action in a unified framework.
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Offline RL for VLA Models Modal -->
+    <div id="offline-rl-modal" class="modal">
+        <div class="modal-content">
+            <button class="modal-close" onclick="closeProjectModal('offline-rl-modal')" style="position: absolute; top: 1.5rem; right: 1.5rem; background: none; border: none; font-size: 1.5rem; cursor: pointer; color: var(--text-secondary);">
+                <i class="fas fa-times"></i>
+            </button>
+            <h2 style="font-size: 1.75rem; font-weight: 600; margin-bottom: 1rem; color: var(--text-primary);">
+                Offline RL for Vision-Language-Action Models
+            </h2>
+            <div style="margin-bottom: 1.5rem;">
+                <img src="../assets/img/rl.png" alt="Offline RL for VLA Models" style="width: 100%; border-radius: 0.5rem; border: 1px solid var(--border);">
+            </div>
+            <h3 style="font-size: 1.25rem; font-weight: 600; margin-bottom: 1rem; color: var(--text-primary);">Abstract</h3>
+            <div style="color: var(--text-secondary); line-height: 1.8; font-size: 0.95rem;">
+                <p style="margin-bottom: 1rem;">
+                    This research focuses on using offline reinforcement learning to fine-tune vision–language–action (VLA) models using real robot interaction datasets collected in laboratory environments. Rather than training from scratch, we leverage pre-trained VLA models and adapt them to specific robotic tasks through offline RL.
+                </p>
+                <p style="margin-bottom: 1rem;">
+                    By learning from logged interaction data, the system can improve task performance without requiring extensive online exploration, which can be costly and time-consuming in real-world robotics. This approach enables safer and more efficient learning from limited real-world data.
+                </p>
+                <p>
+                    The method demonstrates how large-scale pre-trained models can be effectively specialized for robotic manipulation and navigation tasks through principled offline learning, accelerating the deployment of capable robot systems in real-world environments.
                 </p>
             </div>
         </div>

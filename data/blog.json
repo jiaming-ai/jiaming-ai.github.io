@@ -1,26 +1,3 @@
 [
-    {
-        "id": 1,
-        "title": "Why I Study Robotics After Theology",
-        "date": "2024-03-15",
-        "summary": "Reflecting on the connection between theological inquiry and building intelligent systems.",
-        "tags": ["Reflection", "Research"],
-        "content": "<h2 class=\"section-title\">Why I Study Robotics After Theology</h2>\n<p class=\"text-sm mb-4\" style=\"color: var(--text-secondary);\">March 15, 2024</p>\n<p class=\"narrative-text\">\n    The transition from studying theology at Oxford to pursuing a PhD in robotics might seem abrupt, but for me, it's a natural continuation of the same inquiry: What does it mean to create systems that understand and interact with the world?\n</p>\n<p class=\"narrative-text\">\n    During my year at Oxford, I was fascinated by how theological frameworks grapple with agency, meaning, and ethics. These aren't just abstract philosophical questions—they're deeply relevant to how we design AI systems. When we build robots that navigate autonomously, we're essentially creating agents with their own form of \"understanding\" and decision-making.\n</p>\n<p class=\"narrative-text\">\n    My research now focuses on making these systems safe, generalizable, and aligned with human values. This requires not just technical excellence, but also a deeper reflection on what we want these systems to do and how they should behave in uncertain situations.\n</p>"
-    },
-    {
-        "id": 2,
-        "title": "From Startups to Research: What I Learned",
-        "date": "2024-02-20",
-        "summary": "Lessons from entrepreneurship that inform my approach to research.",
-        "tags": ["Entrepreneurship", "Research"],
-        "content": "<h2 class=\"section-title\">From Startups to Research: What I Learned</h2>\n<p class=\"text-sm mb-4\" style=\"color: var(--text-secondary);\">February 20, 2024</p>\n<p class=\"narrative-text\">\n    Entrepreneurship taught me to move fast, iterate rapidly, and focus on what works. Research, at first glance, seems like the opposite—slow, methodical, focused on rigor over speed. But I've found that the two worlds have more in common than people think.\n</p>\n<p class=\"narrative-text\">\n    In both, you're solving problems under uncertainty. In startups, the uncertainty is market demand. In research, it's whether your approach will actually work. The key is to fail fast, learn quickly, and adapt. My entrepreneurial background helps me prototype systems rapidly and test ideas in the real world, rather than getting stuck in analysis paralysis.\n</p>\n<p class=\"narrative-text\">\n    At the same time, research has taught me patience and the value of deep understanding. Not every problem can be solved with a quick pivot. Some require sustained effort and careful thought. Blending these two mindsets has made me a better researcher.\n</p>"
-    },
-    {
-        "id": 3,
-        "title": "Building Robots That Navigate Uncertainty",
-        "date": "2024-01-10",
-        "summary": "An overview of my research on topological mapping and safe navigation.",
-        "tags": ["Technical", "Research"],
-        "content": "<h2 class=\"section-title\">Building Robots That Navigate Uncertainty</h2>\n<p class=\"text-sm mb-4\" style=\"color: var(--text-secondary);\">January 10, 2024</p>\n<p class=\"narrative-text\">\n    One of the biggest challenges in robotics is uncertainty. Sensors are noisy, environments are unpredictable, and the world doesn't always behave as expected. My research focuses on building navigation systems that can handle this uncertainty gracefully.\n</p>\n<p class=\"narrative-text\">\n    Traditional approaches to robot navigation rely on precise geometric maps, but these can be brittle when faced with dynamic environments or sensor errors. Instead, I'm working on topological mapping—a more abstract representation that captures the connectivity and structure of space without requiring centimeter-level precision.\n</p>\n<p class=\"narrative-text\">\n    By combining topological maps with probabilistic reasoning and vision-language models, we can build robots that navigate more like humans do—understanding the gist of where they are and what they need to do, rather than following a rigid plan.\n</p>"
-    }
+    
 ]
