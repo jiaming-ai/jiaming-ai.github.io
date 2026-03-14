@@ -1,0 +1,567 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CFGRL: The Theory Behind pi0.6* - Jiaming Wang</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link rel="stylesheet" href="../../css/styles.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"
+        onload="renderMathInElement(document.querySelector('.blog-content'), {
+            delimiters: [
+                {left: '$$', right: '$$', display: true},
+                {left: '\\\\[', right: '\\\\]', display: true},
+                {left: '$', right: '$', display: false},
+                {left: '\\\\(', right: '\\\\)', display: false}
+            ],
+            throwOnError: false
+        });"></script>
+</head>
+<body>
+    <!-- Side Navigation (Desktop/Tablet) -->
+    <nav class="side-nav" id="side-nav-placeholder"></nav>
+
+    <!-- Top Navigation (Mobile) -->
+    <nav class="top-nav fixed top-0 left-0 right-0 z-50 border-b" style="border-color: var(--border); background-color: var(--bg-primary); box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1);" id="top-nav-placeholder"></nav>
+
+    <!-- Main Content -->
+    <div class="main-content-with-sidebar">
+        <article class="section-container" style="padding-top: 3rem; max-width: 800px;">
+
+            <!-- Back link -->
+            <a href="../blog.html" class="link-accent text-sm" style="display: inline-flex; align-items: center; gap: 0.5rem; margin-bottom: 2rem;">
+                <i class="fas fa-arrow-left"></i> Back to Blog
+            </a>
+
+            <!-- Post header -->
+            <div style="margin-bottom: 2rem;">
+                <h1 class="section-title" style="margin-bottom: 0.5rem;">CFGRL: The Theory Behind pi0.6*</h1>
+                <p class="text-sm" style="color: var(--text-tertiary);">March 14, 2026</p>
+                <div style="margin-top: 0.75rem;">
+                    <span class="tag">Technical</span>
+                    <span class="tag">Research</span>
+                </div>
+            </div>
+
+            <!-- Language toggle -->
+            <div class="blog-lang-toggle">
+                <button class="blog-lang-btn active" data-target="zh" onclick="switchLang('zh')">中文</button>
+                <button class="blog-lang-btn" data-target="en" onclick="switchLang('en')">English</button>
+            </div>
+
+            <!-- Blog content -->
+            <div class="blog-content">
+
+<!-- Chinese version -->
+<div data-lang="zh">
+
+<p>上一篇我写了：<strong>很多机器人策略里，RL正在逐渐长得更像 SL</strong>。<br>这篇想讲一下：Pi0.6*具体采用的方法：<strong>CFGRL</strong>。它的有趣之处在于一种针对RL的新的思考方式：</p>
+
+<blockquote><p>RL 里的 policy improvement，本身就可以被改写成一个最优性条件下的推断问题；而这个推断问题，又恰好可以由 classifier-free guidance 在采样时实现。</p></blockquote>
+
+<p>这样思考之后，整个故事就开始发生变化：</p>
+<ul>
+<li>训练时，不一定非要显式做复杂的 RL optimization；</li>
+<li>训练可以保留成一种稳定的、生成式的、接近 supervised learning 的过程；</li>
+<li>真正的"朝更优动作偏移"这件事，可以发生在 <strong>sampling / inference time</strong>。</li>
+</ul>
+
+<p>事实上之前有不少paper也探讨了类似的test time optimization,但这一篇写的相当简洁明了，读起来很容易理解整个故事，因此我这里简单介绍一下。</p>
+
+<hr>
+
+<h2>1. 先从一个熟悉的问题开始：RL 到底想做什么？</h2>
+
+<p>如果暂时不去管 Bellman backup、TD target、Actor-Critic 这些具体实现细节，RL 最核心的一件事其实很简单：</p>
+
+<blockquote><p>给定一个参考策略，把它往更优的方向推一点。</p></blockquote>
+
+<p>这个参考策略可以是：</p>
+<ul>
+<li>数据集里的 behavior policy，</li>
+<li>一个 imitation-learned policy，</li>
+<li>或者一个已经训练好的 generative policy。</li>
+</ul>
+
+<p>一个很自然的目标写法是：</p>
+
+<p>$$\max_\pi\; \mathbb{E}_{a\sim \pi(\cdot\mid s)}[Q(s,a)] -\alpha\,\mathrm{KL}\big(\pi(\cdot\mid s)\,\|\,\hat\pi(\cdot\mid s)\big)$$</p>
+
+<p>这里 $\hat\pi(a\mid s)$ 是参考策略。这个目标表达的是一个很朴素的平衡：</p>
+<ul>
+<li>一方面，希望动作有更高的价值 $Q(s,a)$；</li>
+<li>另一方面，又不希望策略离参考分布跑得太远。</li>
+</ul>
+
+<p>把这个目标解出来，会得到一个非常漂亮的形式：</p>
+
+<p>$$\pi^\star(a\mid s)\propto \hat\pi(a\mid s)\exp(Q(s,a)/\alpha)$$</p>
+
+<p>这个式子几乎就是整篇文章最关键的一步。</p>
+
+<p>它告诉我们，<strong>策略改进并不一定意味着重新学一个"完全不同"的策略</strong>。更准确地说，它是在做一件更温和、也更有结构的事：</p>
+
+<p>$$\text{improved policy} = \text{reference policy} \times \text{optimality weight}$$</p>
+
+<p>也就是说，新的策略不是凭空生成的，而是在原有策略 $\hat\pi$ 的基础上，按一个"最优性因子"重新加权。高 $Q$ 的动作被放大，低 $Q$ 的动作被压低。</p>
+
+<blockquote><p>这一点很重要：<br>RL 的 policy improvement，本质上可以看成一个乘积分布（product policy）。</p></blockquote>
+
+<hr>
+<img src="../../assets/img/blog/cfgrl/fig1.png" alt="从参考策略到改进策略：按最优性重新加权">
+<hr>
+
+<h2>2. 为什么这个"最优性因子"会变成一个推断目标？</h2>
+
+<p>到这里，一个自然的问题是：$\exp(Q(s,a)/\alpha)$ 为什么它可以被理解成一个 <strong>optimality term</strong>？为什么它和"推断"有关？</p>
+
+<p>这就要引入一个非常经典的视角：<strong>control as inference</strong>。</p>
+
+<p>在传统 RL 里，我们会说：</p>
+<blockquote><p>选择动作，是为了最大化 reward。</p></blockquote>
+
+<p>但在 control-as-inference 里，我们换了一种表述方式。我们人为引入一个二值变量 $O$：</p>
+
+<p>$$O = 1 \quad \text{表示当前状态-动作是 optimal 的}$$</p>
+
+<p>然后定义一个概率模型，让高回报动作更可能被视为"optimal"：</p>
+
+<p>$$p(O=1\mid s,a)\propto \exp(r(s,a)/\alpha)$$</p>
+
+<p>从这个视角看，控制问题就不再是"直接做优化"，而变成了：</p>
+
+<blockquote><p>在给定"这是 optimal 的"这个观测条件下，去反推什么动作更合理。</p></blockquote>
+
+<p>也就是说，原来的"max reward"问题，被改写成了一个"posterior inference"问题。Levine 的 control-as-inference 教程把 maximum-entropy RL 清楚地写成了这种概率图模型视角，而 SAC 也正是建立在 maximum-entropy RL 的框架之上。</p>
+
+<p>当我们从 one-step reward 推到 long-horizon setting 时，这个最优性因子就不再只是 $\exp(r/\alpha)$，而会自然地对应到类似 $\exp(Q/\alpha)$ 这样的 long-horizon optimality weight。于是前面的 product policy</p>
+
+<p>$$\pi^\star(a\mid s)\propto \hat\pi(a\mid s)\exp(Q(s,a)/\alpha)$$</p>
+
+<p>就可以被理解成：</p>
+
+<blockquote><p>reference policy 在 optimality 条件下得到的后验分布。</p></blockquote>
+
+<p>这一步非常关键，因为它把两件看起来完全不同的事情对齐了：</p>
+<ul>
+<li>一边是 RL 里的 policy improvement；</li>
+<li>一边是概率模型里的 optimality-conditioned inference。</li>
+</ul>
+
+<p>而 CFGRL 的真正贡献，就建立在这个对齐上。</p>
+
+<hr>
+<img src="../../assets/img/blog/cfgrl/fig2.png" alt="Control as Inference：把控制改写成最优性条件下的推断">
+<hr>
+
+<h2>3. 再回头看 CFG：它本质上是在做什么？</h2>
+
+<p>现在把视线切到生成模型这边。</p>
+
+<p>Classifier-Free Guidance（CFG）最初来自 conditional diffusion。它的基本做法非常简单：</p>
+<ul>
+<li>训练一个 conditional model：$p(x\mid c)$</li>
+<li>同时训练一个 unconditional model：$p(x)$</li>
+<li>在采样时，不直接只用 conditional score，而是使用：</li>
+</ul>
+
+<p>$$s_{\text{cfg}}(x) = s_{\text{uncond}}(x) + w\big(s_{\text{cond}}(x)-s_{\text{uncond}}(x)\big)$$</p>
+
+<p>这里 $w$ 是 guidance weight。当 $w$ 变大时，采样会更强地朝满足条件 $c$ 的方向偏移。CFG 的关键点在于：它不需要额外训练一个 classifier，而是直接通过 conditional / unconditional score 的差，得到一个"朝条件方向推进"的信号。</p>
+
+<p>如果只从生成模型的角度看，这只是一个非常好用的 sampling trick。但如果把它和前面的 optimality inference 放在一起看，就会突然发现一个很强的结构相似性：</p>
+<ul>
+<li>RL 里，我们想从 reference policy 出发，朝"更 optimal"的方向推一点；</li>
+<li>CFG 里，我们也正是在 base distribution 上，加一个"朝条件方向推"的 guidance term。</li>
+</ul>
+
+<p>这个相似性并不是巧合。CFGRL 的核心洞察就是：<strong>这两者实际上可以被写成同一种数学结构。</strong></p>
+
+<hr>
+<img src="../../assets/img/blog/cfgrl/fig3.png" alt="CFG 的几何直觉">
+<hr>
+
+<h2>4. CFGRL 的关键一步：policy improvement 和 CFG 是同构的</h2>
+
+<p>前面已经得到 product policy：</p>
+
+<p>$$\pi(a\mid s)\propto \hat\pi(a\mid s)\,\mathcal{O}(s,a)$$</p>
+
+<p>其中 $\mathcal{O}(s,a)$ 是 optimality term，可以是 advantage 或 $Q$ 的某种单调函数。CFGRL 证明了，只要这个 optimality term 对 advantage 是单调的，就会带来策略改进；而进一步调大 guidance weight，本质上是在更强地强调 optimality。</p>
+
+<p>现在对这个分布取 action-space 的 log-gradient：</p>
+
+<p>$$\nabla_a \log \pi(a\mid s) = \nabla_a \log \hat\pi(a\mid s) + \nabla_a \log \mathcal{O}(s,a)$$</p>
+
+<p>这看起来已经非常像一个"base score + guidance score"的结构了。</p>
+
+<p>CFGRL 引入 optimality condition $o=1$，然后用 Bayes 关系得到：</p>
+
+<p>$$\nabla_a \log p(o=1\mid s,a) = \nabla_a \log p(a\mid s,o=1) - \nabla_a \log p(a\mid s)$$</p>
+
+<p>也就是说，最优性方向本身，可以写成两个 score 的差：</p>
+<ul>
+<li>一个是 <strong>optimality-conditioned policy score</strong></li>
+<li>一个是 <strong>reference / unconditional policy score</strong></li>
+</ul>
+
+<p>于是整个式子就变成了：</p>
+
+<p>$$s_{\text{guided}} = s_{\text{base}} + w\big(s_{\text{opt}}-s_{\text{base}}\big)$$</p>
+
+<p>这和 CFG 的形式是一模一样的。</p>
+
+<p>这就是 CFGRL 最核心的 insight：</p>
+
+<blockquote><p>classifier-free guidance 不是恰好"看起来像" policy improvement；它在结构上就对应于一个 controllable policy improvement operator。</p></blockquote>
+
+<p>换句话说，RL 里的 improvement，不一定非要通过参数更新来完成；它也可以表现为：</p>
+
+<blockquote><p>在一个已经学会数据分布的生成策略上，通过 sampling-time guidance，把当前输出往更优区域推过去。</p></blockquote>
+
+<hr>
+<img src="../../assets/img/blog/cfgrl/fig4.png" alt="从 CFG 到 CFGRL：结构上的一一对应">
+<hr>
+
+<h2>5. 这件事为什么重要？因为它把"改进"从训练搬到了采样</h2>
+
+<p>传统 RL 的默认范式是：</p>
+<ul>
+<li>训练时做策略改进；</li>
+<li>测试时只做前向推理。</li>
+</ul>
+
+<p>而 CFGRL 给出了另一种可能：</p>
+<ul>
+<li>训练时，保持一个更稳定、更像 supervised learning 的生成建模过程；</li>
+<li>采样时，再通过 guidance 完成策略改进。</li>
+</ul>
+
+<p>CFGRL 的论文里最醒目的一点就是：随着 guidance weight 的增加，offline RL 任务上的性能往往会稳定提升，而且这种提升不需要重新训练模型。作者把这一点概括为：<strong>用 supervised simplicity 来训练，但仍然可以在 inference time 实现"超越数据"的 improvement。</strong></p>
+
+<p>这背后的意义其实很大。</p>
+
+<p>因为过去很多人默认认为，<strong>RL 之所以能超过 behavior cloning，是因为它在训练过程中显式地做了更复杂的优化。</strong> CFGRL 则在提醒我们：</p>
+
+<blockquote><p>也许"超过数据"这件事，不一定要通过更复杂的 training objective 来实现；它也可以通过一个更聪明的 sampling operator 来实现。</p></blockquote>
+
+<p>这是一个新的视角：把一部分"优化的负担"从训练阶段，转移到推理阶段。</p>
+
+<hr>
+<img src="../../assets/img/blog/cfgrl/fig5.png" alt="训练时改进 vs 采样时改进">
+<hr>
+
+<h2>6. 接回上一篇：RL 为什么越来越像 Supervised Learning？</h2>
+
+<p>如果把 CFGRL 放回上一篇那条主线上看，它其实是在把那个趋势再往前推一步。</p>
+
+<p>上一篇讲的是：随着 offline RL、sequence modeling、diffusion policy、VLA 等路线的发展，很多看起来"属于 RL"的方法，越来越多地把核心训练过程变成了：</p>
+<ul>
+<li>条件建模，</li>
+<li>带权回归，</li>
+<li>序列预测，</li>
+<li>生成式建模。</li>
+</ul>
+
+<p>也就是说，<strong>训练本身越来越像 supervised learning</strong>，而 reward / value 更多扮演的是一个 reweighting、filtering、conditioning 或 guidance 的角色。</p>
+
+<p>CFGRL 把这个逻辑走得非常彻底：</p>
+<ul>
+<li>它不再把 policy improvement 首先理解为 Bellman backup；</li>
+<li>它先把 policy improvement 改写成 optimality inference；</li>
+<li>再把这个 inference 和 CFG 对齐；</li>
+<li>最后把真正的 improvement 交给 sampling-time guidance。</li>
+</ul>
+
+<p>从这个意义上说，CFGRL 并不是在背离 RL，反而是在抽取 RL 最核心的部分——<strong>preference for better actions</strong>——并把它嵌入一个更稳定、更 scalable、更接近 supervised learning 的训练范式中。</p>
+
+<hr>
+
+<h2>7. 核心 Insights</h2>
+
+<h3>Insight 1：Policy improvement 可以被写成一个 product policy</h3>
+<p>RL 里的策略改进，不一定非要先想到 Bellman backup。在 KL-regularized 视角下，它可以写成：</p>
+<p>$$\pi^\star(a\mid s)\propto \hat\pi(a\mid s)\cdot \mathcal{O}(s,a)$$</p>
+<p>即"参考策略 × 最优性因子"。</p>
+
+<h3>Insight 2：这个最优性因子，本质上可以被理解成一个 inference objective</h3>
+<p>在 control-as-inference 视角下，高 reward / 高 value 对应"更可能是 optimal"。于是，policy improvement 和 optimality-conditioned posterior inference 对齐了。</p>
+
+<h3>Insight 3：一旦写成这个形式，RL 就更容易被转化成一种 SL + Guided Sampling 的范式</h3>
+<p>这也是为什么，像 π0.6 这样的基础模型可以首先作为 supervised model 出现，而后续的改进方法则越来越像是在这个 supervised backbone 之上施加 reward-aware conditioning、advantage-aware extraction 或 sampling-time guidance。</p>
+
+</div>
+
+<!-- English version -->
+<div data-lang="en" style="display: none;">
+
+<p>In my last post, I wrote: <strong>in many robot policies, RL is gradually looking more and more like supervised learning</strong>.<br>This post dives into the specific method used by Pi0.6*: <strong>CFGRL</strong>. What makes it interesting is a new way of thinking about RL:</p>
+
+<blockquote><p>Policy improvement in RL can itself be rewritten as an inference problem under an optimality condition &mdash; and this inference problem can be implemented via classifier-free guidance at sampling time.</p></blockquote>
+
+<p>Once you think about it this way, the whole story starts to shift:</p>
+<ul>
+<li>Training doesn't necessarily require explicit, complex RL optimization;</li>
+<li>Training can remain a stable, generative process close to supervised learning;</li>
+<li>The actual "shift toward better actions" can happen at <strong>sampling / inference time</strong>.</li>
+</ul>
+
+<p>In fact, several prior papers have explored similar ideas around test-time optimization, but this one is written with remarkable clarity, making the whole story easy to follow. So let me give a brief overview.</p>
+
+<hr>
+
+<h2>1. Starting from a Familiar Question: What Is RL Really Trying to Do?</h2>
+
+<p>If we set aside the implementation details &mdash; Bellman backup, TD targets, Actor-Critic &mdash; the core of RL is actually quite simple:</p>
+
+<blockquote><p>Given a reference policy, nudge it toward something better.</p></blockquote>
+
+<p>This reference policy could be:</p>
+<ul>
+<li>The behavior policy from a dataset,</li>
+<li>An imitation-learned policy,</li>
+<li>Or an already-trained generative policy.</li>
+</ul>
+
+<p>A natural way to write the objective:</p>
+
+<p>$$\max_\pi\; \mathbb{E}_{a\sim \pi(\cdot\mid s)}[Q(s,a)] -\alpha\,\mathrm{KL}\big(\pi(\cdot\mid s)\,\|\,\hat\pi(\cdot\mid s)\big)$$</p>
+
+<p>Here $\hat\pi(a\mid s)$ is the reference policy. This objective expresses a simple balance:</p>
+<ul>
+<li>On one hand, we want actions with higher value $Q(s,a)$;</li>
+<li>On the other hand, we don't want the policy to drift too far from the reference distribution.</li>
+</ul>
+
+<p>Solving this objective yields an elegant form:</p>
+
+<p>$$\pi^\star(a\mid s)\propto \hat\pi(a\mid s)\exp(Q(s,a)/\alpha)$$</p>
+
+<p>This equation is arguably the most critical step in the entire paper.</p>
+
+<p>It tells us that <strong>policy improvement doesn't necessarily mean learning an entirely "different" policy</strong>. More precisely, it's doing something gentler and more structured:</p>
+
+<p>$$\text{improved policy} = \text{reference policy} \times \text{optimality weight}$$</p>
+
+<p>In other words, the new policy isn't created from scratch &mdash; it reweights the original policy $\hat\pi$ by an "optimality factor." Actions with high $Q$ get amplified; actions with low $Q$ get suppressed.</p>
+
+<blockquote><p>This is important:<br>Policy improvement in RL can essentially be viewed as a product distribution (product policy).</p></blockquote>
+
+<hr>
+<img src="../../assets/img/blog/cfgrl/fig1.png" alt="From reference policy to improved policy: reweighting by optimality">
+<hr>
+
+<h2>2. Why Does the "Optimality Factor" Become an Inference Objective?</h2>
+
+<p>At this point, a natural question arises: $\exp(Q(s,a)/\alpha)$ &mdash; why can it be understood as an <strong>optimality term</strong>? And why is it related to "inference"?</p>
+
+<p>This requires introducing a classic perspective: <strong>control as inference</strong>.</p>
+
+<p>In traditional RL, we say:</p>
+<blockquote><p>Choose actions to maximize reward.</p></blockquote>
+
+<p>But in control-as-inference, we reframe it. We introduce a binary variable $O$:</p>
+
+<p>$$O = 1 \quad \text{means the current state-action is optimal}$$</p>
+
+<p>Then define a probabilistic model where high-reward actions are more likely to be deemed "optimal":</p>
+
+<p>$$p(O=1\mid s,a)\propto \exp(r(s,a)/\alpha)$$</p>
+
+<p>From this perspective, the control problem is no longer "directly optimize" but rather:</p>
+
+<blockquote><p>Given the observation that "this is optimal," infer which actions are more reasonable.</p></blockquote>
+
+<p>The original "max reward" problem is rewritten as a "posterior inference" problem. Levine's control-as-inference tutorial clearly formulates maximum-entropy RL in this probabilistic graphical model view, and SAC is built precisely on the maximum-entropy RL framework.</p>
+
+<p>When we extend from one-step reward to the long-horizon setting, the optimality factor is no longer just $\exp(r/\alpha)$, but naturally corresponds to something like $\exp(Q/\alpha)$ &mdash; a long-horizon optimality weight. So the product policy from before:</p>
+
+<p>$$\pi^\star(a\mid s)\propto \hat\pi(a\mid s)\exp(Q(s,a)/\alpha)$$</p>
+
+<p>can be understood as:</p>
+
+<blockquote><p>The posterior distribution of the reference policy conditioned on optimality.</p></blockquote>
+
+<p>This step is crucial because it aligns two seemingly different things:</p>
+<ul>
+<li>On one side: policy improvement in RL;</li>
+<li>On the other: optimality-conditioned inference in probabilistic models.</li>
+</ul>
+
+<p>And CFGRL's true contribution is built on this alignment.</p>
+
+<hr>
+<img src="../../assets/img/blog/cfgrl/fig2.png" alt="Control as Inference: rewriting control as optimality-conditioned inference">
+<hr>
+
+<h2>3. A Second Look at CFG: What Is It Really Doing?</h2>
+
+<p>Now let's switch to the generative modeling side.</p>
+
+<p>Classifier-Free Guidance (CFG) originally comes from conditional diffusion. The basic idea is very simple:</p>
+<ul>
+<li>Train a conditional model: $p(x\mid c)$</li>
+<li>Simultaneously train an unconditional model: $p(x)$</li>
+<li>At sampling time, instead of using only the conditional score, use:</li>
+</ul>
+
+<p>$$s_{\text{cfg}}(x) = s_{\text{uncond}}(x) + w\big(s_{\text{cond}}(x)-s_{\text{uncond}}(x)\big)$$</p>
+
+<p>Here $w$ is the guidance weight. As $w$ increases, sampling shifts more strongly toward satisfying condition $c$. The key point of CFG: it doesn't need an additional classifier &mdash; it directly uses the difference between conditional and unconditional scores to get a "push toward the condition" signal.</p>
+
+<p>From a generative modeling perspective alone, this is just a very useful sampling trick. But when you put it alongside the optimality inference framework, a striking structural similarity emerges:</p>
+<ul>
+<li>In RL, we want to start from the reference policy and nudge it toward "more optimal";</li>
+<li>In CFG, we're adding a "push toward the condition" guidance term on top of the base distribution.</li>
+</ul>
+
+<p>This similarity is not a coincidence. CFGRL's core insight is: <strong>these two can actually be written as the same mathematical structure.</strong></p>
+
+<hr>
+<img src="../../assets/img/blog/cfgrl/fig3.png" alt="The geometric intuition behind CFG">
+<hr>
+
+<h2>4. CFGRL's Key Step: Policy Improvement and CFG Are Isomorphic</h2>
+
+<p>We already have the product policy:</p>
+
+<p>$$\pi(a\mid s)\propto \hat\pi(a\mid s)\,\mathcal{O}(s,a)$$</p>
+
+<p>where $\mathcal{O}(s,a)$ is the optimality term &mdash; it can be a monotonic function of advantage or $Q$. CFGRL proves that as long as this optimality term is monotonic in advantage, it guarantees policy improvement; and increasing the guidance weight essentially strengthens the emphasis on optimality.</p>
+
+<p>Now take the log-gradient in action space:</p>
+
+<p>$$\nabla_a \log \pi(a\mid s) = \nabla_a \log \hat\pi(a\mid s) + \nabla_a \log \mathcal{O}(s,a)$$</p>
+
+<p>This already looks very much like a "base score + guidance score" structure.</p>
+
+<p>CFGRL introduces the optimality condition $o=1$, then uses Bayes' rule to get:</p>
+
+<p>$$\nabla_a \log p(o=1\mid s,a) = \nabla_a \log p(a\mid s,o=1) - \nabla_a \log p(a\mid s)$$</p>
+
+<p>That is, the optimality direction itself can be written as the difference of two scores:</p>
+<ul>
+<li>One is the <strong>optimality-conditioned policy score</strong></li>
+<li>The other is the <strong>reference / unconditional policy score</strong></li>
+</ul>
+
+<p>So the full expression becomes:</p>
+
+<p>$$s_{\text{guided}} = s_{\text{base}} + w\big(s_{\text{opt}}-s_{\text{base}}\big)$$</p>
+
+<p>This is exactly the same form as CFG.</p>
+
+<p>This is CFGRL's most central insight:</p>
+
+<blockquote><p>Classifier-free guidance doesn't just "look like" policy improvement &mdash; it structurally corresponds to a controllable policy improvement operator.</p></blockquote>
+
+<p>In other words, improvement in RL doesn't have to be done through parameter updates; it can also manifest as:</p>
+
+<blockquote><p>On a generative policy that has already learned the data distribution, use sampling-time guidance to push the output toward better regions.</p></blockquote>
+
+<hr>
+<img src="../../assets/img/blog/cfgrl/fig4.png" alt="From CFG to CFGRL: a one-to-one structural correspondence">
+<hr>
+
+<h2>5. Why Does This Matter? It Moves "Improvement" from Training to Sampling</h2>
+
+<p>The default paradigm in traditional RL is:</p>
+<ul>
+<li>Do policy improvement during training;</li>
+<li>Only do forward inference at test time.</li>
+</ul>
+
+<p>CFGRL offers another possibility:</p>
+<ul>
+<li>During training, maintain a more stable, supervised-learning-like generative modeling process;</li>
+<li>During sampling, complete policy improvement via guidance.</li>
+</ul>
+
+<p>The most striking result in the CFGRL paper: as guidance weight increases, performance on offline RL tasks tends to steadily improve &mdash; and this improvement requires no model retraining. The authors summarize this as: <strong>train with supervised simplicity, but still achieve "beyond-data" improvement at inference time.</strong></p>
+
+<p>The implications are significant.</p>
+
+<p>Many people have assumed that <strong>RL can surpass behavior cloning because it explicitly performs more complex optimization during training.</strong> CFGRL reminds us:</p>
+
+<blockquote><p>Perhaps "going beyond the data" doesn't have to come from a more complex training objective &mdash; it can also come from a smarter sampling operator.</p></blockquote>
+
+<p>This is a new perspective: shifting some of the "optimization burden" from the training phase to the inference phase.</p>
+
+<hr>
+<img src="../../assets/img/blog/cfgrl/fig5.png" alt="Training-time improvement vs sampling-time improvement">
+<hr>
+
+<h2>6. Connecting Back: Why Is RL Looking More Like Supervised Learning?</h2>
+
+<p>If we place CFGRL back on the main thread from the previous post, it's pushing that trend one step further.</p>
+
+<p>The previous post argued: with the development of offline RL, sequence modeling, diffusion policies, VLAs and other approaches, many methods that "belong to RL" are increasingly turning their core training process into:</p>
+<ul>
+<li>Conditional modeling,</li>
+<li>Weighted regression,</li>
+<li>Sequence prediction,</li>
+<li>Generative modeling.</li>
+</ul>
+
+<p>In other words, <strong>training itself is looking more and more like supervised learning</strong>, while reward/value plays the role of reweighting, filtering, conditioning, or guidance.</p>
+
+<p>CFGRL takes this logic to its natural conclusion:</p>
+<ul>
+<li>It no longer frames policy improvement primarily as Bellman backup;</li>
+<li>It first rewrites policy improvement as optimality inference;</li>
+<li>Then aligns this inference with CFG;</li>
+<li>Finally delegates the actual improvement to sampling-time guidance.</li>
+</ul>
+
+<p>In this sense, CFGRL isn't departing from RL &mdash; it's extracting RL's most essential part &mdash; <strong>preference for better actions</strong> &mdash; and embedding it in a more stable, scalable, supervised-learning-like training paradigm.</p>
+
+<hr>
+
+<h2>7. Core Insights</h2>
+
+<h3>Insight 1: Policy improvement can be written as a product policy</h3>
+<p>Policy improvement in RL doesn't have to start with Bellman backup. Under the KL-regularized view, it can be written as:</p>
+<p>$$\pi^\star(a\mid s)\propto \hat\pi(a\mid s)\cdot \mathcal{O}(s,a)$$</p>
+<p>i.e., "reference policy &times; optimality factor."</p>
+
+<h3>Insight 2: The optimality factor can be understood as an inference objective</h3>
+<p>Under the control-as-inference view, high reward / high value corresponds to "more likely to be optimal." Thus, policy improvement aligns with optimality-conditioned posterior inference.</p>
+
+<h3>Insight 3: Once in this form, RL becomes easier to cast as SL + Guided Sampling</h3>
+<p>This is why foundation models like &pi;0.6 can first appear as supervised models, while subsequent improvement methods increasingly look like reward-aware conditioning, advantage-aware extraction, or sampling-time guidance applied on top of this supervised backbone.</p>
+
+</div>
+
+            </div>
+        </article>
+
+        <!-- Footer -->
+        <footer class="border-t py-8" style="border-color: var(--border); background-color: var(--bg-secondary);">
+            <div class="max-w-7xl mx-auto px-6 text-center">
+                <p style="color: var(--text-secondary);">&copy; 2025 Jiaming Wang. All rights reserved.</p>
+            </div>
+        </footer>
+    </div>
+
+    <script>
+    // Override path detection for nested blog pages
+    function getPathPrefix() {
+        return '../../';
+    }
+    </script>
+    <script src="../../js/main.js"></script>
+    <script>
+    function switchLang(lang) {
+        document.querySelectorAll('[data-lang]').forEach(el => {
+            el.style.display = el.getAttribute('data-lang') === lang ? 'block' : 'none';
+        });
+        document.querySelectorAll('.blog-lang-btn').forEach(btn => {
+            btn.classList.toggle('active', btn.getAttribute('data-target') === lang);
+        });
+    }
+    </script>
+</body>
+</html>

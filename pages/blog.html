@@ -10,90 +10,132 @@
 </head>
 <body>
     <!-- Side Navigation (Desktop/Tablet) -->
-    <nav class="side-nav" id="side-nav-placeholder">
-        <!-- Navigation will be injected by JavaScript -->
-    </nav>
+    <nav class="side-nav" id="side-nav-placeholder"></nav>
 
     <!-- Top Navigation (Mobile) -->
-    <nav class="top-nav fixed top-0 left-0 right-0 z-50 border-b" style="border-color: var(--border); background-color: var(--bg-primary); box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1);" id="top-nav-placeholder">
-        <!-- Navigation will be injected by JavaScript -->
-    </nav>
+    <nav class="top-nav fixed top-0 left-0 right-0 z-50 border-b" style="border-color: var(--border); background-color: var(--bg-primary); box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1);" id="top-nav-placeholder"></nav>
 
     <!-- Main Content -->
-    <div class="main-content-with-sidebar">
+    <div class="main-content-with-sidebar blog-page-wrapper">
 
-    <!-- Blog Header -->
-    <section class="section-container" style="padding-top: 3rem;">
-        <h2 class="section-title">Blog</h2>
-        <p class="narrative-text">
-            Thoughts on robotics, AI, research, entrepreneurship, and the intersection of technology and meaning. 
-            I write about technical deep dives, career reflections, and lessons learned along the way.
-        </p>
-        
-        <div class="mb-6">
-            <input type="text" id="blog-search" class="search-input" placeholder="Search blog posts...">
+    <!-- Blog Header (compact) -->
+    <section class="section-container blog-header-compact">
+        <div class="blog-header-row">
+            <div>
+                <h2 class="blog-page-title">Blog</h2>
+                <p class="blog-page-subtitle">Thoughts on robotics, AI, research, and technology.</p>
+            </div>
+            <div class="blog-lang-toggle">
+                <button class="blog-lang-btn active" data-target="en" onclick="switchBlogLang('en')">EN</button>
+                <button class="blog-lang-btn" data-target="zh" onclick="switchBlogLang('zh')">中文</button>
+            </div>
+        </div>
+    </section>
+
+    <!-- Search & Category Bar -->
+    <section class="section-container blog-filter-bar">
+        <div class="blog-filter-row">
+            <div class="blog-search-wrapper">
+                <i class="fas fa-search blog-search-icon"></i>
+                <input type="text" id="blog-search" class="blog-search-input" placeholder="Search posts..." oninput="filterBlogPosts()">
+            </div>
+            <div class="blog-categories" id="blog-categories">
+                <button class="blog-cat-btn active" data-cat="all" onclick="filterByCategory('all')">All</button>
+                <button class="blog-cat-btn" data-cat="Technical" onclick="filterByCategory('Technical')">Technical</button>
+                <button class="blog-cat-btn" data-cat="Research" onclick="filterByCategory('Research')">Research</button>
+                <button class="blog-cat-btn" data-cat="Career" onclick="filterByCategory('Career')">Career</button>
+                <button class="blog-cat-btn" data-cat="Thoughts" onclick="filterByCategory('Thoughts')">Thoughts</button>
+            </div>
         </div>
     </section>
 
     <!-- Blog Posts -->
-    <section class="section-container bg-gradient-subtle">
-        <div id="blog-list" class="space-y-6">
-            <!-- Blog posts will be inserted here by JavaScript -->
-        </div>
-    </section>
+    <section class="section-container blog-posts-section">
+        <div id="blog-posts-list">
 
-    <!-- Blog Categories -->
-    <section class="section-container">
-        <h2 class="section-title">Categories</h2>
-        <div class="flex flex-wrap gap-3">
-            <button onclick="filterBlogByTag('all')" class="tag" style="cursor: pointer;">All Posts</button>
-            <button onclick="filterBlogByTag('Technical')" class="tag" style="cursor: pointer;">Technical</button>
-            <button onclick="filterBlogByTag('Research')" class="tag" style="cursor: pointer;">Research</button>
-            <button onclick="filterBlogByTag('Reflection')" class="tag" style="cursor: pointer;">Reflection</button>
-            <button onclick="filterBlogByTag('Entrepreneurship')" class="tag" style="cursor: pointer;">Entrepreneurship</button>
-        </div>
-    </section>
+            <!-- Post: CFGRL -->
+            <a href="blog/cfgrl.html" class="blog-post-link" data-tags="Technical,Research"
+               data-title-en="CFGRL: The Theory Behind pi0.6*"
+               data-title-zh="CFGRL：pi0.6*背后的理论"
+               data-summary-en="How CFGRL reframes RL policy improvement as optimality-conditioned inference, then implements it via classifier-free guidance at sampling time."
+               data-summary-zh="CFGRL如何将RL策略改进重新表述为最优性条件推断，然后通过采样时的无分类器引导来实现。">
+                <div class="blog-post-card">
+                    <div class="blog-post-meta">
+                        <span class="blog-post-date">2026-03-14</span>
+                        <div class="blog-post-tags">
+                            <span class="blog-tag">Technical</span>
+                            <span class="blog-tag">Research</span>
+                        </div>
+                    </div>
+                    <h3 class="blog-post-title" data-lang-en="CFGRL: The Theory Behind pi0.6*" data-lang-zh="CFGRL：pi0.6*背后的理论">CFGRL: The Theory Behind pi0.6*</h3>
+                    <p class="blog-post-summary" data-lang-en="How CFGRL reframes RL policy improvement as optimality-conditioned inference, then implements it via classifier-free guidance at sampling time." data-lang-zh="CFGRL如何将RL策略改进重新表述为最优性条件推断，然后通过采样时的无分类器引导来实现。">How CFGRL reframes RL policy improvement as optimality-conditioned inference, then implements it via classifier-free guidance at sampling time.</p>
+                </div>
+            </a>
 
-    <!-- Subscribe Section -->
-    <section class="section-container bg-gradient-subtle">
-        <div class="text-center">
-            <h2 class="section-title">Stay Updated</h2>
-            <p class="narrative-text max-w-2xl mx-auto mb-6">
-                Subscribe to get notified about new blog posts, research updates, and opportunities to collaborate.
-            </p>
-            <div class="flex gap-4 justify-center flex-wrap">
-                <a href="/rss.xml" class="btn-primary">RSS Feed</a>
-                <a href="https://twitter.com/jiamingwang" target="_blank" class="btn-primary">Follow on Twitter</a>
-            </div>
         </div>
+
+        <p id="blog-no-results" class="blog-no-results" style="display: none;">No posts found.</p>
     </section>
 
     <!-- Footer -->
     <footer class="border-t py-8" style="border-color: var(--border); background-color: var(--bg-secondary);">
         <div class="max-w-7xl mx-auto px-6 text-center">
-            <p style="color: var(--text-secondary);">© 2025 Jiaming Wang. All rights reserved.</p>
+            <p style="color: var(--text-secondary);">&copy; 2025 Jiaming Wang. All rights reserved.</p>
         </div>
     </footer>
 
     </div>
 
-    <!-- Blog Modal -->
-    <div id="blog-modal" class="modal">
-        <div class="modal-content">
-            <button onclick="closeBlogModal()" style="position: absolute; top: 1rem; right: 1rem; color: var(--text-secondary); font-size: 1.5rem; background: none; border: none; cursor: pointer;">&times;</button>
-            <div id="modal-blog-content"></div>
-        </div>
-    </div>
-
     <script src="../js/main.js"></script>
     <script>
-        // Filter blog posts by tag
-        function filterBlogByTag(tag) {
-            const filtered = tag === 'all' 
-                ? blogPosts 
-                : blogPosts.filter(post => post.tags.includes(tag));
-            renderBlogPosts(filtered);
-        }
+    let currentLang = 'en';
+    let currentCategory = 'all';
+
+    function switchBlogLang(lang) {
+        currentLang = lang;
+        document.querySelectorAll('.blog-lang-btn').forEach(btn => {
+            btn.classList.toggle('active', btn.getAttribute('data-target') === lang);
+        });
+        // Update all post titles and summaries
+        document.querySelectorAll('.blog-post-title').forEach(el => {
+            el.textContent = el.getAttribute('data-lang-' + lang) || el.getAttribute('data-lang-en');
+        });
+        document.querySelectorAll('.blog-post-summary').forEach(el => {
+            el.textContent = el.getAttribute('data-lang-' + lang) || el.getAttribute('data-lang-en');
+        });
+    }
+
+    function filterByCategory(cat) {
+        currentCategory = cat;
+        document.querySelectorAll('.blog-cat-btn').forEach(btn => {
+            btn.classList.toggle('active', btn.getAttribute('data-cat') === cat);
+        });
+        filterBlogPosts();
+    }
+
+    function filterBlogPosts() {
+        const query = document.getElementById('blog-search').value.toLowerCase();
+        const posts = document.querySelectorAll('.blog-post-link');
+        let visible = 0;
+
+        posts.forEach(post => {
+            const tags = post.getAttribute('data-tags') || '';
+            const title = (post.getAttribute('data-title-' + currentLang) || post.getAttribute('data-title-en')).toLowerCase();
+            const summary = (post.getAttribute('data-summary-' + currentLang) || post.getAttribute('data-summary-en')).toLowerCase();
+
+            const matchesCat = currentCategory === 'all' || tags.split(',').includes(currentCategory);
+            const matchesSearch = !query || title.includes(query) || summary.includes(query) || tags.toLowerCase().includes(query);
+
+            if (matchesCat && matchesSearch) {
+                post.style.display = '';
+                visible++;
+            } else {
+                post.style.display = 'none';
+            }
+        });
+
+        document.getElementById('blog-no-results').style.display = visible === 0 ? '' : 'none';
+    }
     </script>
 </body>
 </html>

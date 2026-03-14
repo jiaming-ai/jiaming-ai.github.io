@@ -1,8 +1,9 @@
 // Navigation Generator
 function initNavigation() {
-    // Detect if we're in a subdirectory (pages/) or root
-    const isSubdirectory = window.location.pathname.includes('/pages/');
-    const pathPrefix = isSubdirectory ? '../' : '';
+    // Detect directory depth relative to root
+    const isNestedSubdirectory = window.location.pathname.includes('/pages/blog/');
+    const isSubdirectory = !isNestedSubdirectory && window.location.pathname.includes('/pages/');
+    const pathPrefix = typeof getPathPrefix === 'function' ? getPathPrefix() : (isNestedSubdirectory ? '../../' : (isSubdirectory ? '../' : ''));
     
     // Get current page for active state
     const currentPage = window.location.pathname.split('/').pop() || 'index.html';
@@ -45,12 +46,12 @@ function initNavigation() {
     `;
     
     // Adjust paths for subdirectory pages
-    const homeLink = isSubdirectory ? '../index.html' : 'index.html';
-    const aboutLink = isSubdirectory ? 'about.html' : 'pages/about.html';
-    const researchLink = isSubdirectory ? 'research.html' : 'pages/research.html';
-    const blogLink = isSubdirectory ? 'blog.html' : 'pages/blog.html';
-    const contactLink = isSubdirectory ? 'contact.html' : 'pages/contact.html';
-    const md2imgLink = isSubdirectory ? 'md2img.html' : 'pages/md2img.html';
+    const homeLink = isNestedSubdirectory ? '../../index.html' : (isSubdirectory ? '../index.html' : 'index.html');
+    const aboutLink = isNestedSubdirectory ? '../about.html' : (isSubdirectory ? 'about.html' : 'pages/about.html');
+    const researchLink = isNestedSubdirectory ? '../research.html' : (isSubdirectory ? 'research.html' : 'pages/research.html');
+    const blogLink = isNestedSubdirectory ? '../blog.html' : (isSubdirectory ? 'blog.html' : 'pages/blog.html');
+    const contactLink = isNestedSubdirectory ? '../contact.html' : (isSubdirectory ? 'contact.html' : 'pages/contact.html');
+    const md2imgLink = isNestedSubdirectory ? '../md2img.html' : (isSubdirectory ? 'md2img.html' : 'pages/md2img.html');
     
     // Generate top navigation HTML
     const topNavHTML = `
@@ -107,7 +108,6 @@ function loadTheme() {
 let publications = [];
 let ongoingProjects = [];
 let people = [];
-let blogPosts = [];
 
 // Cache duration: 5 minutes
 const CACHE_DURATION = 5 * 60 * 1000;
@@ -136,21 +136,20 @@ async function fetchWithCache(url, cacheKey) {
 // Load data from JSON files
 async function loadData() {
     try {
-        // Detect if we're in a subdirectory (pages/) or root
-        const isSubdirectory = window.location.pathname.includes('/pages/');
-        const pathPrefix = isSubdirectory ? '../' : '';
-        
-        const [pubData, projectData, peopleData, blogData] = await Promise.all([
+        // Detect directory depth relative to root
+        const isNestedSub = window.location.pathname.includes('/pages/blog/');
+        const isSub = !isNestedSub && window.location.pathname.includes('/pages/');
+        const pathPrefix = typeof getPathPrefix === 'function' ? getPathPrefix() : (isNestedSub ? '../../' : (isSub ? '../' : ''));
+
+        const [pubData, projectData, peopleData] = await Promise.all([
             fetchWithCache(pathPrefix + 'data/publications.json', 'cache_publications'),
             fetchWithCache(pathPrefix + 'data/projects.json', 'cache_projects'),
-            fetchWithCache(pathPrefix + 'data/people.json', 'cache_people'),
-            fetchWithCache(pathPrefix + 'data/blog.json', 'cache_blog')
+            fetchWithCache(pathPrefix + 'data/people.json', 'cache_people')
         ]);
-        
+
         publications = pubData;
         ongoingProjects = projectData;
         people = peopleData;
-        blogPosts = blogData;
     } catch (error) {
         console.error('Error loading data:', error);
     }
@@ -257,60 +256,6 @@ function renderPeople() {
     `).join('');
 }
 
-// Render Blog Posts
-function renderBlogPosts(posts = blogPosts) {
-    const container = document.getElementById('blog-list');
-    if (!container) return;
-    
-    container.innerHTML = posts.map(post => `
-        <div class="card cursor-pointer" onclick="openBlogModal(${post.id})">
-            <h3 class="text-xl font-semibold mb-2" style="color: var(--text-primary);">${post.title}</h3>
-            <p class="text-sm mb-2" style="color: var(--text-secondary);">${post.date}</p>
-            <p class="narrative-text mb-3">${post.summary}</p>
-            <div>
-                ${post.tags.map(tag => `<span class="tag">${tag}</span>`).join('')}
-            </div>
-        </div>
-    `).join('');
-}
-
-// Blog Search
-function initBlogSearch() {
-    const searchInput = document.getElementById('blog-search');
-    if (searchInput) {
-        searchInput.addEventListener('input', (e) => {
-            const query = e.target.value.toLowerCase();
-            const filtered = blogPosts.filter(post => 
-                post.title.toLowerCase().includes(query) ||
-                post.summary.toLowerCase().includes(query) ||
-                post.tags.some(tag => tag.toLowerCase().includes(query))
-            );
-            renderBlogPosts(filtered);
-        });
-    }
-}
-
-// Blog Modal
-function openBlogModal(id) {
-    const post = blogPosts.find(p => p.id === id);
-    if (!post) return;
-    
-    const modalContent = document.getElementById('modal-blog-content');
-    const modal = document.getElementById('blog-modal');
-    
-    if (modalContent && modal) {
-        modalContent.innerHTML = post.content;
-        modal.classList.add('active');
-    }
-}
-
-function closeBlogModal() {
-    const modal = document.getElementById('blog-modal');
-    if (modal) {
-        modal.classList.remove('active');
-    }
-}
-
 // Project Modal Functions
 function openProjectModal(modalId) {
     const modal = document.getElementById(modalId);
@@ -387,21 +332,9 @@ document.addEventListener('DOMContentLoaded', function() {
         renderPublications();
         renderOngoingProjects();
         renderPeople();
-        renderBlogPosts();
-        initBlogSearch();
         initSmoothScroll();
     });
-    
-    // Close modal on outside click
-    const modal = document.getElementById('blog-modal');
-    if (modal) {
-        modal.addEventListener('click', (e) => {
-            if (e.target.id === 'blog-modal') {
-                closeBlogModal();
-            }
-        });
-    }
-    
+
     // Close project modals on outside click
     document.querySelectorAll('.modal').forEach(modal => {
         modal.addEventListener('click', (e) => {
