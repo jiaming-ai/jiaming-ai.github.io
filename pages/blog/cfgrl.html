@@ -28,35 +28,34 @@
     <nav class="top-nav fixed top-0 left-0 right-0 z-50 border-b" style="border-color: var(--border); background-color: var(--bg-primary); box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1);" id="top-nav-placeholder"></nav>
 
     <!-- Main Content -->
-    <div class="main-content-with-sidebar">
-        <article class="section-container" style="padding-top: 3rem; max-width: 800px;">
-
-            <!-- Back link -->
-            <a href="../blog.html" class="link-accent text-sm" style="display: inline-flex; align-items: center; gap: 0.5rem; margin-bottom: 2rem;">
-                <i class="fas fa-arrow-left"></i> Back to Blog
-            </a>
+    <div class="main-content-with-sidebar blog-page-wrapper">
+        <article class="section-container blog-article">
 
             <!-- Post header -->
-            <div style="margin-bottom: 2rem;">
-                <h1 class="section-title" style="margin-bottom: 0.5rem;">CFGRL: The Theory Behind pi0.6*</h1>
-                <p class="text-sm" style="color: var(--text-tertiary);">March 14, 2026</p>
-                <div style="margin-top: 0.75rem;">
-                    <span class="tag">Technical</span>
-                    <span class="tag">Research</span>
+            <div class="blog-article-header">
+                <a href="../blog.html" class="blog-back-link">
+                    <i class="fas fa-arrow-left"></i> Back to Blog
+                </a>
+                <h1 class="blog-article-title">CFGRL: The Theory Behind pi0.6*</h1>
+                <div class="blog-article-meta">
+                    <span class="blog-post-date">March 14, 2026</span>
+                    <div class="blog-post-tags">
+                        <span class="blog-tag">Technical</span>
+                        <span class="blog-tag">Research</span>
+                    </div>
                 </div>
-            </div>
-
-            <!-- Language toggle -->
-            <div class="blog-lang-toggle">
-                <button class="blog-lang-btn active" data-target="zh" onclick="switchLang('zh')">中文</button>
-                <button class="blog-lang-btn" data-target="en" onclick="switchLang('en')">English</button>
+                <!-- Language toggle -->
+                <div class="blog-lang-toggle">
+                    <button class="blog-lang-btn active" data-target="en" onclick="switchLang('en')">EN</button>
+                    <button class="blog-lang-btn" data-target="zh" onclick="switchLang('zh')">中文</button>
+                </div>
             </div>
 
             <!-- Blog content -->
             <div class="blog-content">
 
 <!-- Chinese version -->
-<div data-lang="zh">
+<div data-lang="zh" style="display: none;">
 
 <p>上一篇我写了：<strong>很多机器人策略里，RL正在逐渐长得更像 SL</strong>。<br>这篇想讲一下：Pi0.6*具体采用的方法：<strong>CFGRL</strong>。它的有趣之处在于一种针对RL的新的思考方式：</p>
 
@@ -296,7 +295,7 @@
 </div>
 
 <!-- English version -->
-<div data-lang="en" style="display: none;">
+<div data-lang="en">
 
 <p>In my last post, I wrote: <strong>in many robot policies, RL is gradually looking more and more like supervised learning</strong>.<br>This post dives into the specific method used by Pi0.6*: <strong>CFGRL</strong>. What makes it interesting is a new way of thinking about RL:</p>
 
@@ -561,6 +560,11 @@
         document.querySelectorAll('.blog-lang-btn').forEach(btn => {
             btn.classList.toggle('active', btn.getAttribute('data-target') === lang);
         });
+    }
+    // Read lang from URL param (e.g., ?lang=zh) to sync with blog listing page
+    const urlLang = new URLSearchParams(window.location.search).get('lang');
+    if (urlLang) {
+        document.addEventListener('DOMContentLoaded', () => switchLang(urlLang));
     }
     </script>
 </body>

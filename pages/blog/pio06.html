@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pi 0.6: Supervised Learning in Reinforcement Learning's Clothing - Jiaming Wang</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link rel="stylesheet" href="../../css/styles.css">
+    <!-- KaTeX -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"
+        onload="renderMathInElement(document.querySelector('.blog-content'), {
+            delimiters: [
+                {left: '$$', right: '$$', display: true},
+                {left: '\\\\[', right: '\\\\]', display: true},
+                {left: '$', right: '$', display: false},
+                {left: '\\\\(', right: '\\\\)', display: false}
+            ],
+            throwOnError: false
+        });"></script>
+</head>
+<body>
+    <!-- Side Navigation (Desktop/Tablet) -->
+    <nav class="side-nav" id="side-nav-placeholder"></nav>
+
+    <!-- Top Navigation (Mobile) -->
+    <nav class="top-nav fixed top-0 left-0 right-0 z-50 border-b" style="border-color: var(--border); background-color: var(--bg-primary); box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1);" id="top-nav-placeholder"></nav>
+
+    <!-- Main Content -->
+    <div class="main-content-with-sidebar blog-page-wrapper">
+        <article class="section-container blog-article">
+
+            <!-- Post header -->
+            <div class="blog-article-header">
+                <a href="../blog.html" class="blog-back-link">
+                    <i class="fas fa-arrow-left"></i> Back to Blog
+                </a>
+                <h1 class="blog-article-title">Pi 0.6: Supervised Learning in RL's Clothing</h1>
+                <div class="blog-article-meta">
+                    <span class="blog-post-date">March 14, 2026</span>
+                    <div class="blog-post-tags">
+                        <span class="blog-tag">Technical</span>
+                        <span class="blog-tag">Research</span>
+                    </div>
+                </div>
+                <!-- Language toggle -->
+                <div class="blog-lang-toggle">
+                    <button class="blog-lang-btn active" data-target="en" onclick="switchLang('en')">EN</button>
+                    <button class="blog-lang-btn" data-target="zh" onclick="switchLang('zh')">中文</button>
+                </div>
+            </div>
+
+            <!-- Blog content -->
+            <div class="blog-content">
+
+<!-- Chinese version -->
+<div data-lang="zh" style="display: none;">
+
+<h2>Pi 0.6：披着 Reinforcement Learning 外衣的 Supervised Learning</h2>
+
+<p>最近拜读了 Pi 0.6 这篇里程碑式的 paper，其中：<strong>基于 Reinforcement Learning (RL) 的 Post-training 是实现这一跨越的关键要素</strong>。为什么这种形式的 RL Post-training 如此强大？它从根本上改变了我们对大规模 Vision&ndash;Language&ndash;Action (VLA) 模型训练的哪些认知？</p>
+
+<p>我写这篇文章的初衷，正是为了探究这个问题。具体而言，我想绕开表面上的 RL Formulation，去理解 <strong>RECAP</strong> 的本质，以及我们应如何思考其进一步的迭代。为此，我发现先退一步，重新梳理整个 Reinforcement Learning 领域的大版图会大有裨益。</p>
+
+<p>梳理过程中我发现：<strong>在过去的十年里，Reinforcement Learning&mdash;&mdash;尤其是 Offline RL&mdash;&mdash;一直在稳步向 Supervised Learning 靠拢&mdash;&mdash;有时是显性的，有时则带着厚重的伪装。</strong>RECAP 并非这一趋势的例外；在很大程度上，它是这一趋势的巅峰之作。</p>
+
+<h3>从经典 RL 到 Supervised Learning：一场渐进式的偏移</h3>
+
+<p>在早期，Reinforcement Learning 与 Supervised Learning 有着界限分明的区别。经典 RL 方法&mdash;&mdash;Policy Gradients、Q-learning、Actor&ndash;Critic 算法以及后来的 DQN&mdash;&mdash;都围绕着与环境的紧密交互循环构建。Agent 通过行动收集数据，利用 <strong>Bellman backups</strong> 估计 <strong>Value function</strong>，并通过对期望回报的 Gradient Ascent 或对 Q 值的贪婪最大化来改进 Policy。相比之下，Supervised Learning 是对固定数据集的拟合，没有交互、长期 Credit Assignment 或反事实评估的概念。</p>
+
+<p>当研究人员尝试将 RL 应用于交互受限或无法交互的场景时，这种界限开始模糊，从而导致了 Offline RL 的兴起。Offline RL 立即暴露了一个根本问题：<strong>Bellman backups</strong> 需要评估数据集中从未观察到的动作。这会导致严重的推断误差（Extrapolation Error）和不稳定性，因为 <strong>Value function</strong> 会给 Out-of-distribution (OOD) 的动作分配任意高的值。</p>
+
+<p>早期的大部分 Offline RL 研究可以被理解为在不放弃经典 RL 框架的前提下对其进行"打补丁"。BCQ 和 BEAR 等方法通过限制 Action Space 或正则化 Policy，使其保持在数据分布附近。随后，CQL 等方法直接在 <strong>Value function</strong> 中引入保守正则化，使 Critic 对数据集支撑集之外的动作保持悲观。这些方法看起来仍然像 RL&mdash;&mdash;有 <strong>Value function</strong>、<strong>Bellman backups</strong>、Critic、Actor&mdash;&mdash;但其目标已经发生了转移：<strong>首要任务不再是理论上的最优性，而是保持在 Data Manifold 之内。</strong></p>
+
+<p>随后发生了第二次更深层次的观念转变。许多方法不再直接通过 RL 目标优化 Policy，而是开始将 Policy Improvement 重构为受学习到的 Value 信号引导的数据集监督回归。AWR、AWAC、CRR 和 TD3+BC 都属于这一类。甚至在内部保留了 Bellman 结构的 IQL，也竭尽全力避免对未见动作进行显式评估。Policy 学习越来越像 Supervised Learning，而 <strong>Value function</strong> 则充当了权重或过滤机制。</p>
+
+<p>最后，随着 Decision Transformer (DT) 等方法的出现，<strong>Bellman backup</strong> 彻底消失了。Reinforcement Learning 变成了 Sequence Modeling，纯粹以监督目标进行训练，并以 Returns 为条件进行推理。</p>
+
+<p>这种演变绝非偶然。它反映了一个深刻的经验教训：<strong>随着模型和数据规模的扩大，Regression 是稳定的，而 Bootstrapping 是脆弱的。</strong></p>
+
+<img src="../../assets/img/blog/pio06/Gemini_Generated_Image_kk3kyckk3kyckk3k.png" alt="从经典RL到监督学习的演变">
+
+<h3>重新审视 Reinforcement Learning：真正重要的是什么？</h3>
+
+<p>一旦我们看清了这个模式，自然会问一个更深层的问题：在这一转变中，Reinforcement Learning 有哪些核心要素幸存了下来？</p>
+
+<p>剥离掉历史实现细节，RL 真正贡献的东西只有两点：</p>
+
+<ol>
+<li><strong>与环境的交互</strong>：这允许模型发现自身的失败模式。</li>
+<li><strong>Value function</strong>：它通过引入 Preference 和时间相关性来解决 <strong>Multi-modality</strong> 问题。</li>
+</ol>
+
+<p>除此之外的一切&mdash;&mdash;Policy Gradients、Q-learning 变体、<strong>Bellman bootstrapping</strong>&mdash;&mdash;都是可以商榷的。</p>
+
+<h3>作为"偏好调节监督"的 Value function</h3>
+
+<p>这里需要精确界定：现代系统中所重视的 <strong>Value function</strong>，不仅仅是任何 <strong>Value function</strong>，而是一个<strong>通过条件调节来解决 Multi-modality 问题</strong>的函数。</p>
+
+<p>在许多现实任务中，动作分布具有固有的 <strong>Multi-modality</strong>。以抓取杯子为例：存在多种有效的抓取方式、轨迹和风格。如果我们简单地用 Supervised Learning 来学习完整的动作分布，采样会变得不稳定且往往缺乏连贯性。一个天真的解决办法是将数据集压缩为专家演示，但这会引入严重的偏见和脆弱性&mdash;&mdash;一旦 Policy 偏离了专家流形，它就会进入一个 OOD 状态。</p>
+
+<p><strong>Value function</strong> 提供了一个不同的方案。我们不压缩数据，而是保留所有轨迹（成功的、部分成功的和失败的），并引入一个信号，根据长期期望值将动作关联起来。从这个意义上说，<strong>Value function 充当了一个潜在的 Preference 变量</strong>。它允许我们从多样化的数据集中采样"良好"的行为，而不会破坏这种多样性。</p>
+
+<img src="../../assets/img/blog/pio06/Gemini_Generated_Image_zefzlgzefzlgzefz.png" alt="Value function作为偏好调节信号">
+
+<p>这种构架立即将我们引向了现代大语言模型 (LLM) 的训练。当我们提示 LLM"写得专业一点"或"简洁一点"时，我们就是在以潜在 Preference 变量为条件进行生成。RLHF 通过 Reward Models 将这一过程形式化；Preference Optimization 和 Post-training 将生成偏向于高奖励的输出。</p>
+
+<p>Decision Transformer 通过以 Return-to-go 为条件做了同样的事情。RECAP 则以从学习到的 <strong>Value function</strong> 中导出的"最优性指示器"为条件。其机制是相同的：<strong>由 Preference 信号引导的 Supervised Learning。</strong></p>
+
+<p>有趣的是，现在的这种融合是双向的。机器人领域越来越多地借鉴 LLM 式的条件调节和 Preference 建模，而 LLM 自身也越来越依赖 RL 式的 Post-training 来精炼行为。这两个社区正在中途相遇。</p>
+
+<h3>环境交互：增加样本覆盖</h3>
+
+<p>RL 第二个幸存的要素是与环境的交互。无论多大的固定数据集，都无法预见所有的失败模式。部署后的 Policy 最终会遇到表征不足的状态，并犯下系统性错误。</p>
+
+<p>交互通过揭示模型的错误所在来解决这一问题。这个想法早于现代 RL&mdash;&mdash;DAgger 算法已经证明了 Imitation Learning 必须是迭代的&mdash;&mdash;但 RL 增加了一个关键点：<strong>一种赋予失败以意义的标注方式。</strong></p>
+
+<p>当与 <strong>Value function</strong> 结合时，交互变得极其强大。失败的轨迹不再是无用的垃圾，它们变成了负标签样本。局部进展仍然携带学习信号。交互产生多样化的数据；<strong>Value function</strong> 将这些数据转化为结构化的监督信号。</p>
+
+<p>同样的模式也出现在 LLM 的 Post-training 中：部署、观察失败案例、收集 Preference 反馈、重新训练。再次体现了：<strong>交互 + Value</strong>。</p>
+
+<h3>RECAP：披着 RL 外衣的 Supervised Learning</h3>
+
+<p>沿着上述轨迹，我们可以清晰地发现：RECAP 的本质不应被理解为回归经典 Reinforcement Learning，而是一个<strong>从根本上植根于 Supervised Learning、并辅以少量精选 RL 要素的系统</strong>。</p>
+
+<p>尽管 RECAP 有着基于 RL 的推导过程，但其操作现实非常简单：</p>
+
+<ul>
+<li>Policy 通过对数据进行监督回归来训练。</li>
+<li><strong>Value function</strong> 通过对回报进行监督回归来训练。</li>
+<li><strong>没有 Bellman bootstrapping，没有 Policy Gradient，也没有对动作空间的显式优化。</strong></li>
+</ul>
+
+<p>性能的提升并非来自传统意义上求解 RL 目标函数，而是源于在一个强大的监督模型上，以学习到的 Preference 信号进行条件调节。</p>
+
+<p>从这个意义上说，RECAP 离 Supervised Learning 比离经典 RL 近得多。它的成功主要取决于治理大规模监督系统的相同因素：数据的质量、多样性和覆盖范围；模型的容量和归纳偏置；以及训练目标的稳定性。这些因素对性能的主导作用远超 RL 公式中任何细微的数学属性。</p>
+
+<p>剩下的 RL 组件并不是优化的引擎，而是结构化工具。<strong>Value function</strong> 提供了一种在 <strong>Multi-modality</strong> 动作分布上施加 Preference 和时间相关性的方法。与环境的交互提供了一种发现失败模式并扩展数据集的机制。两者结合，引导了 Supervised Learning，而非取代它。</p>
+
+<h3>RL 还能贡献什么&mdash;&mdash;以及改进的方向</h3>
+
+<p>将 RECAP 视为核心上的 Supervised Learning 并不是对 Reinforcement Learning 的否定。相反，它理清了 RL 思想在哪些方面仍然重要，以及在哪些方面应用最为高效。</p>
+
+<p>一个重要的贡献在于 <strong>Value function</strong> 是如何被学习的。即使通过 Regression 训练，Value 估计仍然受制于经典的 RL 权衡：variance bias trade-off、Horizon Length 以及对分布偏移的敏感性。RL 领域开发的技术&mdash;&mdash;如方差削减、多步估计或不确定性感知 Critic&mdash;&mdash;对于提高调节信号的质量和可靠性仍然高度相关。</p>
+
+<p>另一个关键领域是<strong>如何利用 Value 信号来调节 Policy</strong>。RECAP 目前依赖于 binary optimality indicator，这优先考虑了鲁棒性和简单性。虽然在许多情况下有效，但这不可避免地丢弃了信息。在具有微妙权衡、长程依赖或噪声 Value 估计的场景中，硬阈值可能会变得脆弱或产生误导。在这里，来自 Offline RL 的想法&mdash;&mdash;如软优势加权、校准 Preference 评分或不确定性感知调节&mdash;&mdash;提供了清晰的改进路径。</p>
+
+<h3>总结展望</h3>
+
+<p>这回到了本文的初衷：理解 RECAP 到底是什么，为什么它有效，以及如何思考它的改进。我认为答案是：<strong>RECAP 代表了一个成熟的收敛点</strong>。它提取了 Reinforcement Learning 中能够规模化扩展的部分&mdash;&mdash;交互和基于 Value 的条件调节&mdash;&mdash;并将它们嵌入到一个稳定、极具表现力且数据驱动的 Supervised Learning 框架中。</p>
+
+<p>以这种方式理解 RECAP，使我们能够同时运用两种视角进行分析。在设计模型、数据集和损失函数时，我们可以运用 Supervised Learning 的直觉；同时仍然借鉴 Reinforcement Learning 理论来思考 Value 估计、Preference 信号和长程结构。这种结合不仅不是矛盾，反而正是 RECAP 等方法如此有效的核心所在。</p>
+
+<p>从这个意义上说，RECAP 并不是将 Reinforcement Learning 隐藏在 Supervised Learning 之后，而是向我们展示了：<strong>当 Reinforcement Learning 被蒸馏到只剩下真正核心的精华时，它看起来到底是什么样子。</strong></p>
+
+<p><em>接着上一篇，为了仔细理解 RL post training，仔细读了 pi0.6 这篇文章，顺带 review 梳理了一下最近 RL 的发展轨迹，发现很有意思的现象：就是 RL 在往 supervised learning 上面靠，当然反之亦然（双向奔赴了这是）。这不只是这一篇的结论，而是整个发展轨迹都是如此。一句话说，就是把 RL 核心思想用 SL 的方式来解决。这个趋势发展感觉 Richard 前辈也会满意了。</em></p>
+
+</div>
+
+<!-- English version -->
+<div data-lang="en">
+
+<h2>Pi 0.6: Supervised Learning in Reinforcement Learning's Clothing</h2>
+
+<p>I recently studied the landmark Pi 0.6 paper, in which <strong>RL-based Post-training is the key ingredient enabling the leap forward</strong>. Why is this form of RL Post-training so powerful? What fundamental assumptions about training large-scale Vision&ndash;Language&ndash;Action (VLA) models does it overturn?</p>
+
+<p>This article was motivated by exactly that question. Specifically, I wanted to look past the surface-level RL formulation and understand the essence of <strong>RECAP</strong>, as well as how we should think about its further iterations. To do this, I found it immensely helpful to step back and survey the broader landscape of Reinforcement Learning.</p>
+
+<p>In the process, I discovered something striking: <strong>over the past decade, Reinforcement Learning &mdash; especially Offline RL &mdash; has been steadily converging toward Supervised Learning &mdash; sometimes explicitly, sometimes under heavy disguise.</strong> RECAP is no exception to this trend; in many ways, it is the culmination of it.</p>
+
+<h3>From Classic RL to Supervised Learning: A Gradual Drift</h3>
+
+<p>In the early days, Reinforcement Learning and Supervised Learning had a clearly delineated boundary. Classic RL methods &mdash; Policy Gradients, Q-learning, Actor&ndash;Critic algorithms, and later DQN &mdash; were all built around tight interaction loops with the environment. Agents collected data through actions, estimated <strong>Value functions</strong> via <strong>Bellman backups</strong>, and improved policies through gradient ascent on expected returns or greedy maximization of Q-values. Supervised Learning, by contrast, was fitting to a fixed dataset, with no notion of interaction, long-term credit assignment, or counterfactual evaluation.</p>
+
+<p>This boundary began to blur when researchers tried to apply RL to settings with limited or no interaction, giving rise to Offline RL. Offline RL immediately exposed a fundamental problem: <strong>Bellman backups</strong> require evaluating actions never observed in the dataset. This leads to severe extrapolation error and instability, as the <strong>Value function</strong> assigns arbitrarily high values to out-of-distribution (OOD) actions.</p>
+
+<p>Much of the early Offline RL literature can be understood as patching the classic RL framework without abandoning it. Methods like BCQ and BEAR constrained the action space or regularized the policy to stay near the data distribution. Subsequently, methods like CQL introduced conservative regularization directly into the <strong>Value function</strong>, keeping the Critic pessimistic about actions outside the dataset's support. These methods still looked like RL &mdash; with <strong>Value functions</strong>, <strong>Bellman backups</strong>, Critics, Actors &mdash; but the goal had shifted: <strong>the primary objective was no longer theoretical optimality, but staying within the data manifold.</strong></p>
+
+<p>A second, deeper conceptual shift followed. Rather than optimizing policies directly through RL objectives, many methods began to recast Policy Improvement as supervised regression on the dataset, guided by learned value signals. AWR, AWAC, CRR, and TD3+BC all fall into this category. Even IQL, which retains Bellman structure internally, goes to great lengths to avoid explicitly evaluating unseen actions. Policy learning was looking increasingly like Supervised Learning, with the <strong>Value function</strong> serving as a weighting or filtering mechanism.</p>
+
+<p>Finally, with methods like Decision Transformer (DT), the <strong>Bellman backup</strong> disappeared entirely. Reinforcement Learning became Sequence Modeling, trained with a purely supervised objective and conditioned on returns at inference time.</p>
+
+<p>This evolution was not accidental. It reflects a deep empirical lesson: <strong>as model and data scale grow, regression is stable while bootstrapping is fragile.</strong></p>
+
+<img src="../../assets/img/blog/pio06/Gemini_Generated_Image_kk3kyckk3kyckk3k.png" alt="The evolution from classic RL to Supervised Learning">
+
+<h3>Re-examining Reinforcement Learning: What Really Matters?</h3>
+
+<p>Once we see this pattern clearly, a deeper question naturally arises: what core elements of Reinforcement Learning have survived this transformation?</p>
+
+<p>Stripping away historical implementation details, RL's genuine contributions boil down to two things:</p>
+
+<ol>
+<li><strong>Interaction with the environment</strong>: This allows the model to discover its own failure modes.</li>
+<li><strong>Value function</strong>: It resolves the <strong>multi-modality</strong> problem by introducing preference and temporal coherence.</li>
+</ol>
+
+<p>Everything else &mdash; Policy Gradients, Q-learning variants, <strong>Bellman bootstrapping</strong> &mdash; is negotiable.</p>
+
+<h3>The Value Function as "Preference-Conditioned Supervision"</h3>
+
+<p>Let us be precise here: the <strong>Value function</strong> that modern systems value is not just any Value function &mdash; it is one that <strong>resolves multi-modality through conditioning</strong>.</p>
+
+<p>In many real-world tasks, the action distribution is inherently <strong>multi-modal</strong>. Consider grasping a cup: there are multiple valid grasp types, trajectories, and styles. If we naively use Supervised Learning to learn the full action distribution, sampling becomes unstable and often incoherent. A simplistic fix is to compress the dataset to expert demonstrations, but this introduces severe bias and fragility &mdash; once the policy deviates from the expert manifold, it enters an OOD regime.</p>
+
+<p>The <strong>Value function</strong> offers a different solution. Instead of compressing the data, we keep all trajectories (successful, partially successful, and failed) and introduce a signal that relates actions to their long-term expected value. In this sense, <strong>the Value function acts as a latent preference variable</strong>. It allows us to sample "good" behavior from a diverse dataset without destroying that diversity.</p>
+
+<img src="../../assets/img/blog/pio06/Gemini_Generated_Image_zefzlgzefzlgzefz.png" alt="Value function as a preference-conditioning signal">
+
+<p>This framing immediately connects to modern LLM training. When we prompt an LLM to "write more professionally" or "be more concise," we are conditioning generation on a latent preference variable. RLHF formalizes this through Reward Models; Preference Optimization and Post-training bias generation toward high-reward outputs.</p>
+
+<p>Decision Transformer did the same thing by conditioning on return-to-go. RECAP conditions on "optimality indicators" derived from a learned <strong>Value function</strong>. The mechanism is identical: <strong>Supervised Learning guided by a preference signal.</strong></p>
+
+<p>Interestingly, this convergence is now bidirectional. Robotics increasingly borrows LLM-style conditioning and preference modeling, while LLMs themselves increasingly rely on RL-style Post-training to refine behavior. The two communities are meeting in the middle.</p>
+
+<h3>Environment Interaction: Expanding Sample Coverage</h3>
+
+<p>The second surviving element of RL is interaction with the environment. No matter how large a fixed dataset, it cannot anticipate every failure mode. A deployed policy will eventually encounter underrepresented states and make systematic errors.</p>
+
+<p>Interaction addresses this by revealing where the model goes wrong. The idea predates modern RL &mdash; DAgger already showed that Imitation Learning must be iterative &mdash; but RL adds a crucial element: <strong>a way to annotate failures with meaning.</strong></p>
+
+<p>When combined with the <strong>Value function</strong>, interaction becomes extraordinarily powerful. Failed trajectories are no longer useless waste; they become negatively labeled samples. Partial progress still carries learning signal. Interaction generates diverse data; the <strong>Value function</strong> transforms that data into structured supervision.</p>
+
+<p>The same pattern appears in LLM Post-training: deploy, observe failure cases, collect preference feedback, retrain. Once again: <strong>Interaction + Value</strong>.</p>
+
+<h3>RECAP: Supervised Learning in RL's Clothing</h3>
+
+<p>Following this trajectory, we can see clearly: RECAP's essence should not be understood as a return to classic Reinforcement Learning, but rather as <strong>a system fundamentally rooted in Supervised Learning, augmented with a carefully curated set of RL ingredients</strong>.</p>
+
+<p>Despite its RL-derived formulation, RECAP's operational reality is straightforward:</p>
+
+<ul>
+<li>The policy is trained via supervised regression on data.</li>
+<li>The <strong>Value function</strong> is trained via supervised regression on returns.</li>
+<li><strong>There is no Bellman bootstrapping, no Policy Gradient, and no explicit optimization over the action space.</strong></li>
+</ul>
+
+<p>Performance gains come not from solving an RL objective in the traditional sense, but from conditioning a powerful supervised model on a learned preference signal.</p>
+
+<p>In this sense, RECAP is far closer to Supervised Learning than to classic RL. Its success depends primarily on the same factors that govern large-scale supervised systems: data quality, diversity, and coverage; model capacity and inductive biases; and stability of the training objective. These factors dominate performance far more than any subtle mathematical property of the RL formulation.</p>
+
+<p>The remaining RL components are not the engine of optimization but structural tools. The <strong>Value function</strong> provides a way to impose preference and temporal coherence on <strong>multi-modal</strong> action distributions. Environmental interaction provides a mechanism to discover failure modes and expand the dataset. Together, they guide Supervised Learning rather than replace it.</p>
+
+<h3>What RL Still Contributes &mdash; and Directions for Improvement</h3>
+
+<p>Viewing RECAP as fundamentally Supervised Learning is not a dismissal of Reinforcement Learning. Rather, it clarifies where RL ideas remain important and where they are most efficiently applied.</p>
+
+<p>One important contribution lies in how the <strong>Value function</strong> is learned. Even when trained via regression, value estimates are still subject to classic RL trade-offs: variance-bias trade-off, horizon length, and sensitivity to distributional shift. Techniques developed in the RL community &mdash; such as variance reduction, multi-step estimation, or uncertainty-aware Critics &mdash; remain highly relevant for improving the quality and reliability of the conditioning signal.</p>
+
+<p>Another key area is <strong>how the Value signal is used to condition the policy</strong>. RECAP currently relies on a binary optimality indicator, which prioritizes robustness and simplicity. While effective in many cases, this inevitably discards information. In scenarios with nuanced trade-offs, long-horizon dependencies, or noisy value estimates, hard thresholds may become brittle or misleading. Here, ideas from Offline RL &mdash; such as soft advantage weighting, calibrated preference scores, or uncertainty-aware conditioning &mdash; offer clear paths for improvement.</p>
+
+<h3>Outlook</h3>
+
+<p>This brings us back to the original motivation: understanding what RECAP actually is, why it works, and how to think about improving it. I believe the answer is: <strong>RECAP represents a mature convergence point</strong>. It extracts the parts of Reinforcement Learning that scale &mdash; interaction and Value-based conditioning &mdash; and embeds them in a stable, expressive, data-driven Supervised Learning framework.</p>
+
+<p>Understanding RECAP this way allows us to leverage both perspectives simultaneously. When designing models, datasets, and loss functions, we can apply Supervised Learning intuitions; while still drawing on Reinforcement Learning theory to reason about value estimation, preference signals, and long-horizon structure. This combination is not contradictory &mdash; it is precisely what makes methods like RECAP so effective.</p>
+
+<p>In this sense, RECAP does not hide Reinforcement Learning behind Supervised Learning. Instead, it shows us: <strong>what Reinforcement Learning looks like when distilled down to its truly essential core.</strong></p>
+
+<p><em>Following my previous post, I read the Pi 0.6 paper carefully to understand RL post-training in depth. Along the way, I reviewed and traced the recent development trajectory of RL, and discovered a fascinating phenomenon: RL has been converging toward supervised learning &mdash; and vice versa (a mutual convergence). This is not just the conclusion of this one paper, but reflects the entire development trajectory. In one sentence: the core ideas of RL are being solved through SL methods. I feel Richard Sutton himself would be pleased with where this trend is heading.</em></p>
+
+</div>
+
+            </div>
+        </article>
+
+        <!-- Footer -->
+        <footer class="border-t py-8" style="border-color: var(--border); background-color: var(--bg-secondary);">
+            <div class="max-w-7xl mx-auto px-6 text-center">
+                <p style="color: var(--text-secondary);">&copy; 2025 Jiaming Wang. All rights reserved.</p>
+            </div>
+        </footer>
+    </div>
+
+    <script>
+    // Override path detection for nested blog pages
+    function getPathPrefix() {
+        return '../../';
+    }
+    </script>
+    <script src="../../js/main.js"></script>
+    <script>
+    function switchLang(lang) {
+        document.querySelectorAll('[data-lang]').forEach(el => {
+            el.style.display = el.getAttribute('data-lang') === lang ? 'block' : 'none';
+        });
+        document.querySelectorAll('.blog-lang-btn').forEach(btn => {
+            btn.classList.toggle('active', btn.getAttribute('data-target') === lang);
+        });
+    }
+    // Read lang from URL param (e.g., ?lang=zh) to sync with blog listing page
+    const urlLang = new URLSearchParams(window.location.search).get('lang');
+    if (urlLang) {
+        document.addEventListener('DOMContentLoaded', () => switchLang(urlLang));
+    }
+    </script>
+</body>
+</html>

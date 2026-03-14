@@ -1,0 +1,146 @@
+<!--
+  BLOG POST TEMPLATE
+  ==================
+  To create a new blog post:
+
+  1. Copy this file to pages/blog/your-post-slug.html
+  2. Replace all {{PLACEHOLDERS}} below:
+     - {{POST_TITLE}}     : e.g. "My New Post Title"
+     - {{POST_DATE}}      : e.g. "March 14, 2026"
+     - {{POST_TAGS}}      : tags as <span class="blog-tag">TagName</span> elements
+     - {{CONTENT_ZH}}     : Chinese version HTML content
+     - {{CONTENT_EN}}     : English version HTML content
+  3. If using math (KaTeX), keep the KaTeX scripts. Otherwise remove them.
+  4. Add a matching entry in pages/blog.html (see example at bottom of this file).
+  5. Put images in assets/img/blog/your-post-slug/
+
+  IMAGE USAGE:
+    <img src="../../assets/img/blog/your-post-slug/image.png" alt="description">
+
+  MATH USAGE (requires KaTeX scripts):
+    Inline:  $x^2$
+    Display: $$\sum_{i=1}^n x_i$$
+-->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{POST_TITLE}} - Jiaming Wang</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link rel="stylesheet" href="../../css/styles.css">
+    <!-- KaTeX (remove if no math) -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"
+        onload="renderMathInElement(document.querySelector('.blog-content'), {
+            delimiters: [
+                {left: '$$', right: '$$', display: true},
+                {left: '\\\\[', right: '\\\\]', display: true},
+                {left: '$', right: '$', display: false},
+                {left: '\\\\(', right: '\\\\)', display: false}
+            ],
+            throwOnError: false
+        });"></script>
+</head>
+<body>
+    <!-- Side Navigation (Desktop/Tablet) -->
+    <nav class="side-nav" id="side-nav-placeholder"></nav>
+
+    <!-- Top Navigation (Mobile) -->
+    <nav class="top-nav fixed top-0 left-0 right-0 z-50 border-b" style="border-color: var(--border); background-color: var(--bg-primary); box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1);" id="top-nav-placeholder"></nav>
+
+    <!-- Main Content -->
+    <div class="main-content-with-sidebar blog-page-wrapper">
+        <article class="section-container blog-article">
+
+            <!-- Post header -->
+            <div class="blog-article-header">
+                <a href="../blog.html" class="blog-back-link">
+                    <i class="fas fa-arrow-left"></i> Back to Blog
+                </a>
+                <h1 class="blog-article-title">{{POST_TITLE}}</h1>
+                <div class="blog-article-meta">
+                    <span class="blog-post-date">{{POST_DATE}}</span>
+                    <div class="blog-post-tags">
+                        {{POST_TAGS}}
+                    </div>
+                </div>
+                <!-- Language toggle -->
+                <div class="blog-lang-toggle">
+                    <button class="blog-lang-btn active" data-target="en" onclick="switchLang('en')">EN</button>
+                    <button class="blog-lang-btn" data-target="zh" onclick="switchLang('zh')">中文</button>
+                </div>
+            </div>
+
+            <!-- Blog content -->
+            <div class="blog-content">
+
+<!-- Chinese version -->
+<div data-lang="zh" style="display: none;">
+{{CONTENT_ZH}}
+</div>
+
+<!-- English version -->
+<div data-lang="en">
+{{CONTENT_EN}}
+</div>
+
+            </div>
+        </article>
+
+        <!-- Footer -->
+        <footer class="border-t py-8" style="border-color: var(--border); background-color: var(--bg-secondary);">
+            <div class="max-w-7xl mx-auto px-6 text-center">
+                <p style="color: var(--text-secondary);">&copy; 2025 Jiaming Wang. All rights reserved.</p>
+            </div>
+        </footer>
+    </div>
+
+    <script>
+    function getPathPrefix() { return '../../'; }
+    </script>
+    <script src="../../js/main.js"></script>
+    <script>
+    function switchLang(lang) {
+        document.querySelectorAll('[data-lang]').forEach(el => {
+            el.style.display = el.getAttribute('data-lang') === lang ? 'block' : 'none';
+        });
+        document.querySelectorAll('.blog-lang-btn').forEach(btn => {
+            btn.classList.toggle('active', btn.getAttribute('data-target') === lang);
+        });
+    }
+    const urlLang = new URLSearchParams(window.location.search).get('lang');
+    if (urlLang) {
+        document.addEventListener('DOMContentLoaded', () => switchLang(urlLang));
+    }
+    </script>
+</body>
+</html>
+
+<!--
+  BLOG LISTING ENTRY (add to pages/blog.html inside #blog-posts-list):
+
+  <a href="blog/your-post-slug.html" class="blog-post-link" data-tags="Tag1,Tag2"
+     data-title-en="English Title"
+     data-title-zh="Chinese Title"
+     data-summary-en="English summary."
+     data-summary-zh="Chinese summary.">
+      <div class="blog-post-card">
+          <div class="blog-post-meta">
+              <span class="blog-post-date">YYYY-MM-DD</span>
+              <div class="blog-post-tags">
+                  <span class="blog-tag">Tag1</span>
+                  <span class="blog-tag">Tag2</span>
+              </div>
+          </div>
+          <h3 class="blog-post-title"
+              data-lang-en="English Title"
+              data-lang-zh="Chinese Title">English Title</h3>
+          <p class="blog-post-summary"
+             data-lang-en="English summary."
+             data-lang-zh="Chinese summary.">English summary.</p>
+      </div>
+  </a>
+-->
