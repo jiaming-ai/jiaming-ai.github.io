@@ -24,6 +24,7 @@ function initNavigation() {
             <a href="${pathPrefix}pages/research.html" class="side-nav-link ${isActive('research.html') ? 'active' : ''}"><i class="fas fa-flask"></i> <span class="nav-text">Research</span></a>
             <a href="${pathPrefix}pages/blog.html" class="side-nav-link ${isActive('blog.html') ? 'active' : ''}"><i class="fas fa-blog"></i> <span class="nav-text">Blog</span></a>
             <a href="${pathPrefix}pages/contact.html" class="side-nav-link ${isActive('contact.html') ? 'active' : ''}"><i class="fas fa-envelope"></i> <span class="nav-text">Contact</span></a>
+            <a href="${pathPrefix}pages/md2img.html" class="side-nav-link ${isActive('md2img.html') ? 'active' : ''}"><i class="fas fa-image"></i> <span class="nav-text">MD to Image</span></a>
         </div>
         <div class="side-nav-footer">
             <div class="footer-icons">
@@ -49,6 +50,7 @@ function initNavigation() {
     const researchLink = isSubdirectory ? 'research.html' : 'pages/research.html';
     const blogLink = isSubdirectory ? 'blog.html' : 'pages/blog.html';
     const contactLink = isSubdirectory ? 'contact.html' : 'pages/contact.html';
+    const md2imgLink = isSubdirectory ? 'md2img.html' : 'pages/md2img.html';
     
     // Generate top navigation HTML
     const topNavHTML = `
@@ -60,6 +62,7 @@ function initNavigation() {
                 <a href="${researchLink}" class="nav-link hidden md:inline ${isActive('research.html') ? 'active' : ''}">Research</a>
                 <a href="${blogLink}" class="nav-link hidden md:inline ${isActive('blog.html') ? 'active' : ''}">Blog</a>
                 <a href="${contactLink}" class="nav-link hidden md:inline ${isActive('contact.html') ? 'active' : ''}">Contact</a>
+                <a href="${md2imgLink}" class="nav-link hidden md:inline ${isActive('md2img.html') ? 'active' : ''}">MD to Image</a>
                 <div class="theme-toggle-mobile hidden md:inline-flex" onclick="toggleTheme()" title="Toggle theme">
                     <i class="fas fa-moon theme-icon"></i>
                 </div>
@@ -69,6 +72,7 @@ function initNavigation() {
                 <a href="${researchLink}" class="nav-link-icon md:hidden" title="Research"><i class="fas fa-flask"></i></a>
                 <a href="${blogLink}" class="nav-link-icon md:hidden" title="Blog"><i class="fas fa-blog"></i></a>
                 <a href="${contactLink}" class="nav-link-icon md:hidden" title="Contact"><i class="fas fa-envelope"></i></a>
+                <a href="${md2imgLink}" class="nav-link-icon md:hidden" title="MD to Image"><i class="fas fa-image"></i></a>
                 <div class="theme-toggle-mobile md:hidden" onclick="toggleTheme()" title="Toggle theme">
                     <i class="fas fa-moon theme-icon"></i>
                 </div>

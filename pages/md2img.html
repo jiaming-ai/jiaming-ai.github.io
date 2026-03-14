@@ -1,0 +1,788 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Markdown to Image - Jiaming Wang</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link rel="stylesheet" href="../css/styles.css">
+    <!-- Marked.js for markdown -->
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <!-- KaTeX for math -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+    <!-- html2canvas -->
+    <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
+    <style>
+        .tool-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 1.5rem;
+        }
+        .editor-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1.5rem;
+        }
+        @media (max-width: 900px) {
+            .editor-grid { grid-template-columns: 1fr; }
+        }
+        .md-input {
+            width: 100%;
+            min-height: 300px;
+            padding: 1rem;
+            border: 1px solid #d1d5db;
+            border-radius: 8px;
+            font-family: 'JetBrains Mono', 'Fira Code', monospace;
+            font-size: 14px;
+            resize: vertical;
+            background: #fafafa;
+            color: #1a1a1a;
+        }
+        .md-input:focus {
+            outline: none;
+            border-color: #6366f1;
+            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+        }
+        .md-input.drag-over {
+            border-color: #6366f1;
+            background: #eef2ff;
+            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.2), inset 0 0 20px rgba(99, 102, 241, 0.05);
+        }
+        .preview-scroll {
+            max-height: 600px;
+            overflow-y: auto;
+            border: 1px solid #d1d5db;
+            border-radius: 8px;
+        }
+        .phone-page {
+            width: 375px;
+            min-height: 667px;
+            padding: 40px 32px;
+            margin: 12px auto;
+            box-sizing: border-box;
+            overflow: hidden;
+            border-radius: 4px;
+            box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+            line-height: 1.8;
+            word-wrap: break-word;
+            overflow-wrap: break-word;
+        }
+        .phone-page h1 { font-size: 1.6em; font-weight: 700; margin: 0.6em 0 0.4em; }
+        .phone-page h2 { font-size: 1.35em; font-weight: 700; margin: 0.5em 0 0.35em; }
+        .phone-page h3 { font-size: 1.15em; font-weight: 600; margin: 0.4em 0 0.3em; }
+        .phone-page p { margin: 0.5em 0; }
+        .phone-page ul, .phone-page ol { padding-left: 1.5em; margin: 0.5em 0; }
+        .phone-page li { margin: 0.25em 0; }
+        .phone-page blockquote {
+            border-left: 3px solid currentColor;
+            opacity: 0.8;
+            padding-left: 1em;
+            margin: 0.5em 0;
+        }
+        .phone-page pre {
+            background: rgba(0,0,0,0.05);
+            padding: 0.8em;
+            border-radius: 6px;
+            overflow-x: auto;
+            font-size: 0.85em;
+            margin: 0.5em 0;
+        }
+        .phone-page code {
+            background: rgba(0,0,0,0.05);
+            padding: 0.15em 0.35em;
+            border-radius: 3px;
+            font-size: 0.9em;
+        }
+        .phone-page pre code {
+            background: none;
+            padding: 0;
+        }
+        .phone-page img {
+            max-width: 100%;
+            border-radius: 6px;
+        }
+        .phone-page hr {
+            border: none;
+            border-top: 1px solid currentColor;
+            opacity: 0.2;
+            margin: 1em 0;
+        }
+        .phone-page table {
+            border-collapse: collapse;
+            width: 100%;
+            margin: 0.5em 0;
+            font-size: 0.9em;
+        }
+        .phone-page th, .phone-page td {
+            border: 1px solid currentColor;
+            padding: 0.4em 0.6em;
+            opacity: 0.9;
+        }
+        .phone-page th {
+            font-weight: 600;
+        }
+        /* KaTeX math: prevent overflow, let JS scale to fit */
+        .phone-page .katex-display,
+        .export-page .katex-display {
+            overflow: hidden;
+            padding: 4px 0;
+            margin: 0.5em 0;
+        }
+        .phone-page .katex-display > .katex,
+        .export-page .katex-display > .katex {
+            white-space: nowrap;
+        }
+        .phone-page .katex,
+        .export-page .katex {
+            font-size: 1em;
+        }
+        .phone-page .katex-display > .katex,
+        .export-page .katex-display > .katex {
+            font-size: 1.1em;
+        }
+        .page-label {
+            text-align: center;
+            font-size: 12px;
+            color: #999;
+            margin: 2px 0 8px;
+        }
+        .preset-btn {
+            padding: 6px 14px;
+            border-radius: 20px;
+            border: 2px solid transparent;
+            cursor: pointer;
+            font-size: 13px;
+            font-weight: 500;
+            transition: all 0.2s;
+        }
+        .preset-btn:hover { transform: scale(1.05); }
+        .preset-btn.active { border-color: #6366f1; box-shadow: 0 0 0 2px rgba(99,102,241,0.3); }
+        .ctrl-group {
+            margin-bottom: 12px;
+        }
+        .ctrl-group label {
+            display: block;
+            font-size: 13px;
+            font-weight: 600;
+            margin-bottom: 4px;
+            color: #374151;
+        }
+        .ctrl-input {
+            width: 100%;
+            padding: 6px 10px;
+            border: 1px solid #d1d5db;
+            border-radius: 6px;
+            font-size: 14px;
+        }
+        .ctrl-input:focus { outline: none; border-color: #6366f1; }
+        .export-btn {
+            padding: 10px 24px;
+            border: none;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .export-btn:hover { transform: translateY(-1px); box-shadow: 0 4px 12px rgba(0,0,0,0.15); }
+        .color-row {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+        }
+        .color-row input[type="color"] {
+            width: 36px;
+            height: 36px;
+            border: 1px solid #d1d5db;
+            border-radius: 6px;
+            cursor: pointer;
+            padding: 2px;
+        }
+        .watermark {
+            text-align: right;
+            font-size: 10px;
+            opacity: 0.35;
+            margin-top: 12px;
+            padding-top: 8px;
+            border-top: 1px solid currentColor;
+        }
+        /* Hidden render area for export */
+        #render-area {
+            position: absolute;
+            left: -9999px;
+            top: 0;
+        }
+    </style>
+</head>
+<body>
+    <nav class="side-nav" id="side-nav-placeholder"></nav>
+    <nav class="top-nav fixed top-0 left-0 right-0 z-50 border-b" style="border-color: var(--border); background-color: var(--bg-primary); box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1);" id="top-nav-placeholder"></nav>
+
+    <div class="main-content-with-sidebar">
+        <div class="tool-container" style="padding-top: 2rem;">
+            <h1 style="font-size: 1.8rem; font-weight: 700; margin-bottom: 0.3rem; color: var(--text-primary);">Markdown to Image</h1>
+            <p style="color: var(--text-secondary); margin-bottom: 1.5rem; font-size: 0.95rem;">
+                Convert markdown (with math) into phone-sized images. Perfect for sharing on social media.
+            </p>
+
+            <!-- Presets -->
+            <div style="margin-bottom: 1.2rem;">
+                <label style="font-size: 13px; font-weight: 600; color: #374151; display: block; margin-bottom: 6px;">Presets</label>
+                <div style="display: flex; flex-wrap: wrap; gap: 8px;" id="preset-bar"></div>
+            </div>
+
+            <!-- Controls Row -->
+            <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 12px; margin-bottom: 1.2rem;">
+                <div class="ctrl-group">
+                    <label>Background</label>
+                    <div class="color-row">
+                        <input type="color" id="bg-color" value="#ffffff">
+                        <input type="text" id="bg-color-text" class="ctrl-input" value="#ffffff" style="flex:1;">
+                    </div>
+                </div>
+                <div class="ctrl-group">
+                    <label>Font Color</label>
+                    <div class="color-row">
+                        <input type="color" id="font-color" value="#1a1a1a">
+                        <input type="text" id="font-color-text" class="ctrl-input" value="#1a1a1a" style="flex:1;">
+                    </div>
+                </div>
+                <div class="ctrl-group">
+                    <label>Font Family</label>
+                    <select id="font-family" class="ctrl-input">
+                        <option value="'Georgia', serif">Georgia (Serif)</option>
+                        <option value="'Palatino Linotype', 'Book Antiqua', Palatino, serif">Palatino</option>
+                        <option value="'Helvetica Neue', Helvetica, Arial, sans-serif" selected>Helvetica Neue</option>
+                        <option value="'Inter', -apple-system, sans-serif">Inter / System</option>
+                        <option value="'Garamond', 'EB Garamond', serif">Garamond</option>
+                        <option value="'Courier New', Courier, monospace">Courier (Mono)</option>
+                        <option value="'Merriweather', Georgia, serif">Merriweather</option>
+                        <option value="'Lora', Georgia, serif">Lora</option>
+                        <option value="'Source Sans Pro', 'Helvetica Neue', sans-serif">Source Sans Pro</option>
+                    </select>
+                </div>
+                <div class="ctrl-group">
+                    <label>Font Size</label>
+                    <select id="font-size" class="ctrl-input">
+                        <option value="14">14px</option>
+                        <option value="15" selected>15px</option>
+                        <option value="16">16px</option>
+                        <option value="17">17px</option>
+                        <option value="18">18px</option>
+                        <option value="20">20px</option>
+                    </select>
+                </div>
+                <div class="ctrl-group">
+                    <label>Format</label>
+                    <select id="export-format" class="ctrl-input">
+                        <option value="png">PNG</option>
+                        <option value="jpeg">JPEG</option>
+                    </select>
+                </div>
+                <div class="ctrl-group">
+                    <label>Scale (DPI)</label>
+                    <select id="export-scale" class="ctrl-input">
+                        <option value="2">2x (Retina)</option>
+                        <option value="3" selected>3x (High DPI)</option>
+                        <option value="4">4x (Ultra)</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- Editor Grid -->
+            <div class="editor-grid">
+                <div>
+                    <label style="font-size: 13px; font-weight: 600; color: #374151; display: block; margin-bottom: 6px;">Markdown Input</label>
+                    <textarea class="md-input" id="md-input" placeholder="Type your markdown here...
+
+Supports **bold**, *italic*, lists, headings, code blocks, tables, and math:
+
+Inline math: $E = mc^2$
+
+Display math:
+$$\int_0^\infty e^{-x^2} dx = \frac{\sqrt{\pi}}{2}$$
+
+Drop or paste images directly into this editor!"></textarea>
+                    <div style="margin-top: 10px; display: flex; gap: 8px; flex-wrap: wrap;">
+                        <button class="export-btn" style="background: #6366f1; color: white;" onclick="exportAll()">
+                            <i class="fas fa-download"></i> Export All Pages
+                        </button>
+                        <button class="export-btn" style="background: #e5e7eb; color: #374151;" onclick="exportAll(true)">
+                            <i class="fas fa-file-archive"></i> Export as ZIP
+                        </button>
+                    </div>
+                </div>
+                <div>
+                    <label style="font-size: 13px; font-weight: 600; color: #374151; display: block; margin-bottom: 6px;">Preview</label>
+                    <div class="preview-scroll" id="preview-scroll">
+                        <div id="preview"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Hidden render area for high-quality export -->
+    <div id="render-area"></div>
+
+    <script src="../js/main.js"></script>
+    <script>
+    // ── Presets ──
+    const PRESETS = [
+        { name: 'Clean White', bg: '#ffffff', color: '#1a1a1a', font: "'Helvetica Neue', Helvetica, Arial, sans-serif", size: 15 },
+        { name: 'Warm Paper', bg: '#fdf6e3', color: '#3c3836', font: "'Georgia', serif", size: 16 },
+        { name: 'Soft Cream', bg: '#fefcf3', color: '#44403c', font: "'Lora', Georgia, serif", size: 15 },
+        { name: 'Cool Gray', bg: '#f8f9fa', color: '#212529', font: "'Inter', -apple-system, sans-serif", size: 15 },
+        { name: 'Dark Mode', bg: '#1e1e2e', color: '#cdd6f4', font: "'Inter', -apple-system, sans-serif", size: 15 },
+        { name: 'Monokai', bg: '#272822', color: '#f8f8f2', font: "'Courier New', Courier, monospace", size: 14 },
+        { name: 'Nord', bg: '#2e3440', color: '#d8dee9', font: "'Source Sans Pro', 'Helvetica Neue', sans-serif", size: 15 },
+        { name: 'Sakura', bg: '#fef1f2', color: '#4a2c2a', font: "'Palatino Linotype', 'Book Antiqua', Palatino, serif", size: 15 },
+        { name: 'Ocean', bg: '#0f172a', color: '#94a3b8', font: "'Helvetica Neue', Helvetica, Arial, sans-serif", size: 15 },
+        { name: 'Mint Fresh', bg: '#f0fdf4', color: '#14532d', font: "'Merriweather', Georgia, serif", size: 15 },
+        { name: 'Lavender', bg: '#f5f3ff', color: '#3b0764', font: "'Garamond', 'EB Garamond', serif", size: 16 },
+        { name: 'Sunset', bg: '#fff7ed', color: '#7c2d12', font: "'Georgia', serif", size: 15 },
+    ];
+
+    let activePreset = 0;
+
+    function renderPresetBar() {
+        const bar = document.getElementById('preset-bar');
+        bar.innerHTML = PRESETS.map((p, i) => {
+            const isDark = isColorDark(p.bg);
+            return `<button class="preset-btn ${i === activePreset ? 'active' : ''}"
+                style="background:${p.bg}; color:${p.color}; ${isDark ? 'border-color:rgba(255,255,255,0.2);' : ''}"
+                onclick="applyPreset(${i})">${p.name}</button>`;
+        }).join('');
+    }
+
+    function isColorDark(hex) {
+        const c = hex.replace('#','');
+        const r = parseInt(c.substr(0,2),16), g = parseInt(c.substr(2,2),16), b = parseInt(c.substr(4,2),16);
+        return (r*0.299 + g*0.587 + b*0.114) < 128;
+    }
+
+    function applyPreset(idx) {
+        activePreset = idx;
+        const p = PRESETS[idx];
+        document.getElementById('bg-color').value = p.bg;
+        document.getElementById('bg-color-text').value = p.bg;
+        document.getElementById('font-color').value = p.color;
+        document.getElementById('font-color-text').value = p.color;
+        document.getElementById('font-family').value = p.font;
+        document.getElementById('font-size').value = p.size;
+        renderPresetBar();
+        renderPreview();
+    }
+
+    // ── Sync color pickers ──
+    document.getElementById('bg-color').addEventListener('input', e => {
+        document.getElementById('bg-color-text').value = e.target.value; renderPreview();
+    });
+    document.getElementById('bg-color-text').addEventListener('input', e => {
+        if (/^#[0-9a-fA-F]{6}$/.test(e.target.value)) {
+            document.getElementById('bg-color').value = e.target.value; renderPreview();
+        }
+    });
+    document.getElementById('font-color').addEventListener('input', e => {
+        document.getElementById('font-color-text').value = e.target.value; renderPreview();
+    });
+    document.getElementById('font-color-text').addEventListener('input', e => {
+        if (/^#[0-9a-fA-F]{6}$/.test(e.target.value)) {
+            document.getElementById('font-color').value = e.target.value; renderPreview();
+        }
+    });
+    document.getElementById('font-family').addEventListener('change', renderPreview);
+    document.getElementById('font-size').addEventListener('change', renderPreview);
+
+    // ── Markdown + Math rendering ──
+    function renderKatex(tex, displayMode) {
+        try {
+            return katex.renderToString(tex.trim(), { displayMode, throwOnError: false });
+        } catch { return tex; }
+    }
+
+    function mdToHtml(md) {
+        // Pre-process: protect all math delimiters before marked eats backslashes
+        const mathBlocks = [];
+
+        function protect(match, tex, display) {
+            const idx = mathBlocks.length;
+            mathBlocks.push({ tex, display });
+            return `%%MATH_BLOCK_${idx}%%`;
+        }
+
+        let processed = md;
+
+        // Display math: $$...$$ (must come before $)
+        processed = processed.replace(/\$\$([\s\S]*?)\$\$/g, (m, tex) => protect(m, tex, true));
+        // Display math: \[...\]
+        processed = processed.replace(/\\\[([\s\S]*?)\\\]/g, (m, tex) => protect(m, tex, true));
+        // Inline math: \(...\)
+        processed = processed.replace(/\\\(([\s\S]*?)\\\)/g, (m, tex) => protect(m, tex, false));
+        // Inline math: $...$ (not preceded/followed by $)
+        processed = processed.replace(/(?<!\$)\$(?!\$)((?:[^$\\]|\\.)+?)\$(?!\$)/g, (m, tex) => protect(m, tex, false));
+
+        // Render markdown
+        let html = marked.parse(processed);
+
+        // Restore and render math via KaTeX
+        html = html.replace(/%%MATH_BLOCK_(\d+)%%/g, (_, idx) => {
+            const { tex, display } = mathBlocks[parseInt(idx)];
+            return renderKatex(tex, display);
+        });
+
+        return html;
+    }
+
+    // ── Page splitting ──
+    const PAGE_WIDTH = 375;
+    const PAGE_CONTENT_HEIGHT = 587; // 667 - 80 padding
+
+    function getStyles() {
+        return {
+            bg: document.getElementById('bg-color').value,
+            color: document.getElementById('font-color').value,
+            font: document.getElementById('font-family').value,
+            size: parseInt(document.getElementById('font-size').value),
+        };
+    }
+
+    function splitIntoPages(html, styles) {
+        // Create a measuring container
+        const measurer = document.createElement('div');
+        measurer.style.cssText = `
+            position: absolute; left: -9999px; top: 0;
+            width: ${PAGE_WIDTH - 64}px;
+            font-family: ${styles.font};
+            font-size: ${styles.size}px;
+            line-height: 1.8;
+            color: ${styles.color};
+            word-wrap: break-word;
+            overflow-wrap: break-word;
+        `;
+        measurer.innerHTML = html;
+        document.body.appendChild(measurer);
+
+        const pages = [];
+        const children = Array.from(measurer.childNodes);
+
+        let currentPageNodes = [];
+        let currentHeight = 0;
+
+        // Helper: create a temp div to measure node height
+        function measureNode(node) {
+            const temp = document.createElement('div');
+            temp.style.cssText = measurer.style.cssText;
+            temp.style.position = 'absolute';
+            temp.style.left = '-9999px';
+            // Add previous nodes for context (margin collapse)
+            currentPageNodes.forEach(n => temp.appendChild(n.cloneNode(true)));
+            temp.appendChild(node.cloneNode(true));
+            document.body.appendChild(temp);
+            const h = temp.scrollHeight;
+            document.body.removeChild(temp);
+            return h;
+        }
+
+        function measureCurrentPage() {
+            if (currentPageNodes.length === 0) return 0;
+            const temp = document.createElement('div');
+            temp.style.cssText = measurer.style.cssText;
+            temp.style.position = 'absolute';
+            temp.style.left = '-9999px';
+            currentPageNodes.forEach(n => temp.appendChild(n.cloneNode(true)));
+            document.body.appendChild(temp);
+            const h = temp.scrollHeight;
+            document.body.removeChild(temp);
+            return h;
+        }
+
+        function flushPage() {
+            if (currentPageNodes.length === 0) return;
+            const div = document.createElement('div');
+            currentPageNodes.forEach(n => div.appendChild(n.cloneNode(true)));
+            pages.push(div.innerHTML);
+            currentPageNodes = [];
+            currentHeight = 0;
+        }
+
+        for (const child of children) {
+            if (child.nodeType === Node.TEXT_NODE && !child.textContent.trim()) continue;
+
+            // Try adding this node
+            currentPageNodes.push(child);
+            const newHeight = measureCurrentPage();
+
+            if (newHeight > PAGE_CONTENT_HEIGHT && currentPageNodes.length > 1) {
+                // Remove the last node and flush
+                currentPageNodes.pop();
+                flushPage();
+                // Add the node to next page
+                currentPageNodes.push(child);
+                currentHeight = measureCurrentPage();
+            } else {
+                currentHeight = newHeight;
+            }
+        }
+        flushPage();
+
+        document.body.removeChild(measurer);
+        return pages.length > 0 ? pages : [''];
+    }
+
+    // ── Auto-scale overflowing math to fit container width ──
+    function fitMathToContainer(container) {
+        const containerWidth = container.clientWidth;
+        if (!containerWidth) return;
+        const padding = parseFloat(getComputedStyle(container).paddingLeft) + parseFloat(getComputedStyle(container).paddingRight);
+        const availableWidth = containerWidth - padding;
+
+        container.querySelectorAll('.katex-display').forEach(block => {
+            // Reset any previous scaling
+            block.style.transform = '';
+            block.style.transformOrigin = '';
+            const katexEl = block.querySelector('.katex');
+            if (!katexEl) return;
+            const mathWidth = katexEl.scrollWidth;
+            if (mathWidth > availableWidth) {
+                const scale = availableWidth / mathWidth;
+                block.style.transform = `scale(${scale})`;
+                block.style.transformOrigin = 'left center';
+                block.style.marginRight = `-${mathWidth * (1 - scale)}px`;
+            }
+        });
+    }
+
+    // ── Render preview ──
+    function renderPreview() {
+        const md = document.getElementById('md-input').value;
+        const styles = getStyles();
+        const html = mdToHtml(md);
+        const pages = splitIntoPages(html, styles);
+
+        const preview = document.getElementById('preview');
+        preview.innerHTML = pages.map((pageHtml, i) => `
+            <div class="phone-page" style="background:${styles.bg}; color:${styles.color}; font-family:${styles.font}; font-size:${styles.size}px;">
+                ${pageHtml}
+                <div class="watermark">Page ${i + 1} / ${pages.length}</div>
+            </div>
+            <div class="page-label">Page ${i + 1} of ${pages.length}</div>
+        `).join('');
+
+        // Auto-scale any overflowing math
+        requestAnimationFrame(() => {
+            preview.querySelectorAll('.phone-page').forEach(fitMathToContainer);
+        });
+    }
+
+    // Debounced input
+    let renderTimeout;
+    const mdInput = document.getElementById('md-input');
+    mdInput.addEventListener('input', () => {
+        clearTimeout(renderTimeout);
+        renderTimeout = setTimeout(renderPreview, 300);
+    });
+
+    // ── Image drop & paste ──
+    function insertTextAtCursor(textarea, text) {
+        const start = textarea.selectionStart;
+        const end = textarea.selectionEnd;
+        const before = textarea.value.substring(0, start);
+        const after = textarea.value.substring(end);
+        textarea.value = before + text + after;
+        const newPos = start + text.length;
+        textarea.selectionStart = textarea.selectionEnd = newPos;
+        textarea.focus();
+        // Trigger re-render
+        clearTimeout(renderTimeout);
+        renderTimeout = setTimeout(renderPreview, 300);
+    }
+
+    function handleImageFiles(files, textarea) {
+        for (const file of files) {
+            if (!file.type.startsWith('image/')) continue;
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                const dataUrl = e.target.result;
+                const md = `\n![${file.name}](${dataUrl})\n`;
+                insertTextAtCursor(textarea, md);
+            };
+            reader.readAsDataURL(file);
+        }
+    }
+
+    // Drag & drop
+    mdInput.addEventListener('dragover', (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        mdInput.classList.add('drag-over');
+    });
+    mdInput.addEventListener('dragleave', (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        mdInput.classList.remove('drag-over');
+    });
+    mdInput.addEventListener('drop', (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        mdInput.classList.remove('drag-over');
+        if (e.dataTransfer.files.length > 0) {
+            handleImageFiles(e.dataTransfer.files, mdInput);
+        }
+    });
+
+    // Paste
+    mdInput.addEventListener('paste', (e) => {
+        const items = e.clipboardData?.items;
+        if (!items) return;
+        const imageItems = Array.from(items).filter(item => item.type.startsWith('image/'));
+        if (imageItems.length > 0) {
+            e.preventDefault();
+            const files = imageItems.map(item => item.getAsFile()).filter(Boolean);
+            handleImageFiles(files, mdInput);
+        }
+    });
+
+    // ── Export ──
+    async function exportAll(asZip = false) {
+        const md = document.getElementById('md-input').value;
+        const styles = getStyles();
+        const html = mdToHtml(md);
+        const pages = splitIntoPages(html, styles);
+        const format = document.getElementById('export-format').value;
+        const scale = parseInt(document.getElementById('export-scale').value);
+        const renderArea = document.getElementById('render-area');
+
+        const blobs = [];
+
+        for (let i = 0; i < pages.length; i++) {
+            // Create a full-quality render element
+            const el = document.createElement('div');
+            el.style.cssText = `
+                width: ${PAGE_WIDTH}px;
+                min-height: 667px;
+                padding: 40px 32px;
+                box-sizing: border-box;
+                background: ${styles.bg};
+                color: ${styles.color};
+                font-family: ${styles.font};
+                font-size: ${styles.size}px;
+                line-height: 1.8;
+                word-wrap: break-word;
+                overflow-wrap: break-word;
+            `;
+            el.innerHTML = `
+                <style>
+                    .export-page h1 { font-size: 1.6em; font-weight: 700; margin: 0.6em 0 0.4em; }
+                    .export-page h2 { font-size: 1.35em; font-weight: 700; margin: 0.5em 0 0.35em; }
+                    .export-page h3 { font-size: 1.15em; font-weight: 600; margin: 0.4em 0 0.3em; }
+                    .export-page p { margin: 0.5em 0; }
+                    .export-page ul, .export-page ol { padding-left: 1.5em; margin: 0.5em 0; }
+                    .export-page li { margin: 0.25em 0; }
+                    .export-page blockquote { border-left: 3px solid currentColor; opacity: 0.8; padding-left: 1em; margin: 0.5em 0; }
+                    .export-page pre { background: rgba(0,0,0,0.05); padding: 0.8em; border-radius: 6px; overflow-x: auto; font-size: 0.85em; margin: 0.5em 0; }
+                    .export-page code { background: rgba(0,0,0,0.05); padding: 0.15em 0.35em; border-radius: 3px; font-size: 0.9em; }
+                    .export-page pre code { background: none; padding: 0; }
+                    .export-page hr { border: none; border-top: 1px solid currentColor; opacity: 0.2; margin: 1em 0; }
+                    .export-page table { border-collapse: collapse; width: 100%; margin: 0.5em 0; font-size: 0.9em; }
+                    .export-page th, .export-page td { border: 1px solid currentColor; padding: 0.4em 0.6em; opacity: 0.9; }
+                    .export-page th { font-weight: 600; }
+                    .export-page img { max-width: 100%; border-radius: 6px; }
+                </style>
+                <div class="export-page">${pages[i]}</div>
+                <div style="text-align:right; font-size:10px; opacity:0.35; margin-top:12px; padding-top:8px; border-top:1px solid currentColor;">
+                    ${pages.length > 1 ? `${i + 1} / ${pages.length}` : ''}
+                </div>
+            `;
+
+            renderArea.appendChild(el);
+
+            // Auto-scale overflowing math before capture
+            fitMathToContainer(el);
+
+            const canvas = await html2canvas(el, {
+                scale: scale,
+                backgroundColor: styles.bg,
+                useCORS: true,
+                allowTaint: true,
+                logging: false,
+            });
+
+            renderArea.removeChild(el);
+
+            const blob = await new Promise(resolve => {
+                canvas.toBlob(resolve, format === 'jpeg' ? 'image/jpeg' : 'image/png', 0.95);
+            });
+            blobs.push(blob);
+        }
+
+        if (asZip || blobs.length > 1) {
+            // Simple download all individually (no zip library needed)
+            for (let i = 0; i < blobs.length; i++) {
+                const url = URL.createObjectURL(blobs[i]);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `md-image-${i + 1}.${format === 'jpeg' ? 'jpg' : 'png'}`;
+                a.click();
+                URL.revokeObjectURL(url);
+                // Small delay between downloads
+                if (i < blobs.length - 1) await new Promise(r => setTimeout(r, 300));
+            }
+        } else if (blobs.length === 1) {
+            const url = URL.createObjectURL(blobs[0]);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `md-image.${format === 'jpeg' ? 'jpg' : 'png'}`;
+            a.click();
+            URL.revokeObjectURL(url);
+        }
+    }
+
+    // ── Init ──
+    renderPresetBar();
+
+    // Load sample content
+    document.getElementById('md-input').value = `# The Beauty of Mathematics
+
+Mathematics reveals hidden patterns that help us understand the world around us.
+
+## Euler's Identity
+
+Often called the most beautiful equation in mathematics:
+
+$$e^{i\\pi} + 1 = 0$$
+
+This single equation connects five fundamental constants: $e$, $i$, $\\pi$, $1$, and $0$.
+
+## The Gaussian Integral
+
+One of the most important integrals in probability theory:
+
+\\[
+\\int_{-\\infty}^{\\infty} e^{-x^2} dx = \\sqrt{\\pi}
+\\]
+
+## Soft Policy Optimization
+
+A natural objective for RL with a reference policy \\(\\hat\\pi\\):
+
+\\[
+\\max_\\pi\\;
+\\mathbb{E}_{a\\sim \\pi(\\cdot\\mid s)}[Q(s,a)]
+-\\alpha\\,\\mathrm{KL}\\big(\\pi(\\cdot\\mid s)\\,\\|\\,\\hat\\pi(\\cdot\\mid s)\\big)
+\\]
+
+## Key Takeaways
+
+- Mathematics is the **language of nature**
+- Simple rules can produce *extraordinary* complexity
+- Beauty and truth are deeply connected
+
+> "Mathematics is not about numbers, equations, or algorithms: it is about **understanding**." -- William Paul Thurston`;
+
+    renderPreview();
+    </script>
+</body>
+</html>

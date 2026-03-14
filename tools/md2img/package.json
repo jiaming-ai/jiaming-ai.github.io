@@ -1,0 +1,16 @@
+{
+  "name": "md2img",
+  "version": "1.0.0",
+  "description": "Convert markdown (with math) into phone-sized images",
+  "main": "md2img.mjs",
+  "bin": {
+    "md2img": "./md2img.mjs"
+  },
+  "type": "module",
+  "scripts": {
+    "start": "node md2img.mjs"
+  },
+  "dependencies": {
+    "puppeteer": "^23.0.0"
+  }
+}
