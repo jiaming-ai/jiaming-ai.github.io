@@ -1,6 +1,21 @@
 [
     {
         "year": 2026,
+        "title": "Best Practise for Post-Training Your VLAs",
+        "authors": "Jiaming Wang, Harold Soh",
+        "venue": "Technical Report",
+        "links": {
+            "pdf": "#",
+            "code": "#",
+            "video": "#"
+        },
+        "bibtex": "@techreport{wang2026vla,\n  title={Best Practise for Post-Training Your VLAs},\n  author={Wang, Jiaming and Soh, Harold},\n  year={2026}\n}",
+        "type": "preprint",
+        "selected": true,
+        "note": "🏆 Winner of REAL-I Challenge @ICRA'26"
+    },
+    {
+        "year": 2026,
         "title": "Control-Ready Uncertainty for Trajectory Diffusion",
         "authors": "Zhiwei Xue, Kam Jia Yue, Jinhang Qiu, Yifeng Cheng, Ege Gursoy, Jiaming Wang, Vincent Bonnet, Harold Soh",
         "venue": "RSS 2026 Workshop on Diffusion Models for Robot Learning (Diff4RL)",
