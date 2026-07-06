@@ -1,6 +1,21 @@
 [
     {
         "year": 2026,
+        "title": "Control-Ready Uncertainty for Trajectory Diffusion",
+        "authors": "Zhiwei Xue, Kam Jia Yue, Jinhang Qiu, Yifeng Cheng, Ege Gursoy, Jiaming Wang, Vincent Bonnet, Harold Soh",
+        "venue": "RSS 2026 Workshop on Diffusion Models for Robot Learning (Diff4RL)",
+        "links": {
+            "pdf": "#",
+            "code": "#",
+            "video": "#"
+        },
+        "bibtex": "@inproceedings{xue2026controlready,\n  title={Control-Ready Uncertainty for Trajectory Diffusion},\n  author={Xue, Zhiwei and Yue, Kam Jia and Qiu, Jinhang and Cheng, Yifeng and Gursoy, Ege and Wang, Jiaming and Bonnet, Vincent and Soh, Harold},\n  booktitle={RSS 2026 Workshop on Diffusion Models for Robot Learning (Diff4RL)},\n  year={2026}\n}",
+        "type": "preprint",
+        "selected": true,
+        "note": "Accepted at RSS'26 Workshop Diff4RL · Under review at NeurIPS 2026"
+    },
+    {
+        "year": 2026,
         "title": "CROSS: Change Robust Online Topological Mapping System",
         "authors": "Jiaming Wang, Diwen Liu, Jiaming Chen, Harold Soh",
         "venue": "arXiv preprint",
@@ -58,6 +73,20 @@
         "type": "preprint",
         "selected": true,
         "note": "🏆 Best Paper Award"
+    },
+    {
+        "year": 2025,
+        "title": "Arena-Bench 2.0: A Comprehensive Benchmark of Social Navigation Approaches in Collaborative Environments",
+        "authors": "Volodymyr Shcherbyna, Linh Kästner, Duc Anh Do, Jiaming Wang, Huu Giang Nguyen, Tim Seeger, Ahmed Martban, Zhengcheng Shen, Huajian Zeng, Nhan Trinh, Eva Wiese",
+        "venue": "2025 IEEE/RSJ International Conference on Intelligent Robots and Systems (IROS)",
+        "links": {
+            "pdf": "https://ieeexplore.ieee.org/abstract/document/11246895/",
+            "code": "#",
+            "video": "#"
+        },
+        "bibtex": "@inproceedings{shcherbyna2025arenabench,\n  title={Arena-Bench 2.0: A Comprehensive Benchmark of Social Navigation Approaches in Collaborative Environments},\n  author={Shcherbyna, Volodymyr and K{\\\"a}stner, Linh and Do, Duc Anh and Wang, Jiaming and Nguyen, Huu Giang and Seeger, Tim and Martban, Ahmed and Shen, Zhengcheng and Zeng, Huajian and Trinh, Nhan and Wiese, Eva},\n  booktitle={2025 IEEE/RSJ International Conference on Intelligent Robots and Systems (IROS)},\n  pages={9202--9209},\n  year={2025},\n  organization={IEEE}\n}",
+        "type": "past",
+        "selected": true
     },
     {
         "year": 2024,
