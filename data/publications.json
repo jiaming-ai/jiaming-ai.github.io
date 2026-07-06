@@ -20,11 +20,11 @@
         "authors": "Jiaming Wang, Diwen Liu, Jiaming Chen, Harold Soh",
         "venue": "arXiv preprint",
         "links": {
-            "pdf": "#",
+            "pdf": "https://arxiv.org/abs/2605.02227",
             "code": "#",
             "video": "#"
         },
-        "bibtex": "@article{wang2026cross,\n  title={CROSS: Change Robust Online Topological Mapping System},\n  author={Wang, Jiaming and Liu, Diwen and Chen, Jiaming and Soh, Harold},\n  journal={arXiv preprint},\n  year={2026}\n}",
+        "bibtex": "@article{wang2026cross,\n  title={CROSS: Change Robust Online Topological Mapping System},\n  author={Wang, Jiaming and Liu, Diwen and Chen, Jiaming and Soh, Harold},\n  journal={arXiv preprint arXiv:2605.02227},\n  year={2026}\n}",
         "type": "preprint",
         "selected": true,
         "note": "Under review"
