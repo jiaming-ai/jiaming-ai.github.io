@@ -1,0 +1,394 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VLA Is Not Dead—At Least Not Yet - Jiaming Wang</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link rel="stylesheet" href="../../css/styles.css">
+    <!-- KaTeX (remove if no math) -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"
+        onload="renderMathInElement(document.querySelector('.blog-content'), {
+            delimiters: [
+                {left: '$$', right: '$$', display: true},
+                {left: '\\\\[', right: '\\\\]', display: true},
+                {left: '$', right: '$', display: false},
+                {left: '\\\\(', right: '\\\\)', display: false}
+            ],
+            throwOnError: false
+        });"></script>
+</head>
+<body>
+    <!-- Side Navigation (Desktop/Tablet) -->
+    <nav class="side-nav" id="side-nav-placeholder"></nav>
+
+    <!-- Top Navigation (Mobile) -->
+    <nav class="top-nav fixed top-0 left-0 right-0 z-50 border-b" style="border-color: var(--border); background-color: var(--bg-primary); box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1);" id="top-nav-placeholder"></nav>
+
+    <!-- Main Content -->
+    <div class="main-content-with-sidebar blog-page-wrapper">
+        <article class="section-container blog-article">
+
+            <!-- Post header -->
+            <div class="blog-article-header">
+                <a href="../blog.html" class="blog-back-link">
+                    <i class="fas fa-arrow-left"></i> Back to Blog
+                </a>
+                <h1 class="blog-article-title">VLA Is Not Dead—At Least Not Yet</h1>
+                <div class="blog-article-meta">
+                    <span class="blog-post-date">July 26, 2026</span>
+                    <div class="blog-post-tags">
+                                                <span class="blog-tag">Technical</span>
+                        <span class="blog-tag">Research</span>
+                    </div>
+                </div>
+                <!-- Language toggle -->
+                <div class="blog-lang-toggle">
+                    <button class="blog-lang-btn active" data-target="en" onclick="switchLang('en')">EN</button>
+                    <button class="blog-lang-btn" data-target="zh" onclick="switchLang('zh')">中文</button>
+                </div>
+            </div>
+
+            <!-- Blog content -->
+            <div class="blog-content">
+
+<!-- Chinese version -->
+<div data-lang="zh" style="display: none;">
+<h2>说 VLA 已死，为时过早</h2>
+
+<p>这篇 DreamZero / WAM 论文最重要的点，不是“机器人会生成视频了”，而是它把 robot policy 重新拆成了两个问题：<strong>先预测未来会发生什么，再从这个未来反推出动作。</strong></p>
+
+<p>论文 Eq. 1 已经把结构写得很清楚：</p>
+
+<img src="../../assets/img/blog/wam/equation.png" alt="DreamZero 将策略分解为视频预测与逆动力学模型">
+
+<p>先生成 future video，再在这个 future video 上生成 action。也就是说，WAM 的本质是：<strong>显式 forward dynamics model + IDM。</strong></p>
+
+<p>它不是传统 VLA 那种从 VLM 接一个 action head，直接做 image / language → action。它先生成 future video；再让 inverse dynamics model 根据这个 future state 生成动作。future video 在这里扮演的是 visual plan。IDM 做的事情，是把这个 visual plan 翻译成 robot action。</p>
+
+<p>这个区别非常关键。</p>
+
+<h3>为什么 WAM 在数据上更占便宜</h3>
+
+<p>VLA 的预训练主要来自 image-text / VLM 数据。它学到的是语义常识：</p>
+
+<ul>
+<li>这个东西是什么？</li>
+<li>这句话是什么意思？</li>
+<li>这个目标大概在哪里？</li>
+</ul>
+
+<p>但机器人真正缺的不是这个，而是：<strong>这个动作做下去，物理世界会怎么变？</strong></p>
+
+<p>WAM 的 advantage 在这里。</p>
+
+<p>video generation backbone 本身就预训练在大规模视频上。视频天然包含时间、运动、接触、遮挡、变形、因果演化。虽然互联网视频没有 robot action label，但它至少和机器人最终要预测的东西高度对齐：<strong>都是物理世界的状态序列。</strong></p>
+
+<p>所以 robot data finetune 的阶段，本质不是从零学物理，而是让一个已经见过大量世界演化的视频模型，学会：</p>
+
+<ul>
+<li>这个 embodiment 怎么和世界互动；</li>
+<li>这个 future visual trajectory 对应什么 motor command。</li>
+</ul>
+
+<p>相比之下，VLA 的 VLM pretraining 和 robot action prediction 是错位的。image-text data 对“语义”很强，<strong>但对“动作序列的物理演化”并不直接对齐。</strong></p>
+
+<p>这也是为什么 WAM 能更好吃下 diverse、non-repetitive robot data。对于 VLA，同样一段杂乱 robot trajectory 可能只是 noisy state-action pairs。对于 WAM，每一段连续视频都是 dense future-state supervision。</p>
+
+<p>这不是小差别，这是数据利用方式的差别。</p>
+
+<h3>为什么 IDM 比直接学 VLA policy 更好学</h3>
+
+<p>直接 VLA policy 要一次性学两个东西：</p>
+
+<ul>
+<li>未来应该发生什么；</li>
+<li>机器人该怎么动才能让它发生。</li>
+</ul>
+
+<p>WAM 把问题拆开：</p>
+
+<ul>
+<li>video model 负责预测 future state；</li>
+<li>IDM 负责把 future state 映射成 action。</li>
+</ul>
+
+<p>这会让 action learning 更像一个逆动力学问题，而不是端到端硬拟合 policy。</p>
+
+<p>论文里也给了很强的信号：很多失败主要来自 video prediction error，而不是 action extraction error。换句话说，只要未来视频预测对了，IDM 往往能比较稳定地把动作拉出来。</p>
+
+<p>这说明 WAM 的瓶颈很可能已经从“动作头会不会学”转移到了“世界模型能不能预测对”。这也是为什么它在 unseen task 和 cross-embodiment 上效果好，是合理的。</p>
+
+<h3>为什么 unseen task / cross-embodiment 结果 make sense</h3>
+
+<p>对于 unseen task，VLA 如果没在 robot data 里见过类似动作，它只能靠 VLM 的语义 prior 硬猜。但 VLM 没有大规模动作序列预训练，它并不知道“解鞋带”“熨衣服”“握手”这种物理 motion 应该如何展开。</p>
+
+<p>WAM 不一样。</p>
+
+<p>它可以先用 video generation backbone 生成一个 future visual plan。这个 video backbone 很可能在大规模视频里见过类似的动作演进。然后 IDM 再把这个 visual future 转成 robot action。</p>
+
+<p>所以 WAM 在 unseen task 上比 VLA 好，不神秘。</p>
+
+<p>cross-embodiment 也是一样。如果一个 human 或另一个 robot 的 video-only demo 能帮助 WAM 更新“这个任务的视觉演化”，那它不一定需要 action label。因为 action label 是 embodiment-specific 的，但 future visual state 更接近 embodiment-agnostic。</p>
+
+<p>这就是 WAM 最有价值的地方：<strong>它把大量没有 robot action label 的视频数据，变成了可以影响 policy 的训练信号。</strong></p>
+
+<p>这是 VLA 很难直接做到的。</p>
+
+<h3>但代价也很大</h3>
+
+<p>WAM 的强，来自显式 world modeling。但显式生成 future video 不是免费的。</p>
+
+<p>它需要模型真的理解多出来的世界演化信息。这就吃 model capacity。</p>
+
+<p>Table 4 里这个点非常明显：</p>
+
+<p>5B DreamZero 只有 21% task progress；14B DreamZero 到 50%。</p>
+
+<img src="../../assets/img/blog/wam/model-scale.png" alt="DreamZero 的数据多样性、模型规模与架构消融结果">
+
+<p>小模型扛不住显式 video generation + action alignment，容易 hallucinate future，然后 action 也跟着错。</p>
+
+<p>所以 WAM 是一个把 world model 放进 policy 里的大模型系统。这和很多 VLA 的工程属性不一样。VLA 可以更便宜、更快、更容易部署；WAM 则把更多能力前置到了 video generation backbone 里。</p>
+
+<h3>真正尴尬的是工业落地</h3>
+
+<p>如果只看 zero-shot / low-shot，WAM 很漂亮。但如果你真要落地到工厂、仓库、餐饮、家庭服务，一个绕不开的问题是：</p>
+
+<p><strong>最终还是要 post-train。</strong></p>
+
+<p>Figure 10 很值得细看。</p>
+
+<p>在 shirt folding 上，33 小时 post-training data 之后，DreamZero 和 pretrained VLA 基本打平，都是 92.5%。在 fruit packing 上，12 小时 post-training data 之后，DreamZero 到 96%，明显强于 VLA。</p>
+
+<img src="../../assets/img/blog/wam/post-training.png" alt="DreamZero 与预训练 VLA 在后训练后的任务进度对比">
+
+<p>这就带来一个很尴尬的 tradeoff：</p>
+
+<p>少量数据时，WAM 确实比 VLA 更强，但可能还没强到足够稳定落地；数据加多之后，WAM 和强 VLA 的差距又可能缩小；但 WAM 的推理成本、延迟、系统复杂度明显更高。</p>
+
+<p>论文自己也承认，DreamZero 要靠一整套系统优化，把 14B autoregressive video diffusion model 从 5.7 秒优化到 150 ms，并且使用 2×GB200 才跑到 7 Hz。一台 GB200 的成本在 50 万元以上，而且需要直接液冷（DLC）系统。与此同时，当前 VLA 可以在 consumer GPU 上跑到 20 Hz+。</p>
+
+<p>这不是小工程差距。这是部署成本差距。</p>
+
+<p>所以，如果一个工业任务本来就可以收几十小时高质量数据，VLA 便宜、快、稳定，可能依然是非常强的 baseline。</p>
+
+<p>WAM 的优势更像是：</p>
+
+<ul>
+<li>长尾任务；</li>
+<li>unseen motion 及低重复示教下的泛化；</li>
+<li>cross-embodiment transfer；</li>
+<li>video-only data 利用。</li>
+</ul>
+
+<p>而不是所有场景直接替代 VLA。</p>
+
+<h3>我的判断</h3>
+
+<p>WAM 是一条非常重要的路线。它的核心贡献不是“机器人生成视频”，而是证明了：</p>
+
+<p><strong>video generation backbone 可以作为 robot policy 的物理先验。</strong></p>
+
+<p>这条路线比传统 VLA 更接近物理世界的演化结构，也更能利用大规模视频数据。它让 robot learning 从“直接拟合动作”变成了“先理解未来，再反推动作”。</p>
+
+<p>这很强。但说 VLA 已死，为时过早。</p>
+
+<p>VLA 的问题是物理泛化弱；WAM 的问题是成本、延迟、容量和部署复杂度高。</p>
+
+<p>一个更现实的判断是：</p>
+
+<p><strong>WAM 会在 unseen task、low-shot、cross-embodiment 和 video-data scaling 上打开新上限；但在大量工业场景里，VLA 仍然会因为便宜、快、易部署而活得很好。</strong></p>
+
+<p>WAM 证明了 VLA 的上限问题。但它还没有证明 VLA 的工程价值已经消失。</p>
+
+<p>所以，VLA 没死。只是以后不能再只靠 VLM pretraining 讲 robot foundation model 的故事了。</p>
+</div>
+
+<!-- English version -->
+<div data-lang="en">
+<h2>VLA Is Not Dead—At Least Not Yet</h2>
+
+<p>The most important point in the DreamZero / WAM paper is not that “robots can generate video now.” It is that the paper decomposes a robot policy into two problems: <strong>first predict what will happen in the future, then infer the action from that future.</strong></p>
+
+<p>Equation 1 makes the structure explicit:</p>
+
+<img src="../../assets/img/blog/wam/equation.png" alt="DreamZero decomposes a policy into video prediction and an inverse dynamics model">
+
+<p>It first generates a future video and then generates actions on top of that video. In other words, the essence of WAM is an <strong>explicit forward dynamics model + IDM.</strong></p>
+
+<p>This is different from a conventional VLA that attaches an action head to a VLM and directly maps image / language → action. WAM first generates a future video; an inverse dynamics model then produces actions from that future state. The future video serves as a visual plan, and the IDM translates that plan into robot actions.</p>
+
+<p>That distinction is crucial.</p>
+
+<h3>Why WAM Has a Data Advantage</h3>
+
+<p>VLA pretraining mainly comes from image-text / VLM data. It learns semantic common sense:</p>
+
+<ul>
+<li>What is this object?</li>
+<li>What does this sentence mean?</li>
+<li>Where is the target likely to be?</li>
+</ul>
+
+<p>But what robots truly lack is something else: <strong>if I take this action, how will the physical world change?</strong></p>
+
+<p>That is where WAM has an advantage.</p>
+
+<p>A video-generation backbone is already pretrained on large-scale video. Video naturally contains time, motion, contact, occlusion, deformation, and causal evolution. Internet video may not have robot-action labels, but it is closely aligned with what a robot ultimately needs to predict: <strong>a sequence of states of the physical world.</strong></p>
+
+<p>Robot-data fine-tuning therefore does not have to teach physics from scratch. Instead, it teaches a video model that has already seen extensive world dynamics:</p>
+
+<ul>
+<li>how this embodiment interacts with the world; and</li>
+<li>which motor commands correspond to a future visual trajectory.</li>
+</ul>
+
+<p>By contrast, VLM pretraining and robot-action prediction are misaligned in a VLA. Image-text data is strong on semantics, <strong>but it is not directly aligned with the physical evolution of action sequences.</strong></p>
+
+<p>This also explains why WAM can make better use of diverse, non-repetitive robot data. For a VLA, the same messy robot trajectory may look like noisy state-action pairs. For WAM, every continuous video segment provides dense future-state supervision.</p>
+
+<p>This is not a minor difference. It is a fundamentally different way of using data.</p>
+
+<h3>Why an IDM Is Easier to Learn Than a Direct VLA Policy</h3>
+
+<p>A direct VLA policy must learn two things at once:</p>
+
+<ul>
+<li>what should happen in the future; and</li>
+<li>how the robot should move to make it happen.</li>
+</ul>
+
+<p>WAM separates them:</p>
+
+<ul>
+<li>the video model predicts the future state; and</li>
+<li>the IDM maps that future state to an action.</li>
+</ul>
+
+<p>This turns action learning into something closer to an inverse-dynamics problem, rather than forcing an end-to-end policy fit.</p>
+
+<p>The paper also gives a strong signal: many failures come primarily from video-prediction errors rather than action-extraction errors. In other words, once the future video is correct, the IDM can often recover the action reliably.</p>
+
+<p>WAM may therefore have moved the bottleneck from “can the action head learn?” to “can the world model predict correctly?” That makes its strong performance on unseen tasks and cross-embodiment transfer quite plausible.</p>
+
+<h3>Why the Unseen-Task and Cross-Embodiment Results Make Sense</h3>
+
+<p>On an unseen task, if a VLA has never observed a similar motion in robot data, it can only guess from the semantic prior of its VLM. But a VLM has not been pretrained on action sequences at scale; it does not know how physical motions such as untying shoelaces, ironing clothes, or shaking hands should unfold.</p>
+
+<p>WAM is different.</p>
+
+<p>It can first use its video-generation backbone to produce a future visual plan. That backbone may already have seen similar motion patterns in large-scale video, after which the IDM converts the visual future into robot actions.</p>
+
+<p>There is nothing mysterious about WAM outperforming VLA on unseen tasks.</p>
+
+<p>The same logic applies to cross-embodiment transfer. If a video-only demonstration from a human or another robot can update WAM’s representation of how the task should visually unfold, it may not need action labels. Action labels are embodiment-specific, while future visual states are closer to embodiment-agnostic.</p>
+
+<p>This is WAM’s most valuable property: <strong>it turns large amounts of video without robot-action labels into training signals that can shape a policy.</strong></p>
+
+<p>That is difficult for a conventional VLA to do directly.</p>
+
+<h3>But the Cost Is High</h3>
+
+<p>WAM’s strength comes from explicit world modeling. Explicitly generating a future video, however, is not free.</p>
+
+<p>The model must truly understand the additional information in how the world evolves, which consumes model capacity.</p>
+
+<p>Table 4 makes this clear:</p>
+
+<p>The 5B DreamZero reaches only 21% task progress, while the 14B model reaches 50%.</p>
+
+<img src="../../assets/img/blog/wam/model-scale.png" alt="Ablations of data diversity, model scale, and architecture in DreamZero">
+
+<p>A small model struggles to carry explicit video generation and action alignment at the same time. It hallucinates the future, and the action fails with it.</p>
+
+<p>WAM is therefore a large-model system that embeds a world model inside the policy. Its engineering profile differs from many VLAs: a VLA can be cheaper, faster, and easier to deploy, while WAM moves much more capability into the video-generation backbone.</p>
+
+<h3>The Awkward Part Is Industrial Deployment</h3>
+
+<p>WAM looks excellent in zero-shot and low-shot settings. But if the goal is deployment in a factory, warehouse, restaurant, or home-service scenario, one unavoidable issue remains:</p>
+
+<p><strong>You still have to post-train.</strong></p>
+
+<p>Figure 10 is worth examining closely.</p>
+
+<p>On shirt folding, after 33 hours of post-training data, DreamZero and the pretrained VLA are tied at 92.5%. On fruit packing, after 12 hours, DreamZero reaches 96% and clearly outperforms the VLA.</p>
+
+<img src="../../assets/img/blog/wam/post-training.png" alt="Task-progress comparison between DreamZero and pretrained VLAs after post-training">
+
+<p>This creates an awkward tradeoff:</p>
+
+<p>With very little data, WAM is stronger than VLA, but it may still not be reliable enough to deploy. As the amount of data grows, the gap between WAM and a strong VLA may narrow, while WAM retains substantially higher inference cost, latency, and system complexity.</p>
+
+<p>The paper acknowledges that DreamZero needs an entire stack of system optimizations to reduce a 14B autoregressive video-diffusion model from 5.7 seconds to 150 ms, and it uses 2×GB200 GPUs to reach 7 Hz. A single GB200 costs more than RMB 500,000 and requires a direct-liquid-cooling (DLC) system. Meanwhile, current VLAs can run at 20 Hz+ on consumer GPUs.</p>
+
+<p>This is not a small engineering gap. It is a deployment-cost gap.</p>
+
+<p>If an industrial task can already support the collection of dozens of hours of high-quality data, a VLA may remain an exceptionally strong baseline because it is cheap, fast, and stable.</p>
+
+<p>WAM’s advantages are more likely to appear in:</p>
+
+<ul>
+<li>long-tail tasks;</li>
+<li>generalization to unseen motions and low-repetition demonstrations;</li>
+<li>cross-embodiment transfer; and</li>
+<li>the use of video-only data.</li>
+</ul>
+
+<p>It is not a direct replacement for VLA in every scenario.</p>
+
+<h3>My Take</h3>
+
+<p>WAM is a highly important direction. Its core contribution is not that “robots can generate videos,” but that it demonstrates:</p>
+
+<p><strong>A video-generation backbone can serve as a physical prior for a robot policy.</strong></p>
+
+<p>This direction is more closely aligned with how the physical world evolves than a conventional VLA, and it can make better use of video at scale. It changes robot learning from “directly fit the action” to “understand the future first, then infer the action.”</p>
+
+<p>That is powerful. But it is too early to declare VLA dead.</p>
+
+<p>VLA’s weakness is physical generalization; WAM’s weaknesses are cost, latency, capacity requirements, and deployment complexity.</p>
+
+<p>A more realistic assessment is:</p>
+
+<p><strong>WAM will raise the ceiling on unseen tasks, low-shot learning, cross-embodiment transfer, and video-data scaling; but in many industrial settings, VLA will continue to thrive because it is cheap, fast, and easy to deploy.</strong></p>
+
+<p>WAM exposes the ceiling of VLA. It does not yet prove that VLA’s engineering value has disappeared.</p>
+
+<p>VLA is not dead. But from now on, robot foundation models cannot tell their whole story through VLM pretraining alone.</p>
+</div>
+
+            </div>
+        </article>
+
+        <!-- Footer -->
+        <footer class="border-t py-8" style="border-color: var(--border); background-color: var(--bg-secondary);">
+            <div class="max-w-7xl mx-auto px-6 text-center">
+                <p style="color: var(--text-secondary);">&copy; 2025 Jiaming Wang. All rights reserved.</p>
+            </div>
+        </footer>
+    </div>
+
+    <script>
+    function getPathPrefix() { return '../../'; }
+    </script>
+    <script src="../../js/main.js"></script>
+    <script>
+    function switchLang(lang) {
+        document.querySelectorAll('[data-lang]').forEach(el => {
+            el.style.display = el.getAttribute('data-lang') === lang ? 'block' : 'none';
+        });
+        document.querySelectorAll('.blog-lang-btn').forEach(btn => {
+            btn.classList.toggle('active', btn.getAttribute('data-target') === lang);
+        });
+    }
+    const urlLang = new URLSearchParams(window.location.search).get('lang');
+    if (urlLang) {
+        document.addEventListener('DOMContentLoaded', () => switchLang(urlLang));
+    }
+    </script>
+</body>
+</html>

@@ -1,0 +1,512 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OpenGEN-1: Reconstructing GEN-1 from First Principles - Jiaming Wang</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link rel="stylesheet" href="../../css/styles.css">
+    <!-- KaTeX (remove if no math) -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"
+        onload="renderMathInElement(document.querySelector('.blog-content'), {
+            delimiters: [
+                {left: '$$', right: '$$', display: true},
+                {left: '\\\\[', right: '\\\\]', display: true},
+                {left: '$', right: '$', display: false},
+                {left: '\\\\(', right: '\\\\)', display: false}
+            ],
+            throwOnError: false
+        });"></script>
+</head>
+<body>
+    <!-- Side Navigation (Desktop/Tablet) -->
+    <nav class="side-nav" id="side-nav-placeholder"></nav>
+
+    <!-- Top Navigation (Mobile) -->
+    <nav class="top-nav fixed top-0 left-0 right-0 z-50 border-b" style="border-color: var(--border); background-color: var(--bg-primary); box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1);" id="top-nav-placeholder"></nav>
+
+    <!-- Main Content -->
+    <div class="main-content-with-sidebar blog-page-wrapper">
+        <article class="section-container blog-article">
+
+            <!-- Post header -->
+            <div class="blog-article-header">
+                <a href="../blog.html" class="blog-back-link">
+                    <i class="fas fa-arrow-left"></i> Back to Blog
+                </a>
+                <h1 class="blog-article-title">OpenGEN-1: Reconstructing GEN-1 from First Principles</h1>
+                <div class="blog-article-meta">
+                    <span class="blog-post-date">July 26, 2026</span>
+                    <div class="blog-post-tags">
+                                                <span class="blog-tag">Technical</span>
+                        <span class="blog-tag">Research</span>
+                    </div>
+                </div>
+                <!-- Language toggle -->
+                <div class="blog-lang-toggle">
+                    <button class="blog-lang-btn active" data-target="en" onclick="switchLang('en')">EN</button>
+                    <button class="blog-lang-btn" data-target="zh" onclick="switchLang('zh')">中文</button>
+                </div>
+            </div>
+
+            <!-- Blog content -->
+            <div class="blog-content">
+
+<!-- Chinese version -->
+<div data-lang="zh" style="display: none;">
+<h2>OpenGEN-1：从第一性原理重构 GEN-1</h2>
+
+<p>这是一篇从第一性原理出发对 GEN-1 模型的重构，依据来自 Generalist AI 发布的证据、演示、博客，以及 Pete / Andy 的博客和访谈。</p>
+
+<p>核心判断是：</p>
+
+<blockquote><p><strong>GEN-1 是一个主要基于物理交互流训练出来的物理基础模型，而不是一个从 VLM 改造而来的 VLA。</strong></p></blockquote>
+
+<p>Pete Florence 和 Generalist 团队明确强调了这个区别：GEN-1 “不是一个把机器人动作硬接到上面的微调版视觉语言模型”，也“不只是一个世界模型” [1]。他们把它称为一个面向物理交互的原生基础模型 [1]。</p>
+
+<p>这个说法很重要。它意味着模型主要学习的不是语言、物体语义，或被动的视频预测。它学习的是物理交互的结构：感知、动作、接触、失败、恢复、速度和后果。</p>
+
+<h3>从语义常识到物理常识</h3>
+
+<p>在互联网规模数据上训练的 LLM 和 VLM 可以吸收大量语义知识。它们知道苹果是什么，通常是什么颜色，通常在哪里出现，人们通常会对它做什么。</p>
+
+<p>但它们缺少更深层的东西：<strong>物理常识</strong> [2]。</p>
+
+<p>如果我把一个苹果向左推，它可能会向左滚。如果前面有一个盒子，它会被挡住。如果我拿着它而它开始滑落，我会收紧手指。这些并不只是视觉事实。它们来自动作及其后果。</p>
+
+<p>Andy Zeng 的文章直接指出了这一点：如果大规模文本带来的是语义常识，那么大规模物理交互也许能够带来物理常识——但前提是数据保留了这个闭环 [2]。</p>
+
+<p>这里有两个层次：</p>
+
+<ul>
+<li><strong>前向物理常识：</strong>如果我采取这个动作，接下来会发生什么？</li>
+<li><strong>逆向 / 反射式物理常识：</strong>基于当前正在发生的事情，我应该怎么做？</li>
+</ul>
+
+<p>前者接近动力学模型或世界模型。后者更接近策略、逆动力学模型或反射。人类会连续地同时做这两件事。我们并不是先构建一个完美的世界模型，再规划，然后行动。我们是在同一个闭环中感知和行动。</p>
+
+<h3>一种流式物理 token 架构</h3>
+
+<p>当机器人与物理世界交互时，它接收一连串感知输入，并输出一连串动作。因此，自然的架构不是一个静态的 image-to-action 网络，而是一个流式序列模型。</p>
+
+<p>一种合理的架构是基于物理 token 的 block-causal transformer，其中每个 token 可以是：</p>
+
+<ul>
+<li>context / task token；</li>
+<li>image token；</li>
+<li>proprioception token；</li>
+<li>force / tactile token；</li>
+<li>action-condition token；</li>
+<li>state-query 或 action-query token。</li>
+</ul>
+
+<p>在推理过程中，模型持续追加 observation chunk，并周期性地解码 action chunk。</p>
+
+<img src="../../assets/img/blog/opengen/inference-layout.png" alt="OpenGEN-1 的流式推理架构">
+
+<p>这与 Generalist 自己关于 GEN-0 的描述高度一致。他们把 Harmonic Reasoning 描述为训练模型通过 sensing token 和 acting token 的异步流之间的相互作用来“同时思考和行动” [3]。</p>
+
+<p>过去已处理流的 KV cache 充当短期记忆。更长程的记忆也可能由 harness 管理的 keyframe 或压缩状态摘要提供。Generalist 明确表示，GEN-1 为了实时推理需要“新的 paged attention 形式” [5]。在 transformer serving 中，PagedAttention 本质上就是一种 KV-cache 内存管理方法 [6]。</p>
+
+<p>这也符合 shell-game 演示。该任务需要视觉记忆：在只有腕部摄像头的情况下，物体可能离开视野、被遮挡，或者移动到夹爪后方。只看当前帧的 policy 不够。模型需要基于最近 observation 和 state 的短期工作记忆 [4]。</p>
+
+<p>动作解码可以通过几种方式实现。最简单的是类似 StarVLA-alpha 的直接 action-chunk head [17]。更强的一种选择是 OpenPI 风格的 flow action expert，其中未来动作被表示为连续的 noisy action token，模型从噪声到 clean action 预测一个 vector field [7]。另一种合理选择是类似 GR00T 的 diffusion transformer action module，其中一个快速动作模型基于视觉-语言-本体感知上下文生成流畅的电机动作 [8]。</p>
+
+<h3>训练目标：动作预测 + 潜在动力学</h3>
+
+<p>标准 VLA 目标是动作预测损失，也就是预测动作和 ground-truth 动作之间的损失，或者在 flow matching 中预测 velocity。</p>
+
+<p>这教会模型逆问题：</p>
+
+<blockquote><p><strong>给定当前历史，我接下来应该做什么？</strong></p></blockquote>
+
+<p>但如果要学习物理常识，仅靠动作预测可能不够。模型还应该学习前向问题：</p>
+
+<blockquote><p><strong>给定当前历史和一个动作，接下来会出现什么物理状态？</strong></p></blockquote>
+
+<p>这就是世界模型思想有用的地方。但完整 RGB 重建可能太昂贵，而且容易被无关像素细节干扰。模型不需要重建每一个背景纹理。它需要预测与动作相关的物理状态。</p>
+
+<p>更好的目标是 latent future prediction，也就是让预测的未来 latent state 与编码出来的未来 state 对齐。</p>
+
+<img src="../../assets/img/blog/opengen/training-layout.png" alt="OpenGEN-1 的训练架构与多目标损失">
+
+<p>这就是“VLA + world model + beyond”的技术含义。Pete 说 Generalist 花了一年多时间结合“VLAs、world models 以及更多东西”的思想，因为一个模型结合的能力越多，就越难被分类 [1]。</p>
+
+<p>对于 policy inference 来说，如果模型有丰富的 image / proprio history，过去预测过的动作并不是严格必要的。state trajectory 已经包含了它们的大部分效果。但对于 world-model training 来说，干净的 action-condition token 很有用，因为它们可以教会模型因果动力学。</p>
+
+<p>不过，如果 encoder 和 predictor 都可以自由训练，latent reconstruction 可能会 collapse。target latent 应该被锚定：</p>
+
+<div class="blog-equation">$$z_{\text{target}} = \operatorname{stopgrad}\left(E_{\text{EMA/frozen}}(o_{\text{future}})\right)$$</div>
+
+<p>V-JEPA 风格的方法使用 latent-space prediction、stop-gradient target encoder、masking 和 predictor asymmetry 来避免 collapse [9]。对于物理基础模型来说，action loss 本身也是一个 anti-collapse anchor，因此公式可以更简单。</p>
+
+<p>一个简洁的目标可以写成：</p>
+
+<div class="blog-equation">$$\mathcal{L} = \mathcal{L}_{\text{action}} + \lambda_1\mathcal{L}_{\text{future-latent}} + \lambda_2\mathcal{L}_{\text{proprio}} + \lambda_3\mathcal{L}_{\text{contact/force}}$$</div>
+
+<p>这个目标结合了逆动力学、latent 前向动力学、本体感知预测，以及接触 / 力预测。</p>
+
+<h3>物理交互数据</h3>
+
+<p>互联网文本和视频可以提供语义先验，但它们不包含完整的物理闭环。大多数互联网视频缺少准确的动作、本体感知、力、抓握、触觉反馈和恢复轨迹。</p>
+
+<p>Generalist 的主张是，可以通过大规模收集物理交互来打破数据瓶颈。GEN-1 使用超过 50 万小时的高保真物理交互数据训练 [5]。更重要的是，它的基础模型不使用机器人数据训练；相反，它使用低成本可穿戴设备采集的人类完成数百万种活动的数据 [5]。</p>
+
+<p>这与 Andy 的数据论点一致。遥操作往往会因为延迟、有限的触觉反馈和不自然的接口而破坏 sensorimotor loop；Generalist 则构建了手持式人体工学设备，让力反馈存在，并让操作者开始“反应”，而不是“思考” [2]。</p>
+
+<p>数据多样性不应该只是语义多样性，也就是不同物体、场景和任务。它还应该包括交互多样性：</p>
+
+<ul>
+<li>用力过大 → 物体变形或撞击；</li>
+<li>用力过小 → 物体滑落；</li>
+<li>抓取不好 → 重新抓取。</li>
+</ul>
+
+<p>这就是触觉和力数据变得关键的地方。视觉告诉机器人物体在哪里。本体感知告诉它机器人在哪里。触觉和力告诉它实际发生了什么物理交互。</p>
+
+<p>Generalist 的博客称 GEN-1 使用超过 500,000 小时的交互数据训练 [5]。假设数据以 10 Hz 记录：</p>
+
+<div class="blog-equation">$$500{,}000 \times 3600 \times 10 = 18\text{B}$$</div>
+
+<p>所以，如果每个 timestep 被压缩成大约 64–256 个 visual token，那么总 token 数大约是 1.15T–4.61T。这里还没有加入 proprioception、action、tactile、force 和 task token。因此，这个数据集已经处于 trillion-token 量级。</p>
+
+<p>与常见 LLM / VLM 对比：</p>
+
+<div class="blog-table-wrap"><table>
+<thead>
+<tr><th>Model family</th><th>Model size</th><th>Pretraining tokens</th><th>Notes</th></tr>
+</thead>
+<tbody>
+<tr><td>Llama 2</td><td>7B / 13B / 70B</td><td>2.0T text tokens</td><td>Llama 2 三个尺寸报告的 token 数相同 [10]。</td></tr>
+<tr><td>Llama 3</td><td>8B / 70B</td><td>15T+ text tokens</td><td>Meta 报告两个 Llama 3 尺寸都使用 15T+ 预训练 token [11]。</td></tr>
+<tr><td>Qwen2-VL</td><td>2B / 8B / 72B</td><td>~1.4T multimodal tokens</td><td>Open-Qwen2VL 报告 Qwen2-VL 使用约 1.4T multimodal pretraining tokens [12, 13]。</td></tr>
+</tbody>
+</table></div>
+
+<p>这个数据规模已经足够训练一个 10B 级别的物理基础模型，尤其是因为这些 token 在因果物理信息上非常密集。</p>
+
+<p>这也与 GEN-0 的 scaling observation 一致：Generalist 报告说在约 7B 参数附近出现 phase transition，称 7B+ 模型能更好地内化大规模机器人预训练数据，并指出 GEN-0 已经扩展到 10B+ 的模型规模 [3]。</p>
+
+<p>关键不只是 token 数。1T web token 和 1T physical-interaction token 并不等价。Web token 在语义信息上很密集。Physical-interaction token 在接触、动作、失败、修正、记忆和后果上很密集。</p>
+
+<h3>100 Hz 推理需要一个系统</h3>
+
+<p>Generalist 早期的 research preview 表示，机器人会把像素和其他传感器数据映射成 100 Hz 动作，并且完整的软硬件栈能够实现反应式、流畅、精确的控制 [16]。</p>
+
+<p>对于一个 10B 模型，使用 fp16 / bf16 时，仅权重就大约是 20 GB。在 batch size 为 1 时，next-token 或 action-query decoding 通常受限于 memory bandwidth。先忽略其他开销。</p>
+
+<p>近似的带宽下界估计：</p>
+
+<div class="blog-table-wrap"><table>
+<thead>
+<tr><th>GPU</th><th>Memory bandwidth</th><th>fp16 10B weight-read lower bound</th><th>More realistic optimized range</th></tr>
+</thead>
+<tbody>
+<tr><td>RTX 5090</td><td>~1.79 TB/s</td><td>~11 ms</td><td>~11–25 ms</td></tr>
+<tr><td>RTX PRO 6000 Blackwell</td><td>~1.79 TB/s</td><td>~11 ms</td><td>~11–25 ms</td></tr>
+<tr><td>L40S</td><td>864 GB/s</td><td>~23 ms</td><td>~25–60 ms</td></tr>
+</tbody>
+</table></div>
+
+<p>这些只是 weight-read lower bound。真实推理还要支付 KV-cache 读取、vision encoding、action expert steps、kernel overhead、scheduling、robot I/O，以及 safety / control logic 的开销。</p>
+
+<p>因此，可能的设计是：</p>
+
+<p><strong>大模型：</strong></p>
+
+<ul>
+<li>以较低 policy frequency 运行；</li>
+<li>通过 KV cache / paged attention 维护记忆；</li>
+<li>解码 action chunk；</li>
+<li>预测或跟踪 latent physical state。</li>
+</ul>
+
+<p><strong>低层 harness：</strong></p>
+
+<ul>
+<li>以 100 Hz 执行；</li>
+<li>混合 action chunk；</li>
+<li>执行 safety 约束；</li>
+<li>处理 impedance / force / gripper control；</li>
+<li>对 tactile 和 proprioceptive events 做出反应；</li>
+<li>在两次模型调用之间平滑和稳定行为。</li>
+</ul>
+
+<p>这解释了为什么 Generalist 说 GEN-1 更准确地说是一个系统，而不仅仅是一个模型 [5]。</p>
+
+<h3>结论</h3>
+
+<p>最关键的隐藏洞见是：</p>
+
+<blockquote><p><strong>GEN-1 不只是一个更好的机器人策略。它是在尝试构建一个面向物理交互的预训练基底。</strong></p></blockquote>
+
+<p>这与其他 VLA 形成对比。其他 VLA 通常从预训练 VLM 初始化，并使用大量 web data 共同训练模型，从而学习语义常识。而 GEN-1 似乎瞄准的是缺失的那一层：从真实交互的密集流中学习到的物理常识。</p>
+
+<p>Generalist 的演示大多聚焦于展示物理常识上的泛化：接触丰富的操作、遮挡、恢复、流畅性。相比之下，很多 π 系列 / VLM-based robot models 更强调语义或任务层面的泛化：遵循指令、处理未见过的物体，以及跨高层任务描述迁移。</p>
+
+<h3>References</h3>
+
+<p class="blog-reference">[1] Pete Florence and Generalist AI Team, “Going Beyond World Models &amp; VLAs,” Generalist AI Blog, Apr. 7, 2026.</p>
+<p class="blog-reference">[2] Andy Zeng, “The Dark Matter of Robotics: Physical Commonsense,” Generalist AI Blog, Jan. 29, 2026.</p>
+<p class="blog-reference">[3] Generalist AI Team, “GEN-0 / Embodied Foundation Models That Scale with Physical Interaction,” Generalist AI Blog, Nov. 4, 2025.</p>
+<p class="blog-reference">[4] Generalist AI, “GEN-1 Plays the Shell Game,” LinkedIn post, Apr. 2026.</p>
+<p class="blog-reference">[5] Generalist AI Team, “GEN-1: Scaling Embodied Foundation Models to Mastery,” Generalist AI Blog, Apr. 2, 2026.</p>
+<p class="blog-reference">[6] Woosuk Kwon et al., “Efficient Memory Management for Large Language Model Serving with PagedAttention,” arXiv, 2023.</p>
+<p class="blog-reference">[7] Physical Intelligence / Black et al., “π₀: A Vision-Language-Action Flow Model for General Robot Control,” arXiv, 2024.</p>
+<p class="blog-reference">[8] NVIDIA et al., “GR00T N1: An Open Foundation Model for Generalist Humanoid Robots,” arXiv, 2025.</p>
+<p class="blog-reference">[9] Meta AI, “V-JEPA: Revisiting Feature Prediction for Learning Visual Representations from Video,” ICLR / OpenReview, 2024.</p>
+<p class="blog-reference">[10] Meta, “Llama 2 Model Card,” Hugging Face, 2023.</p>
+<p class="blog-reference">[11] Meta, “Meta Llama 3 8B Model Card,” Hugging Face, 2024.</p>
+<p class="blog-reference">[12] Wang et al., “Open-Qwen2VL: Compute-Efficient Pre-Training of Fully-Open Multimodal LLMs on Academic Resources,” arXiv, 2025.</p>
+<p class="blog-reference">[13] Peng Wang et al., “Qwen2-VL: Enhancing Vision-Language Model’s Perception of the World at Any Resolution,” arXiv, 2024.</p>
+<p class="blog-reference">[14] Shuai Bai et al., “Qwen2.5-VL Technical Report,” arXiv, 2025.</p>
+<p class="blog-reference">[15] Qwen Team, “Qwen2.5 Technical Report,” arXiv, 2024.</p>
+<p class="blog-reference">[16] Generalist AI Team, “Research Preview,” Generalist AI Blog, Jun. 17, 2025.</p>
+<p class="blog-reference">[17] Ye et al., “StarVLA-α: Reducing Complexity in Vision-Language-Action Systems,” arXiv, 2026.</p>
+</div>
+
+<!-- English version -->
+<div data-lang="en">
+<h2>OpenGEN-1: Reconstructing GEN-1 from First Principles</h2>
+
+<p>This article reconstructs the GEN-1 model from first principles, using evidence from Generalist AI’s releases, demonstrations, and blog posts, together with Pete Florence and Andy Zeng’s writing and interviews.</p>
+
+<p>The central hypothesis is:</p>
+
+<blockquote><p><strong>GEN-1 is a physical foundation model trained primarily on streams of physical interaction, rather than a VLA adapted from a VLM.</strong></p></blockquote>
+
+<p>Pete Florence and the Generalist team have emphasized this distinction explicitly: GEN-1 is “not a fine-tuned vision-language model with robot actions bolted on,” and it is “not just a world model” [1]. They describe it as a native foundation model for physical interaction [1].</p>
+
+<p>That claim matters. It suggests that the model is not primarily learning language, object semantics, or passive video prediction. It is learning the structure of physical interaction: perception, action, contact, failure, recovery, speed, and consequence.</p>
+
+<h3>From Semantic Common Sense to Physical Common Sense</h3>
+
+<p>LLMs and VLMs trained on internet-scale data can absorb enormous amounts of semantic knowledge. They know what an apple is, what color it usually has, where it commonly appears, and what people tend to do with it.</p>
+
+<p>But they lack something deeper: <strong>physical common sense</strong> [2].</p>
+
+<p>If I push an apple to the left, it may roll left. If a box is in front of it, the box may stop it. If the apple starts slipping from my grasp, I tighten my fingers. These are not merely visual facts. They come from actions and their consequences.</p>
+
+<p>Andy Zeng’s article makes this point directly: if text at scale produces semantic common sense, then physical interaction at scale may produce physical common sense—but only if the data preserves the closed loop [2].</p>
+
+<p>There are two layers:</p>
+
+<ul>
+<li><strong>Forward physical common sense:</strong> If I take this action, what will happen next?</li>
+<li><strong>Inverse / reflexive physical common sense:</strong> Given what is happening now, what should I do?</li>
+</ul>
+
+<p>The former resembles a dynamics model or world model. The latter resembles a policy, an inverse-dynamics model, or a reflex. Humans perform both continuously and together. We do not first build a perfect world model, then plan, then act. We perceive and act within the same loop.</p>
+
+<h3>A Streaming Physical-Token Architecture</h3>
+
+<p>When a robot interacts with the physical world, it receives a stream of sensory input and emits a stream of actions. The natural architecture is therefore not a static image-to-action network, but a streaming sequence model.</p>
+
+<p>One plausible architecture is a block-causal transformer over physical tokens, where each token may represent:</p>
+
+<ul>
+<li>a context / task token;</li>
+<li>an image token;</li>
+<li>a proprioception token;</li>
+<li>a force / tactile token;</li>
+<li>an action-condition token; or</li>
+<li>a state-query or action-query token.</li>
+</ul>
+
+<p>During inference, the model continuously appends observation chunks and periodically decodes action chunks.</p>
+
+<img src="../../assets/img/blog/opengen/inference-layout.png" alt="Streaming inference architecture proposed for OpenGEN-1">
+
+<p>This is highly consistent with Generalist’s own description of GEN-0. The team describes Harmonic Reasoning as training a model to “think and act at the same time” through the interaction of asynchronous streams of sensing and acting tokens [3].</p>
+
+<p>The KV cache of the processed stream acts as short-term memory. Longer-term memory may be managed by the harness through keyframes or compressed state summaries. Generalist has stated that GEN-1 needs “a new form of paged attention” for real-time inference [5]. In transformer serving, PagedAttention is fundamentally a method for managing KV-cache memory [6].</p>
+
+<p>This also matches the shell-game demonstration. The task requires visual memory: with only a wrist camera, an object may leave the field of view, become occluded, or move behind the gripper. A policy that sees only the current frame is insufficient. The model needs short-term working memory over recent observations and states [4].</p>
+
+<p>Action decoding could be implemented in several ways. The simplest is a direct action-chunk head similar to StarVLA-alpha [17]. A stronger option is an OpenPI-style flow action expert, where future actions are represented as continuous noisy action tokens and the model predicts a vector field from noise toward clean actions [7]. Another plausible option is a GR00T-like diffusion-transformer action module, where a fast action model generates smooth motor commands conditioned on visual, language, and proprioceptive context [8].</p>
+
+<h3>Training Objective: Action Prediction + Latent Dynamics</h3>
+
+<p>A standard VLA objective is an action-prediction loss: the difference between a predicted action and the ground-truth action, or the velocity-prediction objective used in flow matching.</p>
+
+<p>This teaches the inverse problem:</p>
+
+<blockquote><p><strong>Given the current history, what should I do next?</strong></p></blockquote>
+
+<p>But action prediction alone may be insufficient for learning physical common sense. The model should also learn the forward problem:</p>
+
+<blockquote><p><strong>Given the current history and an action, what physical state will appear next?</strong></p></blockquote>
+
+<p>This is where the world-model idea becomes useful. Full RGB reconstruction may be too expensive and may overemphasize irrelevant pixel detail. The model does not need to reconstruct every background texture; it needs to predict the physical state that matters for action.</p>
+
+<p>A better objective is latent future prediction: align a predicted future latent state with the encoded future state.</p>
+
+<img src="../../assets/img/blog/opengen/training-layout.png" alt="Training architecture and multi-objective loss proposed for OpenGEN-1">
+
+<p>This is the technical meaning of “VLA + world model + beyond.” Pete has said that Generalist spent more than a year combining ideas from “VLAs, world models, and more,” because the more capabilities a single model combines, the harder it becomes to classify [1].</p>
+
+<p>For policy inference, previously predicted actions are not strictly necessary if the model has a rich history of images and proprioception; the state trajectory already contains most of their effects. For world-model training, however, clean action-condition tokens are useful because they teach causal dynamics.</p>
+
+<p>If both the encoder and predictor can move freely, latent reconstruction may collapse. The target latent should therefore be anchored:</p>
+
+<div class="blog-equation">$$z_{\text{target}} = \operatorname{stopgrad}\left(E_{\text{EMA/frozen}}(o_{\text{future}})\right)$$</div>
+
+<p>V-JEPA-style methods use latent-space prediction, a stop-gradient target encoder, masking, and predictor asymmetry to avoid collapse [9]. For a physical foundation model, the action loss is itself an anti-collapse anchor, so the formulation can be simpler.</p>
+
+<p>A compact objective is:</p>
+
+<div class="blog-equation">$$\mathcal{L} = \mathcal{L}_{\text{action}} + \lambda_1\mathcal{L}_{\text{future-latent}} + \lambda_2\mathcal{L}_{\text{proprio}} + \lambda_3\mathcal{L}_{\text{contact/force}}$$</div>
+
+<p>This combines inverse dynamics, latent forward dynamics, proprioception prediction, and contact / force prediction.</p>
+
+<h3>Physical-Interaction Data</h3>
+
+<p>Internet text and video can provide semantic priors, but they do not contain a complete physical loop. Most internet video lacks precise actions, proprioception, force, grip state, tactile feedback, and recovery trajectories.</p>
+
+<p>Generalist’s claim is that large-scale physical-interaction collection can break the data bottleneck. GEN-1 was trained on more than 500,000 hours of high-fidelity physical-interaction data [5]. More importantly, its foundation model was not trained on robot data. Instead, the data came from low-cost wearable devices used by humans performing millions of activities [5].</p>
+
+<p>This matches Andy’s argument about data. Teleoperation often breaks the sensorimotor loop through latency, limited tactile feedback, and unnatural interfaces. Generalist instead built handheld ergonomic devices that preserve force feedback, allowing operators to begin “reacting” rather than “thinking” [2].</p>
+
+<p>Data diversity should not mean only semantic diversity across objects, scenes, and tasks. It should also include interaction diversity:</p>
+
+<ul>
+<li>too much force → deformation or impact;</li>
+<li>too little force → slippage; and</li>
+<li>a poor grasp → regrasping.</li>
+</ul>
+
+<p>This is why tactile and force data become essential. Vision tells the robot where the object is. Proprioception tells it where the robot is. Touch and force tell it what physical interaction is actually occurring.</p>
+
+<p>Generalist’s blog states that GEN-1 was trained on more than 500,000 hours of interaction data [5]. If the data was recorded at 10 Hz:</p>
+
+<div class="blog-equation">$$500{,}000 \times 3600 \times 10 = 18\text{B}$$</div>
+
+<p>If each timestep is compressed into roughly 64–256 visual tokens, the total is approximately 1.15T–4.61T tokens. This does not yet include proprioception, action, tactile, force, or task tokens. The dataset is therefore already at trillion-token scale.</p>
+
+<p>For comparison with common LLMs and VLMs:</p>
+
+<div class="blog-table-wrap"><table>
+<thead>
+<tr><th>Model family</th><th>Model size</th><th>Pretraining tokens</th><th>Notes</th></tr>
+</thead>
+<tbody>
+<tr><td>Llama 2</td><td>7B / 13B / 70B</td><td>2.0T text tokens</td><td>The three reported Llama 2 sizes use the same token count [10].</td></tr>
+<tr><td>Llama 3</td><td>8B / 70B</td><td>15T+ text tokens</td><td>Meta reports 15T+ pretraining tokens for both Llama 3 sizes [11].</td></tr>
+<tr><td>Qwen2-VL</td><td>2B / 8B / 72B</td><td>~1.4T multimodal tokens</td><td>Open-Qwen2VL reports approximately 1.4T multimodal pretraining tokens for Qwen2-VL [12, 13].</td></tr>
+</tbody>
+</table></div>
+
+<p>This scale is sufficient to train a physical foundation model in the 10B-parameter range, especially because the tokens are unusually dense in causal physical information.</p>
+
+<p>It is also consistent with GEN-0’s scaling observation. Generalist reports a phase transition at roughly 7B parameters, with 7B+ models better able to internalize large-scale robot-pretraining data, and notes that GEN-0 had already scaled beyond 10B parameters [3].</p>
+
+<p>The key is not just the token count. One trillion web tokens and one trillion physical-interaction tokens are not equivalent. Web tokens are dense in semantic information. Physical-interaction tokens are dense in contact, action, failure, correction, memory, and consequence.</p>
+
+<h3>100 Hz Inference Requires a System</h3>
+
+<p>Generalist’s early research preview states that the robot maps pixels and other sensor data to actions at 100 Hz, and that the full hardware-software stack enables reactive, fluid, and precise control [16].</p>
+
+<p>For a 10B model in fp16 / bf16, the weights alone occupy roughly 20 GB. At batch size 1, next-token or action-query decoding is usually constrained by memory bandwidth. Ignoring other overheads, an approximate lower bound is:</p>
+
+<div class="blog-table-wrap"><table>
+<thead>
+<tr><th>GPU</th><th>Memory bandwidth</th><th>fp16 10B weight-read lower bound</th><th>More realistic optimized range</th></tr>
+</thead>
+<tbody>
+<tr><td>RTX 5090</td><td>~1.79 TB/s</td><td>~11 ms</td><td>~11–25 ms</td></tr>
+<tr><td>RTX PRO 6000 Blackwell</td><td>~1.79 TB/s</td><td>~11 ms</td><td>~11–25 ms</td></tr>
+<tr><td>L40S</td><td>864 GB/s</td><td>~23 ms</td><td>~25–60 ms</td></tr>
+</tbody>
+</table></div>
+
+<p>These are only weight-read lower bounds. Real inference must also pay for KV-cache reads, vision encoding, action-expert steps, kernel overhead, scheduling, robot I/O, and safety / control logic.</p>
+
+<p>A plausible system design is therefore:</p>
+
+<p><strong>Large model:</strong></p>
+
+<ul>
+<li>runs at a lower policy frequency;</li>
+<li>maintains memory through a KV cache / paged attention;</li>
+<li>decodes action chunks; and</li>
+<li>predicts or tracks a latent physical state.</li>
+</ul>
+
+<p><strong>Low-level harness:</strong></p>
+
+<ul>
+<li>executes at 100 Hz;</li>
+<li>blends action chunks;</li>
+<li>enforces safety constraints;</li>
+<li>handles impedance, force, and gripper control;</li>
+<li>reacts to tactile and proprioceptive events; and</li>
+<li>smooths and stabilizes behavior between model calls.</li>
+</ul>
+
+<p>This explains why Generalist says that GEN-1 is more accurately described as a system, not merely a model [5].</p>
+
+<h3>Conclusion</h3>
+
+<p>The most important hidden insight is:</p>
+
+<blockquote><p><strong>GEN-1 is not merely a better robot policy. It is an attempt to build a pretrained substrate for physical interaction.</strong></p></blockquote>
+
+<p>This contrasts with other VLAs, which are commonly initialized from pretrained VLMs and co-trained with large amounts of web data to learn semantic common sense. GEN-1 appears to target the missing layer: physical common sense learned from dense streams of real interaction.</p>
+
+<p>Generalist’s demonstrations mainly showcase generalization in physical common sense: contact-rich manipulation, occlusion, recovery, and fluidity. In contrast, many π-family or VLM-based robot models emphasize semantic or task-level generalization: following instructions, handling unseen objects, and transferring across high-level task descriptions.</p>
+
+<h3>References</h3>
+
+<p class="blog-reference">[1] Pete Florence and Generalist AI Team, “Going Beyond World Models &amp; VLAs,” Generalist AI Blog, Apr. 7, 2026.</p>
+<p class="blog-reference">[2] Andy Zeng, “The Dark Matter of Robotics: Physical Commonsense,” Generalist AI Blog, Jan. 29, 2026.</p>
+<p class="blog-reference">[3] Generalist AI Team, “GEN-0 / Embodied Foundation Models That Scale with Physical Interaction,” Generalist AI Blog, Nov. 4, 2025.</p>
+<p class="blog-reference">[4] Generalist AI, “GEN-1 Plays the Shell Game,” LinkedIn post, Apr. 2026.</p>
+<p class="blog-reference">[5] Generalist AI Team, “GEN-1: Scaling Embodied Foundation Models to Mastery,” Generalist AI Blog, Apr. 2, 2026.</p>
+<p class="blog-reference">[6] Woosuk Kwon et al., “Efficient Memory Management for Large Language Model Serving with PagedAttention,” arXiv, 2023.</p>
+<p class="blog-reference">[7] Physical Intelligence / Black et al., “π₀: A Vision-Language-Action Flow Model for General Robot Control,” arXiv, 2024.</p>
+<p class="blog-reference">[8] NVIDIA et al., “GR00T N1: An Open Foundation Model for Generalist Humanoid Robots,” arXiv, 2025.</p>
+<p class="blog-reference">[9] Meta AI, “V-JEPA: Revisiting Feature Prediction for Learning Visual Representations from Video,” ICLR / OpenReview, 2024.</p>
+<p class="blog-reference">[10] Meta, “Llama 2 Model Card,” Hugging Face, 2023.</p>
+<p class="blog-reference">[11] Meta, “Meta Llama 3 8B Model Card,” Hugging Face, 2024.</p>
+<p class="blog-reference">[12] Wang et al., “Open-Qwen2VL: Compute-Efficient Pre-Training of Fully-Open Multimodal LLMs on Academic Resources,” arXiv, 2025.</p>
+<p class="blog-reference">[13] Peng Wang et al., “Qwen2-VL: Enhancing Vision-Language Model’s Perception of the World at Any Resolution,” arXiv, 2024.</p>
+<p class="blog-reference">[14] Shuai Bai et al., “Qwen2.5-VL Technical Report,” arXiv, 2025.</p>
+<p class="blog-reference">[15] Qwen Team, “Qwen2.5 Technical Report,” arXiv, 2024.</p>
+<p class="blog-reference">[16] Generalist AI Team, “Research Preview,” Generalist AI Blog, Jun. 17, 2025.</p>
+<p class="blog-reference">[17] Ye et al., “StarVLA-α: Reducing Complexity in Vision-Language-Action Systems,” arXiv, 2026.</p>
+</div>
+
+            </div>
+        </article>
+
+        <!-- Footer -->
+        <footer class="border-t py-8" style="border-color: var(--border); background-color: var(--bg-secondary);">
+            <div class="max-w-7xl mx-auto px-6 text-center">
+                <p style="color: var(--text-secondary);">&copy; 2025 Jiaming Wang. All rights reserved.</p>
+            </div>
+        </footer>
+    </div>
+
+    <script>
+    function getPathPrefix() { return '../../'; }
+    </script>
+    <script src="../../js/main.js"></script>
+    <script>
+    function switchLang(lang) {
+        document.querySelectorAll('[data-lang]').forEach(el => {
+            el.style.display = el.getAttribute('data-lang') === lang ? 'block' : 'none';
+        });
+        document.querySelectorAll('.blog-lang-btn').forEach(btn => {
+            btn.classList.toggle('active', btn.getAttribute('data-target') === lang);
+        });
+    }
+    const urlLang = new URLSearchParams(window.location.search).get('lang');
+    if (urlLang) {
+        document.addEventListener('DOMContentLoaded', () => switchLang(urlLang));
+    }
+    </script>
+</body>
+</html>

@@ -850,6 +850,8 @@ body {
 .blog-article {
     padding-top: 2rem !important;
     max-width: 800px;
+    width: 100%;
+    min-width: 0;
 }
 
 .blog-article-header {
@@ -890,6 +892,12 @@ body {
 }
 
 /* Blog content styles */
+.blog-content,
+.blog-content > [data-lang] {
+    min-width: 0;
+    max-width: 100%;
+}
+
 .blog-content h2 {
     font-size: 1.4rem;
     margin-top: 2rem;
@@ -956,8 +964,86 @@ body {
     padding: 0.5rem 0;
 }
 
+.blog-content .blog-equation {
+    overflow-x: auto;
+    margin: 1rem 0 1.25rem;
+    padding: 0.25rem 0;
+}
+
+.blog-content .blog-table-wrap {
+    width: 100%;
+    max-width: 100%;
+    overflow-x: auto;
+    margin: 1.25rem 0 1.5rem;
+    border: 1px solid var(--border);
+    border-radius: 0.5rem;
+}
+
+.blog-content table {
+    width: 100%;
+    min-width: 680px;
+    border-collapse: collapse;
+    color: var(--text-secondary);
+    font-size: 0.86rem;
+    line-height: 1.5;
+}
+
+.blog-content th,
+.blog-content td {
+    padding: 0.7rem 0.8rem;
+    border-right: 1px solid var(--border);
+    border-bottom: 1px solid var(--border);
+    text-align: left;
+    vertical-align: top;
+}
+
+.blog-content th:last-child,
+.blog-content td:last-child {
+    border-right: none;
+}
+
+.blog-content tr:last-child td {
+    border-bottom: none;
+}
+
+.blog-content th {
+    background-color: var(--bg-secondary);
+    color: var(--text-primary);
+    font-weight: 600;
+}
+
+.blog-content .blog-reference {
+    padding-left: 1.6rem;
+    text-indent: -1.6rem;
+    font-size: 0.86rem;
+    line-height: 1.6;
+    margin-bottom: 0.6rem;
+}
+
 .blog-content strong {
     color: var(--text-primary);
+}
+
+@media (max-width: 480px) {
+    .top-nav > .max-w-7xl {
+        padding-left: 1rem;
+        padding-right: 1rem;
+    }
+
+    .top-nav > .max-w-7xl > a {
+        max-width: 5rem;
+        font-size: 1rem;
+        line-height: 1.25;
+    }
+
+    .top-nav > .max-w-7xl > .flex {
+        flex-shrink: 0;
+        gap: 0.875rem;
+    }
+
+    .top-nav .theme-toggle-mobile {
+        padding: 0.25rem;
+    }
 }
 
 /* Blog language toggle */
