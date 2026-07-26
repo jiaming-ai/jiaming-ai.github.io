@@ -953,6 +953,21 @@ body {
     border: 1px solid var(--border);
 }
 
+.blog-content .blog-figure {
+    margin: 1.75rem 0;
+}
+
+.blog-content .blog-figure img {
+    margin: 0 auto 0.65rem;
+}
+
+.blog-content .blog-figure figcaption {
+    color: var(--text-secondary);
+    font-size: 0.82rem;
+    line-height: 1.5;
+    text-align: center;
+}
+
 .blog-content hr {
     border: none;
     border-top: 1px solid var(--border);

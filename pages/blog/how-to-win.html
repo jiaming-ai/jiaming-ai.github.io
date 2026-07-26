@@ -65,6 +65,11 @@
 
 <p>第二个是 ICRA 2026 REAL-I Challenge，一个更接近真实工业场景的 manipulation 挑战赛。任务包括物流分拣、汽车零部件上下料、日化品上下料，需要基于主办方提供的数据训练双臂或类人操作策略，并最终在真实场景中完成任务。它的核心挑战也很明确：不能无限采集新数据，不能只在 simulator 里验证，最后必须在真实机器人上稳定工作。</p>
 
+<figure class="blog-figure">
+<img src="../../assets/img/blog/how-to-win/icra-2026-real-i-champion.webp" alt="ICRA 2026 REAL-I Challenge 冠军颁奖现场，团队在维也纳的颁奖台上合影" width="1800" height="1350" loading="lazy">
+<figcaption>ICRA 2026 REAL-I Challenge 冠军颁奖现场，维也纳，2026 年 6 月 4 日。</figcaption>
+</figure>
+
 <p>这两个比赛方向完全不同，一个是开放环境里的长距离导航，一个是真实工业场景里的双臂操作；一个更考验 perception、planning 和 robustness，另一个更考验 data、policy learning 和 generalization。但回头看，真正帮助我们连续两年获胜的，并不是某一个具体模型，也不是某个特别新的方法，而是两个更底层的判断：</p>
 
 <ol>
@@ -173,6 +178,11 @@
 <p>The first was the ICRA 2025 Earth Rover Challenge 2, a global competition in autonomous navigation. The organizers deployed low-cost rovers across seven countries, and we had to operate them remotely while they completed kilometer-scale navigation with no human intervention. The hardest part was not any single algorithm, but the extreme demand for generalization. The robot had very limited sensors—mainly an RGB camera and highly noisy GPS—yet it had to handle different countries, roads, lighting conditions, terrains, and urban structures.</p>
 
 <p>The second was the ICRA 2026 REAL-I Challenge, a manipulation competition much closer to real industrial deployment. The tasks included logistics sorting, loading and unloading automotive parts, and handling daily chemical products. We had to train dual-arm or humanoid manipulation policies from organizer-provided data and then execute the tasks reliably in real environments. Its core constraints were equally clear: we could not collect unlimited new data, we could not validate only in simulation, and the final system had to work consistently on a real robot.</p>
+
+<figure class="blog-figure">
+<img src="../../assets/img/blog/how-to-win/icra-2026-real-i-champion.webp" alt="ICRA 2026 REAL-I Challenge champions at the award ceremony in Vienna" width="1800" height="1350" loading="lazy">
+<figcaption>At the ICRA 2026 REAL-I Challenge award ceremony in Vienna, June 4, 2026.</figcaption>
+</figure>
 
 <p>The two competitions could hardly have been more different. One involved long-distance navigation in open environments; the other involved dual-arm manipulation in real industrial settings. One emphasized perception, planning, and robustness; the other emphasized data, policy learning, and generalization. Looking back, however, what enabled us to win two years in a row was not a particular model or an unusually novel method. It was two more fundamental judgments:</p>
 
