@@ -1245,37 +1245,6 @@ body {
     color: var(--brand);
 }
 
-.highlight-grid {
-    display: grid;
-    grid-template-columns: repeat(4, 1fr);
-    gap: 0.75rem;
-    margin-bottom: 3rem;
-}
-
-.highlight {
-    border: 1px solid var(--border);
-    background: var(--bg-secondary);
-    border-radius: 0.75rem;
-    padding: 1rem;
-}
-
-.highlight-value {
-    font-family: 'Space Grotesk', 'Inter', sans-serif;
-    font-size: 1.6rem;
-    font-weight: 600;
-    color: var(--text-primary);
-    line-height: 1.1;
-}
-
-.highlight-value.gold { color: var(--award); }
-
-.highlight-label {
-    font-size: 0.8rem;
-    color: var(--text-secondary);
-    margin-top: 0.3rem;
-    line-height: 1.4;
-}
-
 .simple-section-title {
     display: flex;
     align-items: center;
@@ -1700,7 +1669,6 @@ body {
         height: 130px;
     }
     .hero-name { font-size: 2rem; }
-    .highlight-grid { grid-template-columns: repeat(2, 1fr); }
     .award-feature { grid-template-columns: 1fr; }
     .award-feature-media { min-height: 0; aspect-ratio: 4 / 3; }
     .award-grid { grid-template-columns: 1fr; }
