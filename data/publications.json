@@ -1,163 +1,155 @@
 [
     {
         "year": 2026,
-        "title": "Best Practise for Post-Training Your VLAs",
-        "authors": "Jiaming Wang, Harold Soh",
-        "venue": "Technical Report",
-        "links": {
-            "pdf": "#",
-            "code": "#",
-            "video": "#"
-        },
-        "bibtex": "@techreport{wang2026vla,\n  title={Best Practise for Post-Training Your VLAs},\n  author={Wang, Jiaming and Soh, Harold},\n  year={2026}\n}",
-        "type": "preprint",
-        "selected": true,
-        "note": "🏆 Winner of REAL-I Challenge @ICRA'26"
-    },
-    {
-        "year": 2026,
-        "title": "Control-Ready Uncertainty for Trajectory Diffusion",
-        "authors": "Zhiwei Xue, Kam Jia Yue, Jinhang Qiu, Yifeng Cheng, Ege Gursoy, Jiaming Wang, Vincent Bonnet, Harold Soh",
-        "venue": "RSS 2026 Workshop on Diffusion Models for Robot Learning (Diff4RL)",
-        "links": {
-            "pdf": "#",
-            "code": "#",
-            "video": "#"
-        },
-        "bibtex": "@inproceedings{xue2026controlready,\n  title={Control-Ready Uncertainty for Trajectory Diffusion},\n  author={Xue, Zhiwei and Yue, Kam Jia and Qiu, Jinhang and Cheng, Yifeng and Gursoy, Ege and Wang, Jiaming and Bonnet, Vincent and Soh, Harold},\n  booktitle={RSS 2026 Workshop on Diffusion Models for Robot Learning (Diff4RL)},\n  year={2026}\n}",
-        "type": "preprint",
-        "selected": true,
-        "note": "Accepted at RSS'26 Workshop Diff4RL · Under review at NeurIPS 2026"
-    },
-    {
-        "year": 2026,
-        "title": "CROSS: Change Robust Online Topological Mapping System",
-        "authors": "Jiaming Wang, Diwen Liu, Jiaming Chen, Harold Soh",
+        "title": "How to Better Train VLAs: Lessons Learned From the REAL-I Challenge at ICRA 2026",
+        "authors": "Jiaming Wang, Jizhuo Chen, Diwen Liu, Wang Song, Qiang Wang, Jie Ren, Chao Fu, Dingkun Zhu, Minchi Ruan, Hongtong Li, Yuhua Jiang, Zhiwei Xue, Yongping Pan, Harold Soh",
         "venue": "arXiv preprint",
+        "venueShort": "arXiv 2026",
         "links": {
-            "pdf": "https://arxiv.org/abs/2605.02227",
-            "code": "#",
-            "video": "#"
+            "arxiv": "https://arxiv.org/abs/2609.13679",
+            "blog": "pages/blog/how-to-win.html"
         },
-        "bibtex": "@article{wang2026cross,\n  title={CROSS: Change Robust Online Topological Mapping System},\n  author={Wang, Jiaming and Liu, Diwen and Chen, Jiaming and Soh, Harold},\n  journal={arXiv preprint arXiv:2605.02227},\n  year={2026}\n}",
-        "type": "preprint",
+        "award": "Winner, REAL-I Challenge @ ICRA 2026",
         "selected": true,
-        "note": "Under review"
+        "bibtex": "@article{wang2026realivla,\n  title={How to Better Train VLAs: Lessons Learned From the REAL-I Challenge at ICRA 2026},\n  author={Wang, Jiaming and Chen, Jizhuo and Liu, Diwen and Song, Wang and Wang, Qiang and Ren, Jie and Fu, Chao and Zhu, Dingkun and Ruan, Minchi and Li, Hongtong and Jiang, Yuhua and Xue, Zhiwei and Pan, Yongping and Soh, Harold},\n  journal={arXiv preprint arXiv:2609.13679},\n  year={2026}\n}"
     },
     {
-        "year": 2025,
-        "title": "Genie: A generalizable navigation system for in-the-wild environments",
-        "authors": "Jiaming Wang, Diwen Liu, Jiaming Chen, Jiafei Da, Nancy Qian, Mai Minh Tram, Harold Soh",
-        "venue": "IEEE Robotics and Automation Letters (RA-L)",
+        "year": 2026,
+        "title": "CROSS: Change-Robust Online Spatial-Semantic Topological Mapping",
+        "authors": "Jiaming Wang, Jizhuo Chen, Diwen Liu, Atharva Ghotavadekar, Jiaxuan Da, Linh Kästner, Harold Soh",
+        "venue": "Advances in Neural Information Processing Systems (NeurIPS)",
+        "venueShort": "NeurIPS 2026",
         "links": {
-            "pdf": "#",
-            "code": "#",
-            "video": "#"
+            "arxiv": "https://arxiv.org/abs/2605.02227"
         },
-        "bibtex": "@article{wang2025genie,\n  title={Genie: A generalizable navigation system for in-the-wild environments},\n  author={Wang, Jiaming and Liu, Diwen and Chen, Jiaming and Da, Jiafei and Qian, Nancy and Tram, Mai Minh and Soh, Harold},\n  journal={IEEE Robotics and Automation Letters},\n  year={2025}\n}",
-        "type": "past",
-        "citations": 1,
         "selected": true,
-        "note": "🏆 Winner of Earth Rover Challenge @ICRA'25"
+        "bibtex": "@inproceedings{wang2026cross,\n  title={CROSS: Change-Robust Online Spatial-Semantic Topological Mapping},\n  author={Wang, Jiaming and Chen, Jizhuo and Liu, Diwen and Ghotavadekar, Atharva and Da, Jiaxuan and K{\\\"a}stner, Linh and Soh, Harold},\n  booktitle={Advances in Neural Information Processing Systems (NeurIPS)},\n  year={2026}\n}",
+        "award": null
+    },
+    {
+        "year": 2026,
+        "title": "SCOPE: Control-Ready Uncertainty for Trajectory Diffusion",
+        "authors": "Zhiwei Xue, Kam Jia Yue, Jinhang Qiu, Yifeng Cheng, Ege Gursoy, Jiaming Wang, Vincent Bonnet, Harold Soh",
+        "venue": "Conference on Robot Learning (CoRL)",
+        "venueShort": "CoRL 2026",
+        "links": {},
+        "selected": true,
+        "bibtex": "@inproceedings{xue2026scope,\n  title={SCOPE: Control-Ready Uncertainty for Trajectory Diffusion},\n  author={Xue, Zhiwei and Yue, Kam Jia and Qiu, Jinhang and Cheng, Yifeng and Gursoy, Ege and Wang, Jiaming and Bonnet, Vincent and Soh, Harold},\n  booktitle={Conference on Robot Learning (CoRL)},\n  year={2026}\n}",
+        "award": null
+    },
+    {
+        "year": 2026,
+        "title": "SCOPE: Score-Isolated Agentic Optimization for Video World Models",
+        "authors": "Yuhua Jiang, Jiaming Wang, Qingbin Liu, Feifei Gao",
+        "venue": "arXiv preprint",
+        "venueShort": "arXiv 2026",
+        "links": {
+            "arxiv": "https://arxiv.org/abs/2608.15043"
+        },
+        "selected": false,
+        "bibtex": "@article{jiang2026scope,\n  title={SCOPE: Score-Isolated Agentic Optimization for Video World Models},\n  author={Jiang, Yuhua and Wang, Jiaming and Liu, Qingbin and Gao, Feifei},\n  journal={arXiv preprint arXiv:2608.15043},\n  year={2026}\n}",
+        "award": null
     },
     {
         "year": 2026,
         "title": "TOPO-Bench: An Open-Source Topological Mapping Evaluation Framework with Quantifiable Perceptual Aliasing",
-        "authors": "Jiaming Wang, Diwen Liu, Jiaming Chen, Harold Soh",
-        "venue": "2026 IEEE International Conference on Robotics and Automation (ICRA)",
+        "authors": "Jiaming Wang, Jizhuo Chen, Diwen Liu, Jiaxuan Da, Jiamo Hu, Zhiwei Xue, Linh Kästner, Harold Soh",
+        "venue": "IEEE International Conference on Robotics and Automation (ICRA)",
+        "venueShort": "ICRA 2026",
         "links": {
-            "pdf": "https://arxiv.org/abs/2510.04100",
-            "code": "#",
-            "video": "#"
+            "arxiv": "https://arxiv.org/abs/2510.04100"
         },
-        "bibtex": "@article{wang2025topo,\n  title={TOPO-Bench: An Open-Source Topological Mapping Evaluation Framework with Quantifiable Perceptual Aliasing},\n  author={Wang, Jiaming and Liu, Diwen and Chen, Jiaming and Soh, Harold},\n  journal={arXiv preprint arXiv:2510.04100},\n  year={2025}\n}",
-        "type": "past",
-        "selected": true
-    },
-    {
-        "year": 2025,
-        "title": "Training-free Task-oriented Grasp Generation",
-        "authors": "Jiaming Wang, Diwen Liu, Jiaming Chen, Harold Soh",
-        "venue": "WIR-M, IROS 2025",
-        "links": {
-            "pdf": "https://arxiv.org/abs/2502.04873",
-            "code": "#",
-            "video": "#"
-        },
-        "bibtex": "@article{wang2025training,\n  title={Training-free Task-oriented Grasp Generation},\n  author={Wang, Jiaming and Liu, Diwen and Chen, Jiaming and Soh, Harold},\n  journal={arXiv preprint arXiv:2502.04873},\n  year={2025}\n}",
-        "type": "preprint",
         "selected": true,
-        "note": "🏆 Best Paper Award"
+        "bibtex": "@inproceedings{wang2026topobench,\n  title={TOPO-Bench: An Open-Source Topological Mapping Evaluation Framework with Quantifiable Perceptual Aliasing},\n  author={Wang, Jiaming and Chen, Jizhuo and Liu, Diwen and Da, Jiaxuan and Hu, Jiamo and Xue, Zhiwei and K{\\\"a}stner, Linh and Soh, Harold},\n  booktitle={IEEE International Conference on Robotics and Automation (ICRA)},\n  year={2026}\n}",
+        "award": null
     },
     {
         "year": 2025,
-        "title": "Arena-Bench 2.0: A Comprehensive Benchmark of Social Navigation Approaches in Collaborative Environments",
-        "authors": "Volodymyr Shcherbyna, Linh Kästner, Duc Anh Do, Jiaming Wang, Huu Giang Nguyen, Tim Seeger, Ahmed Martban, Zhengcheng Shen, Huajian Zeng, Nhan Trinh, Eva Wiese",
-        "venue": "2025 IEEE/RSJ International Conference on Intelligent Robots and Systems (IROS)",
+        "title": "GeNIE: A Generalizable Navigation System for In-the-Wild Environments",
+        "authors": "Jiaming Wang, Diwen Liu, Jizhuo Chen, Jiaxuan Da, Nuowen Qian, Tram Minh Man, Harold Soh",
+        "venue": "IEEE Robotics and Automation Letters (RA-L)",
+        "venueShort": "RA-L 2025",
         "links": {
-            "pdf": "https://ieeexplore.ieee.org/abstract/document/11246895/",
-            "code": "#",
-            "video": "#"
+            "arxiv": "https://arxiv.org/abs/2506.17960"
         },
-        "bibtex": "@inproceedings{shcherbyna2025arenabench,\n  title={Arena-Bench 2.0: A Comprehensive Benchmark of Social Navigation Approaches in Collaborative Environments},\n  author={Shcherbyna, Volodymyr and K{\\\"a}stner, Linh and Do, Duc Anh and Wang, Jiaming and Nguyen, Huu Giang and Seeger, Tim and Martban, Ahmed and Shen, Zhengcheng and Zeng, Huajian and Trinh, Nhan and Wiese, Eva},\n  booktitle={2025 IEEE/RSJ International Conference on Intelligent Robots and Systems (IROS)},\n  pages={9202--9209},\n  year={2025},\n  organization={IEEE}\n}",
-        "type": "past",
-        "selected": true
+        "award": "Winner, Earth Rover Challenge @ ICRA 2025",
+        "selected": true,
+        "bibtex": "@article{wang2025genie,\n  title={GeNIE: A Generalizable Navigation System for In-the-Wild Environments},\n  author={Wang, Jiaming and Liu, Diwen and Chen, Jizhuo and Da, Jiaxuan and Qian, Nuowen and Man, Tram Minh and Soh, Harold},\n  journal={IEEE Robotics and Automation Letters},\n  year={2025}\n}"
     },
     {
-        "year": 2024,
-        "title": "Probable object location (polo) score estimation for efficient object goal navigation",
-        "authors": "Jiaming Wang, Harold Soh",
-        "venue": "2024 IEEE International Conference on Robotics and Automation (ICRA)",
+        "year": 2025,
+        "title": "Training-Free Task-Oriented Grasp Generation",
+        "authors": "Jiaming Wang, Diwen Liu, Jizhuo Chen, Harold Soh",
+        "venue": "WIR-M Workshop, IEEE/RSJ International Conference on Intelligent Robots and Systems (IROS)",
+        "venueShort": "IROS 2025 WIR-M Workshop",
         "links": {
-            "pdf": "#",
-            "code": "#",
-            "video": "#"
+            "arxiv": "https://arxiv.org/abs/2502.04873"
         },
-        "bibtex": "@inproceedings{wang2024polo,\n  title={Probable object location (polo) score estimation for efficient object goal navigation},\n  author={Wang, Jiaming and Soh, Harold},\n  booktitle={2024 IEEE International Conference on Robotics and Automation (ICRA)},\n  pages={5221--5227},\n  year={2024}\n}",
-        "type": "past",
-        "citations": 3,
-        "selected": true
+        "award": "Best Workshop Paper Prize",
+        "selected": true,
+        "bibtex": "@article{wang2025tog,\n  title={Training-Free Task-Oriented Grasp Generation},\n  author={Wang, Jiaming and Liu, Diwen and Chen, Jizhuo and Soh, Harold},\n  journal={arXiv preprint arXiv:2502.04873},\n  year={2025}\n}"
     },
     {
         "year": 2025,
         "title": "GBPP: Grasp-Aware Base Placement Prediction for Robots via Two-Stage Learning",
         "authors": "Jizhuo Chen, Diwen Liu, Jiaming Wang, Harold Soh",
-        "venue": "RoDGE, IROS 2025",
+        "venue": "RoDGE Workshop, IEEE/RSJ International Conference on Intelligent Robots and Systems (IROS)",
+        "venueShort": "IROS 2025 RoDGE Workshop",
         "links": {
-            "code": "#",
-            "video": "#"
+            "arxiv": "https://arxiv.org/abs/2509.11594"
         },
-        "bibtex": "@article{chen2025gbpp,\n  title={GBPP: Grasp-Aware Base Placement Prediction for Robots via Two-Stage Learning},\n  author={Chen, Jizhuo and Liu, Diwen and Wang, Jiaming and Soh, Harold},\n  journal={arXiv preprint arXiv:2509.11594},\n  year={2025}\n}",
-        "type": "preprint",
+        "award": "Best Poster Award",
         "selected": true,
-        "note": "🏆 Best Paper Award @IROS'25 RoDGE Workshop"
+        "bibtex": "@article{chen2025gbpp,\n  title={GBPP: Grasp-Aware Base Placement Prediction for Robots via Two-Stage Learning},\n  author={Chen, Jizhuo and Liu, Diwen and Wang, Jiaming and Soh, Harold},\n  journal={arXiv preprint arXiv:2509.11594},\n  year={2025}\n}"
+    },
+    {
+        "year": 2025,
+        "title": "Arena-Bench 2.0: A Comprehensive Benchmark of Social Navigation Approaches in Collaborative Environments",
+        "authors": "Volodymyr Shcherbyna, Linh Kästner, Duc Anh Do, Jiaming Wang, Huu Giang Nguyen, Tim Seeger, Ahmed Martban, Zhengcheng Shen, Huajian Zeng, Nhan Trinh, Eva Wiese",
+        "venue": "IEEE/RSJ International Conference on Intelligent Robots and Systems (IROS)",
+        "venueShort": "IROS 2025",
+        "links": {
+            "paper": "https://ieeexplore.ieee.org/abstract/document/11246895/"
+        },
+        "selected": false,
+        "bibtex": "@inproceedings{shcherbyna2025arenabench,\n  title={Arena-Bench 2.0: A Comprehensive Benchmark of Social Navigation Approaches in Collaborative Environments},\n  author={Shcherbyna, Volodymyr and K{\\\"a}stner, Linh and Do, Duc Anh and Wang, Jiaming and Nguyen, Huu Giang and Seeger, Tim and Martban, Ahmed and Shen, Zhengcheng and Zeng, Huajian and Trinh, Nhan and Wiese, Eva},\n  booktitle={IEEE/RSJ International Conference on Intelligent Robots and Systems (IROS)},\n  pages={9202--9209},\n  year={2025}\n}",
+        "award": null
+    },
+    {
+        "year": 2024,
+        "title": "Probable Object Location (POLo) Score Estimation for Efficient Object Goal Navigation",
+        "authors": "Jiaming Wang, Harold Soh",
+        "venue": "IEEE International Conference on Robotics and Automation (ICRA)",
+        "venueShort": "ICRA 2024",
+        "links": {
+            "arxiv": "https://arxiv.org/abs/2311.07992"
+        },
+        "selected": true,
+        "bibtex": "@inproceedings{wang2024polo,\n  title={Probable Object Location (POLo) Score Estimation for Efficient Object Goal Navigation},\n  author={Wang, Jiaming and Soh, Harold},\n  booktitle={IEEE International Conference on Robotics and Automation (ICRA)},\n  pages={5221--5227},\n  year={2024}\n}",
+        "award": null
     },
     {
         "year": 2023,
         "title": "Small Object Navigation with Context Information",
         "authors": "Jiaming Wang, Harold Soh",
         "venue": "Proceedings of the AAAI Symposium Series",
-        "links": {
-            "pdf": "#",
-            "code": "#",
-            "video": "#"
-        },
+        "venueShort": "AAAI Symposium 2023",
+        "links": {},
+        "selected": false,
         "bibtex": "@inproceedings{wang2023small,\n  title={Small Object Navigation with Context Information},\n  author={Wang, Jiaming and Soh, Harold},\n  booktitle={Proceedings of the AAAI Symposium Series},\n  volume={1},\n  number={1},\n  pages={117--120},\n  year={2023}\n}",
-        "type": "past",
-        "selected": false
+        "award": null
     },
     {
         "year": 2023,
         "title": "Pre-training with Graph Transformers",
-        "authors": "Jiaming Wang, Xavier Bresson, Thomas Laurent",
+        "authors": "Jiaming Wang, Thomas Laurent, Xavier Bresson",
         "venue": "KDD Workshop on Deep Learning on Graphs",
+        "venueShort": "KDD DLG Workshop 2023",
         "links": {
-            "pdf": "#",
-            "code": "#",
-            "video": "#"
+            "arxiv": "https://arxiv.org/abs/2609.13844"
         },
-        "bibtex": "@inproceedings{wang2023pretraining,\n  title={Pre-training with Graph Transformers},\n  author={Wang, Jiaming and Bresson, Xavier and Laurent, Thomas},\n  booktitle={KDD Workshop on Deep Learning on Graphs},\n  year={2023}\n}",
-        "type": "past",
-        "selected": false
+        "selected": false,
+        "bibtex": "@inproceedings{wang2023pretraining,\n  title={Pre-training with Graph Transformers},\n  author={Wang, Jiaming and Laurent, Thomas and Bresson, Xavier},\n  booktitle={KDD Workshop on Deep Learning on Graphs},\n  year={2023}\n}",
+        "award": null
     }
 ]

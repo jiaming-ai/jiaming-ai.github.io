@@ -1,30 +1,41 @@
 [
     {
-        "title": "1st Place Winner",
-        "organization": "Earth Rover Challenge at ICRA 2025",
-        "description": "NUS Computing team achievement in autonomous navigation",
+        "title": "Champion (1st Place), REAL-I: The 1st Real-world Embodied AI Learning Challenge",
+        "organization": "IEEE ICRA 2026",
+        "description": "Team NUS-CLEAR: Jiaming Wang, Jizhuo Chen, Diwen Liu; advisor Harold Soh",
+        "year": 2026,
+        "link": "https://www.kdc.icra.lejurobot.com/",
+        "image": "assets/img/awards/real-i-icra26-ceremony.jpg",
+        "certificate": "assets/img/awards/real-i-icra26-certificate.jpg"
+    },
+    {
+        "title": "1st Place, Earth Rover Challenge",
+        "organization": "IEEE ICRA 2025",
+        "description": "GeNIE autonomous navigation system, deployed across seven countries",
         "year": 2025,
         "link": "https://www.comp.nus.edu.sg/bytes/nus-computing-has-taken-1st-place-at-the-earth-rover-challenge-2025/"
     },
     {
-        "title": "Forbes 30 Under 30",
-        "organization": "Forbes China",
-        "description": "Recognized for innovation in car-sharing technology",
-        "year": 2014,
-        "link": "https://auto.sina.com.cn/car/2014-02-28/09241274953.shtml"
-    },
-    {
-        "title": "Best Paper Award",
-        "organization": "RoDGE Workshop at IROS 2025",
-        "description": "GBPP: Grasp-Aware Base Placement Prediction for Robots via Two-Stage Learning",
-        "year": 2025,
-        "link": "#"
-    },
-    {
-        "title": "Best Paper Award",
-        "organization": "WIR-M Workshop at IROS 2025",
+        "title": "Best Workshop Paper Prize",
+        "organization": "WIR-M Workshop, IEEE/RSJ IROS 2025",
         "description": "TOG: Training-free Task-oriented Grasp Generation",
         "year": 2025,
-        "link": "https://arxiv.org/abs/2502.04873"
+        "link": "https://arxiv.org/abs/2502.04873",
+        "certificate": "assets/img/awards/tog-iros25-best-paper.jpg"
+    },
+    {
+        "title": "Best Poster Award",
+        "organization": "RoDGE Workshop, IEEE/RSJ IROS 2025",
+        "description": "GBPP: Grasp-Aware Base Placement Prediction for Robots via Two-Stage Learning",
+        "year": 2025,
+        "link": "https://arxiv.org/abs/2509.11594",
+        "certificate": "assets/img/awards/gbpp-iros25-rodge.png"
+    },
+    {
+        "title": "Forbes China 30 Under 30",
+        "organization": "Forbes China",
+        "description": "Co-founder of iCarsClub; technology innovation and entrepreneurship",
+        "year": 2014,
+        "link": "https://auto.sina.com.cn/car/2014-02-28/09241274953.shtml"
     }
 ]

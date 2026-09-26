@@ -142,7 +142,7 @@ async function loadData() {
         const pathPrefix = typeof getPathPrefix === 'function' ? getPathPrefix() : (isNestedSub ? '../../' : (isSub ? '../' : ''));
 
         const [pubData, projectData, peopleData] = await Promise.all([
-            fetchWithCache(pathPrefix + 'data/publications.json', 'cache_publications'),
+            fetchWithCache(pathPrefix + 'data/publications.json', 'cache_publications_v2'),
             fetchWithCache(pathPrefix + 'data/projects.json', 'cache_projects'),
             fetchWithCache(pathPrefix + 'data/people.json', 'cache_people')
         ]);
@@ -156,62 +156,81 @@ async function loadData() {
 }
 
 // Render Publications
-function renderPublications(filter = 'all') {
+function getRootPrefix() {
+    const isNestedSub = window.location.pathname.includes('/pages/blog/');
+    const isSub = !isNestedSub && window.location.pathname.includes('/pages/');
+    return isNestedSub ? '../../' : (isSub ? '../' : '');
+}
+
+function pubLinkButtons(pub, id) {
+    const root = getRootPrefix();
+    const resolve = url => /^https?:/.test(url) ? url : root + url;
+    const labels = { arxiv: 'arXiv', paper: 'Paper', code: 'Code', project: 'Project', video: 'Video', blog: 'Blog' };
+    const icons = { arxiv: 'fas fa-file-lines', paper: 'fas fa-file-pdf', code: 'fab fa-github', project: 'fas fa-globe', video: 'fas fa-video', blog: 'fas fa-pen-nib' };
+    const links = Object.entries(pub.links || {})
+        .filter(([, url]) => url && url !== '#')
+        .map(([key, url]) => {
+            const external = /^https?:/.test(url);
+            return `<a href="${resolve(url)}" class="pub-btn"${external ? ' target="_blank" rel="noopener noreferrer"' : ''}><i class="${icons[key] || 'fas fa-link'}"></i>${labels[key] || key}</a>`;
+        });
+    links.push(`<button type="button" class="pub-btn" onclick="showBibtex('${id}')"><i class="fas fa-quote-right"></i>BibTeX</button>`);
+    return links.join('');
+}
+
+function renderPublications() {
     const container = document.getElementById('publications-list');
     if (!container) return;
-    
-    let filteredPubs = filter === 'all' 
-        ? publications 
-        : publications.filter(pub => pub.type === filter);
-    
-    // Check if this is the homepage (academic style) or other pages
-    const isHomepage = container.closest('.simple-section');
-    
-    // On homepage, show only selected publications
-    if (isHomepage) {
-        filteredPubs = filteredPubs.filter(pub => pub.selected === true);
-    }
-    
-    if (isHomepage) {
-        // Academic list style for homepage (no links)
-        container.innerHTML = filteredPubs.map(pub => `
-            <div class="publication-item">
-                <div class="pub-title">${pub.title}</div>
-                <div class="pub-authors">${pub.authors}</div>
-                <div class="pub-venue">
-                    ${pub.venue}, ${pub.year}
-                    ${pub.note ? `<span style="color: var(--accent); font-weight: 500; margin-left: 0.5rem;">${pub.note}</span>` : ''}
+
+    const showSelectedOnly = container.dataset.selected === 'true';
+    const pubs = showSelectedOnly ? publications.filter(pub => pub.selected) : publications;
+    let lastYear = null;
+
+    container.innerHTML = pubs.map((pub, i) => {
+        const id = `pub-${i}`;
+        const authors = pub.authors.replace('Jiaming Wang', '<strong class="pub-me">Jiaming Wang</strong>');
+        const yearHeader = !showSelectedOnly && pub.year !== lastYear ? `<div class="pub-year">${pub.year}</div>` : '';
+        lastYear = pub.year;
+        return `${yearHeader}
+            <article class="pub-entry">
+                <div class="pub-venue-tag">${pub.venueShort || pub.venue}</div>
+                <div class="pub-body">
+                    <div class="pub-title">${pub.title}</div>
+                    <div class="pub-authors">${authors}</div>
+                    <div class="pub-venue">${pub.venue}, ${pub.year}</div>
+                    ${pub.award ? `<div class="award-badge"><i class="fas fa-trophy"></i>${pub.award}</div>` : ''}
+                    <div class="pub-actions">${pubLinkButtons(pub, id)}</div>
+                    <pre id="bibtex-${id}" class="pub-bibtex" hidden>${pub.bibtex}</pre>
                 </div>
-            </div>
-        `).join('');
-    } else {
-        // Card style for other pages (with links)
-        container.innerHTML = filteredPubs.map(pub => `
-            <div class="card">
-                <div class="flex justify-between items-start mb-2">
-                    <span class="text-sm font-semibold" style="color: var(--accent);">${pub.venue}</span>
-                    <span class="text-sm" style="color: var(--text-secondary);">${pub.year}</span>
-                </div>
-                <h3 class="text-xl font-semibold mb-2" style="color: var(--text-primary);">${pub.title}</h3>
-                ${pub.note ? `<p class="text-sm mb-2" style="color: var(--accent); font-weight: 500;">${pub.note}</p>` : ''}
-                <p class="text-sm mb-3" style="color: var(--text-secondary);">${pub.authors}</p>
-                <div class="flex gap-3 flex-wrap mb-3">
-                    ${pub.links.pdf && pub.links.pdf !== '#' ? `<a href="${pub.links.pdf}" class="link-accent text-sm">PDF</a>` : ''}
-                    ${pub.links.code && pub.links.code !== '#' ? `<a href="${pub.links.code}" target="_blank" class="link-accent text-sm">Code</a>` : ''}
-                    ${pub.links.video && pub.links.video !== '#' ? `<a href="${pub.links.video}" class="link-accent text-sm">Video</a>` : ''}
-                    <button onclick="showBibtex('${pub.year}-${pub.title.replace(/\s+/g, '-')}')" class="link-accent text-sm">BibTeX</button>
-                </div>
-                <pre id="bibtex-${pub.year}-${pub.title.replace(/\s+/g, '-')}" style="display: none; background-color: var(--bg-secondary); padding: 1rem; border-radius: 0.5rem; overflow-x: auto; font-size: 0.875rem; color: var(--text-secondary);">${pub.bibtex}</pre>
-            </div>
-        `).join('');
-    }
+            </article>`;
+    }).join('');
 }
 
 function showBibtex(id) {
     const element = document.getElementById(`bibtex-${id}`);
-    if (element) {
-        element.style.display = element.style.display === 'none' ? 'block' : 'none';
-    }
+    if (element) element.hidden = !element.hidden;
+}
+
+// Lightbox for award photos and certificates
+function initLightbox() {
+    const images = document.querySelectorAll('img[data-lightbox]');
+    if (!images.length) return;
+
+    const overlay = document.createElement('div');
+    overlay.className = 'lightbox';
+    overlay.hidden = true;
+    overlay.innerHTML = '<button type="button" class="lightbox-close" aria-label="Close"><i class="fas fa-times"></i></button><img alt=""><p class="lightbox-caption"></p>';
+    document.body.appendChild(overlay);
+
+    const close = () => { overlay.hidden = true; document.body.style.overflow = ''; };
+    images.forEach(img => img.addEventListener('click', () => {
+        overlay.querySelector('img').src = img.dataset.full || img.src;
+        overlay.querySelector('img').alt = img.alt;
+        overlay.querySelector('.lightbox-caption').textContent = img.alt;
+        overlay.hidden = false;
+        document.body.style.overflow = 'hidden';
+    }));
+    overlay.addEventListener('click', e => { if (e.target !== overlay.querySelector('img')) close(); });
+    document.addEventListener('keydown', e => { if (e.key === 'Escape' && !overlay.hidden) close(); });
 }
 
 // Render Ongoing Projects
@@ -334,6 +353,8 @@ document.addEventListener('DOMContentLoaded', function() {
         renderPeople();
         initSmoothScroll();
     });
+
+    initLightbox();
 
     // Close project modals on outside click
     document.querySelectorAll('.modal').forEach(modal => {
