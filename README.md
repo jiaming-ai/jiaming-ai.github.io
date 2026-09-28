@@ -27,13 +27,13 @@ jiaming/
 
 ## ✨ Features
 
-- **Clean Academic Design**: Simple, readable layout focused on content
-- **Side Navigation**: Sticky sidebar navigation for desktop/tablet, collapsible top nav for mobile
-- **Photo Integration**: Profile photo floats within text for natural, academic-style layout
-- **Data-Driven**: All content stored in JSON files for easy updates
-- **Dark/Light Theme**: Automatic theme switcher with localStorage
+- **Frontier-robotics theme**: Dark "mission control" look by default (cyan sensor glow, blueprint grid, mono HUD labels) with a light "lab blueprint" alternative
+- **Interactive hero simulation** (`js/robot-sim.js`): a robot explores an unseen world with a spinning LiDAR, builds a topological map online with loop closures, and drives to wherever visitors click; pauses off-screen and respects `prefers-reduced-motion`
+- **Motion & interaction**: scroll reveals, count-up stats, typewriter tagline, cursor-following card spotlights, 3D tilt on research cards, scroll progress bar
+- **Side Navigation**: Sticky mission-control rail for desktop/tablet, compact top bar on mobile
+- **Data-Driven**: Publications stored in JSON for easy updates
+- **Dark/Light Theme**: Toggle with localStorage persistence
 - **Responsive**: Mobile-friendly design with adaptive navigation
-- **Modular**: Separated CSS, JS, and data for easy maintenance
 
 ## 🔧 How to Update Content
 
@@ -115,10 +115,10 @@ python -m http.server 8000
 Edit CSS variables in `css/styles.css`:
 ```css
 :root {
-    --bg-primary: #ffffff;
-    --text-primary: #1f2937;
-    --accent: #3b82f6;
-    /* ... */
+    --brand: #3fe0ff;      /* main accent (dark theme) */
+    --brand-2: #a78bfa;    /* secondary accent */
+    --signal: #ff8a3d;     /* robot / highlight colour */
+    /* ... plus --sim-* RGB triplets for the hero simulation */
 }
 ```
 

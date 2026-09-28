@@ -5,6 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Jiaming Wang - Robotics & Embodied AI Researcher</title>
     <meta name="description" content="Jiaming Wang — PhD candidate at NUS working on robot navigation, spatial memory and embodied AI. Champion of REAL-I @ ICRA 2026 and Earth Rover Challenge @ ICRA 2025.">
+    <meta name="theme-color" content="#05070d">
+    <script>try{document.documentElement.setAttribute('data-theme',localStorage.getItem('theme')||'dark')}catch(e){document.documentElement.setAttribute('data-theme','dark')}</script>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <link rel="stylesheet" href="css/styles.css">
@@ -22,49 +24,164 @@
 
     <!-- Main Content -->
     <div class="main-content-with-sidebar">
-        <div class="home-container">
 
-            <!-- Hero -->
+        <!-- Hero: a live robot explores an unknown world, builds a topological map, and goes where you click -->
+        <header class="hero-stage" id="hero-stage">
+            <canvas id="sim-canvas" aria-hidden="true"></canvas>
+
             <section class="hero">
                 <div>
-                    <h1 class="hero-name">Jiaming Wang</h1>
-                    <p class="hero-role">PhD Candidate in Computer Science · National University of Singapore</p>
-                    <p class="narrative-text">
-                        I’m currently living my “second life” as a PhD candidate at NUS, advised by
-                        <a href="https://haroldsoh.com/" class="link-accent" target="_blank" rel="noopener noreferrer">Harold Soh</a>.
-                        Previously, I was a serial entrepreneur who founded multiple startups (one acquired) and took a gap year at Oxford to study theology and philosophy.
-                        I now build <a href="pages/research.html" class="link-accent">AI and robotics systems</a> that can safely navigate the open world without a map —
-                        working on spatial perception and mapping, long-term robot memory, autonomous navigation, and manipulation.
+                    <div class="hud-kicker reveal">
+                        <span>Embodied AI</span><span class="sep">/</span><span>Robot Navigation</span><span class="sep">/</span><span>NUS CLeAR Lab</span>
+                    </div>
+                    <h1 class="hero-name reveal" style="--reveal-delay: .08s">Jiaming <span class="grad">Wang</span></h1>
+                    <p class="hero-tagline reveal" style="--reveal-delay: .16s">
+                        Building robots that <span class="typer" data-words='["navigate the open world — without a map.", "remember where they have been.", "relocalize when the world changes.", "turn language into action.", "win in the real world, not just in sim."]'>navigate the open world — without a map.</span>
                     </p>
-                    <div class="hero-links">
-                        <a href="mailto:jiaming@comp.nus.edu.sg" class="chip"><i class="fas fa-envelope"></i>jiaming@comp.nus.edu.sg</a>
-                        <a href="https://www.linkedin.com/in/jiaming-wang-ai/" class="chip" target="_blank" rel="noopener noreferrer"><i class="fab fa-linkedin"></i>LinkedIn</a>
-                        <a href="pages/about.html" class="chip"><i class="fas fa-book-open"></i>Full story</a>
-                        <a href="pages/blog.html" class="chip"><i class="fas fa-pen-nib"></i>Blog</a>
+                    <p class="narrative-text reveal" style="--reveal-delay: .24s">
+                        PhD candidate in Computer Science at the National University of Singapore, advised by
+                        <a href="https://haroldsoh.com/" class="link-accent" target="_blank" rel="noopener noreferrer">Harold Soh</a>.
+                        In my “first life” I was a serial entrepreneur (one startup acquired) and spent a gap year at Oxford studying theology and philosophy.
+                        Now I build <a href="pages/research.html" class="link-accent">AI and robotics systems</a> for spatial perception and mapping,
+                        long-term robot memory, autonomous navigation, and manipulation.
+                    </p>
+                    <div class="hero-cta reveal" style="--reveal-delay: .32s">
+                        <a href="pages/research.html" class="btn btn-glow"><i class="fas fa-satellite-dish"></i>Explore research</a>
+                        <a href="mailto:jiaming@comp.nus.edu.sg" class="btn btn-ghost"><i class="fas fa-envelope"></i>Email</a>
+                        <a href="https://www.linkedin.com/in/jiaming-wang-ai/" class="btn btn-ghost" target="_blank" rel="noopener noreferrer"><i class="fab fa-linkedin"></i>LinkedIn</a>
+                        <a href="pages/about.html" class="btn btn-ghost"><i class="fas fa-book-open"></i>My story</a>
                     </div>
                 </div>
-                <img src="assets/img/profile.jpeg" alt="Jiaming Wang" class="hero-photo">
+
+                <div class="hero-portrait reveal" style="--reveal-delay: .2s">
+                    <div class="portrait-frame">
+                        <img src="assets/img/profile.jpeg" alt="Jiaming Wang">
+                        <span class="corner tl"></span><span class="corner tr"></span>
+                        <span class="corner bl"></span><span class="corner br"></span>
+                        <span class="scanline"></span>
+                    </div>
+                    <div class="portrait-meta">
+                        <span>ID</span><b>JW-01 · Researcher</b>
+                        <span>Base</span><b>Singapore</b>
+                        <span>Status</span><b class="ok">● Recruiting students</b>
+                    </div>
+                </div>
             </section>
 
+            <div class="sim-hud" aria-hidden="true">
+                <div class="telemetry">
+                    <span>Mode <b id="hud-mode">explore</b></span>
+                    <span>Pose <b id="hud-pose">—</b></span>
+                    <span>Nodes <b id="hud-nodes">0</b></span>
+                    <span>Loop closures <b id="hud-loops">0</b></span>
+                </div>
+                <span class="hint"><i class="fas fa-crosshairs"></i>Click anywhere to send the robot a goal</span>
+            </div>
+        </header>
+
+        <div class="home-container">
+
+            <!-- Stats -->
+            <div class="stats reveal">
+                <div class="stat spotlight">
+                    <div class="stat-num"><span data-count="2">0</span><span class="unit">×</span></div>
+                    <div class="stat-label">ICRA Challenge Champion</div>
+                    <div class="stat-sub">Earth Rover '25 · REAL-I '26</div>
+                </div>
+                <div class="stat spotlight">
+                    <div class="stat-num"><span data-count="2">0</span><span class="unit">×</span></div>
+                    <div class="stat-label">Best Paper Awards</div>
+                    <div class="stat-sub">IROS 2025 workshops</div>
+                </div>
+                <div class="stat spotlight">
+                    <div class="stat-num"><span data-count="12" data-count-source="publications">0</span></div>
+                    <div class="stat-label">Publications</div>
+                    <div class="stat-sub">NeurIPS · CoRL · ICRA · RA-L</div>
+                </div>
+                <div class="stat spotlight">
+                    <div class="stat-num"><span data-count="7">0</span></div>
+                    <div class="stat-label">Countries deployed</div>
+                    <div class="stat-sub">GeNIE in-the-wild navigation</div>
+                </div>
+            </div>
+
+            <!-- Research focus -->
+            <section class="simple-section" id="focus">
+                <h2 class="simple-section-title reveal"><span class="sec-idx">01</span>Research focus</h2>
+                <p class="section-lede reveal">Robots that leave the lab: perceiving, remembering, and acting in places they have never seen.</p>
+                <div class="pillars">
+                    <article class="pillar spotlight tilt reveal">
+                        <div class="pillar-head">
+                            <div class="pillar-icon"><i class="fas fa-diagram-project"></i></div>
+                            <span class="pillar-code">MOD-01 · MAPPING</span>
+                        </div>
+                        <h3>Spatial Perception &amp; Mapping</h3>
+                        <p>Topological maps that stay robust under perceptual aliasing and a changing world — reasoning over pose hypotheses in continuous SE(3) instead of trusting a single global metric map.</p>
+                        <div class="pillar-tags">
+                            <a href="https://arxiv.org/abs/2605.02227" target="_blank" rel="noopener noreferrer">CROSS · NeurIPS'26</a>
+                            <span>TOPO-Bench · ICRA'26</span>
+                        </div>
+                    </article>
+                    <article class="pillar spotlight tilt reveal" style="--reveal-delay: .08s">
+                        <div class="pillar-head">
+                            <div class="pillar-icon"><i class="fas fa-memory"></i></div>
+                            <span class="pillar-code">MOD-02 · MEMORY</span>
+                        </div>
+                        <h3>Long-term Robot Memory</h3>
+                        <p>Turning a robot's history into usable state — memory matched to the timescale of the task, so policies can act on what they have seen minutes, hours, or days ago.</p>
+                        <div class="pillar-tags">
+                            <a href="pages/blog/robot-memory.html">Blog · The right memory</a>
+                            <span>World models</span>
+                        </div>
+                    </article>
+                    <article class="pillar spotlight tilt reveal">
+                        <div class="pillar-head">
+                            <div class="pillar-icon"><i class="fas fa-route"></i></div>
+                            <span class="pillar-code">MOD-03 · NAVIGATION</span>
+                        </div>
+                        <h3>Open-world Navigation</h3>
+                        <p>Map-free navigation that survives the real world — deployed across seven countries — plus social navigation among people and language-guided navigation.</p>
+                        <div class="pillar-tags">
+                            <span class="win"><i class="fas fa-trophy"></i> GeNIE · Earth Rover '25</span>
+                            <span>Arena-Bench 2.0</span>
+                            <span>POLo · ICRA'24</span>
+                        </div>
+                    </article>
+                    <article class="pillar spotlight tilt reveal" style="--reveal-delay: .08s">
+                        <div class="pillar-head">
+                            <div class="pillar-icon"><i class="fas fa-hand"></i></div>
+                            <span class="pillar-code">MOD-04 · MANIPULATION</span>
+                        </div>
+                        <h3>Manipulation &amp; VLAs</h3>
+                        <p>Training and deploying vision-language-action models on physical robots, from task-oriented grasping to mobile base placement and uncertainty-aware trajectory diffusion.</p>
+                        <div class="pillar-tags">
+                            <span class="win"><i class="fas fa-trophy"></i> REAL-I · ICRA'26</span>
+                            <span>TOG</span>
+                            <span>GBPP</span>
+                            <span>SCOPE · CoRL'26</span>
+                        </div>
+                    </article>
+                </div>
+            </section>
 
             <!-- News -->
-            <section class="simple-section">
-                <h2 class="simple-section-title"><i class="fas fa-bolt"></i>News</h2>
+            <section class="simple-section" id="news">
+                <h2 class="simple-section-title reveal"><span class="sec-idx">02</span>Mission log</h2>
                 <ul class="news-list">
-                    <li><span class="news-date">Sep 2026</span><span><strong>CROSS</strong> accepted to <strong>NeurIPS 2026</strong>. <a href="https://arxiv.org/abs/2605.02227" class="link-accent" target="_blank" rel="noopener noreferrer">arXiv</a></span></li>
-                    <li><span class="news-date">Sep 2026</span><span>Our REAL-I challenge report, <em>How to Better Train VLAs</em>, is out on <a href="https://arxiv.org/abs/2609.13679" class="link-accent" target="_blank" rel="noopener noreferrer">arXiv</a>.</span></li>
-                    <li><span class="news-date">2026</span><span>Co-organizing workshops at <strong>RSS 2026</strong> (open-world navigation) and <strong>IROS 2026</strong> (social robot navigation).</span></li>
-                    <li><span class="news-date">Jun 2026</span><span>🏆 Team NUS-CLEAR won <strong>1st place</strong> at the <strong>REAL-I Challenge, ICRA 2026</strong> in Vienna.</span></li>
-                    <li><span class="news-date">Oct 2025</span><span>🏆 Two Best Paper Awards at IROS 2025 workshops (WIR-M and RoDGE).</span></li>
-                    <li><span class="news-date">May 2025</span><span>🏆 <strong>1st place</strong> at the <strong>Earth Rover Challenge, ICRA 2025</strong> with the GeNIE navigation system.</span></li>
+                    <li class="reveal"><span class="news-date">Sep 2026</span><span><span class="news-tag">Paper</span><strong>CROSS</strong> accepted to <strong>NeurIPS 2026</strong>. <a href="https://arxiv.org/abs/2605.02227" class="link-accent" target="_blank" rel="noopener noreferrer">arXiv</a></span></li>
+                    <li class="reveal"><span class="news-date">Sep 2026</span><span><span class="news-tag">Report</span>Our REAL-I challenge report, <em>How to Better Train VLAs</em>, is out on <a href="https://arxiv.org/abs/2609.13679" class="link-accent" target="_blank" rel="noopener noreferrer">arXiv</a>.</span></li>
+                    <li class="reveal"><span class="news-date">2026</span><span><span class="news-tag">Service</span>Co-organizing workshops at <strong>RSS 2026</strong> (open-world navigation) and <strong>IROS 2026</strong> (social robot navigation).</span></li>
+                    <li class="reveal"><span class="news-date">Jun 2026</span><span><span class="news-tag win">Win</span>Team NUS-CLEAR won <strong>1st place</strong> at the <strong>REAL-I Challenge, ICRA 2026</strong> in Vienna.</span></li>
+                    <li class="reveal"><span class="news-date">Oct 2025</span><span><span class="news-tag win">Award</span>Two Best Paper Awards at IROS 2025 workshops (WIR-M and RoDGE).</span></li>
+                    <li class="reveal"><span class="news-date">May 2025</span><span><span class="news-tag win">Win</span><strong>1st place</strong> at the <strong>Earth Rover Challenge, ICRA 2025</strong> with the GeNIE navigation system.</span></li>
                 </ul>
             </section>
 
             <!-- Awards -->
             <section class="simple-section" id="awards">
-                <h2 class="simple-section-title"><i class="fas fa-trophy"></i>Awards &amp; Honors</h2>
+                <h2 class="simple-section-title reveal"><span class="sec-idx">03</span>Awards &amp; honors</h2>
 
-                <article class="award-feature">
+                <article class="award-feature reveal">
                     <div class="award-feature-media">
                         <img src="assets/img/awards/real-i-icra26-ceremony.jpg" data-lightbox alt="Team NUS-CLEAR on stage at the ICRA 2026 competitions award ceremony in Vienna" loading="lazy">
                     </div>
@@ -88,7 +205,7 @@
                 </article>
 
                 <div class="award-grid">
-                    <article class="award-card">
+                    <article class="award-card reveal">
                         <div class="award-card-media">
                             <img src="assets/img/awards/tog-iros25-best-paper.jpg" data-lightbox alt="Best Workshop Paper Prize certificate — TOG: Training-free Task-oriented Grasp Generation, IROS 2025" loading="lazy">
                         </div>
@@ -100,7 +217,7 @@
                             </p>
                         </div>
                     </article>
-                    <article class="award-card">
+                    <article class="award-card reveal" style="--reveal-delay: .08s">
                         <div class="award-card-media">
                             <img src="assets/img/awards/gbpp-iros25-rodge.png" data-lightbox alt="IROS 2025 RoDGE Workshop Best Paper Award certificate — GBPP: Grasp-Aware Base Placement Prediction" loading="lazy">
                         </div>
@@ -115,7 +232,7 @@
                 </div>
 
                 <div class="award-list">
-                    <div class="award-row">
+                    <div class="award-row reveal">
                         <div class="award-row-icon"><i class="fas fa-trophy"></i></div>
                         <div>
                             <div class="award-row-title">
@@ -128,7 +245,7 @@
                         </div>
                         <div class="award-row-year">2025</div>
                     </div>
-                    <div class="award-row">
+                    <div class="award-row reveal">
                         <div class="award-row-icon"><i class="fas fa-star"></i></div>
                         <div>
                             <div class="award-row-title">Forbes China 30 Under 30</div>
@@ -143,88 +260,95 @@
             </section>
 
             <!-- Publications -->
-            <section class="simple-section">
-                <h2 class="simple-section-title"><i class="fas fa-file-lines"></i>Selected Publications</h2>
+            <section class="simple-section" id="publications">
+                <h2 class="simple-section-title reveal"><span class="sec-idx">04</span>Selected publications</h2>
                 <div id="publications-list" data-selected="true">
                     <!-- Publications will be inserted here by JavaScript -->
                 </div>
-                <p style="margin-top: 1rem;"><a href="pages/research.html#publications" class="link-accent">All publications →</a></p>
+                <p style="margin-top: 1.25rem;"><a href="pages/research.html#publications" class="btn btn-ghost">All publications <i class="fas fa-arrow-right"></i></a></p>
             </section>
 
             <!-- Workshop Organization -->
-            <section class="simple-section">
-                <h2 class="simple-section-title"><i class="fas fa-people-group"></i>Workshop Organization</h2>
-                <article class="workshop-card">
-                    <div class="workshop-venue">RSS<small>2026</small></div>
-                    <div>
-                        <div class="workshop-role">Co-organizer</div>
+            <section class="simple-section" id="workshops">
+                <h2 class="simple-section-title reveal"><span class="sec-idx">05</span>Workshop organization</h2>
+                <div class="workshop-grid">
+                    <article class="workshop-card spotlight reveal">
+                        <div class="workshop-top">
+                            <div class="workshop-venue">RSS<small>2026</small></div>
+                            <div class="workshop-role">Co-organizer</div>
+                        </div>
                         <div class="workshop-title">
                             <a href="https://adacompnus.github.io/open-world-navigation-26/" target="_blank" rel="noopener noreferrer">Open World Navigation in the Foundation Model Era: Robustness and Failure Recovery <i class="fas fa-arrow-up-right-from-square" style="font-size: 0.7rem;"></i></a>
                         </div>
                         <p class="workshop-desc">Open-world robot navigation, robustness of foundation-model-based navigation systems, failure detection and recovery, and navigation benchmarks.</p>
-                    </div>
-                </article>
-                <article class="workshop-card">
-                    <div class="workshop-venue">IROS<small>2026</small></div>
-                    <div>
-                        <div class="workshop-role">Co-organizer</div>
+                    </article>
+                    <article class="workshop-card spotlight reveal" style="--reveal-delay: .08s">
+                        <div class="workshop-top">
+                            <div class="workshop-venue">IROS<small>2026</small></div>
+                            <div class="workshop-role">Co-organizer</div>
+                        </div>
                         <div class="workshop-title">
                             <a href="https://socialnav2026.pages.dev/" target="_blank" rel="noopener noreferrer">5th Workshop on Social Robot Navigation: From Humans, to Robots, and to the World <i class="fas fa-arrow-up-right-from-square" style="font-size: 0.7rem;"></i></a>
                         </div>
                         <p class="workshop-desc">Social navigation, human–robot interaction, dynamic crowd understanding, robot planning, evaluation, and real-world deployment.</p>
-                    </div>
-                </article>
+                    </article>
+                </div>
             </section>
 
             <!-- Teaching -->
-            <section class="simple-section">
-                <h2 class="simple-section-title"><i class="fas fa-chalkboard-user"></i>Teaching</h2>
-                <div>
-                    <div class="mb-3">
-                        <p class="font-semibold" style="color: var(--text-primary);">
-                            CS5242: Neural Networks and Deep Learning
-                        </p>
-                        <p class="text-sm" style="color: var(--text-secondary);">
-                            Teaching Assistant | 2026
-                        </p>
+            <section class="simple-section" id="teaching">
+                <h2 class="simple-section-title reveal"><span class="sec-idx">06</span>Teaching</h2>
+                <div class="teach-list">
+                    <div class="teach-item reveal">
+                        <span class="teach-code">CS5242</span>
+                        <div>
+                            <div class="teach-title">Neural Networks and Deep Learning</div>
+                            <div class="teach-meta">Teaching Assistant · 2026</div>
+                        </div>
                     </div>
-                    <div class="mb-3">
-                        <p class="font-semibold" style="color: var(--text-primary);">
-                            CS5284: Graph Machine Learning
-                        </p>
-                        <p class="text-sm" style="color: var(--text-secondary);">
-                            Teaching Assistant | 2024, 2025
-                        </p>
+                    <div class="teach-item reveal" style="--reveal-delay: .08s">
+                        <span class="teach-code">CS5284</span>
+                        <div>
+                            <div class="teach-title">Graph Machine Learning</div>
+                            <div class="teach-meta">Teaching Assistant · 2024, 2025</div>
+                        </div>
                     </div>
                 </div>
             </section>
 
             <!-- Research & Opportunities -->
-            <section class="simple-section">
-                <h2 class="simple-section-title"><i class="fas fa-user-plus"></i>Looking for Student Researchers</h2>
-                <div class="recruit-box">
+            <section class="simple-section" id="join">
+                <h2 class="simple-section-title reveal"><span class="sec-idx">07</span>Join the mission</h2>
+                <div class="recruit-box reveal">
+                    <h3>Looking for student researchers.</h3>
                     <p class="narrative-text">
                         I'm actively looking for motivated students to work on cutting-edge problems in robot navigation and embodied AI in general. My research has won two international robotics challenges at ICRA and two Best Paper Awards at IROS workshops. I approach research with an entrepreneurial mindset—prioritizing rapid prototyping, real-world deployment, and practical impact.
                     </p>
                     <p class="narrative-text">
                         My past students have gone on to excellent opportunities, including PhD offers from CUHK and NUS, as well as collaborations with leading research groups. I emphasize hands-on mentorship, giving students real ownership of projects and fostering both technical depth and independent thinking.
                     </p>
-                    <p class="narrative-text">
-                        If you're passionate about robotics, have strong programming skills (Python/C++, ROS2), and want to build real systems that matter, feel free to <a href="pages/research.html" class="link-accent">explore ongoing projects</a> or <a href="pages/contact.html" class="link-accent">reach out directly</a>.
-                    </p>
+                    <div class="req-list">
+                        <span>Python / C++</span><span>ROS 2</span><span>Real robots</span><span>Ownership</span><span>Curiosity</span>
+                    </div>
+                    <div class="hero-cta">
+                        <a href="pages/research.html" class="btn btn-glow"><i class="fas fa-flask"></i>See ongoing projects</a>
+                        <a href="pages/contact.html" class="btn btn-ghost"><i class="fas fa-paper-plane"></i>Reach out</a>
+                    </div>
                 </div>
             </section>
 
         </div>
 
         <!-- Footer -->
-        <footer class="border-t py-8" style="border-color: var(--border); background-color: var(--bg-secondary); margin-top: 4rem;">
-            <div class="max-w-7xl mx-auto px-6 text-center">
-                <p style="color: var(--text-secondary);">© 2026 Jiaming Wang. All rights reserved.</p>
+        <footer class="site-footer">
+            <div class="site-footer-inner">
+                <span>© 2026 Jiaming Wang · Singapore</span>
+                <span><a href="mailto:jiaming@comp.nus.edu.sg">Email</a> · <a href="https://www.linkedin.com/in/jiaming-wang-ai/" target="_blank" rel="noopener noreferrer">LinkedIn</a> · <a href="#hero-stage">Back to top ↑</a></span>
             </div>
         </footer>
     </div>
 
     <script src="js/main.js"></script>
+    <script src="js/robot-sim.js"></script>
 </body>
 </html>

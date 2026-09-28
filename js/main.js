@@ -14,22 +14,42 @@ function initNavigation() {
         return currentPage === page;
     };
     
+    // Adjust paths for subdirectory pages
+    const homeLink = isNestedSubdirectory ? '../../index.html' : (isSubdirectory ? '../index.html' : 'index.html');
+    const aboutLink = isNestedSubdirectory ? '../about.html' : (isSubdirectory ? 'about.html' : 'pages/about.html');
+    const researchLink = isNestedSubdirectory ? '../research.html' : (isSubdirectory ? 'research.html' : 'pages/research.html');
+    const blogLink = isNestedSubdirectory ? '../blog.html' : (isSubdirectory ? 'blog.html' : 'pages/blog.html');
+    const contactLink = isNestedSubdirectory ? '../contact.html' : (isSubdirectory ? 'contact.html' : 'pages/contact.html');
+    const md2imgLink = isNestedSubdirectory ? '../md2img.html' : (isSubdirectory ? 'md2img.html' : 'pages/md2img.html');
+    
+    const links = [
+        { page: 'index.html', label: 'Home', icon: 'fas fa-house', href: homeLink },
+        { page: 'about.html', label: 'About', icon: 'fas fa-user-astronaut', href: aboutLink },
+        { page: 'research.html', label: 'Research', icon: 'fas fa-robot', href: researchLink },
+        { page: 'blog.html', label: 'Blog', icon: 'fas fa-pen-nib', href: blogLink },
+        { page: 'contact.html', label: 'Contact', icon: 'fas fa-satellite-dish', href: contactLink },
+        { page: 'md2img.html', label: 'MD to Image', icon: 'fas fa-image', href: md2imgLink }
+    ];
+
+    const brand = (size) => `
+        <a href="${homeLink}" class="brand">
+            <span class="brand-mark">JW</span>
+            <span class="brand-text">
+                <span class="side-nav-title"${size ? ` style="font-size:${size}"` : ''}>Jiaming Wang</span>
+                <span class="brand-sub">Embodied AI · NUS</span>
+            </span>
+        </a>`;
+
     // Generate side navigation HTML
     const sideNavHTML = `
-        <div class="side-nav-header">
-            <div class="side-nav-title">Hi, I'm Jiaming</div>
-        </div>
+        <div class="side-nav-header">${brand()}</div>
+        <div class="nav-status"><span class="status-dot"></span>Online · Singapore</div>
         <div class="side-nav-links">
-            <a href="${pathPrefix}index.html" class="side-nav-link ${isActive('index.html') ? 'active' : ''}"><i class="fas fa-home"></i> <span class="nav-text">Home</span></a>
-            <a href="${pathPrefix}pages/about.html" class="side-nav-link ${isActive('about.html') ? 'active' : ''}"><i class="fas fa-user"></i> <span class="nav-text">About</span></a>
-            <a href="${pathPrefix}pages/research.html" class="side-nav-link ${isActive('research.html') ? 'active' : ''}"><i class="fas fa-flask"></i> <span class="nav-text">Research</span></a>
-            <a href="${pathPrefix}pages/blog.html" class="side-nav-link ${isActive('blog.html') ? 'active' : ''}"><i class="fas fa-blog"></i> <span class="nav-text">Blog</span></a>
-            <a href="${pathPrefix}pages/contact.html" class="side-nav-link ${isActive('contact.html') ? 'active' : ''}"><i class="fas fa-envelope"></i> <span class="nav-text">Contact</span></a>
-            <a href="${pathPrefix}pages/md2img.html" class="side-nav-link ${isActive('md2img.html') ? 'active' : ''}"><i class="fas fa-image"></i> <span class="nav-text">MD to Image</span></a>
+            ${links.map((l, i) => `<a href="${l.href}" class="side-nav-link ${isActive(l.page) ? 'active' : ''}"><i class="${l.icon}"></i> <span class="nav-text">${l.label}</span><span class="nav-idx">0${i + 1}</span></a>`).join('')}
         </div>
         <div class="side-nav-footer">
             <div class="footer-icons">
-                <a href="https://www.linkedin.com/in/jiaming-wang-ai/" target="_blank" class="footer-icon-link" title="LinkedIn">
+                <a href="https://www.linkedin.com/in/jiaming-wang-ai/" target="_blank" rel="noopener noreferrer" class="footer-icon-link" title="LinkedIn">
                     <i class="fab fa-linkedin"></i>
                 </a>
                 <a href="mailto:jiaming@comp.nus.edu.sg" class="footer-icon-link" title="Email">
@@ -40,47 +60,30 @@ function initNavigation() {
                 </div>
             </div>
             <div class="footer-text">
-                Building intelligent robots<br>one algorithm at a time
+                Building robots that<br>find their way
             </div>
         </div>
     `;
-    
-    // Adjust paths for subdirectory pages
-    const homeLink = isNestedSubdirectory ? '../../index.html' : (isSubdirectory ? '../index.html' : 'index.html');
-    const aboutLink = isNestedSubdirectory ? '../about.html' : (isSubdirectory ? 'about.html' : 'pages/about.html');
-    const researchLink = isNestedSubdirectory ? '../research.html' : (isSubdirectory ? 'research.html' : 'pages/research.html');
-    const blogLink = isNestedSubdirectory ? '../blog.html' : (isSubdirectory ? 'blog.html' : 'pages/blog.html');
-    const contactLink = isNestedSubdirectory ? '../contact.html' : (isSubdirectory ? 'contact.html' : 'pages/contact.html');
-    const md2imgLink = isNestedSubdirectory ? '../md2img.html' : (isSubdirectory ? 'md2img.html' : 'pages/md2img.html');
-    
+
     // Generate top navigation HTML
     const topNavHTML = `
-        <div class="max-w-7xl mx-auto px-6 py-4 flex justify-between items-center">
-            <a href="${homeLink}" class="text-xl font-semibold" style="color: var(--text-primary);">Hi, I'm Jiaming</a>
+        <div class="max-w-7xl mx-auto px-6 py-3 flex justify-between items-center">
+            ${brand('0.95rem')}
             <div class="flex items-center gap-6">
-                <a href="${homeLink}" class="nav-link hidden md:inline ${isActive('index.html') ? 'active' : ''}">Home</a>
-                <a href="${aboutLink}" class="nav-link hidden md:inline ${isActive('about.html') ? 'active' : ''}">About</a>
-                <a href="${researchLink}" class="nav-link hidden md:inline ${isActive('research.html') ? 'active' : ''}">Research</a>
-                <a href="${blogLink}" class="nav-link hidden md:inline ${isActive('blog.html') ? 'active' : ''}">Blog</a>
-                <a href="${contactLink}" class="nav-link hidden md:inline ${isActive('contact.html') ? 'active' : ''}">Contact</a>
-                <a href="${md2imgLink}" class="nav-link hidden md:inline ${isActive('md2img.html') ? 'active' : ''}">MD to Image</a>
+                ${links.slice(0, 5).map(l => `<a href="${l.href}" class="nav-link hidden md:inline ${isActive(l.page) ? 'active' : ''}">${l.label}</a>`).join('')}
                 <div class="theme-toggle-mobile hidden md:inline-flex" onclick="toggleTheme()" title="Toggle theme">
                     <i class="fas fa-moon theme-icon"></i>
                 </div>
-                
+
                 <!-- Mobile icons (visible only on small screens) -->
-                <a href="${aboutLink}" class="nav-link-icon md:hidden" title="About"><i class="fas fa-user"></i></a>
-                <a href="${researchLink}" class="nav-link-icon md:hidden" title="Research"><i class="fas fa-flask"></i></a>
-                <a href="${blogLink}" class="nav-link-icon md:hidden" title="Blog"><i class="fas fa-blog"></i></a>
-                <a href="${contactLink}" class="nav-link-icon md:hidden" title="Contact"><i class="fas fa-envelope"></i></a>
-                <a href="${md2imgLink}" class="nav-link-icon md:hidden" title="MD to Image"><i class="fas fa-image"></i></a>
+                ${links.slice(1, 5).map(l => `<a href="${l.href}" class="nav-link-icon md:hidden ${isActive(l.page) ? 'active' : ''}" title="${l.label}"><i class="${l.icon}"></i></a>`).join('')}
                 <div class="theme-toggle-mobile md:hidden" onclick="toggleTheme()" title="Toggle theme">
                     <i class="fas fa-moon theme-icon"></i>
                 </div>
             </div>
         </div>
     `;
-    
+
     // Inject into placeholders
     const sideNav = document.getElementById('side-nav-placeholder');
     const topNav = document.getElementById('top-nav-placeholder');
@@ -89,20 +92,25 @@ function initNavigation() {
     if (topNav) topNav.innerHTML = topNavHTML;
 }
 
-// Theme Toggle
+// Theme Toggle (dark "mission control" is the default)
 function toggleTheme() {
     const html = document.documentElement;
     const currentTheme = html.getAttribute('data-theme');
     const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
     html.setAttribute('data-theme', newTheme);
-    localStorage.setItem('theme', newTheme);
+    try { localStorage.setItem('theme', newTheme); } catch (e) {}
+    document.dispatchEvent(new Event('themechange'));
 }
 
 // Load saved theme
 function loadTheme() {
-    const savedTheme = localStorage.getItem('theme') || 'light';
+    let savedTheme = 'dark';
+    try { savedTheme = localStorage.getItem('theme') || 'dark'; } catch (e) {}
     document.documentElement.setAttribute('data-theme', savedTheme);
 }
+
+// Apply the theme as early as possible to avoid a flash of the wrong palette
+loadTheme();
 
 // Data storage
 let publications = [];
@@ -191,7 +199,7 @@ function renderPublications() {
         const yearHeader = !showSelectedOnly && pub.year !== lastYear ? `<div class="pub-year">${pub.year}</div>` : '';
         lastYear = pub.year;
         return `${yearHeader}
-            <article class="pub-entry">
+            <article class="pub-entry spotlight">
                 <div class="pub-venue-tag">${pub.venueShort || pub.venue}</div>
                 <div class="pub-body">
                     <div class="pub-title">${pub.title}</div>
@@ -340,18 +348,128 @@ function renderAwards() {
     `).join('');
 }
 
+// ---------- Interaction effects ----------
+const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+// Fade/slide elements in as they enter the viewport
+function initReveal(root = document) {
+    // Sub-pages opt in automatically for their main building blocks
+    root.querySelectorAll('.card, .pub-entry, .blog-post-link, .section-container > h2, .section-container > h3')
+        .forEach(el => el.classList.add('reveal'));
+
+    const items = root.querySelectorAll('.reveal:not(.in)');
+    if (prefersReducedMotion || !('IntersectionObserver' in window)) {
+        items.forEach(el => el.classList.add('in'));
+        return;
+    }
+    const io = new IntersectionObserver(entries => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                entry.target.classList.add('in');
+                io.unobserve(entry.target);
+            }
+        });
+    }, { rootMargin: '0px 0px -8% 0px', threshold: 0.08 });
+    items.forEach(el => io.observe(el));
+}
+
+// Radial glow that follows the cursor on .spotlight cards, plus a gentle 3D tilt on .tilt
+function initSpotlight() {
+    document.addEventListener('pointermove', e => {
+        const card = e.target.closest && e.target.closest('.spotlight, .card, .pub-entry');
+        if (!card) return;
+        const r = card.getBoundingClientRect();
+        card.style.setProperty('--mx', `${e.clientX - r.left}px`);
+        card.style.setProperty('--my', `${e.clientY - r.top}px`);
+        if (!prefersReducedMotion && card.classList.contains('tilt')) {
+            const rx = ((e.clientY - r.top) / r.height - 0.5) * -5;
+            const ry = ((e.clientX - r.left) / r.width - 0.5) * 5;
+            card.style.transform = `perspective(900px) rotateX(${rx}deg) rotateY(${ry}deg) translateY(-2px)`;
+        }
+    });
+    document.querySelectorAll('.tilt').forEach(card => {
+        card.addEventListener('pointerleave', () => { card.style.transform = ''; });
+    });
+    document.querySelectorAll('.card, .pub-entry').forEach(el => el.classList.add('spotlight'));
+}
+
+// Count-up numbers
+function initCounters() {
+    const els = document.querySelectorAll('[data-count]');
+    if (!els.length) return;
+    const run = el => {
+        const target = parseInt(el.dataset.count, 10) || 0;
+        if (prefersReducedMotion) { el.textContent = target; return; }
+        const t0 = performance.now(), dur = 1400;
+        const tick = t => {
+            const k = Math.min(1, (t - t0) / dur);
+            el.textContent = Math.round(target * (1 - Math.pow(1 - k, 3)));
+            if (k < 1) requestAnimationFrame(tick);
+        };
+        requestAnimationFrame(tick);
+    };
+    const io = new IntersectionObserver(entries => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) { run(entry.target); io.unobserve(entry.target); }
+        });
+    }, { threshold: 0.6 });
+    els.forEach(el => io.observe(el));
+}
+
+// Typewriter that cycles through phrases
+function initTyper() {
+    const el = document.querySelector('.typer[data-words]');
+    if (!el || prefersReducedMotion) return;
+    let words;
+    try { words = JSON.parse(el.dataset.words); } catch (e) { return; }
+    let w = 0, i = words[0].length, deleting = true;
+    const tick = () => {
+        const word = words[w];
+        el.textContent = word.slice(0, i);
+        let delay = deleting ? 28 : 55;
+        if (deleting) {
+            if (--i < 0) { deleting = false; w = (w + 1) % words.length; i = 0; delay = 350; }
+        } else if (++i > words[w].length) {
+            deleting = true; i = words[w].length; delay = 2400;
+        }
+        setTimeout(tick, delay);
+    };
+    setTimeout(tick, 3200);
+}
+
+// Thin progress bar showing how far down the page you are
+function initScrollProgress() {
+    const bar = document.createElement('div');
+    bar.className = 'scroll-progress';
+    document.body.appendChild(bar);
+    const update = () => {
+        const h = document.documentElement.scrollHeight - window.innerHeight;
+        bar.style.transform = `scaleX(${h > 0 ? window.scrollY / h : 0})`;
+    };
+    window.addEventListener('scroll', update, { passive: true });
+    update();
+}
+
 // Initialize on page load
 document.addEventListener('DOMContentLoaded', function() {
     // Initialize navigation first
     initNavigation();
     loadTheme();
-    
+    initScrollProgress();
+    initTyper();
+    initSpotlight();
+    initReveal();
+
     // Load data then render
     loadData().then(() => {
         renderPublications();
         renderOngoingProjects();
         renderPeople();
         initSmoothScroll();
+        const pubCount = document.querySelector('[data-count-source="publications"]');
+        if (pubCount && publications.length) pubCount.dataset.count = publications.length;
+        initReveal();
+        initCounters();
     });
 
     initLightbox();
