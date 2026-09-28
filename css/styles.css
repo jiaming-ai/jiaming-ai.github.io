@@ -2129,6 +2129,16 @@ body::before {
     100% { opacity: 0; transform: scale(1.8); }
 }
 
+.trophy-map .trophy-photo {
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+}
+
+.trophy-map.has-photo svg,
+.trophy-map.has-photo .map-caption,
+.trophy-map.has-photo .trophy-year { display: none; }
+
 .map-caption {
     position: absolute;
     z-index: 1;
@@ -2956,6 +2966,7 @@ body::before {
 }
 
 .site-footer a { color: var(--text-secondary); text-decoration: none; }
+.site-footer b { color: var(--brand); font-family: var(--mono); font-weight: 500; }
 .site-footer a:hover { color: var(--brand); }
 
 /* Existing pages' footers & headers pick up the theme */

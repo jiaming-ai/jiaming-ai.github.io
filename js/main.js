@@ -451,6 +451,33 @@ function initScrollProgress() {
     update();
 }
 
+// Visitor counter (homepage). Uses the free Abacus hit counter; the displayed
+// number starts from VISITOR_BASE. Counts once per browser session and stays
+// hidden if the service is unreachable.
+const VISITOR_BASE = 1987;
+const VISITOR_API = 'https://abacus.jasoncameron.dev';
+const VISITOR_KEY = 'jiaming-ai-github-io/visits';
+
+async function initVisitorCounter() {
+    const targets = document.querySelectorAll('[data-visitor-count]');
+    if (!targets.length) return;
+    let counted = false;
+    try { counted = sessionStorage.getItem('visit_counted') === '1'; } catch (e) {}
+    try {
+        const res = await fetch(`${VISITOR_API}/${counted ? 'get' : 'hit'}/${VISITOR_KEY}`, { cache: 'no-store' });
+        if (!res.ok) return;
+        const data = await res.json();
+        const value = Number(data.value);
+        if (!Number.isFinite(value)) return;
+        try { sessionStorage.setItem('visit_counted', '1'); } catch (e) {}
+        const text = (VISITOR_BASE + value).toLocaleString('en-US');
+        targets.forEach(el => { el.textContent = text; });
+        document.querySelectorAll('.visitor-meta').forEach(el => { el.hidden = false; });
+    } catch (e) {
+        // Counter is decorative; ignore network failures.
+    }
+}
+
 // Initialize on page load
 document.addEventListener('DOMContentLoaded', function() {
     // Initialize navigation first
@@ -474,6 +501,7 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 
     initLightbox();
+    initVisitorCounter();
 
     // Close project modals on outside click
     document.querySelectorAll('.modal').forEach(modal => {

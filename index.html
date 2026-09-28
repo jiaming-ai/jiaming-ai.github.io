@@ -6,10 +6,13 @@
     <title>Jiaming Wang - Robotics & Embodied AI Researcher</title>
     <meta name="description" content="Jiaming Wang — PhD candidate at NUS working on robot navigation, spatial memory and embodied AI. Champion of REAL-I @ ICRA 2026 and Earth Rover Challenge @ ICRA 2025.">
     <meta name="theme-color" content="#05070d">
+    <link rel="icon" href="favicon.svg" type="image/svg+xml">
+    <link rel="icon" href="favicon-32.png" type="image/png" sizes="32x32">
+    <link rel="apple-touch-icon" href="apple-touch-icon.png">
     <script>try{document.documentElement.setAttribute('data-theme',localStorage.getItem('theme')||'dark')}catch(e){document.documentElement.setAttribute('data-theme','dark')}</script>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-    <link rel="stylesheet" href="css/styles.css?v=20260928b">
+    <link rel="stylesheet" href="css/styles.css?v=20260928c">
 </head>
 <body>
     <!-- Side Navigation (Desktop/Tablet) -->
@@ -32,7 +35,7 @@
             <section class="hero">
                 <div>
                     <div class="hud-kicker reveal">
-                        <span>Embodied AI</span><span class="sep">/</span><span>Robot Navigation</span><span class="sep">/</span><span>NUS CLeAR Lab</span>
+                        <span>Embodied AI</span><span class="sep">/</span><span>Robot Navigation</span><span class="sep">/</span><span>Manipulation</span><span class="sep">/</span><span>NUS CLeAR Lab</span>
                     </div>
                     <h1 class="hero-name reveal" style="--reveal-delay: .08s">Jiaming <span class="grad">Wang</span></h1>
                     <p class="hero-tagline reveal" style="--reveal-delay: .16s">
@@ -47,14 +50,15 @@
                     </p>
                     <div class="hero-cta reveal" style="--reveal-delay: .32s">
                         <a href="pages/research.html" class="btn btn-glow"><i class="fas fa-satellite-dish"></i>Explore research</a>
-                        <a href="mailto:jiaming@comp.nus.edu.sg" class="btn btn-ghost"><i class="fas fa-envelope"></i>Email</a>
+                        <a href="pages/contact.html" class="btn btn-ghost"><i class="fas fa-envelope"></i>Contact</a>
                         <a href="https://www.linkedin.com/in/jiaming-wang-ai/" class="btn btn-ghost" target="_blank" rel="noopener noreferrer"><i class="fab fa-linkedin"></i>LinkedIn</a>
                         <a href="pages/about.html" class="btn btn-ghost"><i class="fas fa-book-open"></i>My story</a>
                     </div>
                     <div class="hero-honors reveal" style="--reveal-delay: .4s">
                         <a href="#awards" class="honor-chip gold"><i class="fas fa-trophy"></i><span><b>Champion</b> · REAL-I @ ICRA 2026</span></a>
                         <a href="#awards" class="honor-chip gold"><i class="fas fa-trophy"></i><span><b>Champion</b> · Earth Rover @ ICRA 2025</span></a>
-                        <a href="#awards" class="honor-chip"><i class="fas fa-medal"></i><span><b>2× Best Paper</b> · IROS 2025 workshops</span></a>
+                        <a href="#awards" class="honor-chip gold"><i class="fas fa-medal"></i><span><b>2× Best Paper</b> Awards</span></a>
+                        <a href="#forbes" class="honor-chip"><i class="fas fa-star"></i><span><b>Forbes China</b> 30 Under 30</span></a>
                     </div>
                 </div>
 
@@ -69,6 +73,7 @@
                         <span>ID</span><b>JW-01 · Researcher</b>
                         <span>Base</span><b>Singapore</b>
                         <span>Status</span><b class="ok">● Recruiting students</b>
+                        <span class="visitor-meta" hidden>Visitors</span><b class="visitor-meta" data-visitor-count hidden>—</b>
                     </div>
                 </div>
             </section>
@@ -100,7 +105,7 @@
                         <div class="trophy-body">
                             <div class="trophy-event">IEEE ICRA 2026 · Vienna</div>
                             <h3>REAL-I: Real-world Embodied AI Learning Challenge</h3>
-                            <p>Won the inaugural challenge with an end-to-end VLA learning and deployment system — through simulation, real-robot rounds, and an on-site physical-robot final. Team NUS-CLEAR: Jiaming Wang, Jizhuo Chen, Diwen Liu; advisor Harold Soh.</p>
+                            <p>Won the inaugural challenge with an end-to-end robot learning and deployment system — through simulation, real-robot rounds, and an on-site physical-robot final. Team NUS-CLEAR: Jiaming Wang, Jizhuo Chen, Diwen Liu; advisor Harold Soh.</p>
                             <div class="trophy-links">
                                 <a href="https://arxiv.org/abs/2609.13679" target="_blank" rel="noopener noreferrer"><i class="fas fa-file-lines"></i>Paper</a>
                                 <a href="pages/blog/how-to-win.html"><i class="fas fa-pen-nib"></i>How we won</a>
@@ -111,8 +116,9 @@
                     </article>
 
                     <article class="trophy trophy-champion spotlight reveal" style="--reveal-delay: .08s">
-                        <div class="trophy-media trophy-map" aria-hidden="true">
-                            <svg viewBox="0 0 600 340" preserveAspectRatio="xMidYMid slice">
+                        <div class="trophy-media trophy-map">
+                            <img class="trophy-photo" src="assets/img/awards/erc-icra25.jpg" data-lightbox alt="NUS Computing team — 1st place at the Earth Rover Challenge, ICRA 2025" loading="lazy" onload="this.parentNode.classList.add('has-photo')" onerror="this.remove()">
+                            <svg aria-hidden="true" viewBox="0 0 600 340" preserveAspectRatio="xMidYMid slice">
                                 <defs>
                                     <pattern id="dotgrid" width="14" height="14" patternUnits="userSpaceOnUse"><circle cx="2" cy="2" r="1.2" class="map-dot"/></pattern>
                                 </defs>
@@ -166,7 +172,7 @@
                     </article>
                 </div>
 
-                <div class="award-row reveal" style="margin-top: 1rem;">
+                <div class="award-row reveal" id="forbes" style="margin-top: 1rem;">
                     <div class="award-row-icon"><i class="fas fa-star"></i></div>
                     <div>
                         <div class="award-row-title">Forbes China 30 Under 30</div>
@@ -187,31 +193,20 @@
                     <article class="pillar spotlight tilt reveal">
                         <div class="pillar-head">
                             <div class="pillar-icon"><i class="fas fa-diagram-project"></i></div>
-                            <span class="pillar-code">MOD-01 · MAPPING</span>
+                            <span class="pillar-code">MOD-01 · PERCEPTION &amp; MEMORY</span>
                         </div>
-                        <h3>Spatial Perception &amp; Mapping</h3>
-                        <p>Topological maps that stay robust under perceptual aliasing and a changing world — reasoning over pose hypotheses in continuous SE(3) instead of trusting a single global metric map.</p>
+                        <h3>Spatial Perception &amp; Long-term Memory</h3>
+                        <p>Maps and memories that stay reliable as the world changes — topological mapping that relocalizes under perceptual aliasing, reasoning over pose hypotheses in continuous SE(3), and memory matched to the timescale of the task so robots can act on what they saw minutes, hours, or days ago.</p>
                         <div class="pillar-tags">
                             <a href="https://arxiv.org/abs/2605.02227" target="_blank" rel="noopener noreferrer">CROSS · NeurIPS'26</a>
                             <span>TOPO-Bench · ICRA'26</span>
+                            <a href="pages/blog/robot-memory.html">Blog · The right memory</a>
                         </div>
                     </article>
                     <article class="pillar spotlight tilt reveal" style="--reveal-delay: .08s">
                         <div class="pillar-head">
-                            <div class="pillar-icon"><i class="fas fa-memory"></i></div>
-                            <span class="pillar-code">MOD-02 · MEMORY</span>
-                        </div>
-                        <h3>Long-term Robot Memory</h3>
-                        <p>Turning a robot's history into usable state — memory matched to the timescale of the task, so policies can act on what they have seen minutes, hours, or days ago.</p>
-                        <div class="pillar-tags">
-                            <a href="pages/blog/robot-memory.html">Blog · The right memory</a>
-                            <span>World models</span>
-                        </div>
-                    </article>
-                    <article class="pillar spotlight tilt reveal">
-                        <div class="pillar-head">
                             <div class="pillar-icon"><i class="fas fa-route"></i></div>
-                            <span class="pillar-code">MOD-03 · NAVIGATION</span>
+                            <span class="pillar-code">MOD-02 · NAVIGATION</span>
                         </div>
                         <h3>Open-world Navigation</h3>
                         <p>Map-free navigation that survives the real world — deployed across seven countries — plus social navigation among people and language-guided navigation.</p>
@@ -221,18 +216,30 @@
                             <span>POLo · ICRA'24</span>
                         </div>
                     </article>
-                    <article class="pillar spotlight tilt reveal" style="--reveal-delay: .08s">
+                    <article class="pillar spotlight tilt reveal">
                         <div class="pillar-head">
                             <div class="pillar-icon"><i class="fas fa-hand"></i></div>
-                            <span class="pillar-code">MOD-04 · MANIPULATION</span>
+                            <span class="pillar-code">MOD-03 · MANIPULATION</span>
                         </div>
-                        <h3>Manipulation &amp; VLAs</h3>
-                        <p>Training and deploying vision-language-action models on physical robots, from task-oriented grasping to mobile base placement and uncertainty-aware trajectory diffusion.</p>
+                        <h3>Manipulation</h3>
+                        <p>Learning manipulation from real-robot data and deploying it reliably on physical robots — from task-oriented grasping and mobile base placement to uncertainty-aware trajectory diffusion.</p>
                         <div class="pillar-tags">
                             <span class="win"><i class="fas fa-trophy"></i> REAL-I · ICRA'26</span>
                             <span>TOG</span>
                             <span>GBPP</span>
                             <span>SCOPE · CoRL'26</span>
+                        </div>
+                    </article>
+                    <article class="pillar spotlight tilt reveal" style="--reveal-delay: .08s">
+                        <div class="pillar-head">
+                            <div class="pillar-icon"><i class="fas fa-brain"></i></div>
+                            <span class="pillar-code">MOD-04 · AGENTIC</span>
+                        </div>
+                        <h3>Agentic Robotics</h3>
+                        <p>Robots as agents that reason, plan, and improve themselves — using world models to imagine outcomes and agentic optimization to search for better behavior, instead of relying on a single fixed policy.</p>
+                        <div class="pillar-tags">
+                            <span>SCOPE · Agentic optimization</span>
+                            <span>Video world models</span>
                         </div>
                     </article>
                 </div>
@@ -334,13 +341,13 @@
         <!-- Footer -->
         <footer class="site-footer">
             <div class="site-footer-inner">
-                <span>© 2026 Jiaming Wang · Singapore</span>
-                <span><a href="mailto:jiaming@comp.nus.edu.sg">Email</a> · <a href="https://www.linkedin.com/in/jiaming-wang-ai/" target="_blank" rel="noopener noreferrer">LinkedIn</a> · <a href="#hero-stage">Back to top ↑</a></span>
+                <span>© 2026 Jiaming Wang · Singapore<span class="visitor-meta" hidden> · <i class="fas fa-eye"></i> <b data-visitor-count>—</b> visitors</span></span>
+                <span><a href="pages/contact.html">Contact</a> · <a href="https://www.linkedin.com/in/jiaming-wang-ai/" target="_blank" rel="noopener noreferrer">LinkedIn</a> · <a href="#hero-stage">Back to top ↑</a></span>
             </div>
         </footer>
     </div>
 
-    <script src="js/main.js?v=20260928b"></script>
-    <script src="js/robot-sim.js?v=20260928b"></script>
+    <script src="js/main.js?v=20260928c"></script>
+    <script src="js/robot-sim.js?v=20260928c"></script>
 </body>
 </html>
