@@ -220,7 +220,7 @@ function showBibtex(id) {
 
 // Lightbox for award photos and certificates
 function initLightbox() {
-    const images = document.querySelectorAll('img[data-lightbox]');
+    const images = document.querySelectorAll('img[data-lightbox], [data-lightbox-src]');
     if (!images.length) return;
 
     const overlay = document.createElement('div');
@@ -231,9 +231,10 @@ function initLightbox() {
 
     const close = () => { overlay.hidden = true; document.body.style.overflow = ''; };
     images.forEach(img => img.addEventListener('click', () => {
-        overlay.querySelector('img').src = img.dataset.full || img.src;
-        overlay.querySelector('img').alt = img.alt;
-        overlay.querySelector('.lightbox-caption').textContent = img.alt;
+        const alt = img.dataset.lightboxAlt || img.alt || '';
+        overlay.querySelector('img').src = img.dataset.lightboxSrc || img.dataset.full || img.src;
+        overlay.querySelector('img').alt = alt;
+        overlay.querySelector('.lightbox-caption').textContent = alt;
         overlay.hidden = false;
         document.body.style.overflow = 'hidden';
     }));

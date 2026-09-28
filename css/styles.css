@@ -1721,6 +1721,43 @@ body::before {
 
 .btn i { font-size: 0.85rem; }
 
+.hero-honors {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin-top: 1.4rem;
+}
+
+.honor-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.4rem 0.75rem 0.4rem 0.6rem;
+    border-radius: 999px;
+    font-size: 0.8rem;
+    color: var(--text-secondary);
+    text-decoration: none;
+    border: 1px solid var(--border-strong);
+    background: color-mix(in srgb, var(--bg-primary) 70%, transparent);
+    backdrop-filter: blur(4px);
+    transition: transform 0.2s ease, border-color 0.2s ease;
+}
+
+.honor-chip b { color: var(--text-primary); font-weight: 600; }
+.honor-chip i { color: var(--award); }
+
+.honor-chip.gold {
+    border-color: var(--award-border);
+    background: color-mix(in srgb, var(--award-soft) 70%, color-mix(in srgb, var(--bg-primary) 70%, transparent));
+}
+
+.honor-chip.gold b { color: var(--award); }
+
+.honor-chip:hover {
+    transform: translateY(-2px);
+    border-color: var(--award);
+}
+
 /* Portrait inside a targeting frame */
 .hero-portrait {
     position: relative;
@@ -1942,6 +1979,280 @@ body::before {
     color: var(--text-secondary);
     max-width: 680px;
     margin: -0.75rem 0 1.5rem;
+}
+
+/* ---------- Honors showcase ---------- */
+.honors { margin-top: 3.5rem; }
+
+.trophy-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1rem;
+}
+
+.trophy {
+    position: relative;
+    border-radius: 1rem;
+    overflow: hidden;
+    background: var(--bg-elevated);
+    backdrop-filter: blur(6px);
+    border: 1px solid var(--award-border);
+    transition: transform 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease;
+}
+
+.trophy:hover {
+    transform: translateY(-3px);
+    border-color: color-mix(in srgb, var(--award) 60%, transparent);
+    box-shadow: 0 24px 50px -30px color-mix(in srgb, var(--award) 70%, transparent);
+}
+
+.trophy.spotlight::after {
+    background: radial-gradient(380px circle at var(--mx, 50%) var(--my, 50%), color-mix(in srgb, var(--award) 12%, transparent), transparent 55%);
+}
+
+.trophy-champion {
+    display: flex;
+    flex-direction: column;
+    box-shadow: 0 30px 60px -45px color-mix(in srgb, var(--award) 80%, transparent);
+}
+
+.trophy-champion::before {
+    /* gold top edge */
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 2px;
+    z-index: 2;
+    background: linear-gradient(90deg, transparent, var(--award), transparent);
+}
+
+.trophy-media {
+    position: relative;
+    aspect-ratio: 16 / 9;
+    overflow: hidden;
+    background: #0a0f1c;
+}
+
+.trophy-media img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    cursor: zoom-in;
+    transition: transform 0.6s ease;
+}
+
+.trophy:hover .trophy-media img { transform: scale(1.04); }
+
+.trophy-media::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    background: linear-gradient(180deg, transparent 55%, rgba(5, 7, 13, 0.55));
+}
+
+.trophy-flag {
+    position: absolute;
+    z-index: 1;
+    left: 0.85rem;
+    top: 0.85rem;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    font-family: var(--mono);
+    font-size: 0.66rem;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: #1a1204;
+    background: linear-gradient(100deg, #ffd98a, #f5b942);
+    padding: 0.3rem 0.6rem;
+    border-radius: 0.35rem;
+    box-shadow: 0 6px 20px -6px rgba(245, 185, 66, 0.7);
+}
+
+.trophy-year {
+    position: absolute;
+    z-index: 1;
+    right: 0.9rem;
+    bottom: 0.55rem;
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 2.4rem;
+    font-weight: 700;
+    letter-spacing: -0.04em;
+    line-height: 1;
+    color: rgba(255, 255, 255, 0.92);
+    text-shadow: 0 2px 16px rgba(0, 0, 0, 0.6);
+}
+
+/* Earth Rover: stylized route across seven deployment sites */
+.trophy-map {
+    background:
+        radial-gradient(420px 220px at 75% 30%, color-mix(in srgb, var(--award) 22%, transparent), transparent 70%),
+        radial-gradient(360px 200px at 15% 80%, color-mix(in srgb, var(--brand) 20%, transparent), transparent 70%),
+        #070b16;
+}
+
+.trophy-map svg { position: absolute; inset: 0; width: 100%; height: 100%; }
+.trophy-map .map-dot { fill: rgba(140, 180, 255, 0.16); }
+
+.trophy-map .map-route {
+    fill: none;
+    stroke: #f5c56b;
+    stroke-width: 2.5;
+    stroke-dasharray: 6 8;
+    animation: routeFlow 2.2s linear infinite;
+    filter: drop-shadow(0 0 6px rgba(245, 197, 107, 0.6));
+}
+
+.trophy-map .map-route-2 { stroke: #3fe0ff; opacity: 0.7; filter: drop-shadow(0 0 6px rgba(63, 224, 255, 0.6)); }
+
+@keyframes routeFlow { to { stroke-dashoffset: -28; } }
+
+.trophy-map .map-sites circle { fill: #070b16; stroke: #3fe0ff; stroke-width: 2.5; }
+
+.trophy-map .map-rings circle {
+    fill: none;
+    stroke: #f5c56b;
+    stroke-width: 1.5;
+    transform-box: fill-box;
+    transform-origin: center;
+    animation: ringPing 2.4s ease-out infinite;
+}
+
+.trophy-map .map-rings circle:nth-child(2) { animation-delay: 1.2s; }
+
+@keyframes ringPing {
+    0% { opacity: 0.9; transform: scale(0.6); }
+    100% { opacity: 0; transform: scale(1.8); }
+}
+
+.map-caption {
+    position: absolute;
+    z-index: 1;
+    left: 0.9rem;
+    bottom: 0.8rem;
+    font-family: var(--mono);
+    font-size: 0.64rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: rgba(233, 238, 251, 0.75);
+}
+
+.map-caption b { color: #f5c56b; font-family: var(--mono); font-size: 0.9rem; }
+
+.trophy-body {
+    padding: 1.2rem 1.35rem 1.3rem;
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+}
+
+.trophy-event {
+    font-family: var(--mono);
+    font-size: 0.68rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--award);
+    margin-bottom: 0.4rem;
+}
+
+.trophy h3 {
+    font-size: 1.2rem;
+    line-height: 1.3;
+    color: var(--text-primary);
+    margin-bottom: 0.5rem;
+}
+
+.trophy h3 a { color: inherit; text-decoration: none; }
+.trophy h3 a:hover { color: var(--brand); }
+
+.trophy-body p {
+    font-size: 0.88rem;
+    line-height: 1.6;
+    color: var(--text-secondary);
+    margin-bottom: 0.9rem;
+}
+
+.trophy-links {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem;
+    margin-top: auto;
+}
+
+.trophy-links a,
+.trophy-links button {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    font-family: var(--mono);
+    font-size: 0.7rem;
+    padding: 0.28rem 0.6rem;
+    border-radius: 0.4rem;
+    border: 1px solid var(--border-strong);
+    color: var(--text-secondary);
+    background: transparent;
+    text-decoration: none;
+    cursor: pointer;
+    transition: color 0.2s ease, border-color 0.2s ease, background-color 0.2s ease;
+}
+
+.trophy-links a:hover,
+.trophy-links button:hover {
+    color: var(--award);
+    border-color: var(--award-border);
+    background: var(--award-soft);
+}
+
+.trophy-paper {
+    display: grid;
+    grid-template-columns: 150px 1fr;
+    align-items: stretch;
+}
+
+.trophy-cert-thumb {
+    background: #fff;
+    border-right: 1px solid var(--border);
+    display: grid;
+    place-items: center;
+    padding: 0.5rem;
+    overflow: hidden;
+}
+
+.trophy-cert-thumb img {
+    width: 100%;
+    height: 100%;
+    max-height: 150px;
+    object-fit: contain;
+    cursor: zoom-in;
+    transition: transform 0.4s ease;
+}
+
+.trophy:hover .trophy-cert-thumb img { transform: scale(1.05) rotate(-1deg); }
+
+.trophy-kicker {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: var(--award);
+    margin-bottom: 0.2rem;
+}
+
+.trophy-paper .trophy-event { color: var(--text-tertiary); }
+.trophy-paper h3 { font-size: 1rem; margin-bottom: 0; }
+
+[data-theme="light"] .trophy-flag { color: #3a2503; }
+
+@media (max-width: 768px) {
+    .honors { margin-top: 2.5rem; }
+    .trophy-grid { grid-template-columns: 1fr; }
+    .trophy-paper { grid-template-columns: 110px 1fr; }
+    .trophy-year { font-size: 2rem; }
 }
 
 /* ---------- Research pillars ---------- */

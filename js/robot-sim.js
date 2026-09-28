@@ -6,6 +6,14 @@
     const canvas = document.getElementById('sim-canvas');
     if (!stage || !canvas) return;
 
+    // Keep the canvas out of document flow no matter which stylesheet is loaded
+    // (e.g. a stale cached styles.css). If the canvas were in flow, resizing it
+    // would grow the hero, which would trigger another resize, forever.
+    canvas.style.cssText += ';position:absolute;top:0;left:0;display:block;pointer-events:none;';
+    stage.style.position = 'relative';
+    stage.style.overflow = 'hidden';
+
+    const MAX_W = 2560, MAX_H = 1400;
     const ctx = canvas.getContext('2d');
     const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
     const hud = {
@@ -484,14 +492,26 @@
         rafId = null;
     }
 
+    let resizeQueued = false;
+    function queueResize() {
+        if (resizeQueued) return;
+        resizeQueued = true;
+        requestAnimationFrame(() => { resizeQueued = false; resize(); });
+    }
+
     function resize() {
         const rect = stage.getBoundingClientRect();
-        const newW = Math.round(rect.width), newH = Math.round(rect.height);
+        // Hard caps so a runaway layout can never allocate a gigantic canvas
+        const newW = Math.min(MAX_W, Math.round(rect.width));
+        const newH = Math.min(MAX_H, Math.round(rect.height));
+        if (!newW || !newH) return;
         if (newW === W && Math.abs(newH - H) < 80) return;
         W = newW; H = newH;
         DPR = Math.min(window.devicePixelRatio || 1, 2);
         canvas.width = W * DPR;
         canvas.height = H * DPR;
+        canvas.style.width = W + 'px';
+        canvas.style.height = H + 'px';
         ctx.setTransform(DPR, 0, 0, DPR, 0, 0);
         range = clamp(Math.min(W, H) * 0.38, 150, 280);
         buildWorld();
@@ -531,8 +551,8 @@
         visible ? start() : stop();
     }).observe(stage);
 
-    if ('ResizeObserver' in window) new ResizeObserver(resize).observe(stage);
-    else window.addEventListener('resize', resize);
+    if ('ResizeObserver' in window) new ResizeObserver(queueResize).observe(stage);
+    else window.addEventListener('resize', queueResize);
 
     readColors();
     resize();

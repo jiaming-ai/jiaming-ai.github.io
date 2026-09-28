@@ -91,6 +91,15 @@ Edit `data/awards.json`:
 }
 ```
 
+## ♻️ Cache busting
+
+Every page links `css/styles.css`, `js/main.js` (and `js/robot-sim.js` on the homepage) with a `?v=` query string.
+When you change CSS or JS, bump that version on all pages so visitors never get new HTML paired with a stale cached stylesheet:
+
+```bash
+V=$(date +%Y%m%d%H%M); for f in index.html pages/*.html pages/blog/*.html; do sed -i -E "s#(css/styles\.css|js/main\.js|js/robot-sim\.js)(\?v=[A-Za-z0-9]+)?\"#\1?v=$V\"#g" "$f"; done
+```
+
 ## 🚀 Deployment
 
 ### GitHub Pages

@@ -9,7 +9,7 @@
     <script>try{document.documentElement.setAttribute('data-theme',localStorage.getItem('theme')||'dark')}catch(e){document.documentElement.setAttribute('data-theme','dark')}</script>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-    <link rel="stylesheet" href="css/styles.css">
+    <link rel="stylesheet" href="css/styles.css?v=20260928b">
 </head>
 <body>
     <!-- Side Navigation (Desktop/Tablet) -->
@@ -51,6 +51,11 @@
                         <a href="https://www.linkedin.com/in/jiaming-wang-ai/" class="btn btn-ghost" target="_blank" rel="noopener noreferrer"><i class="fab fa-linkedin"></i>LinkedIn</a>
                         <a href="pages/about.html" class="btn btn-ghost"><i class="fas fa-book-open"></i>My story</a>
                     </div>
+                    <div class="hero-honors reveal" style="--reveal-delay: .4s">
+                        <a href="#awards" class="honor-chip gold"><i class="fas fa-trophy"></i><span><b>Champion</b> · REAL-I @ ICRA 2026</span></a>
+                        <a href="#awards" class="honor-chip gold"><i class="fas fa-trophy"></i><span><b>Champion</b> · Earth Rover @ ICRA 2025</span></a>
+                        <a href="#awards" class="honor-chip"><i class="fas fa-medal"></i><span><b>2× Best Paper</b> · IROS 2025 workshops</span></a>
+                    </div>
                 </div>
 
                 <div class="hero-portrait reveal" style="--reveal-delay: .2s">
@@ -81,33 +86,102 @@
 
         <div class="home-container">
 
-            <!-- Stats -->
-            <div class="stats reveal">
-                <div class="stat spotlight">
-                    <div class="stat-num"><span data-count="2">0</span><span class="unit">×</span></div>
-                    <div class="stat-label">ICRA Challenge Champion</div>
-                    <div class="stat-sub">Earth Rover '25 · REAL-I '26</div>
+            <!-- Honors showcase -->
+            <section class="simple-section honors" id="awards">
+                <h2 class="simple-section-title reveal"><span class="sec-idx">01</span>Awards &amp; honors</h2>
+
+                <div class="trophy-grid">
+                    <article class="trophy trophy-champion spotlight reveal">
+                        <div class="trophy-media">
+                            <img src="assets/img/awards/real-i-icra26-ceremony.jpg" data-lightbox alt="Team NUS-CLEAR on stage at the ICRA 2026 competitions award ceremony in Vienna" loading="lazy">
+                            <span class="trophy-flag"><i class="fas fa-trophy"></i>Champion · 1st place</span>
+                            <span class="trophy-year">2026</span>
+                        </div>
+                        <div class="trophy-body">
+                            <div class="trophy-event">IEEE ICRA 2026 · Vienna</div>
+                            <h3>REAL-I: Real-world Embodied AI Learning Challenge</h3>
+                            <p>Won the inaugural challenge with an end-to-end VLA learning and deployment system — through simulation, real-robot rounds, and an on-site physical-robot final. Team NUS-CLEAR: Jiaming Wang, Jizhuo Chen, Diwen Liu; advisor Harold Soh.</p>
+                            <div class="trophy-links">
+                                <a href="https://arxiv.org/abs/2609.13679" target="_blank" rel="noopener noreferrer"><i class="fas fa-file-lines"></i>Paper</a>
+                                <a href="pages/blog/how-to-win.html"><i class="fas fa-pen-nib"></i>How we won</a>
+                                <a href="https://www.kdc.icra.lejurobot.com/" target="_blank" rel="noopener noreferrer"><i class="fas fa-flag-checkered"></i>Challenge</a>
+                                <button type="button" class="trophy-cert" data-lightbox-src="assets/img/awards/real-i-icra26-certificate.jpg" data-lightbox-alt="IEEE RAS certificate: Champion of REAL-I, ICRA 2026 — Team NUS-CLEAR"><i class="fas fa-certificate"></i>Certificate</button>
+                            </div>
+                        </div>
+                    </article>
+
+                    <article class="trophy trophy-champion spotlight reveal" style="--reveal-delay: .08s">
+                        <div class="trophy-media trophy-map" aria-hidden="true">
+                            <svg viewBox="0 0 600 340" preserveAspectRatio="xMidYMid slice">
+                                <defs>
+                                    <pattern id="dotgrid" width="14" height="14" patternUnits="userSpaceOnUse"><circle cx="2" cy="2" r="1.2" class="map-dot"/></pattern>
+                                </defs>
+                                <rect width="600" height="340" fill="url(#dotgrid)"/>
+                                <path class="map-route" d="M70 210 C 130 120, 190 110, 250 150 S 330 250, 390 190 S 470 80, 540 120"/>
+                                <path class="map-route map-route-2" d="M120 270 C 200 250, 260 200, 310 230"/>
+                                <g class="map-sites">
+                                    <circle cx="70" cy="210" r="6"/><circle cx="160" cy="135" r="6"/><circle cx="250" cy="150" r="6"/>
+                                    <circle cx="310" cy="230" r="6"/><circle cx="390" cy="190" r="6"/><circle cx="470" cy="95" r="6"/><circle cx="540" cy="120" r="6"/>
+                                </g>
+                                <g class="map-rings">
+                                    <circle cx="540" cy="120" r="14"/><circle cx="70" cy="210" r="14"/>
+                                </g>
+                            </svg>
+                            <div class="map-caption"><b>7</b> countries · zero intervention</div>
+                            <span class="trophy-flag"><i class="fas fa-trophy"></i>Champion · 1st place</span>
+                            <span class="trophy-year">2025</span>
+                        </div>
+                        <div class="trophy-body">
+                            <div class="trophy-event">IEEE ICRA 2025 · Atlanta</div>
+                            <h3>Earth Rover Challenge</h3>
+                            <p>Led the GeNIE autonomous navigation system: low-cost rovers operated remotely across real-world environments in seven countries, navigating with just an RGB camera and noisy GPS.</p>
+                            <div class="trophy-links">
+                                <a href="https://arxiv.org/abs/2506.17960" target="_blank" rel="noopener noreferrer"><i class="fas fa-file-lines"></i>GeNIE paper</a>
+                                <a href="https://www.comp.nus.edu.sg/bytes/nus-computing-has-taken-1st-place-at-the-earth-rover-challenge-2025/" target="_blank" rel="noopener noreferrer"><i class="fas fa-newspaper"></i>NUS news</a>
+                                <a href="pages/blog/how-to-win.html"><i class="fas fa-pen-nib"></i>How we won</a>
+                            </div>
+                        </div>
+                    </article>
+
+                    <article class="trophy trophy-paper spotlight reveal">
+                        <div class="trophy-cert-thumb">
+                            <img src="assets/img/awards/gbpp-iros25-rodge.png" data-lightbox alt="IROS 2025 RoDGE Workshop Best Paper Award certificate — GBPP: Grasp-Aware Base Placement Prediction" loading="lazy">
+                        </div>
+                        <div class="trophy-body">
+                            <div class="trophy-kicker"><i class="fas fa-medal"></i>Best Paper Award · 2025</div>
+                            <div class="trophy-event">RoDGE Workshop · IEEE/RSJ IROS 2025</div>
+                            <h3><a href="https://arxiv.org/abs/2509.11594" target="_blank" rel="noopener noreferrer">GBPP: Grasp-Aware Base Placement Prediction for Robots via Two-Stage Learning</a></h3>
+                        </div>
+                    </article>
+
+                    <article class="trophy trophy-paper spotlight reveal" style="--reveal-delay: .08s">
+                        <div class="trophy-cert-thumb">
+                            <img src="assets/img/awards/tog-iros25-best-paper.jpg" data-lightbox alt="Best Workshop Paper Prize certificate — TOG: Training-free Task-oriented Grasp Generation, IROS 2025" loading="lazy">
+                        </div>
+                        <div class="trophy-body">
+                            <div class="trophy-kicker"><i class="fas fa-medal"></i>Best Workshop Paper Prize · 2025</div>
+                            <div class="trophy-event">WIR-M Workshop · IEEE/RSJ IROS 2025</div>
+                            <h3><a href="https://arxiv.org/abs/2502.04873" target="_blank" rel="noopener noreferrer">TOG: Training-free Task-oriented Grasp Generation</a></h3>
+                        </div>
+                    </article>
                 </div>
-                <div class="stat spotlight">
-                    <div class="stat-num"><span data-count="2">0</span><span class="unit">×</span></div>
-                    <div class="stat-label">Best Paper Awards</div>
-                    <div class="stat-sub">IROS 2025 workshops</div>
+
+                <div class="award-row reveal" style="margin-top: 1rem;">
+                    <div class="award-row-icon"><i class="fas fa-star"></i></div>
+                    <div>
+                        <div class="award-row-title">Forbes China 30 Under 30</div>
+                        <div class="award-row-desc">
+                            Recognized as co-founder of iCarsClub for technology innovation and entrepreneurship.
+                            <a href="https://auto.sina.com.cn/car/2014-02-28/09241274953.shtml" class="link-accent" target="_blank" rel="noopener noreferrer">Coverage</a>
+                        </div>
+                    </div>
+                    <div class="award-row-year">2014</div>
                 </div>
-                <div class="stat spotlight">
-                    <div class="stat-num"><span data-count="12" data-count-source="publications">0</span></div>
-                    <div class="stat-label">Publications</div>
-                    <div class="stat-sub">NeurIPS · CoRL · ICRA · RA-L</div>
-                </div>
-                <div class="stat spotlight">
-                    <div class="stat-num"><span data-count="7">0</span></div>
-                    <div class="stat-label">Countries deployed</div>
-                    <div class="stat-sub">GeNIE in-the-wild navigation</div>
-                </div>
-            </div>
+            </section>
 
             <!-- Research focus -->
             <section class="simple-section" id="focus">
-                <h2 class="simple-section-title reveal"><span class="sec-idx">01</span>Research focus</h2>
+                <h2 class="simple-section-title reveal"><span class="sec-idx">02</span>Research focus</h2>
                 <p class="section-lede reveal">Robots that leave the lab: perceiving, remembering, and acting in places they have never seen.</p>
                 <div class="pillars">
                     <article class="pillar spotlight tilt reveal">
@@ -166,7 +240,7 @@
 
             <!-- News -->
             <section class="simple-section" id="news">
-                <h2 class="simple-section-title reveal"><span class="sec-idx">02</span>Mission log</h2>
+                <h2 class="simple-section-title reveal"><span class="sec-idx">03</span>Mission log</h2>
                 <ul class="news-list">
                     <li class="reveal"><span class="news-date">Sep 2026</span><span><span class="news-tag">Paper</span><strong>CROSS</strong> accepted to <strong>NeurIPS 2026</strong>. <a href="https://arxiv.org/abs/2605.02227" class="link-accent" target="_blank" rel="noopener noreferrer">arXiv</a></span></li>
                     <li class="reveal"><span class="news-date">Sep 2026</span><span><span class="news-tag">Report</span>Our REAL-I challenge report, <em>How to Better Train VLAs</em>, is out on <a href="https://arxiv.org/abs/2609.13679" class="link-accent" target="_blank" rel="noopener noreferrer">arXiv</a>.</span></li>
@@ -175,88 +249,6 @@
                     <li class="reveal"><span class="news-date">Oct 2025</span><span><span class="news-tag win">Award</span>Two Best Paper Awards at IROS 2025 workshops (WIR-M and RoDGE).</span></li>
                     <li class="reveal"><span class="news-date">May 2025</span><span><span class="news-tag win">Win</span><strong>1st place</strong> at the <strong>Earth Rover Challenge, ICRA 2025</strong> with the GeNIE navigation system.</span></li>
                 </ul>
-            </section>
-
-            <!-- Awards -->
-            <section class="simple-section" id="awards">
-                <h2 class="simple-section-title reveal"><span class="sec-idx">03</span>Awards &amp; honors</h2>
-
-                <article class="award-feature reveal">
-                    <div class="award-feature-media">
-                        <img src="assets/img/awards/real-i-icra26-ceremony.jpg" data-lightbox alt="Team NUS-CLEAR on stage at the ICRA 2026 competitions award ceremony in Vienna" loading="lazy">
-                    </div>
-                    <div class="award-feature-body">
-                        <div class="award-kicker"><i class="fas fa-trophy"></i>Champion · 1st Place · 2026</div>
-                        <div class="award-name">REAL-I: The 1st Real-world Embodied AI Learning Challenge — IEEE ICRA 2026</div>
-                        <p class="award-desc">
-                            Won the inaugural challenge with an end-to-end VLA learning and deployment system, evaluated through simulation,
-                            real-robot experiments, and an on-site physical-robot final in Vienna.
-                            Team NUS-CLEAR: Jiaming Wang, Jizhuo Chen, Diwen Liu; advisor Harold Soh.
-                        </p>
-                        <p class="award-desc" style="margin-bottom: 0.9rem;">
-                            <a href="https://www.kdc.icra.lejurobot.com/" class="link-accent" target="_blank" rel="noopener noreferrer">Challenge</a> ·
-                            <a href="https://arxiv.org/abs/2609.13679" class="link-accent" target="_blank" rel="noopener noreferrer">Paper</a> ·
-                            <a href="pages/blog/how-to-win.html" class="link-accent">How we won</a>
-                        </p>
-                        <div class="award-thumbs">
-                            <img src="assets/img/awards/real-i-icra26-certificate.jpg" data-lightbox alt="IEEE RAS certificate: Champion of REAL-I, ICRA 2026 — Team NUS-CLEAR" loading="lazy">
-                        </div>
-                    </div>
-                </article>
-
-                <div class="award-grid">
-                    <article class="award-card reveal">
-                        <div class="award-card-media">
-                            <img src="assets/img/awards/tog-iros25-best-paper.jpg" data-lightbox alt="Best Workshop Paper Prize certificate — TOG: Training-free Task-oriented Grasp Generation, IROS 2025" loading="lazy">
-                        </div>
-                        <div class="award-card-body">
-                            <div class="award-kicker"><i class="fas fa-medal"></i>Best Workshop Paper Prize · 2025</div>
-                            <div class="award-name">WIR-M Workshop, IEEE/RSJ IROS 2025</div>
-                            <p class="award-desc">
-                                For <a href="https://arxiv.org/abs/2502.04873" class="link-accent" target="_blank" rel="noopener noreferrer">TOG: Training-free Task-oriented Grasp Generation</a>.
-                            </p>
-                        </div>
-                    </article>
-                    <article class="award-card reveal" style="--reveal-delay: .08s">
-                        <div class="award-card-media">
-                            <img src="assets/img/awards/gbpp-iros25-rodge.png" data-lightbox alt="IROS 2025 RoDGE Workshop Best Paper Award certificate — GBPP: Grasp-Aware Base Placement Prediction" loading="lazy">
-                        </div>
-                        <div class="award-card-body">
-                            <div class="award-kicker"><i class="fas fa-medal"></i>Best Paper Award · 2025</div>
-                            <div class="award-name">RoDGE Workshop, IEEE/RSJ IROS 2025</div>
-                            <p class="award-desc">
-                                For <a href="https://arxiv.org/abs/2509.11594" class="link-accent" target="_blank" rel="noopener noreferrer">GBPP: Grasp-Aware Base Placement Prediction for Robots via Two-Stage Learning</a>.
-                            </p>
-                        </div>
-                    </article>
-                </div>
-
-                <div class="award-list">
-                    <div class="award-row reveal">
-                        <div class="award-row-icon"><i class="fas fa-trophy"></i></div>
-                        <div>
-                            <div class="award-row-title">
-                                1st Place, Earth Rover Challenge — IEEE ICRA 2025
-                            </div>
-                            <div class="award-row-desc">
-                                Led the <a href="https://arxiv.org/abs/2506.17960" class="link-accent" target="_blank" rel="noopener noreferrer">GeNIE</a> autonomous navigation system, deployed across real-world environments in seven countries.
-                                <a href="https://www.comp.nus.edu.sg/bytes/nus-computing-has-taken-1st-place-at-the-earth-rover-challenge-2025/" class="link-accent" target="_blank" rel="noopener noreferrer">NUS news</a>
-                            </div>
-                        </div>
-                        <div class="award-row-year">2025</div>
-                    </div>
-                    <div class="award-row reveal">
-                        <div class="award-row-icon"><i class="fas fa-star"></i></div>
-                        <div>
-                            <div class="award-row-title">Forbes China 30 Under 30</div>
-                            <div class="award-row-desc">
-                                Recognized as co-founder of iCarsClub for technology innovation and entrepreneurship.
-                                <a href="https://auto.sina.com.cn/car/2014-02-28/09241274953.shtml" class="link-accent" target="_blank" rel="noopener noreferrer">Coverage</a>
-                            </div>
-                        </div>
-                        <div class="award-row-year">2014</div>
-                    </div>
-                </div>
             </section>
 
             <!-- Publications -->
@@ -348,7 +340,7 @@
         </footer>
     </div>
 
-    <script src="js/main.js"></script>
-    <script src="js/robot-sim.js"></script>
+    <script src="js/main.js?v=20260928b"></script>
+    <script src="js/robot-sim.js?v=20260928b"></script>
 </body>
 </html>
