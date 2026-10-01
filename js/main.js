@@ -20,6 +20,7 @@ function initNavigation() {
     const researchLink = isNestedSubdirectory ? '../research.html' : (isSubdirectory ? 'research.html' : 'pages/research.html');
     const blogLink = isNestedSubdirectory ? '../blog.html' : (isSubdirectory ? 'blog.html' : 'pages/blog.html');
     const contactLink = isNestedSubdirectory ? '../contact.html' : (isSubdirectory ? 'contact.html' : 'pages/contact.html');
+    const courseLink = isNestedSubdirectory ? '../../robotics101/index.html' : (isSubdirectory ? '../robotics101/index.html' : 'robotics101/index.html');
     const md2imgLink = isNestedSubdirectory ? '../md2img.html' : (isSubdirectory ? 'md2img.html' : 'pages/md2img.html');
     
     const links = [
@@ -27,6 +28,7 @@ function initNavigation() {
         { page: 'about.html', label: 'About', icon: 'fas fa-user-astronaut', href: aboutLink },
         { page: 'research.html', label: 'Research', icon: 'fas fa-robot', href: researchLink },
         { page: 'blog.html', label: 'Blog', icon: 'fas fa-pen-nib', href: blogLink },
+        { page: 'robotics101', label: 'Robotics 101', icon: 'fas fa-graduation-cap', href: courseLink },
         { page: 'contact.html', label: 'Contact', icon: 'fas fa-satellite-dish', href: contactLink },
         { page: 'md2img.html', label: 'MD to Image', icon: 'fas fa-image', href: md2imgLink }
     ];

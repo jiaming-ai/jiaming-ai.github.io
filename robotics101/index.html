@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-theme="dark" data-lang-ui="zh">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Robotics for Beginners · 具身智能入门</title>
+<meta name="description" content="Robotics for Beginners: an intuition-first, interactive, bilingual course on the math and methods of robotics and embodied AI — from linear algebra and Lie groups to planning, learning, VLAs and agentic robots.">
+<meta property="og:title" content="Robotics for Beginners">
+<meta property="og:description" content="An intuition-first, interactive course on robotics and embodied AI. 直觉先行、可交互的具身智能入门课。">
+<link rel="icon" href="../favicon.svg" type="image/svg+xml">
+<script>(function(){var d=document.documentElement,t='dark',l=null;try{t=localStorage.getItem('theme')||'dark'}catch(e){}d.setAttribute('data-theme',t);try{l=new URLSearchParams(location.search).get('lang')||localStorage.getItem('r101-lang')}catch(e){}if(l!=='zh'&&l!=='en')l=(navigator.language||'').toLowerCase().indexOf('zh')===0?'zh':'en';d.setAttribute('data-lang-ui',l);d.lang=l==='zh'?'zh-CN':'en';})();</script>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.22/dist/katex.min.css">
+<link rel="stylesheet" href="assets/course.css">
+<style>
+  .hero-grid { display: grid; grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr); gap: 28px; align-items: center; }
+  @media (max-width: 900px) { .hero-grid { grid-template-columns: 1fr; } }
+  .hero-fig { border: 1px solid var(--border); border-radius: 16px; overflow: hidden; background: var(--c-canvas); box-shadow: var(--shadow); }
+  .hero-fig .cap { font-size: 12.5px; color: var(--fg-3); padding: 8px 12px; border-top: 1px solid var(--border); background: var(--bg-2); }
+  .section { margin-top: 64px; }
+  .section > h2 { font-size: 28px; margin: 0 0 8px; }
+  .section > .kicker { font-family: 'JetBrains Mono', monospace; font-size: 12.5px; color: var(--accent); letter-spacing: 0.06em; text-transform: uppercase; }
+  .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  @media (max-width: 760px) { .two-col { grid-template-columns: 1fr; } }
+  .panel { border: 1px solid var(--border); border-radius: 12px; padding: 16px 18px; background: var(--bg-2); }
+  .panel h3 { margin: 0 0 6px; font-size: 18px; }
+  .panel p, .panel li { font-size: 15.5px; color: var(--fg-2); }
+  .panel ul { padding-left: 1.2em; margin: 6px 0 0; }
+  .spiral { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; font-size: 14px; margin: 10px 0 0; }
+  .spiral span.node { border: 1px solid var(--border-2); border-radius: 8px; padding: 2px 9px; background: var(--bg); }
+  .spiral span.arr { color: var(--fg-3); }
+  .notation td:first-child { white-space: nowrap; }
+</style>
+</head>
+<body data-root="." data-crumb-zh="课程总览" data-crumb-en="Course overview" data-title-zh="Robotics for Beginners · 具身智能入门" data-title-en="Robotics for Beginners · An Intuition-First Course">
+<div class="r101-layout">
+<aside class="r101-side" id="r101-side"></aside>
+<main class="r101-main">
+<article class="lesson wide">
+
+<!-- ============ HERO ============ -->
+<section class="hero">
+  <div class="hero-grid">
+    <div>
+      <div class="eyebrow mono" style="color:var(--accent);font-size:13px">ROBOTICS · EMBODIED AI · 101</div>
+      <h1><span class="grad">Robotics</span> for Beginners</h1>
+      <p class="lede">
+        <span data-lang="zh">一门面向大学生与深度爱好者的具身智能入门课。从线性代数、概率和李群讲起，一路走到规划、控制、机器人学习、VLA 与 Agentic Robotics。每一个概念都从<b>直觉</b>出发，每一页都可以<b>动手拖一拖</b>。</span>
+        <span data-lang="en">An introduction to robotics and embodied AI for university students and serious enthusiasts. It starts from linear algebra, probability and Lie groups and goes all the way to planning, control, robot learning, VLAs and agentic robotics. Every concept starts from <b>intuition</b>, and every page is something you can <b>drag around</b>.</span>
+      </p>
+      <div class="cta-row">
+        <a class="btn primary" href="part1/index.html"><span data-lang="zh">从 Part I 开始 →</span><span data-lang="en">Start with Part I →</span></a>
+        <a class="btn" href="part1/1-3-matrix-as-transformation.html"><span data-lang="zh">先体验一节：矩阵即变换</span><span data-lang="en">Try a lesson: Matrices as Transformations</span></a>
+        <a class="btn" href="#map"><span data-lang="zh">课程地图</span><span data-lang="en">Course map</span></a>
+      </div>
+      <div class="lesson-meta">
+        <span class="chip"><span data-lang="zh">中英双语</span><span data-lang="en">Bilingual (中文 / EN)</span></span>
+        <span class="chip"><span data-lang="zh">8 个部分</span><span data-lang="en">8 parts</span></span>
+        <span class="chip"><span data-lang="zh">Part I：58 节交互课</span><span data-lang="en">Part I: 58 interactive lessons</span></span>
+        <span class="chip"><span data-lang="zh">免费 · 无需安装</span><span data-lang="en">Free · runs in the browser</span></span>
+      </div>
+    </div>
+    <div class="hero-fig">
+      <div class="canvas-wrap" id="hero-canvas"></div>
+      <div class="cap"><span data-lang="zh">拖动红色 / 绿色箭头尖：你正在定义一个矩阵（详见 1.3）。</span><span data-lang="en">Drag the red / green arrow tips: you are defining a matrix (see Lesson 1.3).</span></div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ WHY ============ -->
+<section class="section" id="why">
+  <div class="kicker"><span data-lang="zh">缘起</span><span data-lang="en">Motivation</span></div>
+  <h2><span data-lang="zh">为什么要做这门课</span><span data-lang="en">Why this course exists</span></h2>
+  <div data-lang="zh">
+    <p>具身智能正在飞速发展：VLA 模型、世界模型、人形机器人、会使用工具的机器人智能体……但真正想入门的人很快会撞上两堵墙。一堵是<b>数学</b>：雅可比、协方差、SE(3)、李代数、KKT……教科书写得严谨却抽象，读完公式仍然"看不见"它在做什么。另一堵是<b>知识的碎片化</b>：经典机器人学、状态估计、优化、深度学习、强化学习各自有一套语言，散落在不同的课程和论文里。</p>
+    <p>这门课想做的，是一条<b>连贯的路</b>：先用可交互的图把核心数学变成直觉，再用同一套语言串起经典方法和学习方法，最后读懂并参与最前沿的研究。</p>
+  </div>
+  <div data-lang="en">
+    <p>Embodied AI is moving fast: VLA models, world models, humanoids, robot agents that use tools. Anyone who tries to get in soon hits two walls. The first is <b>math</b>: Jacobians, covariances, SE(3), Lie algebras, KKT conditions. Textbooks are rigorous but abstract, and you can follow every formula without ever <em>seeing</em> what it does. The second is <b>fragmentation</b>: classical robotics, state estimation, optimization, deep learning and RL each speak their own language, scattered across courses and papers.</p>
+    <p>This course aims to be one <b>coherent path</b>. First, interactive figures turn the core math into intuition. Then the same language ties classical and learning-based methods together. Finally, you will be able to read and take part in frontier research.</p>
+  </div>
+</section>
+
+<!-- ============ PHILOSOPHY ============ -->
+<section class="section" id="philosophy">
+  <div class="kicker"><span data-lang="zh">课程理念</span><span data-lang="en">Philosophy</span></div>
+  <h2><span data-lang="zh">我们怎样讲</span><span data-lang="en">How we teach</span></h2>
+  <div class="principles">
+    <div class="principle"><div class="pn">01</div>
+      <h3><span data-lang="zh">直觉先行，形式随后</span><span data-lang="en">Intuition first, formalism second</span></h3>
+      <p><span data-lang="zh">先建立一幅图像：它在空间里做了什么？然后才写公式，并把公式里的每个符号指回图上。公式是对直觉的精确表达，而不是直觉的替代品。</span><span data-lang="en">First build a picture: what does it do to space? Only then write the formula, and point every symbol back to the picture. A formula should make an intuition precise, not replace it.</span></p></div>
+    <div class="principle"><div class="pn">02</div>
+      <h3><span data-lang="zh">可以拖动的概念</span><span data-lang="en">Concepts you can touch</span></h3>
+      <p><span data-lang="zh">每一页都有多个交互图：拖动向量、调滑块、玩小游戏、完成"试一试"任务。核心概念会给最丰富的交互，次要知识点也尽量做到可交互。看懂一次，不如亲手把网格压扁一次。</span><span data-lang="en">Every page has several interactive figures: drag vectors, move sliders, play mini-games, complete "Try this" tasks. Core ideas get the richest labs, and even minor points are made interactive where possible. Squashing a grid yourself beats reading about it ten times.</span></p></div>
+    <div class="principle"><div class="pn">03</div>
+      <h3><span data-lang="zh">同一个概念，多种视角</span><span data-lang="en">One idea, several views</span></h3>
+      <p><span data-lang="zh">矩阵既是"搬动点"也是"换尺子"；雅可比既是偏导表格，也是局部的线性变换；卡尔曼增益既是公式，也是"信任比例"。能在视角之间切换，才算真正理解。</span><span data-lang="en">A matrix both "moves points" and "changes the ruler"; a Jacobian is both a table of partial derivatives and a local linear map; a Kalman gain is both a formula and a "trust ratio". Understanding means being able to switch views.</span></p></div>
+    <div class="principle"><div class="pn">04</div>
+      <h3><span data-lang="zh">为机器人而选的数学</span><span data-lang="en">Math chosen for robots</span></h3>
+      <p><span data-lang="zh">我们不追求数学的完备，而追求有用。每个知识点都从一个真实的机器人问题出发（"相机看到的杯子在世界哪里？"），也都回到一个机器人应用中去。</span><span data-lang="en">We aim for usefulness, not mathematical completeness. Every topic starts from a real robot problem ("where in the world is the cup the camera sees?") and ends in a robot application.</span></p></div>
+    <div class="principle"><div class="pn">05</div>
+      <h3><span data-lang="zh">螺旋上升</span><span data-lang="en">A spiral, not a list</span></h3>
+      <p><span data-lang="zh">重要的概念会反复出现，每次多一层。比如雅可比会在下面这些地方一次次回来：</span><span data-lang="en">Important ideas come back again and again, one layer deeper each time. The Jacobian, for example, returns in all of these places:</span></p>
+      <div class="spiral"><span class="node">1.3 <span data-lang="zh">矩阵</span><span data-lang="en">matrix</span></span><span class="arr">→</span><span class="node">3.3 <span data-lang="zh">局部线性</span><span data-lang="en">local map</span></span><span class="arr">→</span><span class="node">4.8 EKF</span><span class="arr">→</span><span class="node">5.7 <span data-lang="zh">流形</span><span data-lang="en">manifold</span></span><span class="arr">→</span><span class="node">6.6 Gauss-Newton</span><span class="arr">→</span><span class="node">II IK</span></div></div>
+    <div class="principle"><div class="pn">06</div>
+      <h3><span data-lang="zh">一套视觉语言</span><span data-lang="en">One visual language</span></h3>
+      <p><span data-lang="zh">全课程统一配色和记号：x 轴永远是红色，y 是绿色，z 是蓝色，"我们关心的那个向量"是琥珀色。这样，后面章节里的图你一眼就能读懂。</span><span data-lang="en">One color code and notation throughout: x is always red, y green, z blue, and "the vector we care about" amber. Figures in later chapters read at a glance.</span></p></div>
+    <div class="principle"><div class="pn">07</div>
+      <h3><span data-lang="zh">从经典到前沿</span><span data-lang="en">From classical to frontier</span></h3>
+      <p><span data-lang="zh">卡尔曼滤波和 VLA 并不对立。理解了经典方法在解决什么问题，才能看懂学习方法为什么这样设计、又在哪里会失效。课程从经典走向前沿，最后落在 Agentic Robotics。</span><span data-lang="en">Kalman filters and VLAs are not rivals. Knowing which problem a classical method solves is what lets you see why a learning method is designed the way it is, and where it breaks. The course moves from classical to frontier and ends with agentic robotics.</span></p></div>
+    <div class="principle"><div class="pn">08</div>
+      <h3><span data-lang="zh">诚实的难度</span><span data-lang="en">Honest about difficulty</span></h3>
+      <p><span data-lang="zh">直觉不是"糊弄"。每一页都给出精确的数学和常见误区，告诉你直觉在哪里会失灵，并附上进一步阅读的经典教材与论文。</span><span data-lang="en">Intuition is not hand-waving. Every page gives the precise math and the common pitfalls, says where the intuition breaks down, and points to the classic textbooks and papers for further reading.</span></p></div>
+  </div>
+</section>
+
+<!-- ============ AUDIENCE ============ -->
+<section class="section" id="audience">
+  <div class="kicker"><span data-lang="zh">适合谁</span><span data-lang="en">Audience</span></div>
+  <h2><span data-lang="zh">谁适合读、怎么读</span><span data-lang="en">Who it is for, and how to use it</span></h2>
+  <div class="two-col">
+    <div class="panel">
+      <h3><span data-lang="zh">适合</span><span data-lang="en">For</span></h3>
+      <ul>
+        <li><span data-lang="zh">想进入机器人 / 具身智能方向的本科生、研究生；</span><span data-lang="en">Undergraduate and graduate students heading into robotics or embodied AI;</span></li>
+        <li><span data-lang="zh">有编程基础、想系统补齐数学与机器人基础的工程师和爱好者；</span><span data-lang="en">Engineers and enthusiasts who can program and want a systematic foundation in the math and the robotics;</span></li>
+        <li><span data-lang="zh">做学习方法、却想真正理解经典机器人学的研究者。</span><span data-lang="en">Learning-focused researchers who want to really understand classical robotics.</span></li>
+      </ul>
+      <p style="margin-top:10px"><span data-lang="zh"><b>前置要求：</b>高中数学，加一点编程经验。其余的我们一起补。</span><span data-lang="en"><b>Prerequisites:</b> high-school math and a little programming. We build the rest together.</span></p>
+    </div>
+    <div class="panel">
+      <h3><span data-lang="zh">怎么读</span><span data-lang="en">How to use it</span></h3>
+      <ul>
+        <li><span data-lang="zh">按顺序读：Part I 是后面所有部分的共同语言；</span><span data-lang="en">In order: Part I is the shared language for everything after it;</span></li>
+        <li><span data-lang="zh">按需跳读：每页都标注了前置知识，可以从感兴趣的问题倒着补；</span><span data-lang="en">On demand: every page lists its prerequisites, so you can start from a question you care about and backfill;</span></li>
+        <li><span data-lang="zh">一节约 15–25 分钟。不要只看，一定要动手完成"试一试"任务和小练习。</span><span data-lang="en">Each lesson takes 15–25 minutes. Don't just read: do the "Try this" tasks and the quiz.</span></li>
+      </ul>
+      <p style="margin-top:10px"><span data-lang="zh">右上角可以随时切换中文 / English 和明暗主题。</span><span data-lang="en">Switch 中文 / English and light / dark at the top right at any time.</span></p>
+    </div>
+  </div>
+
+  <h3 style="margin-top:28px"><span data-lang="zh">每一节课的结构</span><span data-lang="en">Anatomy of a lesson</span></h3>
+  <ol class="anatomy">
+    <li><span><b><span data-lang="zh">为什么机器人需要它</span><span data-lang="en">Why robots need it</span></b> — <span data-lang="zh">一个具体的机器人问题作为钩子</span><span data-lang="en">a concrete robot problem as the hook</span></span></li>
+    <li><span><b><span data-lang="zh">直觉</span><span data-lang="en">Intuition</span></b> — <span data-lang="zh">先讲图像和类比，暂不出现公式</span><span data-lang="en">pictures and analogies, no formulas yet</span></span></li>
+    <li><span><b><span data-lang="zh">动手玩</span><span data-lang="en">Play</span></b> — <span data-lang="zh">核心交互实验室，配有会自动打勾的"试一试"任务</span><span data-lang="en">the core interactive lab, with "Try this" tasks that tick themselves</span></span></li>
+    <li><span><b><span data-lang="zh">再看数学</span><span data-lang="en">The math</span></b> — <span data-lang="zh">公式与图联动：悬停在符号上，图中对应元素高亮</span><span data-lang="en">formulas linked to figures: hover a symbol and its counterpart lights up</span></span></li>
+    <li><span><b><span data-lang="zh">机器人中的它</span><span data-lang="en">In robotics</span></b> — <span data-lang="zh">一个真实应用的小演示</span><span data-lang="en">a small demo of a real application</span></span></li>
+    <li><span><b><span data-lang="zh">常见误区</span><span data-lang="en">Pitfalls</span></b> — <span data-lang="zh">直觉在哪里会失灵</span><span data-lang="en">where intuition breaks down</span></span></li>
+    <li><span><b><span data-lang="zh">小练习</span><span data-lang="en">Check yourself</span></b> — <span data-lang="zh">即时判分并附讲解</span><span data-lang="en">instant feedback with explanations</span></span></li>
+    <li><span><b><span data-lang="zh">延伸阅读</span><span data-lang="en">Further reading</span></b> — <span data-lang="zh">经典教材与论文</span><span data-lang="en">classic textbooks and papers</span></span></li>
+  </ol>
+</section>
+
+<!-- ============ CONVENTIONS ============ -->
+<section class="section" id="conventions">
+  <div class="kicker"><span data-lang="zh">约定</span><span data-lang="en">Conventions</span></div>
+  <h2><span data-lang="zh">视觉与记号约定</span><span data-lang="en">Visual and notation conventions</span></h2>
+  <div class="legend-colors">
+    <span class="ci">x · î · <span data-lang="zh">第 1 列</span><span data-lang="en">column 1</span></span>
+    <span class="cj">y · ĵ · <span data-lang="zh">第 2 列</span><span data-lang="en">column 2</span></span>
+    <span class="ck">z · k̂ · <span data-lang="zh">第 3 列</span><span data-lang="en">column 3</span></span>
+    <span class="cv"><span data-lang="zh">关心的向量 / 量</span><span data-lang="en">the vector / quantity of interest</span></span>
+    <span class="cw"><span data-lang="zh">对比 / 目标</span><span data-lang="en">comparison / target</span></span>
+    <span class="cx"><span data-lang="zh">网格 / 辅助</span><span data-lang="en">grids / helpers</span></span>
+  </div>
+  <div class="table-wrap">
+  <table class="compare notation">
+    <tr><th><span data-lang="zh">记号</span><span data-lang="en">Notation</span></th><th><span data-lang="zh">含义</span><span data-lang="en">Meaning</span></th></tr>
+    <tr><td>\(\mathbf v\), \(\mathbf v^\top\)</td><td><span data-lang="zh">向量默认是<b>列向量</b>；\(\top\) 表示转置</span><span data-lang="en">Vectors are <b>column vectors</b> by default; \(\top\) is the transpose</span></td></tr>
+    <tr><td><span data-lang="zh">坐标系</span><span data-lang="en">Frames</span></td><td><span data-lang="zh">右手系；三维中 z 轴朝上（与 ROS 一致）</span><span data-lang="en">Right-handed; z points up in 3D (as in ROS)</span></td></tr>
+    <tr><td>\({}^{A}\mathbf p\)</td><td><span data-lang="zh">点 p 在坐标系 A 中的坐标</span><span data-lang="en">Coordinates of point p in frame A</span></td></tr>
+    <tr><td>\({}^{A}T_{B}\), \({}^{A}R_{B}\)</td><td><span data-lang="zh">坐标系 B 相对于 A 的位姿 / 姿态，满足 \({}^{A}\mathbf p = {}^{A}T_{B}\,{}^{B}\mathbf p\)</span><span data-lang="en">Pose / orientation of frame B relative to A, so that \({}^{A}\mathbf p = {}^{A}T_{B}\,{}^{B}\mathbf p\)</span></td></tr>
+    <tr><td>\(\skew{\boldsymbol\omega}\), \(\Exp\), \(\Log\)</td><td><span data-lang="zh">叉积矩阵（hat）；向量与李群之间的指数 / 对数映射</span><span data-lang="en">Cross-product (hat) matrix; exponential / logarithm maps between vectors and the Lie group</span></td></tr>
+    <tr><td>\(\boldsymbol\xi = (\boldsymbol\omega, \mathbf v)\)</td><td><span data-lang="zh">twist：角速度在前、线速度在后（注意有些教材顺序相反）</span><span data-lang="en">Twist: angular part first, linear part second (some texts use the opposite order)</span></td></tr>
+  </table>
+  </div>
+</section>
+
+<!-- ============ MAP ============ -->
+<section class="section" id="map">
+  <div class="kicker"><span data-lang="zh">课程地图</span><span data-lang="en">Course map</span></div>
+  <h2><span data-lang="zh">完整大纲</span><span data-lang="en">The full outline</span></h2>
+  <p class="muted"><span data-lang="zh">Part I 已经开始上线，<span class="cv">★</span> 标记的是核心节和已上线的样板课；其余部分会陆续发布。</span><span data-lang="en">Part I is rolling out now; <span class="cv">★</span> marks core lessons and the pilot lessons already live. The other parts will follow.</span></p>
+  <div class="parts" id="course-map"></div>
+</section>
+
+<div class="footer-note">
+  <span data-lang="zh">作者：<a href="../index.html">Jiaming Wang</a>。欢迎反馈与建议。本课程持续更新中。</span>
+  <span data-lang="en">By <a href="../index.html">Jiaming Wang</a>. Feedback and suggestions welcome. This course is a work in progress.</span>
+</div>
+
+</article>
+</main>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/katex@0.16.22/dist/katex.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/katex@0.16.22/dist/contrib/auto-render.min.js"></script>
+<script src="assets/syllabus.js"></script>
+<script src="assets/math.js"></script>
+<script src="assets/course.js"></script>
+<script src="assets/viz2d.js"></script>
+<script>
+R101.onReady(function () {
+  const { M, L } = R101;
+  const syl = window.R101_SYLLABUS;
+
+  /* ---------- course map ---------- */
+  const host = document.getElementById('course-map');
+  host.innerHTML = syl.parts.map(p => {
+    const live = p.status === 'live';
+    let body = '';
+    if (p.chapters) {
+      body = '<div class="chapters">' + p.chapters.map(ch =>
+        `<div class="chapter-card"><h4><span class="cn">${ch.n}</span>${L(ch.zh, ch.en)}</h4><ol>` +
+        ch.pages.map(pg => `<li><span class="num">${pg.n}</span>` +
+          (pg.ready ? `<a href="${R101.pagePath(pg)}">${L(pg.zh, pg.en)}</a>` : `<span class="soon-t">${L(pg.zh, pg.en)}</span>`) +
+          (pg.star ? ' <span class="star">★</span>' : '') + '</li>').join('') +
+        '</ol></div>').join('') + '</div>';
+    } else {
+      body = p.groups.map(g => `<div class="topic-group">${L(g.zh, g.en)}</div><ul class="topic-list">` +
+        g.topics.map(t => `<li>${L(t[0], t[1])}</li>`).join('') + '</ul>').join('');
+    }
+    return `<section class="part-card" id="part-${p.id}">
+      <header><div class="pnum">${p.id}</div><div><h3>${L(p.zh, p.en)}</h3><div class="sub">${L(p.subZh, p.subEn)}</div></div>
+      <span class="status ${live ? 'live' : ''}">${live ? L('进行中', 'In progress') : 'Coming soon'}</span></header>
+      <div class="body">${live ? `<p style="margin:0 0 12px"><a href="part1/index.html">${L('进入 Part I 导览 →', 'Open the Part I overview →')}</a></p>` : ''}${body}</div>
+    </section>`;
+  }).join('');
+  if (location.hash && location.hash.startsWith('#part-')) {
+    const el = document.querySelector(location.hash);
+    if (el) setTimeout(() => el.scrollIntoView(), 50);
+  }
+
+  /* ---------- hero: a grid you can bend ---------- */
+  let A = [[1, 0], [0, 1]], shown = [[1, 0], [0, 1]], userTouched = false, phase = 0;
+  const targets = [
+    [[1, 0.8], [0, 1]], [[Math.cos(0.6), -Math.sin(0.6)], [Math.sin(0.6), Math.cos(0.6)]],
+    [[1.4, 0.3], [0.4, 0.7]], [[0.6, -0.9], [0.9, 0.6]], [[1, 0], [0, 1]]
+  ];
+  const cols = B => [[B[0][0], B[1][0]], [B[0][1], B[1][1]]];
+  const P = new R101.Plane2D('#hero-canvas', { height: 320, view: { span: 6 }, draw: P => {
+    const [a1, a2] = cols(shown);
+    P.grid({ color: 'grid', axisColor: 'grid-2' });
+    P.grid({ A: shown, color: 'x', alpha: 0.4, width: 1.1, axisColor: 'x', axisWidth: 1.6 });
+    P.poly([[0, 0], a1, M.add(a1, a2), a2], { fill: 'x', fillAlpha: 0.14 });
+    P.arrow([0, 0], a1, { color: 'i', width: 4, label: 'Aî' });
+    P.arrow([0, 0], a2, { color: 'j', width: 4, label: 'Aĵ' });
+    const v = M.mv(shown, [1, 1]);
+    P.arrow([0, 0], v, { color: 'v', width: 3.5, label: 'A[1,1]ᵀ' });
+  }, onChange: () => { userTouched = true; shown = A; } });
+  P.handle({ pos: () => cols(A)[0], set: p => { A = [[p[0], A[0][1]], [p[1], A[1][1]]]; }, color: 'i', snap: 0.1 });
+  P.handle({ pos: () => cols(A)[1], set: p => { A = [[A[0][0], p[0]], [A[1][0], p[1]]]; }, color: 'j', snap: 0.1 });
+  const reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  function cycle() {
+    if (userTouched || reduce) return;
+    const from = shown.map(r => r.slice()), to = targets[phase % targets.length];
+    phase++;
+    R101.animate(1400, e => { if (userTouched) return; shown = M.lerpM(from, to, e); A = shown; P.invalidate(); }, () => setTimeout(cycle, 1100));
+  }
+  setTimeout(cycle, 800);
+});
+</script>
+</body>
+</html>
