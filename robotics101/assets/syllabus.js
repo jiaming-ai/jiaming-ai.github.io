@@ -68,7 +68,7 @@ window.R101_SYLLABUS = {
         { n: 6, zh: '优化', en: 'Optimization', pages: [
           { n: '6.1', slug: 'optimization-problems', zh: '什么是优化问题', en: 'What Is an Optimization Problem?' },
           { n: '6.2', slug: 'convexity', zh: '凸性', en: 'Convexity' },
-          { n: '6.3', slug: 'gradient-descent', zh: '梯度下降家族', en: 'The Gradient Descent Family', star: true },
+          { n: '6.3', slug: 'gradient-descent', zh: '梯度下降家族', en: 'The Gradient Descent Family', ready: true, star: true },
           { n: '6.4', slug: 'sgd', zh: '随机梯度下降', en: 'Stochastic Gradient Descent' },
           { n: '6.5', slug: 'line-search-trust-region', zh: '线搜索与信赖域', en: 'Line Search & Trust Regions' },
           { n: '6.6', slug: 'newton-gauss-newton', zh: 'Newton、Gauss-Newton 与 LM', en: 'Newton, Gauss-Newton & LM' },
