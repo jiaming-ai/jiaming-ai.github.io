@@ -69,13 +69,13 @@
 }
 
 * {
-    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', 'Noto Sans CJK SC', 'Noto Sans SC', sans-serif;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
 }
 
 h1, h2, h3, h4, h5, h6 {
-    font-family: 'Space Grotesk', 'Inter', sans-serif;
+    font-family: 'Space Grotesk', 'Inter', 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', 'Noto Sans CJK SC', 'Noto Sans SC', sans-serif;
     font-weight: 600;
     letter-spacing: -0.02em;
 }
@@ -2334,8 +2334,8 @@ body::before {
     gap: 0.35rem;
 }
 
-.pillar-tags span,
-.pillar-tags a {
+.pillar-tags > span,
+.pillar-tags > a {
     font-family: var(--mono);
     font-size: 0.66rem;
     letter-spacing: 0.03em;
@@ -2934,7 +2934,7 @@ body::before {
     margin: -0.5rem 0 1.4rem;
 }
 
-.req-list span {
+.req-list > span {
     font-family: var(--mono);
     font-size: 0.7rem;
     padding: 0.25rem 0.6rem;
@@ -3150,4 +3150,78 @@ footer.border-t p {
     }
     .reveal { opacity: 1; transform: none; }
     html { scroll-behavior: auto; }
+}
+
+/* ---------- Language switch (EN / 中文) ---------- */
+/* Bilingual text is authored as <span lang="en">…</span><span lang="zh-Hans">…</span>;
+   html[data-site-lang] is set before first paint by the inline script in every <head>. */
+html[data-site-lang="en"] [lang="zh-Hans"],
+html[data-site-lang="zh"] [lang="en"] {
+    display: none !important;
+}
+
+/* Blog posts keep EN and 中文 in sibling blocks marked data-lang; the markup also carries
+   an inline display:none on the Chinese one, hence !important. */
+html[data-site-lang="en"] .blog-content > [data-lang="zh"],
+html[data-site-lang="zh"] .blog-content > [data-lang="en"] {
+    display: none !important;
+}
+html[data-site-lang="en"] .blog-content > [data-lang="en"],
+html[data-site-lang="zh"] .blog-content > [data-lang="zh"] {
+    display: block !important;
+}
+
+.lang-toggle {
+    font-family: var(--mono);
+    font-size: 0.72rem;
+    font-weight: 600;
+    letter-spacing: 0;
+    user-select: none;
+}
+
+.lang-toggle-mobile {
+    align-items: center;
+    justify-content: center;
+    min-width: 1.9rem;
+    height: 1.9rem;
+    padding: 0 0.35rem;
+    border: 1px solid var(--border-strong);
+    border-radius: 0.45rem;
+    color: var(--text-secondary);
+    cursor: pointer;
+    display: inline-flex;
+    font-family: var(--mono);
+    font-size: 0.7rem;
+    font-weight: 600;
+    user-select: none;
+    transition: color 0.2s ease, border-color 0.2s ease;
+}
+
+.lang-toggle-mobile:hover {
+    color: var(--brand);
+    border-color: var(--brand);
+}
+
+@media (max-width: 767px) {
+    .lang-toggle-mobile.hidden { display: none; }
+}
+
+@media (min-width: 768px) {
+    .lang-toggle-mobile.md\:hidden { display: none; }
+}
+
+/* Wide tracking and all-caps HUD styling read poorly on Chinese glyphs */
+html[data-site-lang="zh"] .hud-kicker,
+html[data-site-lang="zh"] .pillar-code,
+html[data-site-lang="zh"] .trophy-event,
+html[data-site-lang="zh"] .trophy-kicker,
+html[data-site-lang="zh"] .nav-status,
+html[data-site-lang="zh"] .brand-sub,
+html[data-site-lang="zh"] .telemetry,
+html[data-site-lang="zh"] .portrait-meta {
+    letter-spacing: 0.04em;
+}
+html[data-site-lang="zh"] .narrative-text,
+html[data-site-lang="zh"] .blog-post-summary {
+    line-height: 1.9;
 }

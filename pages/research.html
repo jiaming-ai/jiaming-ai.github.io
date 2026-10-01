@@ -3,14 +3,15 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Research - Jiaming Wang</title>
+    <title data-zh="研究 - Jiaming Wang">Research - Jiaming Wang</title>
     <link rel="icon" href="../favicon.svg" type="image/svg+xml">
     <link rel="icon" href="../favicon-32.png" type="image/png" sizes="32x32">
     <link rel="apple-touch-icon" href="../apple-touch-icon.png">
     <script>try{document.documentElement.setAttribute('data-theme',localStorage.getItem('theme')||'dark')}catch(e){document.documentElement.setAttribute('data-theme','dark')}</script>
+    <script>(function(){var d=document.documentElement,l;try{var p=new URLSearchParams(location.search).get('lang');l=(p==='zh'||p==='en')?p:localStorage.getItem('lang')}catch(e){}if(l!=='zh'&&l!=='en')l=/^zh/i.test(navigator.language||'')?'zh':'en';d.setAttribute('data-site-lang',l);d.lang=l==='zh'?'zh-Hans':'en'})()</script>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-    <link rel="stylesheet" href="../css/styles.css?v=20260928c">
+    <link rel="stylesheet" href="../css/styles.css?v=202610011400">
 </head>
 <body>
     <!-- Side Navigation (Desktop/Tablet) -->
@@ -28,10 +29,10 @@
 
     <!-- Ongoing Projects Section -->
     <section class="section-container" style="padding-top: 3rem;">
-        <h2 class="section-title">Ongoing Projects</h2>
+        <h2 class="section-title"><span lang="en">Ongoing Projects</span><span lang="zh-Hans">在研项目</span></h2>
         <p class="narrative-text">
-            Below are my current research projects that I am actively working on. 
-            These projects represent ongoing investigations in robotics, AI, and computer vision.
+            <span lang="en">Below are my current research projects that I am actively working on. 
+            These projects represent ongoing investigations in robotics, AI, and computer vision.</span><span lang="zh-Hans">以下是我目前正在积极推进的研究项目，涵盖机器人、人工智能与计算机视觉方向的持续探索。</span>
         </p>
         
         <div class="space-y-6 mt-8">
@@ -45,19 +46,19 @@
                         </video>
                     </div>
                     <div class="project-info">
-                        <h3 class="project-title">Pose-aware Topological Mapping</h3>
+                        <h3 class="project-title"><span lang="en">Pose-aware Topological Mapping</span><span lang="zh-Hans">位姿感知拓扑建图</span></h3>
                         <p class="project-duration" style="color: var(--text-tertiary); font-size: 0.85rem; margin-bottom: 0.75rem;">
-                            <i class="far fa-calendar"></i> 2025 - Present
+                            <i class="far fa-calendar"></i> <span lang="en">2025 - Present</span><span lang="zh-Hans">2025 – 至今</span>
                         </p>
                         <p class="project-tldr">
-                            A pose-aware online topological mapping system that performs sequential hypothesis testing directly in continuous SE(3) space to achieve human-like, robust relocalization under perceptual aliasing and environmental change.
+                            <span lang="en">A pose-aware online topological mapping system that performs sequential hypothesis testing directly in continuous SE(3) space to achieve human-like, robust relocalization under perceptual aliasing and environmental change.</span><span lang="zh-Hans">一种位姿感知的在线拓扑建图系统，直接在连续 SE(3) 空间中进行序贯假设检验，从而在感知混淆与环境变化下实现类人的鲁棒重定位。</span>
                         </p>
                         <p style="margin-bottom: 0.75rem;">
-                            <span class="award-badge" style="margin-top: 0; color: var(--brand); background: var(--brand-soft); border-color: transparent;"><i class="fas fa-check"></i>Published as CROSS at NeurIPS 2026</span>
+                            <span class="award-badge" style="margin-top: 0; color: var(--brand); background: var(--brand-soft); border-color: transparent;"><i class="fas fa-check"></i><span lang="en">Published as CROSS at NeurIPS 2026</span><span lang="zh-Hans">已作为 CROSS 发表于 NeurIPS 2026</span></span>
                             <a href="https://arxiv.org/abs/2605.02227" class="pub-btn" target="_blank" rel="noopener noreferrer" style="margin-left: 0.25rem;"><i class="fas fa-file-lines"></i>arXiv</a>
                         </p>
                         <button class="read-more-btn" onclick="openProjectModal('ptm-modal')">
-                            Read Full Abstract <i class="fas fa-arrow-right"></i>
+                            <span lang="en">Read Full Abstract</span><span lang="zh-Hans">阅读完整摘要</span> <i class="fas fa-arrow-right"></i>
                         </button>
                     </div>
                 </div>
@@ -70,15 +71,15 @@
                         <img src="../assets/img/social_nav.png" alt="Data-Driven RL for Social Navigation" class="project-image">
                     </div>
                     <div class="project-info">
-                        <h3 class="project-title">Data-Driven RL for Social Navigation</h3>
+                        <h3 class="project-title"><span lang="en">Data-Driven RL for Social Navigation</span><span lang="zh-Hans">面向社交导航的数据驱动强化学习</span></h3>
                         <p class="project-duration" style="color: var(--text-tertiary); font-size: 0.85rem; margin-bottom: 0.75rem;">
-                            <i class="far fa-calendar"></i> 2025 - Present
+                            <i class="far fa-calendar"></i> <span lang="en">2025 - Present</span><span lang="zh-Hans">2025 – 至今</span>
                         </p>
                         <p class="project-tldr">
-                            A data-driven RL framework for social navigation that turns real-world human–robot navigation logs into replayable "imagination environments," where a robot learns policies from BEV maps reconstructed from RGB-D data and replayed human trajectories, without relying on a conventional simulator.
+                            <span lang="en">A data-driven RL framework for social navigation that turns real-world human–robot navigation logs into replayable "imagination environments," where a robot learns policies from BEV maps reconstructed from RGB-D data and replayed human trajectories, without relying on a conventional simulator.</span><span lang="zh-Hans">一种数据驱动的社交导航强化学习框架：把真实世界的人机导航日志转化为可回放的“想象环境”，机器人在其中根据由 RGB-D 数据重建的 BEV 地图和回放的人类轨迹学习策略，无需依赖传统模拟器。</span>
                         </p>
                         <button class="read-more-btn" onclick="openProjectModal('social-nav-modal')">
-                            Read Full Abstract <i class="fas fa-arrow-right"></i>
+                            <span lang="en">Read Full Abstract</span><span lang="zh-Hans">阅读完整摘要</span> <i class="fas fa-arrow-right"></i>
                         </button>
                     </div>
                 </div>
@@ -91,15 +92,15 @@
                         <img src="../assets/img/vln.png" alt="Vision-Language Navigation" class="project-image">
                     </div>
                     <div class="project-info">
-                        <h3 class="project-title">Vision-Language Navigation</h3>
+                        <h3 class="project-title"><span lang="en">Vision-Language Navigation</span><span lang="zh-Hans">视觉-语言导航</span></h3>
                         <p class="project-duration" style="color: var(--text-tertiary); font-size: 0.85rem; margin-bottom: 0.75rem;">
-                            <i class="far fa-calendar"></i> 2025 - Present
+                            <i class="far fa-calendar"></i> <span lang="en">2025 - Present</span><span lang="zh-Hans">2025 – 至今</span>
                         </p>
                         <p class="project-tldr">
-                            Use a vision–language model to translate natural-language navigation instructions into differentiable cost functions over a BEV scene, then optimize or select trajectories that minimize this cost—enabling zero-shot visual-language navigation without policy training.
+                            <span lang="en">Use a vision–language model to translate natural-language navigation instructions into differentiable cost functions over a BEV scene, then optimize or select trajectories that minimize this cost—enabling zero-shot visual-language navigation without policy training.</span><span lang="zh-Hans">用视觉-语言模型把自然语言导航指令转换为 BEV 场景上的可微代价函数，再优化或挑选使该代价最小的轨迹——无需策略训练即可实现零样本视觉-语言导航。</span>
                         </p>
                         <button class="read-more-btn" onclick="openProjectModal('vln-modal')">
-                            Read Full Abstract <i class="fas fa-arrow-right"></i>
+                            <span lang="en">Read Full Abstract</span><span lang="zh-Hans">阅读完整摘要</span> <i class="fas fa-arrow-right"></i>
                         </button>
                     </div>
                 </div>
@@ -112,15 +113,15 @@
                         <img src="../assets/img/rl.png" alt="Offline RL for VLA Models" class="project-image">
                     </div>
                     <div class="project-info">
-                        <h3 class="project-title">Offline RL for Vision-Language-Action Models</h3>
+                        <h3 class="project-title"><span lang="en">Offline RL for Vision-Language-Action Models</span><span lang="zh-Hans">面向视觉-语言-动作模型的离线强化学习</span></h3>
                         <p class="project-duration" style="color: var(--text-tertiary); font-size: 0.85rem; margin-bottom: 0.75rem;">
-                            <i class="far fa-calendar"></i> 2025 - Present
+                            <i class="far fa-calendar"></i> <span lang="en">2025 - Present</span><span lang="zh-Hans">2025 – 至今</span>
                         </p>
                         <p class="project-tldr">
-                            Using offline reinforcement learning to fine-tune vision–language–action (VLA) models from real robot interaction datasets collected in laboratory environments.
+                            <span lang="en">Using offline reinforcement learning to fine-tune vision–language–action (VLA) models from real robot interaction datasets collected in laboratory environments.</span><span lang="zh-Hans">利用离线强化学习，基于实验室环境中采集的真实机器人交互数据集来微调视觉-语言-动作（VLA）模型。</span>
                         </p>
                         <button class="read-more-btn" onclick="openProjectModal('offline-rl-modal')">
-                            Read Full Abstract <i class="fas fa-arrow-right"></i>
+                            <span lang="en">Read Full Abstract</span><span lang="zh-Hans">阅读完整摘要</span> <i class="fas fa-arrow-right"></i>
                         </button>
                     </div>
                 </div>
@@ -135,7 +136,7 @@
                 <i class="fas fa-times"></i>
             </button>
             <h2 style="font-size: 1.75rem; font-weight: 600; margin-bottom: 1rem; color: var(--text-primary);">
-                Pose-aware Topological Mapping
+                <span lang="en">Pose-aware Topological Mapping</span><span lang="zh-Hans">位姿感知拓扑建图</span>
             </h2>
             <div style="margin-bottom: 1.5rem;">
                 <video autoplay loop muted playsinline style="width: 100%; border-radius: 0.5rem; border: 1px solid var(--border);">
@@ -143,19 +144,19 @@
                     Your browser does not support the video tag.
                 </video>
             </div>
-            <h3 style="font-size: 1.25rem; font-weight: 600; margin-bottom: 1rem; color: var(--text-primary);">Abstract</h3>
+            <h3 style="font-size: 1.25rem; font-weight: 600; margin-bottom: 1rem; color: var(--text-primary);"><span lang="en">Abstract</span><span lang="zh-Hans">摘要</span></h3>
             <div style="color: var(--text-secondary); line-height: 1.8; font-size: 0.95rem;">
                 <p style="margin-bottom: 1rem;">
-                    Humans navigate large, open-world environments not by maintaining a globally consistent metric map, but by forming cognitive maps—topological representations that support robust relocalization even under severe perceptual changes. This paradigm is inherently resilient to tracking failures, dynamic environments, and long-term appearance variations. A fundamental enabler of this robustness is sequential hypothesis testing (SHT), which humans implicitly perform to disambiguate perceptually aliased places over time.
+                    <span lang="en">Humans navigate large, open-world environments not by maintaining a globally consistent metric map, but by forming cognitive maps—topological representations that support robust relocalization even under severe perceptual changes. This paradigm is inherently resilient to tracking failures, dynamic environments, and long-term appearance variations. A fundamental enabler of this robustness is sequential hypothesis testing (SHT), which humans implicitly perform to disambiguate perceptually aliased places over time.</span><span lang="zh-Hans">人类在大型开放世界中导航，靠的并不是维护一张全局一致的度量地图，而是形成认知地图——一种即使在感知发生剧烈变化时也能支持鲁棒重定位的拓扑表示。这种范式天然能够抵御跟踪失败、动态环境和长期外观变化。这种鲁棒性的一个根本支撑是序贯假设检验（sequential hypothesis testing，SHT）：人类会不自觉地借助它，随时间推移消解感知上相互混淆的地点。</span>
                 </p>
                 <p style="margin-bottom: 1rem;">
-                    Despite its importance, most robotic systems either (i) avoid aliasing through conservative data-association thresholds, or (ii) apply filtering only in a discrete place space constructed from keyframes. Such discretization restricts the hypothesis space, prevents reasoning in between stored views, and leads to brittle relocalization when observations do not perfectly overlap past frames.
+                    <span lang="en">Despite its importance, most robotic systems either (i) avoid aliasing through conservative data-association thresholds, or (ii) apply filtering only in a discrete place space constructed from keyframes. Such discretization restricts the hypothesis space, prevents reasoning in between stored views, and leads to brittle relocalization when observations do not perfectly overlap past frames.</span><span lang="zh-Hans">尽管如此重要，大多数机器人系统要么 (i) 通过保守的数据关联阈值来回避混淆，要么 (ii) 仅在由关键帧构成的离散地点空间中做滤波。这种离散化限制了假设空间，使系统无法在已存储的视角之间进行推理，一旦观测与历史帧无法完全重叠，重定位就会变得脆弱。</span>
                 </p>
                 <p style="margin-bottom: 1rem;">
-                    We propose a pose-aware online topological mapping system that performs SHT directly in continuous SE(3) space. Our approach maintains and updates a multi-hypothesis belief over the robot pose and the map topology, allowing robust relocalization and loop closure without relying on global metric consistency. Addressing continuous-domain SHT introduces two major challenges: (1) how to represent and update distributions in SE(3) efficiently, and (2) how to manage map uncertainty—as each perceptual aliasing event can spawn multiple plausible map branches, whose number can grow rapidly if not controlled.
+                    <span lang="en">We propose a pose-aware online topological mapping system that performs SHT directly in continuous SE(3) space. Our approach maintains and updates a multi-hypothesis belief over the robot pose and the map topology, allowing robust relocalization and loop closure without relying on global metric consistency. Addressing continuous-domain SHT introduces two major challenges: (1) how to represent and update distributions in SE(3) efficiently, and (2) how to manage map uncertainty—as each perceptual aliasing event can spawn multiple plausible map branches, whose number can grow rapidly if not controlled.</span><span lang="zh-Hans">我们提出一种位姿感知的在线拓扑建图系统，直接在连续的 SE(3) 空间中进行 SHT。我们的方法对机器人位姿和地图拓扑维护并更新多假设信念，使其无需依赖全局度量一致性即可实现鲁棒的重定位与回环。在连续域中做 SHT 带来两大挑战：(1) 如何高效地在 SE(3) 上表示并更新分布；(2) 如何管理地图不确定性——每一次感知混淆都会衍生出多个看似合理的地图分支，若不加控制，其数量会迅速膨胀。</span>
                 </p>
                 <p>
-                    We introduce a Gaussian-mixture–based representation and a principled branch management strategy that together enable real-time inference, scalable map maintenance, and robust operation in dynamic, ambiguous, or previously unseen environments. This work provides the first practical continuous-space SHT framework for topological mapping, bringing robots closer to the reliability and flexibility of human navigation.
+                    <span lang="en">We introduce a Gaussian-mixture–based representation and a principled branch management strategy that together enable real-time inference, scalable map maintenance, and robust operation in dynamic, ambiguous, or previously unseen environments. This work provides the first practical continuous-space SHT framework for topological mapping, bringing robots closer to the reliability and flexibility of human navigation.</span><span lang="zh-Hans">我们引入基于高斯混合的表示和一套有原则的分支管理策略，二者共同实现了实时推理、可扩展的地图维护，以及在动态、含混或从未见过的环境中的鲁棒运行。这项工作提供了首个实用的、面向拓扑建图的连续空间 SHT 框架，使机器人更接近人类导航的可靠性与灵活性。</span>
                 </p>
             </div>
         </div>
@@ -168,21 +169,21 @@
                 <i class="fas fa-times"></i>
             </button>
             <h2 style="font-size: 1.75rem; font-weight: 600; margin-bottom: 1rem; color: var(--text-primary);">
-                Data-Driven RL for Social Navigation
+                <span lang="en">Data-Driven RL for Social Navigation</span><span lang="zh-Hans">面向社交导航的数据驱动强化学习</span>
             </h2>
             <div style="margin-bottom: 1.5rem;">
                 <img src="../assets/img/social_nav.png" alt="Data-Driven RL for Social Navigation" style="width: 100%; border-radius: 0.5rem; border: 1px solid var(--border);">
             </div>
-            <h3 style="font-size: 1.25rem; font-weight: 600; margin-bottom: 1rem; color: var(--text-primary);">Abstract</h3>
+            <h3 style="font-size: 1.25rem; font-weight: 600; margin-bottom: 1rem; color: var(--text-primary);"><span lang="en">Abstract</span><span lang="zh-Hans">摘要</span></h3>
             <div style="color: var(--text-secondary); line-height: 1.8; font-size: 0.95rem;">
                 <p style="margin-bottom: 1rem;">
-                    We propose a data-driven reinforcement learning framework for social navigation that turns real-world human–robot navigation logs into replayable "imagination environments." This approach allows robots to learn navigation policies directly from logged RGB-D data and human trajectories, eliminating the need for conventional simulators.
+                    <span lang="en">We propose a data-driven reinforcement learning framework for social navigation that turns real-world human–robot navigation logs into replayable "imagination environments." This approach allows robots to learn navigation policies directly from logged RGB-D data and human trajectories, eliminating the need for conventional simulators.</span><span lang="zh-Hans">我们提出一种数据驱动的社交导航强化学习框架，把真实世界的人机导航日志转化为可回放的“想象环境”。该方法让机器人直接从记录下来的 RGB-D 数据和人类轨迹中学习导航策略，无需传统模拟器。</span>
                 </p>
                 <p style="margin-bottom: 1rem;">
-                    The system reconstructs bird's-eye-view (BEV) maps from RGB-D observations and replays recorded human trajectories within these environments. The robot can then train and refine its navigation policies by interacting with these reconstructed scenarios, learning socially-aware behaviors from real-world data.
+                    <span lang="en">The system reconstructs bird's-eye-view (BEV) maps from RGB-D observations and replays recorded human trajectories within these environments. The robot can then train and refine its navigation policies by interacting with these reconstructed scenarios, learning socially-aware behaviors from real-world data.</span><span lang="zh-Hans">系统根据 RGB-D 观测重建鸟瞰图（BEV）地图，并在这些环境中回放记录下来的人类轨迹。机器人随后通过与这些重建场景交互来训练并打磨导航策略，从真实世界数据中学习具备社交意识的行为。</span>
                 </p>
                 <p>
-                    This framework bridges the gap between simulation-based training and real-world deployment, enabling robots to learn from actual human–robot interactions without the complexities and limitations of traditional simulation environments.
+                    <span lang="en">This framework bridges the gap between simulation-based training and real-world deployment, enabling robots to learn from actual human–robot interactions without the complexities and limitations of traditional simulation environments.</span><span lang="zh-Hans">该框架弥合了基于仿真的训练与真实世界部署之间的鸿沟，使机器人能够从真实的人机交互中学习，而无需面对传统仿真环境的复杂性与局限。</span>
                 </p>
             </div>
         </div>
@@ -195,21 +196,21 @@
                 <i class="fas fa-times"></i>
             </button>
             <h2 style="font-size: 1.75rem; font-weight: 600; margin-bottom: 1rem; color: var(--text-primary);">
-                Vision-Language Navigation
+                <span lang="en">Vision-Language Navigation</span><span lang="zh-Hans">视觉-语言导航</span>
             </h2>
             <div style="margin-bottom: 1.5rem;">
                 <img src="../assets/img/vln.png" alt="Vision-Language Navigation" style="width: 100%; border-radius: 0.5rem; border: 1px solid var(--border);">
             </div>
-            <h3 style="font-size: 1.25rem; font-weight: 600; margin-bottom: 1rem; color: var(--text-primary);">Abstract</h3>
+            <h3 style="font-size: 1.25rem; font-weight: 600; margin-bottom: 1rem; color: var(--text-primary);"><span lang="en">Abstract</span><span lang="zh-Hans">摘要</span></h3>
             <div style="color: var(--text-secondary); line-height: 1.8; font-size: 0.95rem;">
                 <p style="margin-bottom: 1rem;">
-                    This project leverages vision–language models to enable zero-shot visual-language navigation without the need for explicit policy training. The system translates natural-language navigation instructions into differentiable cost functions defined over bird's-eye-view (BEV) scene representations.
+                    <span lang="en">This project leverages vision–language models to enable zero-shot visual-language navigation without the need for explicit policy training. The system translates natural-language navigation instructions into differentiable cost functions defined over bird's-eye-view (BEV) scene representations.</span><span lang="zh-Hans">本项目利用视觉-语言模型实现零样本视觉-语言导航，无需显式的策略训练。系统把自然语言导航指令转换为定义在鸟瞰图（BEV）场景表示上的可微代价函数。</span>
                 </p>
                 <p style="margin-bottom: 1rem;">
-                    By optimizing or selecting trajectories that minimize these learned cost functions, the robot can follow complex natural language instructions while navigating through real-world environments. This approach eliminates the traditional requirement for large-scale policy training on navigation datasets.
+                    <span lang="en">By optimizing or selecting trajectories that minimize these learned cost functions, the robot can follow complex natural language instructions while navigating through real-world environments. This approach eliminates the traditional requirement for large-scale policy training on navigation datasets.</span><span lang="zh-Hans">通过优化或挑选使这些代价函数最小的轨迹，机器人能够在真实环境中导航时遵循复杂的自然语言指令。这种方法免去了传统上在导航数据集上进行大规模策略训练的要求。</span>
                 </p>
                 <p>
-                    The method enables flexible, instruction-following navigation that can adapt to diverse language commands and environmental contexts, bridging vision, language, and action in a unified framework.
+                    <span lang="en">The method enables flexible, instruction-following navigation that can adapt to diverse language commands and environmental contexts, bridging vision, language, and action in a unified framework.</span><span lang="zh-Hans">该方法实现了灵活的、遵循指令的导航，可适应多样的语言指令与环境情境，在统一的框架中打通视觉、语言与动作。</span>
                 </p>
             </div>
         </div>
@@ -222,21 +223,21 @@
                 <i class="fas fa-times"></i>
             </button>
             <h2 style="font-size: 1.75rem; font-weight: 600; margin-bottom: 1rem; color: var(--text-primary);">
-                Offline RL for Vision-Language-Action Models
+                <span lang="en">Offline RL for Vision-Language-Action Models</span><span lang="zh-Hans">面向视觉-语言-动作模型的离线强化学习</span>
             </h2>
             <div style="margin-bottom: 1.5rem;">
                 <img src="../assets/img/rl.png" alt="Offline RL for VLA Models" style="width: 100%; border-radius: 0.5rem; border: 1px solid var(--border);">
             </div>
-            <h3 style="font-size: 1.25rem; font-weight: 600; margin-bottom: 1rem; color: var(--text-primary);">Abstract</h3>
+            <h3 style="font-size: 1.25rem; font-weight: 600; margin-bottom: 1rem; color: var(--text-primary);"><span lang="en">Abstract</span><span lang="zh-Hans">摘要</span></h3>
             <div style="color: var(--text-secondary); line-height: 1.8; font-size: 0.95rem;">
                 <p style="margin-bottom: 1rem;">
-                    This research focuses on using offline reinforcement learning to fine-tune vision–language–action (VLA) models using real robot interaction datasets collected in laboratory environments. Rather than training from scratch, we leverage pre-trained VLA models and adapt them to specific robotic tasks through offline RL.
+                    <span lang="en">This research focuses on using offline reinforcement learning to fine-tune vision–language–action (VLA) models using real robot interaction datasets collected in laboratory environments. Rather than training from scratch, we leverage pre-trained VLA models and adapt them to specific robotic tasks through offline RL.</span><span lang="zh-Hans">本研究聚焦于利用离线强化学习，基于在实验室环境中采集的真实机器人交互数据集来微调视觉-语言-动作（VLA）模型。我们不从零开始训练，而是借助预训练的 VLA 模型，通过离线 RL 使其适配具体的机器人任务。</span>
                 </p>
                 <p style="margin-bottom: 1rem;">
-                    By learning from logged interaction data, the system can improve task performance without requiring extensive online exploration, which can be costly and time-consuming in real-world robotics. This approach enables safer and more efficient learning from limited real-world data.
+                    <span lang="en">By learning from logged interaction data, the system can improve task performance without requiring extensive online exploration, which can be costly and time-consuming in real-world robotics. This approach enables safer and more efficient learning from limited real-world data.</span><span lang="zh-Hans">通过从记录下来的交互数据中学习，系统无需大量在线探索即可提升任务表现，而在真实机器人场景中，在线探索往往成本高昂且耗时。这种方法能够在有限的真实世界数据上实现更安全、更高效的学习。</span>
                 </p>
                 <p>
-                    The method demonstrates how large-scale pre-trained models can be effectively specialized for robotic manipulation and navigation tasks through principled offline learning, accelerating the deployment of capable robot systems in real-world environments.
+                    <span lang="en">The method demonstrates how large-scale pre-trained models can be effectively specialized for robotic manipulation and navigation tasks through principled offline learning, accelerating the deployment of capable robot systems in real-world environments.</span><span lang="zh-Hans">该方法展示了如何通过有原则的离线学习，把大规模预训练模型有效地专门化到机器人操作与导航任务上，从而加速高能力机器人系统在真实环境中的部署。</span>
                 </p>
             </div>
         </div>
@@ -244,9 +245,9 @@
 
     <!-- Publications Section -->
     <section class="section-container bg-gradient-subtle" id="publications">
-        <h2 class="section-title">Publications</h2>
+        <h2 class="section-title"><span lang="en">Publications</span><span lang="zh-Hans">论文</span></h2>
         <p class="narrative-text">
-            Full list of publications. Award-winning work is marked with a trophy.
+            <span lang="en">Full list of publications. Award-winning work is marked with a trophy.</span><span lang="zh-Hans">完整论文列表。获奖工作以奖杯标注。</span>
         </p>
 
         <div id="publications-list">
@@ -258,12 +259,12 @@
     <!-- Footer -->
     <footer class="border-t py-8" style="border-color: var(--border); background-color: var(--bg-secondary);">
         <div class="max-w-7xl mx-auto px-6 text-center">
-            <p style="color: var(--text-secondary);">© 2026 Jiaming Wang. All rights reserved.</p>
+            <p style="color: var(--text-secondary);"><span lang="en">© 2026 Jiaming Wang. All rights reserved.</span><span lang="zh-Hans">© 2026 Jiaming Wang。版权所有。</span></p>
         </div>
     </footer>
 
     </div>
 
-    <script src="../js/main.js?v=20260928c"></script>
+    <script src="../js/main.js?v=202610011900"></script>
 </body>
 </html>

@@ -18,7 +18,7 @@
     R.lang = lang === 'en' ? 'en' : 'zh';
     doc.setAttribute('data-lang-ui', R.lang);
     doc.lang = R.lang === 'zh' ? 'zh-CN' : 'en';
-    try { localStorage.setItem('r101-lang', R.lang); } catch (e) {}
+    try { localStorage.setItem('lang', R.lang); } catch (e) {}
     document.querySelectorAll('.r101-lang button').forEach(b => b.classList.toggle('on', b.dataset.l === R.lang));
     const u = new URL(location.href);
     if (u.searchParams.has('lang')) { u.searchParams.set('lang', R.lang); history.replaceState(null, '', u); }

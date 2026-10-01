@@ -22,7 +22,7 @@ window.R101_SYLLABUS = {
           { n: '1.9', slug: 'projection', zh: '投影与正交分解', en: 'Projection & Orthogonal Decomposition' },
           { n: '1.10', slug: 'orthogonal-rotation', zh: '正交矩阵与旋转', en: 'Orthogonal Matrices & Rotations' },
           { n: '1.11', slug: 'eigen', zh: '特征值与特征向量', en: 'Eigenvalues & Eigenvectors' },
-          { n: '1.12', slug: 'svd', zh: '奇异值分解 SVD', en: 'Singular Value Decomposition', ready: true, star: true },
+          { n: '1.12', slug: 'svd', zh: '奇异值分解 SVD', en: 'Singular Value Decomposition', star: true },
           { n: '1.13', slug: 'least-squares', zh: '最小二乘与伪逆', en: 'Least Squares & the Pseudo-inverse' }
         ]},
         { n: 2, zh: '微积分', en: 'Calculus', pages: [
@@ -35,7 +35,7 @@ window.R101_SYLLABUS = {
         { n: 3, zh: '多元与向量微积分', en: 'Multivariable & Vector Calculus', pages: [
           { n: '3.1', slug: 'partial-derivatives', zh: '多元函数与偏导', en: 'Multivariable Functions & Partial Derivatives' },
           { n: '3.2', slug: 'gradient', zh: '梯度与方向导数', en: 'Gradient & Directional Derivative' },
-          { n: '3.3', slug: 'jacobian', zh: '雅可比：局部线性变换', en: 'The Jacobian: a Local Linear Map', ready: true, star: true },
+          { n: '3.3', slug: 'jacobian', zh: '雅可比：局部线性变换', en: 'The Jacobian: a Local Linear Map', star: true },
           { n: '3.4', slug: 'robot-jacobian', zh: '机器人雅可比', en: 'The Robot Jacobian' },
           { n: '3.5', slug: 'hessian', zh: 'Hessian 与曲率', en: 'Hessian & Curvature' },
           { n: '3.6', slug: 'vector-fields', zh: '向量场与流', en: 'Vector Fields & Flows' }
@@ -48,7 +48,7 @@ window.R101_SYLLABUS = {
           { n: '4.5', slug: 'uncertainty-propagation', zh: '不确定性传播', en: 'Propagating Uncertainty' },
           { n: '4.6', slug: 'mle-map', zh: '最大似然与最大后验', en: 'Maximum Likelihood & MAP' },
           { n: '4.7', slug: 'bayes-filter', zh: '贝叶斯滤波', en: 'The Bayes Filter' },
-          { n: '4.8', slug: 'kalman-filter', zh: '卡尔曼滤波与 EKF', en: 'Kalman Filter & EKF', ready: true, star: true },
+          { n: '4.8', slug: 'kalman-filter', zh: '卡尔曼滤波与 EKF', en: 'Kalman Filter & EKF', star: true },
           { n: '4.9', slug: 'sampling', zh: '采样方法', en: 'Sampling Methods' },
           { n: '4.10', slug: 'particle-filter', zh: '粒子滤波', en: 'The Particle Filter' },
           { n: '4.11', slug: 'information-theory', zh: '信息论入门', en: 'A First Look at Information Theory' }
@@ -59,7 +59,7 @@ window.R101_SYLLABUS = {
           { n: '5.3', slug: 'se3', zh: '齐次变换与 SE(3)', en: 'Homogeneous Transforms & SE(3)' },
           { n: '5.4', slug: 'why-lie-groups', zh: '为什么需要李群', en: 'Why Lie Groups?' },
           { n: '5.5', slug: 'lie-algebra', zh: '李代数与 hat / vee', en: 'Lie Algebras, hat & vee' },
-          { n: '5.6', slug: 'exp-log', zh: '指数映射与对数映射', en: 'The Exponential & Logarithm Maps', ready: true, star: true },
+          { n: '5.6', slug: 'exp-log', zh: '指数映射与对数映射', en: 'The Exponential & Logarithm Maps', star: true },
           { n: '5.7', slug: 'perturbation', zh: '扰动与流形上的求导', en: 'Perturbations & Derivatives on Manifolds' },
           { n: '5.8', slug: 'adjoint', zh: '伴随表示', en: 'The Adjoint' },
           { n: '5.9', slug: 'interpolation-uncertainty', zh: '插值与流形上的不确定性', en: 'Interpolation & Uncertainty on Manifolds' },
@@ -68,7 +68,7 @@ window.R101_SYLLABUS = {
         { n: 6, zh: '优化', en: 'Optimization', pages: [
           { n: '6.1', slug: 'optimization-problems', zh: '什么是优化问题', en: 'What Is an Optimization Problem?' },
           { n: '6.2', slug: 'convexity', zh: '凸性', en: 'Convexity' },
-          { n: '6.3', slug: 'gradient-descent', zh: '梯度下降家族', en: 'The Gradient Descent Family', ready: true, star: true },
+          { n: '6.3', slug: 'gradient-descent', zh: '梯度下降家族', en: 'The Gradient Descent Family', star: true },
           { n: '6.4', slug: 'sgd', zh: '随机梯度下降', en: 'Stochastic Gradient Descent' },
           { n: '6.5', slug: 'line-search-trust-region', zh: '线搜索与信赖域', en: 'Line Search & Trust Regions' },
           { n: '6.6', slug: 'newton-gauss-newton', zh: 'Newton、Gauss-Newton 与 LM', en: 'Newton, Gauss-Newton & LM' },

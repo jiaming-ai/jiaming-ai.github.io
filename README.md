@@ -33,6 +33,7 @@ jiaming/
 - **Side Navigation**: Sticky mission-control rail for desktop/tablet, compact top bar on mobile
 - **Data-Driven**: Publications stored in JSON for easy updates
 - **Dark/Light Theme**: Toggle with localStorage persistence
+- **English / 中文**: Site-wide language switch (nav footer, mobile top bar, blog buttons). Remembered in localStorage, `?lang=zh` / `?lang=en` forces a language, and first-time visitors whose browser language is Chinese start in 中文
 - **Responsive**: Mobile-friendly design with adaptive navigation
 
 ## 🔧 How to Update Content
@@ -90,6 +91,24 @@ Edit `data/awards.json`:
     "year": 2024
 }
 ```
+
+## 🌐 Languages (EN / 中文)
+
+The active language is `<html data-site-lang="en|zh">`, set before first paint by a small inline script in every page `<head>` (stored in `localStorage.lang`). Both languages live in the same HTML file:
+
+```html
+<p class="narrative-text"><span lang="en">English text</span><span lang="zh-Hans">中文文本</span></p>
+```
+
+CSS hides the inactive one, so wrap the *content* of an element (keep the element, its classes and icons as they are). Other pieces:
+
+- `<title data-zh="…">` and `<meta name="description" data-zh="…">` swap the page title / description
+- `<input data-placeholder-zh="…">` swaps a placeholder
+- Typewriter text: one `.typer[data-words]` per language, each inside a `lang`-tagged block
+- Strings built in JS: `L('English', '中文')` returns the bilingual markup, `tt('English', '中文')` a plain string for attributes
+- Publications: add `"awardZh"` next to `"award"` in `data/publications.json`
+- Blog posts keep EN/中文 bodies in `<div data-lang="en|zh">` blocks; the post title comes from `data-title-en` / `data-title-zh` on the `<h1>`. The EN/中文 buttons on blog pages are the same switch as the one in the nav
+- Not translated: `ecrom/` (standalone paper page) and the `md2img` tool page body
 
 ## ♻️ Cache busting
 
