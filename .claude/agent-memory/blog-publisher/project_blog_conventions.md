@@ -16,3 +16,4 @@ Single HTML file per post with both EN/ZH toggled via JS (not separate files). T
 - Tags: Technical, Research, Career, Thoughts (as `<span class="blog-tag">`)
 - KaTeX included for math support; uses `$$` for display and `$` for inline
 - Newer posts go at the top of the listing
+- Site-wide language switch: the post header (title, date, tags, "Back to Blog") is bilingual via `<span lang="en">…</span><span lang="zh-Hans">…</span>`; the `<h1>` carries `data-title-en` / `data-title-zh`. Do NOT add a per-post `switchLang` script — `js/main.js` provides it. Tags in both the post and the `pages/blog.html` listing are bilingual spans too (技术 / 研究 / 职业 / 思考). See README "Languages" and `_template.html`
