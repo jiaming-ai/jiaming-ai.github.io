@@ -48,7 +48,7 @@ window.R101_SYLLABUS = {
           { n: '4.5', slug: 'uncertainty-propagation', zh: '不确定性传播', en: 'Propagating Uncertainty' },
           { n: '4.6', slug: 'mle-map', zh: '最大似然与最大后验', en: 'Maximum Likelihood & MAP' },
           { n: '4.7', slug: 'bayes-filter', zh: '贝叶斯滤波', en: 'The Bayes Filter' },
-          { n: '4.8', slug: 'kalman-filter', zh: '卡尔曼滤波与 EKF', en: 'Kalman Filter & EKF', star: true },
+          { n: '4.8', slug: 'kalman-filter', zh: '卡尔曼滤波与 EKF', en: 'Kalman Filter & EKF', ready: true, star: true },
           { n: '4.9', slug: 'sampling', zh: '采样方法', en: 'Sampling Methods' },
           { n: '4.10', slug: 'particle-filter', zh: '粒子滤波', en: 'The Particle Filter' },
           { n: '4.11', slug: 'information-theory', zh: '信息论入门', en: 'A First Look at Information Theory' }

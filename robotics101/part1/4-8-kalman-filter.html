@@ -6,7 +6,7 @@
 <title>4.8 卡尔曼滤波与 EKF · Robotics for Beginners</title>
 <meta name="description" content="An interactive, intuition-first lesson on the Kalman filter and the extended Kalman filter: belief as a Gaussian blob, predict and update, the Kalman gain as trust, covariance ellipses in phase space, and EKF localization with landmarks.">
 <link rel="icon" href="../../favicon.svg" type="image/svg+xml">
-<script>(function(){var d=document.documentElement,t='dark',l=null;try{t=localStorage.getItem('theme')||'dark'}catch(e){}d.setAttribute('data-theme',t);try{l=new URLSearchParams(location.search).get('lang')||localStorage.getItem('r101-lang')}catch(e){}if(l!=='zh'&&l!=='en')l=(navigator.language||'').toLowerCase().indexOf('zh')===0?'zh':'en';d.setAttribute('data-lang-ui',l);d.lang=l==='zh'?'zh-CN':'en';})();</script>
+<script>(function(){var d=document.documentElement,t='dark',l=null;try{t=localStorage.getItem('theme')||'dark'}catch(e){}d.setAttribute('data-theme',t);try{l=new URLSearchParams(location.search).get('lang')||localStorage.getItem('lang')}catch(e){}if(l!=='zh'&&l!=='en')l=(navigator.language||'').toLowerCase().indexOf('zh')===0?'zh':'en';d.setAttribute('data-lang-ui',l);d.lang=l==='zh'?'zh-CN':'en';})();</script>
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.22/dist/katex.min.css">
 <link rel="stylesheet" href="../assets/course.css">
 </head>
@@ -709,7 +709,7 @@ R101.onReady(function () {
           : `<b class="cx">${L('已预测', 'Predicted')}</b> · <span style="color:var(--c-bad)">${L('这一步没有 GPS 读数，只能继续预测。', 'no GPS reading this step; all you can do is predict again.')}</span>`;
         R101.tex(t1, `\\cx{\\hat{\\x}^-} = F\\hat{\\x} = ${M.texVec(h.xp, 2)}`);
         R101.tex(t2, `\\cx{P^-} = FPF^\\top + Q = ${M.texMat(h.Pp, 2)}`);
-        R101.tex(t3, h.z != null ? `\\hl{innov}{\\cw{z} - H\\cx{\\hat{\\x}^-}} = ${M.tex(h.z, 2)} - ${par(h.pm, 2)} = ${M.tex(h.z - h.pm, 2)}` : '');
+        R101.tex(t3, h.z != null ? `\\hl{innov}{\\cw{z} - H\\cx{\\hat{\\x}^-}} = \\hl{innov}{\\nu} = ${M.tex(h.z - h.pm, 2)}` : '');
       } else {
         phaseEl.innerHTML = flashMsg > 0
           ? `<span style="color:var(--c-bad)">${L('这个读数已经用过了，先<b>预测</b>下一步。', 'That reading has been used; <b>predict</b> the next step first.')}</span>`
@@ -1107,13 +1107,13 @@ R101.onReady(function () {
       for (let k = 10; k < N; k++) if (Math.abs(res.m[k] - truth[k]) > 2 * res.s[k]) P.point(q(k * DT, truth[k]), { color: 'bad', r: 2.6 });
     }
     const ctr = document.getElementById('div-controls');
-    const slQ = logSlider(ctr, { zh: 'Q：假设的 σₐ', en: 'Q: assumed σₐ', lo: 0.001, hi: 10, value: sa, onInput: v => { sa = v; sync(); } });
-    const slR = logSlider(ctr, { zh: 'R：假设的 σ_z', en: 'R: assumed σ_z', lo: 0.05, hi: 10, value: sz, onInput: v => { sz = v; sync(); } });
+    const slQ = logSlider(ctr, { zh: 'Q：假设的 σₐ', en: 'Q: assumed σₐ', lo: 0.001, hi: 10, value: sa, onInput: v => { sa = v; sync(true); } });
+    const slR = logSlider(ctr, { zh: 'R：假设的 σ_z', en: 'R: assumed σ_z', lo: 0.05, hi: 10, value: sz, onInput: v => { sz = v; sync(true); } });
     const pre = document.getElementById('div-presets');
     [['诚实', 'Honest', 0.8, 1.0], ['迷信模型', 'Trusts model blindly', 0.003, 1.0], ['迷信传感器', 'Trusts sensor blindly', 0.8, 0.1], ['过于谨慎', 'Over-cautious', 3, 4]].forEach(([zh, en, a, b]) =>
       ui.button(pre, { zh, en, cls: 'sm', onClick: () => { sa = a; sz = b; slQ.set(Math.log10(a)); slR.set(Math.log10(b)); sync(); } }));
     const read = document.getElementById('div-read'), tex = document.getElementById('div-tex'), msg = document.getElementById('div-msg');
-    function sync() {
+    function sync(bySlider) {
       run();
       const c = res.cov * 100;
       const col = c < 85 ? 'var(--c-bad)' : 'var(--c-good)';
@@ -1126,7 +1126,7 @@ R101.onReady(function () {
         : (c > 99.4 && res.band > 2.5 * res.rmse)
           ? `<b class="cx">${L('过于谨慎', 'Over-cautious')}</b>${L('：', ': ')}${L('真值总在带内，但带比实际误差宽得多，下游模块会白白地不信任它。', 'the truth is always inside, but the band is far wider than the real error, so downstream modules will distrust it for no reason.')}`
           : `<b style="color:var(--c-good)">${L('诚实', 'Honest')}</b>${L('：', ': ')}${L('自称的不确定性与实际误差相符。', 'the claimed uncertainty matches the actual error.')}`;
-      if (c < 50) R101.done('diverge');
+      if (bySlider && c < 50) R101.done('diverge'); // presets alone do not count
       P.invalidate();
     }
     R101.on('lang', sync);
