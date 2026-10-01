@@ -94,8 +94,8 @@
   <p data-lang="zh">把刚才看到的写成公式（这里 \(\mu^-, (\sigma^-)^2\) 是预测的均值与方差，\(z, \sigma_z^2\) 是测量及其噪声方差）：</p>
   <p data-lang="en">Here is what you just saw, as formulas (\(\mu^-, (\sigma^-)^2\) are the predicted mean and variance; \(z, \sigma_z^2\) are the measurement and its noise variance):</p>
   <div class="math-card">
-  $$ \hl{K}{K} = \frac{\hl{prior}{\cx{(\sigma^-)^2}}}{\hl{prior}{\cx{(\sigma^-)^2}} + \hl{meas}{\cw{\sigma_z^2}}}, \qquad
-     \hl{post}{\cv{\mu}} = \hl{prior}{\cx{\mu^-}} + \hl{K}{K}\,\hl{innov}{(\cw{z} - \cx{\mu^-})}, \qquad
+  $$ \hl{K}{K} = \frac{\hl{prior}{\cx{(\sigma^-)^2}}}{\hl{prior}{\cx{(\sigma^-)^2}} + \hl{meas}{\cw{\sigma_z^2}}} $$
+  $$ \hl{post}{\cv{\mu}} = \hl{prior}{\cx{\mu^-}} + \hl{K}{K}\,\hl{innov}{(\cw{z} - \cx{\mu^-})}, \qquad
      \hl{post}{\cv{\sigma^2}} = (1 - \hl{K}{K})\,\hl{prior}{\cx{(\sigma^-)^2}} $$
   </div>
   <p class="hl-hint"><span data-lang="zh">提示：把鼠标悬停在公式中带底色的符号上，FIG 1 中对应的曲线或箭头会被高亮。</span><span data-lang="en">Tip: hover the shaded symbols in the formula; the matching curve or arrow in FIG 1 lights up.</span></p>
@@ -224,11 +224,11 @@
   <p data-lang="zh">系统的状态 \(\x\) 按线性模型演化，传感器线性地观测它，两处都有零均值高斯噪声：</p>
   <p data-lang="en">The state \(\x\) evolves by a linear model and a sensor observes it linearly, both with zero-mean Gaussian noise:</p>
   <div class="math-card">$$ \x_k = F\,\x_{k-1} + B\,\mathbf u_k + \mathbf w_k,\;\; \mathbf w_k\sim\mathcal N(\mathbf 0, Q); \qquad \mathbf z_k = H\,\x_k + \boldsymbol\epsilon_k,\;\; \boldsymbol\epsilon_k \sim \mathcal N(\mathbf 0, R). $$</div>
-  <p data-lang="zh">信念是 \(\mathcal N(\hat{\x}, P)\)。每个时刻做两步：</p>
-  <p data-lang="en">The belief is \(\mathcal N(\hat{\x}, P)\). Every time step does two things:</p>
+  <p data-lang="zh">信念是 \(\mathcal N(\hat{\x}, P)\)。每个时刻做两步：第一行是<b>预测</b>，后两行是<b>更新</b>。</p>
+  <p data-lang="en">The belief is \(\mathcal N(\hat{\x}, P)\). Every time step does two things: the first line is the <b>predict</b> step, the last two are the <b>update</b>.</p>
   <div class="math-card">
-  $$ \textbf{Predict:}\qquad \hat{\x}^- = F\hat{\x} + B\mathbf u, \qquad \hl{prior}{\cx{P^-}} = \hl{FPF}{F P F^\top} + \hl{Q}{Q} $$
-  $$ \textbf{Update:}\qquad \hl{K}{K} = P^- H^\top \big(\hl{S}{H P^- H^\top + \hl{meas}{\cw{R}}}\big)^{-1} $$
+  $$ \hat{\x}^- = F\hat{\x} + B\mathbf u, \qquad \hl{prior}{\cx{P^-}} = \hl{FPF}{F P F^\top} + \hl{Q}{Q} $$
+  $$ \hl{K}{K} = P^- H^\top \big(\hl{S}{H P^- H^\top + \hl{meas}{\cw{R}}}\big)^{-1} $$
   $$ \hat{\x} = \hat{\x}^- + \hl{K}{K}\,\hl{innov}{(\cw{\mathbf z} - H\hat{\x}^-)}, \qquad \hl{post}{\cv{P}} = (I - K H)\, P^- $$
   </div>
   <div class="table-wrap">
@@ -534,7 +534,7 @@ R101.onReady(function () {
       const po = post();
       sl0.set(s0); slz.set(sz);
       R101.tex(t1, `\\hl{K}{K} = \\frac{\\cx{${M.tex(s0, 2)}^2}}{\\cx{${M.tex(s0, 2)}^2} + \\cw{${M.tex(sz, 2)}^2}} = ${M.tex(po.K, 2)}`);
-      R101.tex(t2, `\\cv{\\mu} = \\cx{${M.tex(m0, 1)}} + ${M.tex(po.K, 2)}\\,(\\cw{${M.tex(z, 1)}} - ${par(m0, 1)}) = \\cv{${M.tex(po.m, 2)}}`);
+      R101.tex(t2, `\\cv{\\mu} = \\cx{${M.tex(m0, 1)}} + ${M.tex(po.K, 2)} \\times \\hl{innov}{\\cw{${M.tex(z - m0, 1)}}} = \\cv{${M.tex(po.m, 2)}}`);
       R101.tex(t3, `\\cv{\\sigma} = \\sqrt{1 - ${M.tex(po.K, 2)}}\\;\\cx{${M.tex(s0, 2)}} = \\cv{${M.tex(po.s, 2)}}`);
       const k = Math.round(po.K * 100);
       trust.innerHTML = `<div class="small muted" style="display:flex;justify-content:space-between"><span>${L('信预测', 'trust prediction')} ${100 - k}%</span><span>${L('信测量', 'trust measurement')} ${k}%</span></div>
@@ -685,7 +685,7 @@ R101.onReady(function () {
     function startAuto() {
       if (timer) return;
       timer = setInterval(() => { if (visible) { step(); sync(); } }, 140);
-      autoBtn.innerHTML = L('⏸ 暂停', '⏸ Pause');
+      autoBtn.innerHTML = L('❚❚ 暂停', '❚❚ Pause');
     }
     function stopAuto() { if (timer) { clearInterval(timer); timer = null; } autoBtn.innerHTML = L('▶ 自动', '▶ Auto'); }
     whenVisible(document.getElementById('fig-track'), v => { visible = v; });
@@ -727,14 +727,14 @@ R101.onReady(function () {
       }
       const lastK = (() => { for (let i = hist.length - 1; i >= 0; i--) if (hist[i].K) return hist[i].K[0]; return null; })();
       const rE = stat.n ? Math.sqrt(stat.se / stat.n) : null, rM = stat.n ? Math.sqrt(stat.sm / stat.n) : null;
-      read.innerHTML = `t = <b>${M.fmt(k * DT, 1)} s</b> · ${L('位置增益', 'position gain')} K<sub>p</sub> = <b>${lastK == null ? '—' : M.fmt(lastK, 3)}</b><br>` +
-        `${L('当前设置下', 'with these settings')} (${stat.n} ${L('次更新', 'updates')}):<br>` +
-        `RMSE ${L('估计', 'estimate')} <b class="cv">${rE == null ? '—' : M.fmt(rE, 2)}</b> · GPS <b class="cw">${rM == null ? '—' : M.fmt(rM, 2)}</b> m` +
-        (rE != null && stat.n >= 10 ? `<br>${L('比值', 'ratio')} <b>${M.fmt(rE / rM, 2)}</b>` : '');
+      read.innerHTML = `t = <b>${M.fmt(k * DT, 1)} s</b><br>${L('位置增益', 'position gain')} K<sub>p</sub> = <b>${lastK == null ? '—' : M.fmt(lastK, 3)}</b><br>` +
+        `${L('本组设置', 'these settings')}: <b>${stat.n}</b> ${L('次更新', 'updates')}<br>` +
+        `RMSE ${L('估计', 'est.')} <b class="cv">${rE == null ? '—' : M.fmt(rE, 2)}</b> / GPS <b class="cw">${rM == null ? '—' : M.fmt(rM, 2)}</b>` +
+        (rE != null && stat.n >= 10 ? `<br>${L('比值', 'ratio')} <b style="color:${rE / rM < 0.7 ? 'var(--c-good)' : 'inherit'}">${M.fmt(rE / rM, 2)}</b>` : '');
       Pt.invalidate(); Ps.invalidate();
     }
     R101.on('hl', () => { Pt.invalidate(); });
-    R101.on('lang', () => { sync(); autoBtn.innerHTML = timer ? L('⏸ 暂停', '⏸ Pause') : L('▶ 自动', '▶ Auto'); });
+    R101.on('lang', () => { sync(); autoBtn.innerHTML = timer ? L('❚❚ 暂停', '❚❚ Pause') : L('▶ 自动', '▶ Auto'); });
     reset();
     for (let i = 0; i < 12; i++) step();   // start with a little history
     stat = fresh();
@@ -869,7 +869,7 @@ R101.onReady(function () {
         R101.tex(t2, `\\hl{prior}{\\cx{P^-}} = \\hl{FPF}{FPF^\\top} + \\hl{Q}{Q} = ${M.texMat(Pm, 2)}`);
       } else {
         R101.tex(t1, `\\cx{P^-} = ${M.texMat(before.P, 2)},\\;\\; \\hl{K}{K} = ${M.texVec(K, 2)}`);
-        R101.tex(t2, `\\hl{post}{\\cv{P}} = (I - KH)P^- = ${M.texMat(Pm, 2)}`);
+        R101.tex(t2, `\\hl{post}{\\cv{P}} = ${M.texMat(Pm, 2)}`);
       }
       const B = before ? stats(before.P) : null;
       const arrow = (a, b) => (b == null ? '' : ` <span class="muted">(${M.fmt(b, 2)} →)</span>`);
@@ -1011,7 +1011,7 @@ R101.onReady(function () {
     whenVisible(document.getElementById('fig-ekf'), v => { onScreen = v; start(); });
 
     const bh = document.getElementById('ekf-btns');
-    const playBtn = ui.button(bh, { zh: '⏸ 暂停', en: '⏸ Pause', cls: 'sm primary', onClick: () => { playing = !playing; playBtn.innerHTML = playing ? L('⏸ 暂停', '⏸ Pause') : L('▶ 播放', '▶ Play'); start(); } });
+    const playBtn = ui.button(bh, { zh: '❚❚ 暂停', en: '❚❚ Pause', cls: 'sm primary', onClick: () => { playing = !playing; playBtn.innerHTML = playing ? L('❚❚ 暂停', '❚❚ Pause') : L('▶ 播放', '▶ Play'); start(); } });
     ui.button(bh, { zh: '路标全关', en: 'All off', cls: 'sm', onClick: () => { lms.forEach(l => { l[2] = false; }); readout(true); } });
     ui.button(bh, { zh: '路标全开', en: 'All on', cls: 'sm', onClick: () => { lms.forEach(l => { l[2] = true; }); readout(true); } });
     ui.button(bh, { zh: '重置', en: 'Reset', cls: 'sm', onClick: () => { reset(); P.invalidate(); readout(true); } });
@@ -1026,8 +1026,9 @@ R101.onReady(function () {
       lastRead = now;
       const ms = majorSigma(), eE = Math.hypot(X[0] - T[0], X[1] - T[1]), eD = Math.hypot(D[0] - T[0], D[1] - T[1]);
       read.innerHTML = `${L('看到的路标', 'landmarks in view')}: <b>${visibleLms.length}</b><br>` +
-        `${L('椭圆长半轴 σ', 'ellipse major σ')}: <b style="color:${ms > 1.5 ? 'var(--c-bad)' : 'inherit'}">${M.fmt(ms, 2)} m</b> · σ<sub>θ</sub> <b>${M.fmt(Math.sqrt(Pc[2][2]) * 180 / Math.PI, 1)}°</b><br>` +
-        `${L('误差', 'error')}: EKF <b class="cv">${M.fmt(eE, 2)} m</b> · ${L('里程计', 'odometry')} <b style="color:var(--c-bad)">${M.fmt(eD, 2)} m</b>`;
+        `${L('椭圆长半轴 σ', 'ellipse major σ')}: <b style="color:${ms > 1.5 ? 'var(--c-bad)' : 'inherit'}">${M.fmt(ms, 2)} m</b><br>` +
+        `${L('航向', 'heading')} σ<sub>θ</sub>: <b>${M.fmt(Math.sqrt(Pc[2][2]) * 180 / Math.PI, 1)}°</b><br>` +
+        `${L('误差', 'error')}: EKF <b class="cv">${M.fmt(eE, 2)}</b> / ${L('里程计', 'odom.')} <b style="color:var(--c-bad)">${M.fmt(eD, 2)}</b> m`;
       if (lastUp) {
         const { H, nu, Xp } = lastUp;
         R101.tex(t1, `\\hat{\\x}^- = (${M.tex(Xp[0], 2)},\\, ${M.tex(Xp[1], 2)},\\, ${M.tex(Xp[2], 2)})`);
@@ -1038,7 +1039,7 @@ R101.onReady(function () {
         R101.tex(t2, ''); R101.tex(t3, '');
       }
     }
-    R101.on('lang', () => { playBtn.innerHTML = playing ? L('⏸ 暂停', '⏸ Pause') : L('▶ 播放', '▶ Play'); readout(true); });
+    R101.on('lang', () => { playBtn.innerHTML = playing ? L('❚❚ 暂停', '❚❚ Pause') : L('▶ 播放', '▶ Play'); readout(true); });
     R101.on('hl', () => P.invalidate());
     reset();
     for (let i = 0; i < 30; i++) simStep();
@@ -1121,10 +1122,10 @@ R101.onReady(function () {
         `${L('自称的 2σ（平均）', 'claimed 2σ (mean)')} <b>${M.fmt(res.band, 2)} m</b>`;
       R101.tex(tex, `\\frac{\\sigma_a^2}{\\sigma_z^2} = \\frac{${M.tex(sa * sa, sa < 0.03 ? 5 : 3)}}{${M.tex(sz * sz, 3)}}`);
       msg.innerHTML = c < 85
-        ? `<b style="color:var(--c-bad)">${L('过度自信', 'Overconfident')}</b>：${L('黄带太窄，真值频频跑出去，滤波器在撒谎。', 'the band is too narrow and the truth keeps escaping it: the filter is lying.')}`
+        ? `<b style="color:var(--c-bad)">${L('过度自信', 'Overconfident')}</b>${L('：', ': ')}${L('黄带太窄，真值频频跑出去，滤波器在撒谎。', 'the band is too narrow and the truth keeps escaping it: the filter is lying.')}`
         : (c > 99.4 && res.band > 2.5 * res.rmse)
-          ? `<b class="cx">${L('过于谨慎', 'Over-cautious')}</b>：${L('真值总在带内，但带比实际误差宽得多，下游模块会白白地不信任它。', 'the truth is always inside, but the band is far wider than the real error, so downstream modules will distrust it for no reason.')}`
-          : `<b style="color:var(--c-good)">${L('诚实', 'Honest')}</b>：${L('自称的不确定性与实际误差相符。', 'the claimed uncertainty matches the actual error.')}`;
+          ? `<b class="cx">${L('过于谨慎', 'Over-cautious')}</b>${L('：', ': ')}${L('真值总在带内，但带比实际误差宽得多，下游模块会白白地不信任它。', 'the truth is always inside, but the band is far wider than the real error, so downstream modules will distrust it for no reason.')}`
+          : `<b style="color:var(--c-good)">${L('诚实', 'Honest')}</b>${L('：', ': ')}${L('自称的不确定性与实际误差相符。', 'the claimed uncertainty matches the actual error.')}`;
       if (c < 50) R101.done('diverge');
       P.invalidate();
     }

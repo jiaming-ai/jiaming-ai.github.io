@@ -799,7 +799,7 @@ R101.onReady(function () {
       const row = (k, html) => `<div style="${k === cur && s > 0.005 ? 'color:var(--fg);font-weight:600' : 'opacity:.7'}">${html}</div>`;
       readEl.innerHTML =
         row(1, `① V<sup>T</sup> ${L('旋转', 'rotate')} θ = <b>${deg(sv.theta)}</b>`) +
-        row(2, `② Σ ${L('拉伸', 'stretch')} <b style="color:var(--c-v)">σ₁ = ${M.fmt(sv.S[0], 2)}</b>, <b style="color:var(--c-w)">σ₂ = ${M.fmt(sv.S[1], 2)}</b>`) +
+        row(2, `② Σ ${L('拉伸', 'stretch')}<br>&nbsp;&nbsp;&nbsp;<b style="color:var(--c-v)">σ₁ = ${M.fmt(sv.S[0], 2)}</b>, <b style="color:var(--c-w)">σ₂ = ${M.fmt(sv.S[1], 2)}</b>`) +
         row(3, `③ U ${L('旋转', 'rotate')} φ = <b>${deg(sv.phi)}</b>${sv.reflect ? ` + <b style="color:var(--c-j)">${L('镜像', 'mirror')}</b>` : ''}`) +
         `<div style="margin-top:6px">det A = ${M.fmt(M.det2(A), 2)} · κ = ${fmtK(sv.S[0] / sv.S[1])}</div>`;
       nameEl.innerHTML = stageName(s);
