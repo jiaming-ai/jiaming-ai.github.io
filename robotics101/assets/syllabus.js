@@ -22,7 +22,7 @@ window.R101_SYLLABUS = {
           { n: '1.9', slug: 'projection', zh: '投影与正交分解', en: 'Projection & Orthogonal Decomposition' },
           { n: '1.10', slug: 'orthogonal-rotation', zh: '正交矩阵与旋转', en: 'Orthogonal Matrices & Rotations' },
           { n: '1.11', slug: 'eigen', zh: '特征值与特征向量', en: 'Eigenvalues & Eigenvectors' },
-          { n: '1.12', slug: 'svd', zh: '奇异值分解 SVD', en: 'Singular Value Decomposition', star: true },
+          { n: '1.12', slug: 'svd', zh: '奇异值分解 SVD', en: 'Singular Value Decomposition', ready: true, star: true },
           { n: '1.13', slug: 'least-squares', zh: '最小二乘与伪逆', en: 'Least Squares & the Pseudo-inverse' }
         ]},
         { n: 2, zh: '微积分', en: 'Calculus', pages: [
