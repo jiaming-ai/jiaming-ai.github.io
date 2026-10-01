@@ -1,0 +1,270 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>ECROM: Retrospective Open-Vocabulary Memory for Long-Term Object Search</title>
+<meta name="description" content="ECROM estimates where objects usually occur from repeated, uneven observations by weighting evidence per observation opportunity, and uses the belief as a prior for active object search.">
+<meta property="og:title" content="ECROM: Retrospective Open-Vocabulary Memory for Long-Term Object Search">
+<meta property="og:description" content="A detection or non-detection should count only in proportion to the robot's opportunity to observe that location.">
+<meta property="og:image" content="https://jiaming.im/ecrom/assets/teaser-1.png">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%230d8a6a'/%3E%3Ccircle cx='16' cy='16' r='7' fill='none' stroke='white' stroke-width='3'/%3E%3Ccircle cx='16' cy='16' r='2.5' fill='white'/%3E%3C/svg%3E">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<nav class="top"><div class="wrap">
+  <a class="brand" href="#top">E<span>CROM</span></a>
+  <a href="#why">Idea</a><a href="#lab-model">Model</a><a href="#lab-posterior">Evidence</a><a href="#method">Method</a>
+  <a href="#lab-search">Search</a><a href="#bench">LOOP-Bench</a><a href="#results">Results</a><a href="#robot">Robot</a>
+</div></nav>
+
+<header class="hero" id="top"><div class="wrap">
+  <h1>Retrospective Open-Vocabulary Memory<br>for Long-Term Object Search</h1>
+  <p class="lead narrow" style="margin:0 auto">A robot should learn <em>where objects usually appear</em>, not only where they were last seen. <b class="g">ECROM</b> lets every detection and non-detection count in proportion to the robot's <b class="b">opportunity to observe</b> the place.</p>
+  <div style="height:1.2rem"></div>
+  <div class="btns">
+    <a class="btn" href="ecrom.pdf">Paper (PDF)</a>
+    <a class="btn ghost" href="#" aria-disabled="true">Code (coming soon)</a>
+    <a class="btn ghost" href="#" aria-disabled="true">LOOP-Bench (coming soon)</a>
+    <a class="btn ghost" href="#lab-posterior">Try the interactive demo ↓</a>
+  </div>
+  <figure class="figure">
+    <img src="assets/teaser-1.png" alt="Search for a straw hat in an HM3D home: mapping routes, observation opportunity and the route each memory takes." width="1440" height="911">
+    <figcaption><b>Searching for “a straw hat” after ten mapping traversals.</b> The dining table and the kitchen island have the same number of detector responses, but the table was seen far less often (table 2/5, island 2/10; × marks surfaces that never held the hat). ECROM treats the misses on the island as real evidence and the missing views of the table as no evidence, and verifies the table after 3.2&nbsp;m. Memories that ignore exposure walk to the island first (14–22&nbsp;m); coverage without memory needs 52.8&nbsp;m.</figcaption>
+  </figure>
+  <div class="abstract narrow" style="margin-left:auto;margin-right:auto">
+    <h3>Abstract</h3>
+    <p>Long-term object search requires learning where objects <em>usually</em> appear from repeated but uneven observations of a changing environment. We formulate retrospective open-vocabulary memory as probabilistic inference from censored observations, where the key idea is to reason with <em>evidence per opportunity</em>: a detection or non-detection should influence belief only in proportion to the robot's opportunity to observe the corresponding location. We introduce ECROM, which uses this principle to estimate long-term prevalence for concepts specified only at query time and converts the resulting belief directly into an active-search prior. To evaluate this problem, we introduce a controlled long-term benchmark in ten HM3D homes that independently varies object placement and observation opportunity across repeated traversals. ECROM improves support-level AP on held-out queries by 4.5 points and search SPL by 4.2 points over the strongest competing memory in each metric.</p>
+    <p class="small muted">Paper: <a href="ecrom.pdf">ecrom.pdf</a> (arXiv version; will link to arXiv once released)</p>
+  </div>
+</div></header>
+
+<section id="why"><div class="wrap">
+  <div class="sechead">
+    <div class="eyebrow">The idea</div>
+    <h2>A missing detection is not the same as an absent object</h2>
+    <p class="lead">Keys, tools and mugs move constantly, yet they follow routines. Mapping visits are uneven: the camera faces elsewhere, a surface is occluded, or only a corner is visible. Counting detections or visits therefore confuses <em>how often an object is there</em> with <em>how often we looked</em>.</p>
+  </div>
+  <div class="cards">
+    <div class="card"><div class="num">1</div><h3>Store what could be seen</h3><p>During mapping, each surface patch keeps a per-traversal <b class="b">opportunity</b> <i>c</i> ∈ [0,1]: the fraction of the patch that returned depth. This is query-independent.</p></div>
+    <div class="card"><div class="num">2</div><h3>Ask anything later</h3><p>At query time, an open-vocabulary detector scores the stored frames. Its response becomes calibrated <b class="o">likelihood-ratio evidence</b> Λ(<i>r</i>) for that text query.</p></div>
+    <div class="card"><div class="num">3</div><h3>Weigh evidence per opportunity</h3><p>A censored observation model combines both. Low opportunity makes any response uninformative; high opportunity makes hits <em>and</em> misses count.</p></div>
+    <div class="card"><div class="num">4</div><h3>Search with the belief</h3><p>The posterior mean prevalence is the search prior. A greedy planner looks where the most belief per meter is exposed, then discounts what it has just seen.</p></div>
+  </div>
+</div></section>
+
+<section id="lab-model" class="tint"><div class="wrap">
+  <div class="sechead">
+    <div class="eyebrow">Interactive 1 · the model</div>
+    <h2>Why a non-detection is ambiguous</h2>
+    <p>For one surface, in each traversal the object is <b class="o">present</b> with probability θ (its long-term prevalence) and the surface is <b class="b">exposed</b> to the sensor with probability <i>c</i>. The detector can only respond to an object that is both: the <em>visible presence</em> <i>Z</i> = <i>X</i>·<i>V</i>.</p>
+  </div>
+  <div class="lab">
+    <div class="chain"><span class="node">X ~ Bernoulli(θ)</span> <span>×</span> <span class="node">V ~ Bernoulli(c)</span> <span>=</span> <span class="node z">Z = XV</span> <span>→</span> <span class="node">detector response r</span></div>
+    <div class="simrow">
+      <svg id="simgrid" viewBox="0 0 320 320" role="img" aria-label="One hundred simulated traversals of one surface"></svg>
+      <div>
+        <div class="controls">
+          <label>Prevalence θ <input id="sim-theta" type="range" min="0.02" max="0.8" step="0.01" value="0.35"> <b id="sim-theta-v"></b></label>
+          <label>Opportunity <i>c</i> <input id="sim-c" type="range" min="0" max="1" step="0.01" value="0.3"> <b id="sim-c-v"></b></label>
+          <button class="pill" id="sim-resample">Resample</button>
+        </div>
+        <div class="stat"><span class="n o" id="sim-x">0</span><span>traversals where the object <b class="o">was there</b></span></div>
+        <div class="stat"><span class="n" id="sim-z" style="color:var(--strong)">0</span><span>of those where the detector <b>could</b> have seen it</span></div>
+        <div class="stat"><span class="n muted" id="sim-h">0</span><span>present but <b>hidden</b> from view (a miss says nothing here)</span></div>
+        <div class="legend">
+          <span><i style="background:#e6e2d7"></i>absent</span>
+          <span><i style="background:#fff;border:2px dashed var(--det)"></i>present, not exposed</span>
+          <span><i style="background:var(--strong)"></i>present and exposed (visible presence)</span>
+        </div>
+        <div class="readout">P(<i>Z</i>=1) = θ·<i>c</i> = <b id="sim-pz"></b>. Lower the opportunity and most present objects turn into dashed cells: the detector stays silent even though the object is there. A memory that reads silence as absence is then badly wrong.</div>
+      </div>
+    </div>
+  </div>
+</div></section>
+
+<section id="lab-posterior"><div class="wrap">
+  <div class="sechead">
+    <div class="eyebrow">Interactive 2 · evidence per opportunity</div>
+    <h2>Same detections, different evidence</h2>
+    <p>Marginalising presence and exposure gives one rule for a single traversal (Proposition 1):</p>
+    <div class="eq"><i>p</i>(<i>r</i> | θ, <i>c</i>) = <i>p</i><sub>0</sub>(<i>r</i>) · [ 1 + θ · <i>c</i> · ( Λ(<i>r</i>) − 1 ) ]</div>
+    <p>The detector sets the <em>direction</em> (Λ &gt; 1 supports presence, Λ &lt; 1 supports absence); opportunity <i>c</i> sets the <em>strength</em>. With <i>c</i> = 0 a traversal contributes a factor of one. Below, each surface has ten traversals. <b>Drag a bar</b> to change its <b class="b">opportunity</b>, <b>click the circle</b> to cycle the <b class="o">detector response</b>.</p>
+  </div>
+  <div class="lab">
+    <div class="controls">
+      <span class="small muted">Presets:</span>
+      <span class="seg" id="post-presets">
+        <button data-p="teaser" aria-pressed="true">Teaser: table 2/5 vs island 2/10</button>
+        <button data-p="equal">Equal exposure</button>
+        <button data-p="unseen">Table never exposed (its responses are ignored)</button>
+      </span>
+    </div>
+    <div class="legend">
+      <span><i style="background:var(--opp)"></i>opportunity <i>c</i> (bar height)</span>
+      <span><i style="background:#fff;border:2px solid #b8b3a5;border-radius:50%"></i>no response</span>
+      <span><i style="background:#f6a58b;border:2px solid var(--det);border-radius:50%"></i>weak</span>
+      <span><i style="background:var(--strong);border-radius:50%"></i>strong</span>
+    </div>
+    <div class="surfaces" id="surfaces"></div>
+    <table class="cmp" id="cmp"></table>
+    <p class="note">Illustrative demo: Beta(1, 12) prior and a hand-set likelihood ratio per response level (no response 0.45, weak 3, strong 25). The paper calibrates Λ(<i>r</i>) on held-out calibration objects with isotonic regression. Detection count uses a threshold of 0.25, so weak and strong responses both count as one detection.</p>
+  </div>
+</div></section>
+
+<section id="method" class="tint"><div class="wrap">
+  <div class="sechead">
+    <div class="eyebrow">Method</div>
+    <h2>From traversals to a search prior</h2>
+    <p>ECROM is built on the CROSS keyframe graph, whose sparse topology tolerates objects moving between sessions. Step through the pipeline.</p>
+  </div>
+  <div class="stepper">
+    <div class="steplist" role="tablist" id="steplist">
+      <button role="tab" aria-selected="true" data-s="0"><b>1 · Place–view atlas</b><span>mapping, once</span></button>
+      <button role="tab" aria-selected="false" data-s="1"><b>2 · Opportunity</b><span>mapping, once</span></button>
+      <button role="tab" aria-selected="false" data-s="2"><b>3 · Posterior belief</b><span>any text query</span></button>
+      <button role="tab" aria-selected="false" data-s="3"><b>4 · Active search</b><span>greedy by belief per meter</span></button>
+    </div>
+    <div class="stepview">
+      <img id="stepimg" src="assets/overview_a.png" alt="" width="668" height="354">
+      <div class="eq" id="stepeq"></div>
+      <p class="stepdesc" id="stepdesc"></p>
+    </div>
+  </div>
+  <div class="cards">
+    <div class="card"><h3>Surface supports</h3><p>Up-facing surface is voxelised into fixed 0.5 × 0.5 m patches per height band. A support is where an object <em>may occur</em>; a view <i>u</i> = (place, direction) is where the robot <em>can look</em>.</p></div>
+    <div class="card"><h3>Two useful invariances</h3><p>A traversal with <i>c</i> = 0 leaves the belief unchanged, and duplicating frames changes nothing, because <i>c</i> is computed from a union of voxels and <i>r</i> is a maximum over localised scores.</p></div>
+    <div class="card"><h3>Sparse prior, exact grid</h3><p>Prevalence gets a sparse Beta prior (α₀ ≪ β₀): one named object rarely sits on any given patch. The non-conjugate posterior is evaluated on a grid that is finer near θ = 0.</p></div>
+  </div>
+</div></section>
+
+<section id="lab-search"><div class="wrap">
+  <div class="sechead">
+    <div class="eyebrow">Interactive 3 · active search</div>
+    <h2>How a belief becomes a route</h2>
+    <p>The planner picks the view that exposes the most belief per unit cost, then applies a discount for supports it has just looked at:</p>
+    <div class="eq"><i>u</i>* = argmax<sub><i>u</i></sub> Σ<sub><i>j</i></sub> <i>b<sub>j</sub></i> <i>c<sub>j</sub></i>(<i>u</i>) / ( <i>C<sub>G</sub></i>(cur, <i>u</i>) + <i>d</i><sub>0</sub> )  &nbsp;&nbsp;&nbsp; <i>b′<sub>j</sub></i> ∝ <i>b<sub>j</sub></i> ( 1 − <i>p</i><sub>det</sub> <i>c<sub>j</sub></i>(<i>u</i>) )</div>
+    <p>A failed look strongly discounts well-seen supports, weakly discounts partly seen ones, and leaves unseen ones alone. <b>Click a surface</b> to hide the target there, then step through the search.</p>
+  </div>
+  <div class="lab">
+    <div class="controls">
+      <span class="small muted">Prior:</span>
+      <span class="seg" id="prior-seg">
+        <button data-m="ecrom" aria-pressed="true">ECROM</button>
+        <button data-m="count">Detection count</button>
+        <button data-m="cov">Coverage (no memory)</button>
+      </span>
+      <button class="pill" id="s-step">Step ▸</button>
+      <button class="pill" id="s-run">Run ▸▸</button>
+      <button class="pill" id="s-reset">Reset</button>
+    </div>
+    <div class="split">
+      <canvas id="world" width="720" height="440"></canvas>
+      <div class="side">
+        <h4>Toy history behind the priors</h4>
+        <p class="small muted" style="margin-bottom:10px">Ten traversals per surface, scored by the same posterior as demo 2. The table and island are the teaser’s 2/5 and 2/10; the desk was almost never in view; the other surfaces were well seen and empty.</p>
+        <h4>Route length for this target</h4>
+        <table class="cmp" id="s-cmp" style="margin-top:6px"></table>
+        <div class="readout" id="s-info">Ready. Target: <b>Desk</b>.</div>
+        <div class="legend" style="margin-top:12px">
+          <span><i style="background:var(--det);border-radius:50%"></i>belief <i>b<sub>j</sub></i></span>
+          <span><i style="background:var(--ours)"></i>robot / route</span>
+          <span><i style="background:#fff;border:2px solid var(--opp);border-radius:50%"></i>executable views</span>
+          <span>★ hidden target</span>
+        </div>
+      </div>
+    </div>
+    <p class="note">A toy floor plan (distances in straight lines, 20 px = 1 m, <i>d</i><sub>0</sub> = 1.25 m, <i>p</i><sub>det</sub> = 0.8, coverage falls off linearly to 7.5 m); it shows the mechanics of the planner, not benchmark performance. Which prior wins depends on the target and on this tiny map: detection count is fast when the target sits on a surface it already favours (try the dining table) and very slow on the barely seen desk, where it has no evidence at all; with only eight surfaces, uniform coverage is also competitive. Benchmark results are below.</p>
+  </div>
+</div></section>
+
+<section id="bench" class="tint"><div class="wrap">
+  <div class="sechead">
+    <div class="eyebrow">Benchmark</div>
+    <h2>LOOP-Bench: Long-Term Object Occurrence Prediction</h2>
+    <p class="lead">Ten HM3D-Semantics homes where objects are re-placed from <em>hidden</em> long-term distributions while routes and gaze are sampled <em>independently</em>, so occurrence and observation opportunity are cleanly separated.</p>
+  </div>
+  <figure class="figure"><img src="assets/dataset-1.png" alt="Benchmark examples: objects on receptacles in five HM3D homes" width="1716" height="235">
+    <figcaption>Benchmark examples from five houses. For every traversal each object is placed on a receptacle drawn from a hidden distribution and settled by physics; the camera cannot look at an object because it is there.</figcaption></figure>
+  <div class="stats">
+    <div class="stat-card"><div class="big" data-count="10">10</div><div class="lbl">HM3D homes</div></div>
+    <div class="stat-card"><div class="big" data-count="200">200</div><div class="lbl">mapping traversals (20 per home)</div></div>
+    <div class="stat-card"><div class="big" data-count="50">50</div><div class="lbl">evaluation queries (5 per home)</div></div>
+    <div class="stat-card"><div class="big" data-count="150">150</div><div class="lbl">search trials (3 placements per query)</div></div>
+  </div>
+  <div class="twocol">
+    <div class="card"><h3>Two things are tested</h3><p><b>Estimation:</b> does the memory rank the supports where the object really occurs? AP, Top-5 mass, AUROC and Bernoulli NLL against the ground-truth occurrence distribution. <b>Search:</b> does that belief find the object faster? Success rate and SPL under a 120 m budget.</p></div>
+    <div class="card"><h3>Retrospective, and honest about absence</h3><p>Queries are text given <em>after</em> the history is recorded. Three further objects per home are calibration-only. In 22 of the 150 trials the object is not in the home at all; they count as failures.</p></div>
+  </div>
+  <div class="indep">
+    <div class="card"><h3 class="o">Placement</h3><p class="small">Where the object rests each traversal is drawn from a hidden distribution.</p></div>
+    <div class="card route"><h3 class="b">Observation</h3><p class="small">Routes and viewpoints are sampled independently, giving uneven opportunity.</p></div>
+  </div>
+</div></section>
+
+<section id="results"><div class="wrap">
+  <div class="sechead">
+    <div class="eyebrow">Results</div>
+    <h2>Better estimates, better search</h2>
+    <p>ECROM is best on all four distribution metrics and on both search metrics against counting-, retrieval-, latest-state- and PredictiveGraphs-style memories. All methods receive the same stored observations, supports and detector scores, so rows differ only in how each memory turns shared evidence into a belief.</p>
+  </div>
+  <div class="lab">
+    <div class="controls">
+      <span class="seg" id="metric-seg"></span>
+      <label><input type="checkbox" id="abl-toggle" checked> show ablations</label>
+    </div>
+    <div class="small muted" id="metric-desc"></div>
+    <div class="bars" id="bars"></div>
+    <p class="note">Numbers are Table 1 of the paper: 50 queries in 10 houses; SR and SPL average all 150 trials. “–” means the score is not a probability, so NLL does not apply. Paired 95% intervals are in the paper’s appendix; the search gain over PredictiveGraphs-style memory is within them, the ranking gain is not.</p>
+  </div>
+
+  <div class="twocol" style="margin-top:22px">
+    <div class="lab" style="margin-top:0">
+      <h3>What the ablations say</h3>
+      <p class="small">Removing the exposure term (<i>c</i> = 1 everywhere) treats every non-detection as if the surface had been fully inspected: predicted prevalences per query sum to 2.32 instead of the true 4.76, while ECROM’s sum to 5.10. Binary exposure recovers only part of the gap, so <em>fractional</em> opportunity sharpens the ranking. Thresholding the detector loses information in two different ways: τ = .25 misses about half of the visible instances, τ = .15 adds four times as many false alarms.</p>
+    </div>
+    <div class="lab" style="margin-top:0">
+      <h3>The exposure term helps most where views were scarce</h3>
+      <p class="small" style="margin-bottom:0">AP gain of ECROM over “no exposure term”, queries split into thirds by the opportunity summed over their true supports.</p>
+      <div class="tert" id="tert"></div>
+    </div>
+  </div>
+</div></section>
+
+<section id="robot" class="tint"><div class="wrap">
+  <div class="sechead">
+    <div class="eyebrow">Real robot</div>
+    <h2>Transfer to a Hello Robot Stretch 3</h2>
+    <p>On a roughly 500 m² office floor, each object had a hidden distribution over desks, tables and shelves and was re-placed before each of ten mapping traversals. Five queries × three placements gave 15 trials per method; the budget was 20 inspected views.</p>
+  </div>
+  <div class="robotgrid">
+    <figure class="figure"><img src="assets/stretch3.png" alt="Hello Robot Stretch 3" width="410" height="870" style="max-height:340px;margin:auto;width:auto"><figcaption>Image: Hello Robot.</figcaption></figure>
+    <figure class="figure"><img src="assets/real_robot_bev.png" alt="Office floor with mapping traversals and search routes" width="1367" height="1001"><figcaption>Ten mapping traversals (grey) and, for one query, the routes of <b class="g">ECROM</b> (green), detection count (blue) and PredictiveGraphs-style memory (magenta) from the start (yellow) to the target (red star). Scale bar 5 m.</figcaption></figure>
+  </div>
+  <div class="big3" id="robot-big"></div>
+  <div class="lab" style="margin-top:0">
+    <h3>Per query</h3>
+    <div class="qrow head"><span>Query</span><span>ECROM</span><span>Detection count</span><span>PredictiveGraphs-style</span></div>
+    <div id="qrows"></div>
+    <p class="note">Dots: successes out of three placements. Bar: mean travel in meters, failed trials included. The gains are largest for the red cup and the scissors; on headphones and cupcakes all methods are similar, consistent with locations that most traversals saw. Luncheon meat is hardest: ECROM’s one failure reaches the right support but the detector does not fire.</p>
+  </div>
+</div></section>
+
+<section id="limits"><div class="wrap narrow">
+  <div class="eyebrow">Limitations</div>
+  <h2>What ECROM still approximates</h2>
+  <ul>
+    <li><b>Exposure is a proxy.</b> Depth return is a heuristic for the chance a present object is visible; it ignores where on the patch the object rests, its size, distance, angle and occlusion. A learned visibility model is future work.</li>
+    <li><b>One likelihood ratio</b> is shared across queries, view counts and exposure levels; conditioning it on the observation process should help.</li>
+    <li><b>Geometric supports</b> carry no receptacle semantics, which could add structure when observations are sparse.</li>
+    <li><b>Stationary prevalence</b> is assumed; routines may drift over longer deployments.</li>
+    <li><b>The planner is greedy</b> rather than optimizing the full route.</li>
+  </ul>
+</div></section>
+
+<script src="engine.js"></script>
+<script src="world.js"></script>
+<script src="main.js"></script>
+</body>
+</html>
