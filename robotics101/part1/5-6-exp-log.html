@@ -1,0 +1,910 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-theme="dark" data-lang-ui="zh">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>5.6 指数映射与对数映射 · Robotics for Beginners</title>
+<meta name="description" content="An interactive, intuition-first lesson on the exponential and logarithm maps of SO(2), SO(3) and SE(3): constant velocity becomes motion, twists become screw motions, and log brings you back — with gyro integration and pose interpolation.">
+<link rel="icon" href="../../favicon.svg" type="image/svg+xml">
+<script>(function(){var d=document.documentElement,t='dark',l=null;try{t=localStorage.getItem('theme')||'dark'}catch(e){}d.setAttribute('data-theme',t);try{l=new URLSearchParams(location.search).get('lang')||localStorage.getItem('lang')}catch(e){}if(l!=='zh'&&l!=='en')l=(navigator.language||'').toLowerCase().indexOf('zh')===0?'zh':'en';d.setAttribute('data-lang-ui',l);d.lang=l==='zh'?'zh-CN':'en';})();</script>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.22/dist/katex.min.css">
+<link rel="stylesheet" href="../assets/course.css">
+</head>
+<body data-page="5.6" data-root=".." data-title-zh="5.6 指数映射与对数映射 · Robotics for Beginners" data-title-en="5.6 The Exponential &amp; Logarithm Maps · Robotics for Beginners">
+<div class="r101-layout">
+<aside class="r101-side" id="r101-side"></aside>
+<main class="r101-main">
+<article class="lesson">
+
+<header class="lesson-head">
+  <div class="eyebrow"><span data-lang="zh">Part I · 第 5 章 刚体运动与李群 · 5.6</span><span data-lang="en">Part I · Ch. 5 Rigid-Body Motion &amp; Lie Groups · 5.6</span></div>
+  <h1><span data-lang="zh">指数映射与对数映射</span><span data-lang="en">The Exponential &amp; Logarithm Maps</span></h1>
+  <p class="lede">
+    <span data-lang="zh">旋转和位姿不能相加，速度却可以。指数映射把"一个恒定的速度保持 1 秒"变成一次旋转或一次刚体运动；对数映射再把运动还原成速度。理解了这一对映射，陀螺仪积分、位姿插值、流形上的优化就都有了统一的写法。</span>
+    <span data-lang="en">You cannot add rotations or poses, but you can add velocities. The exponential map turns "hold a constant velocity for one second" into a rotation or a rigid motion; the logarithm turns the motion back into a velocity. With this pair of maps, gyro integration, pose interpolation and optimization on manifolds all become the same idea.</span>
+  </p>
+  <div class="lesson-meta">
+    <span class="chip"><span data-lang="zh">约 35 分钟</span><span data-lang="en">~35 min</span></span>
+    <span class="chip"><span data-lang="zh">前置：1.8 叉积 · 5.3 齐次变换 SE(3) · 5.4 为什么需要李群 · 5.5 李代数</span><span data-lang="en">Prereqs: 1.8 Cross product · 5.3 SE(3) · 5.4 Why Lie groups · 5.5 Lie algebras</span></span>
+    <span class="chip"><span data-lang="zh">5 个交互</span><span data-lang="en">5 interactives</span></span>
+  </div>
+  <ul class="toc-steps" id="step-toc"></ul>
+</header>
+
+<!-- ============ 1. WHY ============ -->
+<section class="step" id="why">
+  <h2><span class="n">1</span><span data-lang="zh">为什么机器人需要它</span><span data-lang="en">Why robots need this</span></h2>
+  <div data-lang="zh">
+    <p>机器人状态里的量，有的能相加，有的不能。位置可以相加：先往前走 1 米，再走 2 米，一共 3 米。姿态和位姿就不行：两个旋转矩阵相加，结果根本不是旋转矩阵。5.4 节已经看到，硬加的结果会把坐标系压扁、拉歪。\(\SO\) 和 \(\SE\) 是弯曲的<b>流形</b>，不是向量空间。</p>
+    <p><b>速度</b>却可以相加。陀螺仪报告的角速度 \(\boldsymbol\omega\)、机械臂末端的<b>速度旋量 (twist)</b>，都是普通的向量，可以相加、乘以时间、求平均。指数映射 exp 连接这两个世界，它回答一个问题：<b>把一个恒定速度保持 1 秒，你会到哪里？</b>对数映射 log 正好反过来：给定终点，问用什么恒定速度、1 秒恰好到达。</p>
+    <p>机器人软件里有很多操作都要用到这一对映射：把陀螺仪读数积分成姿态；在两个位姿之间平滑插值；优化器在 \(\SO\)、\(\SE\) 上迈出一小步（5.7、6.10 节）；机械臂的每个关节本身就是一个指数映射（5.10 节）。</p>
+  </div>
+  <div data-lang="en">
+    <p>Some quantities in a robot's state can be added and some cannot. Positions add: walk 1 m forward, then 2 m, and you are 3 m out. Orientations and poses do not: the sum of two rotation matrices is not a rotation matrix at all. Lesson 5.4 showed how forcing it squashes and skews the frame. \(\SO\) and \(\SE\) are curved <b>manifolds</b>, not vector spaces.</p>
+    <p><b>Velocities</b>, however, do add. The angular velocity \(\boldsymbol\omega\) reported by a gyro and the <b>twist</b> of an end effector are ordinary vectors: you can add them, scale them by time and average them. The exponential map connects the two worlds by answering one question: <b>hold a constant velocity for one second, and where do you end up?</b> The logarithm goes the other way: given the destination, which constant velocity gets you there in exactly one second?</p>
+    <p>A lot of robot software relies on this pair: integrating gyro readings into an orientation, interpolating smoothly between two poses, letting an optimizer take a step on \(\SO\) or \(\SE\) (Lessons 5.7 and 6.10). Even each joint of a robot arm is an exponential map (Lesson 5.10).</p>
+  </div>
+</section>
+
+<!-- ============ 2. INTUITION ============ -->
+<section class="step" id="intuition">
+  <h2><span class="n">2</span><span data-lang="zh">直觉：把切线缠到圆上</span><span data-lang="en">Intuition: wrapping a line around a circle</span></h2>
+  <div data-lang="zh">
+    <p>先看最简单的李群：平面旋转 SO(2)。每个平面旋转对应单位圆上的一个点 \((\cos\theta, \sin\theta)\)。圆本身就是这个群，点 \((1, 0)\) 是"什么也不转"的单位元。</p>
+    <p>在单位元处画一条切线。切线上的点代表<b>角速度</b>：它们可以相加、数乘，组成一个普通的一维向量空间，也就是 SO(2) 的李代数（5.5 节）。</p>
+    <p>指数映射做的事很朴素：<b>把切线像绳子一样缠到圆上</b>，就像把线绕上轮子，不拉长，也不压缩。在切线上走了长度 \(\theta\)，在圆上就走过弧长 \(\theta\)。换句话说，以角速度 \(\theta\) 匀速转 1 秒，停下的位置就是 \(\exp(\theta)\)。</p>
+  </div>
+  <div data-lang="en">
+    <p>Start with the simplest Lie group, planar rotations SO(2). Each planar rotation is a point \((\cos\theta, \sin\theta)\) on the unit circle. The circle itself is the group, and the point \((1, 0)\), "don't rotate at all", is the identity.</p>
+    <p>Draw the tangent line at the identity. Points on that line are <b>angular velocities</b>: they add and scale, forming an ordinary one-dimensional vector space. This is the Lie algebra of SO(2) (Lesson 5.5).</p>
+    <p>The exponential map does something very plain: <b>it wraps the tangent line around the circle like a string</b>, the way thread winds onto a spool, with no stretching and no squeezing. Walk a length \(\theta\) along the line and you sweep an arc of length \(\theta\) on the circle. Put differently: spin at angular velocity \(\theta\) for one second, and where you stop is \(\exp(\theta)\).</p>
+  </div>
+
+  <figure class="fig" id="fig-so2">
+    <div class="fig-head"><span class="fig-kind">FIG 1</span><span class="fig-title"><span data-lang="zh">SO(2)：缠绳子与幂级数</span><span data-lang="en">SO(2): wrapping a string, summing a series</span></span><span class="spacer"></span><span id="so2-seg"></span><button class="btn sm" id="so2-play">▶ <span data-lang="zh">播放</span><span data-lang="en">Play</span></button></div>
+    <div class="fig-body split">
+      <div class="canvas-wrap" id="so2-canvas"></div>
+      <div class="fig-side">
+        <div class="katex-live" id="so2-tex-a"></div>
+        <div class="katex-live" id="so2-tex-b"></div>
+        <div class="katex-live" id="so2-tex-c"></div>
+        <div class="readout" id="so2-read"></div>
+      </div>
+    </div>
+    <div class="fig-controls" id="so2-controls"></div>
+    <figcaption class="fig-cap">
+      <span data-lang="zh"><b>缠绕</b>模式：黄色绳子从单位元出发，长度为 \(\theta\)，绳上的小点每隔 1 个单位一个。缠到圆上之后，点与点的间距不变，这就是"不拉伸"。<b>级数</b>模式：紫色小箭头依次是 \(I, A, A^2/2!, \dots\)，每一项比上一项转 90°，长度乘 \(\theta/n\)。注意：只取前两项 \(I + A\)，得到的正好是切线上的那个点（一阶近似）。</span>
+      <span data-lang="en"><b>Wrap</b> mode: the amber string starts at the identity and has length \(\theta\); its dots are spaced 1 unit apart. Once wound onto the circle the spacing is unchanged: no stretching. <b>Series</b> mode: the purple arrows are \(I, A, A^2/2!, \dots\); each is the previous one turned 90° and scaled by \(\theta/n\). Note that the first two terms alone, \(I + A\), land exactly on the tangent-line point: the first-order approximation.</span>
+    </figcaption>
+  </figure>
+  <ul class="tasks"><li data-task="fullturn"><span><span data-lang="zh">把 \(\theta\) 调到恰好缠满一整圈。绳子的终点回到了哪里？这说明 \(\exp\) 有什么性质？</span><span data-lang="en">Set \(\theta\) so the string wraps exactly one full turn. Where does its end land? What does that say about \(\exp\)?</span></span></li></ul>
+
+  <div data-lang="zh">
+    <p>用矩阵写，切线上的 \(\theta\) 对应李代数元素 \(A = \begin{bmatrix}0 & -\theta\\ \theta & 0\end{bmatrix}\)（5.5 节的 hat）。矩阵指数的定义和 \(e^x\) 完全一样，是一个无穷级数：</p>
+  </div>
+  <div data-lang="en">
+    <p>In matrix form, the point \(\theta\) on the tangent line is the Lie-algebra element \(A = \begin{bmatrix}0 & -\theta\\ \theta & 0\end{bmatrix}\) (the hat of Lesson 5.5). The matrix exponential is defined exactly like \(e^x\), as an infinite series:</p>
+  </div>
+  <div class="math-card">$$ \exp(A) = I + A + \frac{A^2}{2!} + \frac{A^3}{3!} + \cdots = \sum_{n=0}^{\infty}\frac{A^n}{n!}. $$</div>
+  <div data-lang="zh">
+    <p>对这个 \(A\)，有 \(A^2 = -\theta^2 I\)：每乘一次 \(A\)，就是转 90° 再乘 \(\theta\)。把偶数项和奇数项分开收集，正好是 \(\cos\theta\) 和 \(\sin\theta\) 的泰勒级数：</p>
+  </div>
+  <div data-lang="en">
+    <p>For this \(A\), \(A^2 = -\theta^2 I\): each multiplication by \(A\) turns by 90° and scales by \(\theta\). Collect the even and the odd terms separately and you get exactly the Taylor series of \(\cos\theta\) and \(\sin\theta\):</p>
+  </div>
+  <div class="math-card">$$ \exp\begin{bmatrix}0 & -\theta\\ \theta & 0\end{bmatrix} = \Big(1 - \tfrac{\theta^2}{2!} + \cdots\Big) I + \Big(\theta - \tfrac{\theta^3}{3!} + \cdots\Big)\begin{bmatrix}0 & -1\\ 1 & 0\end{bmatrix} = \begin{bmatrix}\cos\theta & -\sin\theta\\ \sin\theta & \cos\theta\end{bmatrix}. $$</div>
+
+  <h3><span data-lang="zh">从圆到球：旋转向量</span><span data-lang="en">From circle to sphere: the rotation vector</span></h3>
+  <div data-lang="zh">
+    <p>三维旋转多了两个自由度：除了转多少，还要说绕哪根轴转。\(\SO\) 的李代数是三维的，其中的元素可以写成一个<b>旋转向量</b> \(\boldsymbol\omega = \theta\,\hat{\mathbf u}\)：方向 \(\hat{\mathbf u}\) 是转轴，长度 \(\theta\) 是转角。\(\Exp(\boldsymbol\omega)\) 的意思是以角速度 \(\boldsymbol\omega\) 匀速转 1 秒，也就是绕 \(\hat{\mathbf u}\) 转 \(\theta\)。</p>
+    <p>刚体上的每个点都沿着一个绕转轴的圆周运动。这和 FIG 1 的圆是同一回事，只是现在每个点都有自己的一个圆。拖动下面的时间滑块 \(t\)，看坐标系的三个轴尖各自画出一段圆弧。</p>
+  </div>
+  <div data-lang="en">
+    <p>Rotations in 3D have two more degrees of freedom: besides how much to turn, you must say about which axis. The Lie algebra of \(\SO\) is three-dimensional, and its elements can be written as a <b>rotation vector</b> \(\boldsymbol\omega = \theta\,\hat{\mathbf u}\): the direction \(\hat{\mathbf u}\) is the axis and the length \(\theta\) is the angle. \(\Exp(\boldsymbol\omega)\) means spinning at angular velocity \(\boldsymbol\omega\) for one second, which turns by \(\theta\) about \(\hat{\mathbf u}\).</p>
+    <p>Every point of the rigid body travels along a circle around the axis. It is the circle of FIG 1 again, except that now every point has a circle of its own. Drag the time slider \(t\) below and watch each axis tip of the frame trace its own arc.</p>
+  </div>
+
+  <figure class="fig" id="fig-rotvec">
+    <div class="fig-head"><span class="fig-kind">FIG 2</span><span class="fig-title"><span data-lang="zh">旋转向量 ω = θû 与 Exp(tω)</span><span data-lang="en">Rotation vector ω = θû and Exp(tω)</span></span><span class="spacer"></span><button class="btn sm" id="rv-play">▶ <span data-lang="zh">t: 0 → 1</span><span data-lang="en">t: 0 → 1</span></button></div>
+    <div class="fig-body split">
+      <div class="canvas-wrap" id="rv-canvas"><span class="overlay-label"><span data-lang="zh">拖动画面旋转视角</span><span data-lang="en">drag to orbit</span></span></div>
+      <div class="fig-side">
+        <div class="katex-live" id="rv-tex-w"></div>
+        <div class="katex-live" id="rv-tex-k"></div>
+        <div class="katex-live" id="rv-tex-r"></div>
+        <div class="readout" id="rv-read"></div>
+        <div><div class="small muted" style="margin-bottom:6px"><span data-lang="zh">预设</span><span data-lang="en">Presets</span></div><div class="presets" id="rv-presets"></div></div>
+      </div>
+    </div>
+    <div class="fig-controls" id="rv-controls"></div>
+    <figcaption class="fig-cap">
+      <span data-lang="zh">淡色坐标系是单位元 \(I\)，亮色坐标系是 \(\Exp(t\boldsymbol\omega)\)。紫色虚线是转轴，黄色箭头是旋转向量 \(\boldsymbol\omega\)（为了放得下，按 0.4 倍长度画）。彩色细圆是各轴尖绕转轴的完整圆周，粗线是 \(0 \to t\) 已经走过的部分。</span>
+      <span data-lang="en">The faint frame is the identity \(I\); the bright frame is \(\Exp(t\boldsymbol\omega)\). The dashed purple line is the axis and the amber arrow is the rotation vector \(\boldsymbol\omega\) (drawn at 0.4× length so it fits). The thin colored circles are the full orbits of the axis tips; the thick arcs are the part covered from \(0\) to \(t\).</span>
+    </figcaption>
+  </figure>
+  <ul class="tasks"><li data-task="z180"><span><span data-lang="zh">只用滑块（不用预设），在 \(t = 1\) 时得到<b>绕 z 轴转 180°</b> 的旋转。你能找到两种不同的 \(\boldsymbol\omega\) 吗？</span><span data-lang="en">Using only the sliders (no presets), produce a <b>180° rotation about the z-axis</b> at \(t = 1\). Can you find two different \(\boldsymbol\omega\) that do it?</span></span></li></ul>
+
+  <div class="callout key">
+    <div class="ct"><span data-lang="zh">核心洞见</span><span data-lang="en">Key insight</span></div>
+    <p data-lang="zh">指数映射把"平"的速度空间（李代数）卷到"弯"的群上。\(\exp(t\boldsymbol\omega)\) 随 \(t\) 走出的是一条<b>匀速</b>路径：转轴始终不变，每段相等的时间转过相等的角度。所以 \(\exp(s\boldsymbol\omega)\exp(t\boldsymbol\omega) = \exp((s+t)\boldsymbol\omega)\)：先转 \(s\) 秒再转 \(t\) 秒，等于一口气转 \(s+t\) 秒。不过这只对<b>同一个</b> \(\boldsymbol\omega\) 成立（见误区 3）。</p>
+    <p data-lang="en">The exponential map rolls the "flat" space of velocities (the Lie algebra) onto the "curved" group. As \(t\) grows, \(\exp(t\boldsymbol\omega)\) traces a <b>constant-speed</b> path: the axis never changes and equal times give equal angles. Hence \(\exp(s\boldsymbol\omega)\exp(t\boldsymbol\omega) = \exp((s+t)\boldsymbol\omega)\): spinning for \(s\) seconds and then \(t\) seconds is the same as spinning for \(s+t\) seconds. This holds only for the <b>same</b> \(\boldsymbol\omega\), though (see Pitfall 3).</p>
+  </div>
+</section>
+
+<!-- ============ 3. PLAY ============ -->
+<section class="step" id="play">
+  <h2><span class="n">3</span><span data-lang="zh">动手玩：速度旋量与螺旋运动</span><span data-lang="en">Play: twists and screw motions</span></h2>
+  <div data-lang="zh">
+    <p>位姿 \(\SE\) 的速度有 6 个数：角速度 \(\cw{\boldsymbol\omega}\)（3 个）和线速度 \(\cv{\mathbf v}\)（3 个），合起来叫<b>速度旋量 (twist)</b> \(\boldsymbol\xi = (\cw{\boldsymbol\omega}, \cv{\mathbf v}) \in \R^6\)。</p>
+  </div>
+  <div data-lang="en">
+    <p>A velocity in \(\SE\) has six numbers: an angular velocity \(\cw{\boldsymbol\omega}\) (three) and a linear velocity \(\cv{\mathbf v}\) (three). Together they form a <b>twist</b> \(\boldsymbol\xi = (\cw{\boldsymbol\omega}, \cv{\mathbf v}) \in \R^6\).</p>
+  </div>
+  <div class="callout view">
+    <div class="ct"><span data-lang="zh">本课的顺序约定：先 ω，后 v</span><span data-lang="en">This lesson's convention: ω first, then v</span></div>
+    <p data-lang="zh">本课的 twist 一律把<b>旋转放在前面</b>：\(\boldsymbol\xi = (\boldsymbol\omega, \mathbf v)\)，与 Lynch &amp; Park 的 <i>Modern Robotics</i> 以及课程代码 <code>R101.M.expSE3 / logSE3</code> 一致。也有不少教材和库把<b>平移放在前面</b>，例如 Barfoot 的书、Solà 等人的论文和 Sophus 库，写作 \((\boldsymbol\rho, \boldsymbol\phi)\) 或 \((\mathbf v, \boldsymbol\omega)\)。照抄公式之前一定先确认顺序，否则 6×6 矩阵的各个分块会全部错位。</p>
+    <p data-lang="en">Throughout this lesson a twist puts <b>rotation first</b>: \(\boldsymbol\xi = (\boldsymbol\omega, \mathbf v)\), matching Lynch &amp; Park's <i>Modern Robotics</i> and the course code <code>R101.M.expSE3 / logSE3</code>. Many texts and libraries put <b>translation first</b> instead, for example Barfoot's book, the paper by Solà et al. and the Sophus library, writing \((\boldsymbol\rho, \boldsymbol\phi)\) or \((\mathbf v, \boldsymbol\omega)\). Check the ordering before copying any formula, or every block of a 6×6 matrix ends up in the wrong place.</p>
+  </div>
+  <div data-lang="zh">
+    <p>让一个恒定的 twist 作用 1 秒，物体会怎样运动？答案出奇地简单，这就是 <b>Chasles 定理</b>：<b>任何刚体运动都是螺旋运动</b>。物体绕某根固定的轴转动，同时沿这根轴滑动，就像拧螺丝。这根轴叫<b>螺旋轴</b>；每转 1 弧度沿轴前进的距离叫<b>螺距 \(h\)</b>。有两个特例：\(h = 0\) 是纯转动，而且转轴不一定过原点，比如门绕铰链转；\(\boldsymbol\omega = 0\) 是纯平移，可以看成螺旋轴在无穷远处。</p>
+    <p>下面的实验室里，拖动 6 个滑块改变 twist，或者点一个预设。紫色虚线是螺旋轴，黄色曲线是物体原点走过的路径。</p>
+  </div>
+  <div data-lang="en">
+    <p>Apply a constant twist for one second: how does the body move? The answer is surprisingly simple, and it is <b>Chasles' theorem</b>: <b>every rigid motion is a screw motion</b>. The body turns about a fixed axis while sliding along that same axis, like a screw being driven. The axis is the <b>screw axis</b>; the distance advanced along it per radian turned is the <b>pitch \(h\)</b>. There are two special cases. \(h = 0\) is a pure rotation, and the axis need not pass through the origin (think of a door on its hinge). \(\boldsymbol\omega = 0\) is a pure translation, which you can think of as a screw axis at infinity.</p>
+    <p>In the lab below, drag the six sliders to change the twist, or pick a preset. The dashed purple line is the screw axis and the amber curve is the path of the body's origin.</p>
+  </div>
+
+  <figure class="fig bleed" id="fig-twist">
+    <div class="fig-head"><span class="fig-kind">FIG 3</span><span class="fig-title"><span data-lang="zh">Twist 实验室：exp(sξ) 是一次螺旋运动</span><span data-lang="en">Twist lab: exp(sξ) is a screw motion</span></span><span class="spacer"></span><button class="btn sm" id="tw-play">▶ <span data-lang="zh">s: 0 → 1</span><span data-lang="en">s: 0 → 1</span></button></div>
+    <div class="fig-body split">
+      <div class="canvas-wrap" id="tw-canvas"><span class="overlay-label"><span data-lang="zh">拖动画面旋转视角</span><span data-lang="en">drag to orbit</span></span></div>
+      <div class="fig-side">
+        <div class="katex-live" id="tw-tex-xi"></div>
+        <div class="katex-live" id="tw-tex-T"></div>
+        <div class="readout" id="tw-read"></div>
+        <div><div class="small muted" style="margin-bottom:6px"><span data-lang="zh">预设</span><span data-lang="en">Presets</span></div><div class="presets" id="tw-presets"></div></div>
+      </div>
+    </div>
+    <div class="fig-controls" id="tw-ctl-w"></div>
+    <div class="fig-controls" id="tw-ctl-v"></div>
+    <div class="fig-controls" id="tw-ctl-s"></div>
+    <figcaption class="fig-cap">
+      <span data-lang="zh">灰色线框是起点（单位位姿），实心盒子是 \(\exp(s\boldsymbol\xi)\)。紫色点 \(\mathbf q\) 是螺旋轴上离原点最近的点，青色细线是盒子一个角走过的路径。注意 \(\mathbf v\) <b>不是</b>物体原点的速度，而是"此刻恰好位于世界原点的那个物体点"的速度；只有 \(\boldsymbol\omega = 0\) 时两者才相同。</span>
+      <span data-lang="en">The grey wireframe is the start (identity pose); the solid box is \(\exp(s\boldsymbol\xi)\). The purple point \(\mathbf q\) is the point of the screw axis closest to the origin, and the thin cyan curve is the path of one corner of the box. Note that \(\mathbf v\) is <b>not</b> the velocity of the body's origin: it is the velocity of whichever body point currently sits at the world origin. The two agree only when \(\boldsymbol\omega = 0\).</span>
+    </figcaption>
+  </figure>
+
+  <div class="tasks-title"><span data-lang="zh">试一试</span><span data-lang="en">Try this</span></div>
+  <ul class="tasks">
+    <li data-task="trans"><span><span data-lang="zh">用滑块做出一个<b>纯平移</b>。这时螺旋轴去哪了？</span><span data-lang="en">With the sliders, make a <b>pure translation</b>. Where did the screw axis go?</span></span></li>
+    <li data-task="pitch0"><span><span data-lang="zh">让 \(\boldsymbol\omega \ne 0\)，同时螺距<b>恰好为 0</b>，并且转轴<b>不过原点</b>（\(\|\mathbf q\| &gt; 0.3\)）。提示：\(\mathbf v\) 和 \(\boldsymbol\omega\) 应该是什么关系？</span><span data-lang="en">Keep \(\boldsymbol\omega \ne 0\) but make the pitch <b>exactly 0</b>, with an axis that <b>misses the origin</b> (\(\|\mathbf q\| &gt; 0.3\)). Hint: how should \(\mathbf v\) relate to \(\boldsymbol\omega\)?</span></span></li>
+    <li data-task="loop"><span><span data-lang="zh">让盒子在 \(s = 1\) 时<b>回到起点</b>，但中途确实在动（\(\boldsymbol\xi \ne 0\)）。于是 \(\exp(\boldsymbol\xi) = I\) 却 \(\boldsymbol\xi \ne 0\)，这对 log 意味着什么？</span><span data-lang="en">Make the box <b>end where it started</b> at \(s = 1\) while really moving in between (\(\boldsymbol\xi \ne 0\)). So \(\exp(\boldsymbol\xi) = I\) with \(\boldsymbol\xi \ne 0\): what does that mean for log?</span></span></li>
+  </ul>
+</section>
+
+<!-- ============ 4. LOG ============ -->
+<section class="step" id="log">
+  <h2><span class="n">4</span><span data-lang="zh">反过来：对数映射与插值</span><span data-lang="en">The way back: the log map and interpolation</span></h2>
+  <div data-lang="zh">
+    <p>对数映射回答反问题：给定一个目标位姿 \(T\)，<b>用哪个恒定的 twist 恰好 1 秒到达？</b>答案是 \(\boldsymbol\xi = \Log(T)\)。由 Chasles 定理，这样的螺旋运动一定存在。</p>
+    <p>有了它，插值就很自然：\(T(s) = \Exp(s\,\Log T)\)，\(s\) 从 0 走到 1。这是"以恒定速度从起点走到终点"，路上的每一刻都是合法位姿。拿它和 5.4 节的天真做法比一比：把矩阵元素直接线性插值，\((1-s)I + sT\)。中间那些"位姿"会缩小、剪切，旋转部分已经不是旋转矩阵了。</p>
+  </div>
+  <div data-lang="en">
+    <p>The logarithm answers the reverse question: given a target pose \(T\), <b>which constant twist gets you there in exactly one second?</b> The answer is \(\boldsymbol\xi = \Log(T)\). Chasles' theorem guarantees such a screw motion exists.</p>
+    <p>With it, interpolation becomes natural: \(T(s) = \Exp(s\,\Log T)\) as \(s\) runs from 0 to 1. This means "travel from start to goal at constant velocity", and every intermediate pose is a valid pose. Compare that with the naive approach from Lesson 5.4, linear interpolation of the matrix entries, \((1-s)I + sT\). The in-between "poses" shrink and shear, and their rotation part is no longer a rotation matrix.</p>
+  </div>
+
+  <figure class="fig bleed" id="fig-interp">
+    <div class="fig-head"><span class="fig-kind">FIG 4</span><span class="fig-title"><span data-lang="zh">Log 与插值：沿螺旋走 vs. 逐元素插值</span><span data-lang="en">Log and interpolation: along the screw vs. entry by entry</span></span><span class="spacer"></span><button class="btn sm" id="li-play">▶ <span data-lang="zh">s: 0 → 1</span><span data-lang="en">s: 0 → 1</span></button></div>
+    <div class="fig-body two">
+      <div class="canvas-wrap" id="li-geo"><span class="overlay-label"><span data-lang="zh">Exp(s · Log T)：沿螺旋走</span><span data-lang="en">Exp(s · Log T) · along the screw</span></span></div>
+      <div class="canvas-wrap" id="li-lin"><span class="overlay-label"><span data-lang="zh">(1−s) I + s T：逐元素插值</span><span data-lang="en">(1−s) I + s T · entry by entry</span></span></div>
+    </div>
+    <div class="fig-body"><div class="fig-side" style="border:0;border-top:1px solid var(--border)"><div class="katex-live" id="li-log"></div></div></div>
+    <div class="fig-body two" style="border-top:1px solid var(--border)">
+      <div class="fig-side" style="border:0"><div class="readout" id="li-read-g"></div></div>
+      <div class="fig-side" style="border-left:1px solid var(--border)"><div class="readout" id="li-read-l"></div></div>
+    </div>
+    <div class="fig-controls" id="li-ctl-r"></div>
+    <div class="fig-controls" id="li-ctl-t"></div>
+    <div class="fig-controls" id="li-ctl-s"></div>
+    <figcaption class="fig-cap">
+      <span data-lang="zh">先用滑块设定目标位姿 \(T\)（淡色坐标系），再拖动 \(s\) 或点播放。两边的视角是联动的。左边的坐标系始终保持单位长度、互相垂直；右边的坐标系在中途变短、变斜，行列式小于 1。</span>
+      <span data-lang="en">Set the target pose \(T\) (faint frame) with the sliders, then drag \(s\) or press play. The two views share one camera. On the left the frame keeps unit, perpendicular axes; on the right it shrinks and skews mid-way and its determinant drops below 1.</span>
+    </figcaption>
+  </figure>
+  <ul class="tasks"><li data-task="collapse"><span><span data-lang="zh">找一个目标姿态，让右边的逐元素插值在中途<b>塌成一个平面</b>（\(\det \approx 0\)）。这需要转多少度？</span><span data-lang="en">Find a target orientation for which the entry-by-entry interpolation on the right <b>collapses to a plane</b> mid-way (\(\det \approx 0\)). How large a rotation does that take?</span></span></li></ul>
+  <div data-lang="zh">
+    <p>在两个任意位姿 \(T_a, T_b\) 之间插值也是同一个思路：先算出从 \(T_a\) 看过去的相对运动，再沿它匀速走，即 \(T(s) = T_a\,\Exp\big(s\,\Log(T_a^{-1}T_b)\big)\)。5.9 节会用它来平滑轨迹、对位姿求平均。</p>
+  </div>
+  <div data-lang="en">
+    <p>Interpolating between two arbitrary poses \(T_a, T_b\) works the same way: take the relative motion as seen from \(T_a\) and walk along it at constant speed, \(T(s) = T_a\,\Exp\big(s\,\Log(T_a^{-1}T_b)\big)\). Lesson 5.9 uses this to smooth trajectories and to average poses.</p>
+  </div>
+</section>
+
+<!-- ============ 5. MATH ============ -->
+<section class="step" id="math">
+  <h2><span class="n">5</span><span data-lang="zh">再看数学</span><span data-lang="en">The math</span></h2>
+  <p class="hl-hint"><span data-lang="zh">提示：把鼠标悬停在公式中带底色的符号上，FIG 2 或 FIG 3 中对应的元素会被高亮。</span><span data-lang="en">Tip: hover the highlighted symbols in the formulas; the matching element in FIG 2 or FIG 3 lights up.</span></p>
+
+  <h3><span data-lang="zh">矩阵指数 = 恒定速度</span><span data-lang="en">The matrix exponential = constant velocity</span></h3>
+  <p data-lang="zh">对任意方阵 \(A\)，级数 \(\exp(A) = \sum_n A^n/n!\) 总是收敛的。逐项求导，可以得到它最重要的性质：</p>
+  <p data-lang="en">For any square matrix \(A\) the series \(\exp(A) = \sum_n A^n/n!\) always converges. Differentiating term by term gives its most important property:</p>
+  <div class="math-card">$$ \frac{d}{dt}\exp(tA) = A\,\exp(tA) = \exp(tA)\,A, \qquad \exp(0) = I. $$</div>
+  <p data-lang="zh">也就是说，\(X(t) = \exp(tA)\) 是微分方程 \(\dot X = XA\) 从 \(I\) 出发的解，而 \(X^{-1}\dot X = A\) 恒定不变：这正是"以恒定速度 \(A\) 运动"。集合 \(\{\exp(tA)\}_{t\in\R}\) 叫<b>一参数子群</b>，可以看成群里的"直线"。</p>
+  <p data-lang="en">So \(X(t) = \exp(tA)\) solves \(\dot X = XA\) starting from \(I\), and \(X^{-1}\dot X = A\) never changes: that is exactly "moving at constant velocity \(A\)". The set \(\{\exp(tA)\}_{t\in\R}\) is called a <b>one-parameter subgroup</b>, the group's version of a straight line.</p>
+
+  <h3><span data-lang="zh">大写 Exp 与小写 exp</span><span data-lang="en">Capital Exp vs. lowercase exp</span></h3>
+  <p data-lang="zh">小写 \(\exp\) 作用在李代数的<b>矩阵</b>上；大写 \(\Exp\) 直接吃一个<b>向量</b>，先用 hat 变成矩阵（5.5 节），再取 \(\exp\)。\(\Log\) 则是先取 \(\log\)，再用 vee 读出向量：</p>
+  <p data-lang="en">Lowercase \(\exp\) acts on <b>matrices</b> in the Lie algebra; capital \(\Exp\) takes a <b>vector</b>, applies hat (Lesson 5.5), then \(\exp\). \(\Log\) takes \(\log\) and then reads off the vector with vee:</p>
+  <div class="math-card">$$ \R^3 \xrightarrow{\;(\cdot)^\wedge\;} \so \xrightarrow{\;\exp\;} \SO, \qquad \Exp(\boldsymbol\omega) = \exp(\skew{\boldsymbol\omega}), \qquad \Log(R) = \log(R)^\vee. $$</div>
+
+  <h3><span data-lang="zh">SO(3)：Rodrigues 公式</span><span data-lang="en">SO(3): the Rodrigues formula</span></h3>
+  <p data-lang="zh">设 \(\boldsymbol\omega = \theta\hat{\mathbf u}\)，记 \(K = \skew{\hat{\mathbf u}}\)。由叉积的性质（1.8 节）可以验证 \(K^3 = -K\)，于是 \(K\) 的高次幂只剩 \(K\) 和 \(K^2\) 两种，无穷级数也就合并成了两项：</p>
+  <p data-lang="en">Let \(\boldsymbol\omega = \theta\hat{\mathbf u}\) and \(K = \skew{\hat{\mathbf u}}\). From the cross product (Lesson 1.8) one checks \(K^3 = -K\), so every power of \(K\) reduces to \(K\) or \(K^2\), and the infinite series collapses into two terms:</p>
+  <div class="math-card">$$ \begin{aligned} \Exp(\hl{theta}{\theta}\,\hl{u}{\cw{\hat{\mathbf u}}}) &= I + \Big(\theta - \tfrac{\theta^3}{3!} + \cdots\Big)K + \Big(\tfrac{\theta^2}{2!} - \tfrac{\theta^4}{4!} + \cdots\Big)K^2 \\ &= I + \sin\theta\,\skew{\hat{\mathbf u}} + (1-\cos\theta)\,\skew{\hat{\mathbf u}}^2. \end{aligned} $$</div>
+  <p data-lang="zh">反过来，由 \(\operatorname{tr} R = 1 + 2\cos\theta\) 和 \(R - R\T = 2\sin\theta\,\skew{\hat{\mathbf u}}\) 可以读出转角和转轴（取主值 \(\theta \in [0, \pi]\)）：</p>
+  <p data-lang="en">In reverse, \(\operatorname{tr} R = 1 + 2\cos\theta\) and \(R - R\T = 2\sin\theta\,\skew{\hat{\mathbf u}}\) give back the angle and the axis (principal value \(\theta \in [0, \pi]\)):</p>
+  <div class="math-card">$$ \theta = \arccos\frac{\operatorname{tr} R - 1}{2}, \qquad \skew{\hat{\mathbf u}} = \frac{R - R\T}{2\sin\theta}, \qquad \Log(R) = \theta\,\hat{\mathbf u}. $$</div>
+
+  <h3><span data-lang="zh">SE(3)：带平移的指数映射</span><span data-lang="en">SE(3): the exponential with translation</span></h3>
+  <p data-lang="zh">twist \(\boldsymbol\xi = (\boldsymbol\omega, \mathbf v)\) 的 hat 是一个 4×4 矩阵。它的指数里，旋转部分就是 Rodrigues；平移部分是 \(\mathbf v\) 乘上一个矩阵 \(V\)，\(V\) 把"边转边走"累积下来的位移算了进去：</p>
+  <p data-lang="en">The hat of a twist \(\boldsymbol\xi = (\boldsymbol\omega, \mathbf v)\) is a 4×4 matrix. In its exponential the rotation block is Rodrigues again, and the translation is \(\mathbf v\) multiplied by a matrix \(V\), which accounts for the displacement accumulated while turning:</p>
+  <div class="math-card">$$ \boldsymbol\xi^\wedge = \begin{bmatrix} \skew{\boldsymbol\omega} & \mathbf v \\ \mathbf 0\T & 0 \end{bmatrix}, \qquad \Exp(\boldsymbol\xi) = \begin{bmatrix} \Exp(\boldsymbol\omega) & V\mathbf v \\ \mathbf 0\T & 1 \end{bmatrix}, $$ $$ V = I + \frac{1-\cos\theta}{\theta^2}\skew{\boldsymbol\omega} + \frac{\theta - \sin\theta}{\theta^3}\skew{\boldsymbol\omega}^2. $$</div>
+  <p data-lang="zh">求 \(\Log(T)\) 时，先 \(\boldsymbol\omega = \Log(R)\)，再解 \(\mathbf v = V^{-1}\mathbf t\)。\(V^{-1}\) 也有闭式解，课程代码 <code>R101.M.logSE3</code> 里就是这么写的。</p>
+  <p data-lang="en">To compute \(\Log(T)\), first take \(\boldsymbol\omega = \Log(R)\), then solve \(\mathbf v = V^{-1}\mathbf t\). \(V^{-1}\) has a closed form too; that is what the course code <code>R101.M.logSE3</code> uses.</p>
+
+  <h3><span data-lang="zh">螺旋参数（Chasles 定理）</span><span data-lang="en">Screw parameters (Chasles' theorem)</span></h3>
+  <p data-lang="zh">当 \(\boldsymbol\omega \ne 0\) 时，把 \(\mathbf v\) 拆成垂直于 \(\boldsymbol\omega\) 和平行于 \(\boldsymbol\omega\) 的两部分：</p>
+  <p data-lang="en">When \(\boldsymbol\omega \ne 0\), split \(\mathbf v\) into the parts perpendicular and parallel to \(\boldsymbol\omega\):</p>
+  <div class="math-card">$$ \hl{v}{\cv{\mathbf v}} = \underbrace{-\hl{w}{\cw{\boldsymbol\omega}}\times\hl{q}{\mathbf q}}_{\perp\,\boldsymbol\omega} + \underbrace{\hl{h}{h}\,\boldsymbol\omega}_{\parallel\,\boldsymbol\omega}, \qquad \hl{q}{\mathbf q} = \frac{\boldsymbol\omega\times\mathbf v}{\|\boldsymbol\omega\|^2}, \qquad \hl{h}{h} = \frac{\boldsymbol\omega\cdot\mathbf v}{\|\boldsymbol\omega\|^2}. $$</div>
+  <p data-lang="zh">读法：绕过点 \(\mathbf q\)、方向为 \(\hat{\boldsymbol\omega}\) 的轴转 \(\theta = \|\boldsymbol\omega\|\)，同时沿轴前进 \(h\theta\)。\(\mathbf v \perp \boldsymbol\omega\) 时 \(h = 0\)，是纯转动；\(\boldsymbol\omega = 0\) 时是纯平移。任何 \(T \in \SE\) 都有一个 \(\Log\)，所以任何刚体运动都是某个螺旋运动。这就是 Chasles 定理。</p>
+  <p data-lang="en">Read it as: turn by \(\theta = \|\boldsymbol\omega\|\) about the axis through \(\mathbf q\) with direction \(\hat{\boldsymbol\omega}\), while advancing \(h\theta\) along it. If \(\mathbf v \perp \boldsymbol\omega\) then \(h = 0\) and it is a pure rotation; if \(\boldsymbol\omega = 0\) it is a pure translation. Every \(T \in \SE\) has a \(\Log\), so every rigid motion is some screw motion. That is Chasles' theorem.</p>
+</section>
+
+<!-- ============ 6. ROBOTICS ============ -->
+<section class="step" id="robotics">
+  <h2><span class="n">6</span><span data-lang="zh">机器人中的它：陀螺仪积分</span><span data-lang="en">In robotics: integrating a gyro</span></h2>
+  <div data-lang="zh">
+    <p>IMU 的陀螺仪每隔 \(dt\) 报告一次<b>机体系</b>角速度 \(\boldsymbol\omega\)。在这一小段时间里把 \(\boldsymbol\omega\) 看作常数，姿态更新就是"以 \(\boldsymbol\omega\) 匀速转 \(dt\) 秒"，再右乘到当前姿态上（右乘表示在机体系里运动）。另一种写法是对微分方程 \(\dot R = R\skew{\boldsymbol\omega}\) 直接用欧拉法：</p>
+  </div>
+  <div data-lang="en">
+    <p>An IMU's gyro reports the <b>body-frame</b> angular velocity \(\boldsymbol\omega\) every \(dt\) seconds. Treat \(\boldsymbol\omega\) as constant over that short interval and the update is "spin at \(\boldsymbol\omega\) for \(dt\) seconds", multiplied onto the current orientation from the right (right multiplication means motion in the body frame). The alternative is plain Euler integration of the differential equation \(\dot R = R\skew{\boldsymbol\omega}\):</p>
+  </div>
+  <div class="math-card">$$ \underbrace{R_{k+1} = R_k\,\Exp(\boldsymbol\omega\,dt)}_{\Exp} \qquad\text{vs.}\qquad \underbrace{R_{k+1} = R_k + R_k\skew{\boldsymbol\omega}\,dt = R_k\big(I + \skew{\boldsymbol\omega}dt\big)}_{\text{Euler}} $$</div>
+  <div data-lang="zh">
+    <p>欧拉法只取了 \(\Exp\) 级数的前两项，也就是 FIG 1 里切线上的那个点。每一步都把 \(R\) 往 \(\SO\) 外面推一点，误差还会逐步累积。下面两种方法用的是同样的 \(dt\) 和同样的陀螺读数。</p>
+  </div>
+  <div data-lang="en">
+    <p>Euler keeps only the first two terms of the \(\Exp\) series, the tangent-line point of FIG 1. Every step pushes \(R\) a little off \(\SO\), and the errors pile up. Below, both methods use the same \(dt\) and the same gyro readings.</p>
+  </div>
+
+  <figure class="fig bleed" id="fig-gyro">
+    <div class="fig-head"><span class="fig-kind">FIG 5</span><span class="fig-title"><span data-lang="zh">陀螺仪积分：Exp vs. 欧拉法</span><span data-lang="en">Gyro integration: Exp vs. naive Euler</span></span><span class="spacer"></span><button class="btn sm" id="gy-play">▶ <span data-lang="zh">播放</span><span data-lang="en">Play</span></button></div>
+    <div class="fig-body two">
+      <div class="canvas-wrap" id="gy-3d"><span class="overlay-label"><span data-lang="zh">拖动画面旋转视角</span><span data-lang="en">drag to orbit</span></span></div>
+      <div class="canvas-wrap" id="gy-plot"></div>
+    </div>
+    <div class="fig-body two" style="border-top:1px solid var(--border)">
+      <div class="fig-side" style="border:0"><div class="readout" id="gy-read-e"></div></div>
+      <div class="fig-side" style="border-left:1px solid var(--border)"><div class="readout" id="gy-read-n"></div></div>
+    </div>
+    <div class="fig-controls" id="gy-controls"></div>
+    <figcaption class="fig-cap">
+      <span data-lang="zh">左：两个立方体以同一个机体角速度旋转，绿色用 \(\Exp\) 更新，红色用欧拉法更新；红色旁边的淡色坐标系是真实姿态。右：上图是正交性误差 \(\|R\T R - I\|_F\)（对数坐标），下图是 \(\det R\)。在图上拖动可以调整时间。\(\Exp\) 的误差一直停在机器精度（约 \(10^{-15}\)）附近。</span>
+      <span data-lang="en">Left: two cubes spin with the same body angular velocity; green is updated with \(\Exp\), red with naive Euler, and the faint frame next to the red cube is the true orientation. Right: the top plot is the orthogonality error \(\|R\T R - I\|_F\) (log scale) and the bottom one is \(\det R\). Drag on the plot to scrub time. The \(\Exp\) error stays at machine precision (about \(10^{-15}\)).</span>
+    </figcaption>
+  </figure>
+
+  <div class="callout robot">
+    <div class="ct"><span data-lang="zh">真实系统里</span><span data-lang="en">In real systems</span></div>
+    <p data-lang="zh"><b>IMU 预积分</b>（视觉惯性里程计的标准做法）把两帧图像之间几百个陀螺读数连乘成 \(\Delta R = \prod_k \Exp(\boldsymbol\omega_k\,dt)\)。<b>流形上的优化器</b>（Ceres 的 Manifold、GTSAM 的 retract）在切空间里求出一个小增量 \(\boldsymbol\delta\)，再用 \(T \leftarrow T\,\Exp(\boldsymbol\delta)\) 更新，这样每一步都留在群上（5.7、6.10 节）。<b>机械臂</b>的转动关节是螺距为 0 的 twist，移动关节是纯平移 twist，正运动学就是把各关节的 \(\Exp(\boldsymbol\xi_i\theta_i)\) 连乘起来（指数积公式，5.10 节）。</p>
+    <p data-lang="en"><b>IMU preintegration</b>, standard in visual-inertial odometry, chains the hundreds of gyro samples between two camera frames into \(\Delta R = \prod_k \Exp(\boldsymbol\omega_k\,dt)\). <b>Optimizers on manifolds</b> (Ceres' Manifold, GTSAM's retract) solve for a small increment \(\boldsymbol\delta\) in the tangent space and update with \(T \leftarrow T\,\Exp(\boldsymbol\delta)\), so every step stays on the group (Lessons 5.7 and 6.10). In a <b>robot arm</b>, a revolute joint is a twist of pitch 0 and a prismatic joint is a pure-translation twist; forward kinematics is the product of the joints' \(\Exp(\boldsymbol\xi_i\theta_i)\) (the product-of-exponentials formula, Lesson 5.10).</p>
+  </div>
+</section>
+
+<!-- ============ 7. PITFALLS ============ -->
+<section class="step" id="pitfalls">
+  <h2><span class="n">7</span><span data-lang="zh">常见误区</span><span data-lang="en">Common pitfalls</span></h2>
+  <div class="callout pitfall">
+    <div class="ct"><span data-lang="zh">误区 1：以为 log 是唯一的</span><span data-lang="en">Pitfall 1: assuming log is unique</span></div>
+    <p data-lang="zh">exp 会"绕圈"：\(\theta\) 和 \(\theta + 2\pi\) 给出同一个旋转（FIG 1 的任务），\(\theta = 2\pi\) 的螺旋运动甚至可以回到原点（FIG 3 的任务）。\(\Log\) 只返回<b>主值</b> \(\theta \in [0, \pi]\)，转 270° 会被报告成反方向转 90°。在 \(\theta = \pi\) 处，\(\hat{\mathbf u}\) 和 \(-\hat{\mathbf u}\) 都对。对角度序列做插值或求平均时，要先"解缠绕 (unwrap)"。</p>
+    <p data-lang="en">exp wraps around: \(\theta\) and \(\theta + 2\pi\) give the same rotation (the FIG 1 task), and a \(\theta = 2\pi\) screw motion can even return to the start (the FIG 3 task). \(\Log\) returns only the <b>principal value</b> \(\theta \in [0, \pi]\), so a 270° turn is reported as 90° the other way. At \(\theta = \pi\), both \(\hat{\mathbf u}\) and \(-\hat{\mathbf u}\) are valid. Unwrap angle sequences before interpolating or averaging them.</p>
+  </div>
+  <div class="callout pitfall">
+    <div class="ct"><span data-lang="zh">误区 2：直接照公式算，不管 θ ≈ 0 和 θ ≈ π</span><span data-lang="en">Pitfall 2: coding the formulas verbatim near θ ≈ 0 and θ ≈ π</span></div>
+    <p data-lang="zh">\(\sin\theta/\theta\)、\((1-\cos\theta)/\theta^2\) 在 \(\theta \to 0\) 时是 0/0，要改用泰勒展开（例如 \(1 - \theta^2/6\)）。\(\Log\) 里的 \(1/(2\sin\theta)\) 在 \(\theta \to \pi\) 时会爆掉，这时要改从 \((R + I)/2 \approx \hat{\mathbf u}\hat{\mathbf u}\T\) 的最大对角元读出转轴，再用 \(R - R\T\) 确定正负号。\(\arccos\) 的参数也要先截断到 \([-1, 1]\)。</p>
+    <p data-lang="en">\(\sin\theta/\theta\) and \((1-\cos\theta)/\theta^2\) are 0/0 as \(\theta \to 0\); switch to Taylor expansions (e.g. \(1 - \theta^2/6\)). The \(1/(2\sin\theta)\) in \(\Log\) blows up as \(\theta \to \pi\); there, read the axis from the largest diagonal entry of \((R + I)/2 \approx \hat{\mathbf u}\hat{\mathbf u}\T\) and fix its sign with \(R - R\T\). Also clamp the argument of \(\arccos\) to \([-1, 1]\).</p>
+  </div>
+  <div class="callout pitfall">
+    <div class="ct"><span data-lang="zh">误区 3：以为 Exp(a) Exp(b) = Exp(a + b)</span><span data-lang="en">Pitfall 3: assuming Exp(a) Exp(b) = Exp(a + b)</span></div>
+    <p data-lang="zh">只有 \(\mathbf a\) 与 \(\mathbf b\) 平行（同一根轴）时才成立。三维旋转不交换，先绕 x 转再绕 y 转，和反过来不一样。一般情况要用 BCH 公式：\(\Log(\Exp(\mathbf a)\Exp(\mathbf b)) = \mathbf a + \mathbf b + \tfrac12\,\mathbf a \times \mathbf b + \cdots\)，5.7 节会用到它的一阶近似。</p>
+    <p data-lang="en">It holds only when \(\mathbf a\) and \(\mathbf b\) are parallel (same axis). 3D rotations do not commute: x then y differs from y then x. In general you need the BCH formula, \(\Log(\Exp(\mathbf a)\Exp(\mathbf b)) = \mathbf a + \mathbf b + \tfrac12\,\mathbf a \times \mathbf b + \cdots\), whose first-order form Lesson 5.7 relies on.</p>
+  </div>
+  <div class="callout pitfall">
+    <div class="ct"><span data-lang="zh">误区 4：左乘和右乘随便用</span><span data-lang="en">Pitfall 4: left and right multiplication used interchangeably</span></div>
+    <p data-lang="zh">\(T\,\Exp(\boldsymbol\xi)\) 表示在<b>机体系</b>里按 \(\boldsymbol\xi\) 运动，\(\Exp(\boldsymbol\xi)\,T\) 表示在<b>世界系</b>里按 \(\boldsymbol\xi\) 运动，两者一般不相等。陀螺仪测的是机体系角速度，所以要右乘。如果写成左乘，转轴就错了，而且这种 bug 只在机器人倾斜时才会暴露出来。</p>
+    <p data-lang="en">\(T\,\Exp(\boldsymbol\xi)\) moves by \(\boldsymbol\xi\) in the <b>body</b> frame; \(\Exp(\boldsymbol\xi)\,T\) moves by \(\boldsymbol\xi\) in the <b>world</b> frame. In general they differ. A gyro measures body-frame rates, so it multiplies on the right. Write it on the left and the rotation axis is wrong, a bug that only shows up once the robot tilts.</p>
+  </div>
+  <div class="callout pitfall">
+    <div class="ct"><span data-lang="zh">误区 5：twist 分量的顺序</span><span data-lang="en">Pitfall 5: the ordering of twist components</span></div>
+    <p data-lang="zh">本课和 <i>Modern Robotics</i> 用 \((\boldsymbol\omega, \mathbf v)\)，Barfoot、Solà 和 Sophus 用 \((\mathbf v, \boldsymbol\omega)\)。把一个库的 6 维向量或 6×6 协方差、雅可比矩阵 (Jacobian) 交给另一个库之前，必须先重排。</p>
+    <p data-lang="en">This lesson and <i>Modern Robotics</i> use \((\boldsymbol\omega, \mathbf v)\); Barfoot, Solà and Sophus use \((\mathbf v, \boldsymbol\omega)\). Permute before you hand one library's 6-vectors, 6×6 covariances or Jacobians to another.</p>
+  </div>
+</section>
+
+<!-- ============ 8. QUIZ ============ -->
+<section class="step" id="quiz">
+  <h2><span class="n">8</span><span data-lang="zh">小练习</span><span data-lang="en">Check yourself</span></h2>
+
+  <div class="quiz" data-answer="2">
+    <div class="q"><span data-lang="zh">1. \(\Exp\big((0, 0, \pi/2)\big)\) 是什么旋转？</span><span data-lang="en">1. Which rotation is \(\Exp\big((0, 0, \pi/2)\big)\)?</span></div>
+    <div class="opts">
+      <button class="opt"><span data-lang="zh">绕 z 轴转 \(\pi/2\) 弧度的平方，约 141°</span><span data-lang="en">About z by \((\pi/2)^2\) rad, about 141°</span></button>
+      <button class="opt"><span data-lang="zh">绕 x 轴转 90°</span><span data-lang="en">90° about the x-axis</span></button>
+      <button class="opt"><span data-lang="zh">绕 z 轴转 90°</span><span data-lang="en">90° about the z-axis</span></button>
+      <button class="opt"><span data-lang="zh">它不是旋转矩阵</span><span data-lang="en">It is not a rotation matrix</span></button>
+    </div>
+    <div class="explain"><span data-lang="zh">旋转向量的方向是转轴 \((0,0,1)\)，长度是转角 \(\pi/2\)。由 Rodrigues 公式，\(\Exp\) 的结果一定是旋转矩阵。</span><span data-lang="en">The direction of the rotation vector is the axis \((0,0,1)\) and its length is the angle \(\pi/2\). By Rodrigues, \(\Exp\) always produces a rotation matrix.</span></div>
+  </div>
+
+  <div class="quiz" data-answer="1">
+    <div class="q"><span data-lang="zh">2. twist \(\boldsymbol\xi = (\boldsymbol\omega, \mathbf v)\)，其中 \(\boldsymbol\omega = (0,0,1)\)，\(\mathbf v = (0,0,0.5)\)。\(\exp(t\boldsymbol\xi)\) 是什么运动？</span><span data-lang="en">2. A twist \(\boldsymbol\xi = (\boldsymbol\omega, \mathbf v)\) has \(\boldsymbol\omega = (0,0,1)\) and \(\mathbf v = (0,0,0.5)\). What motion is \(\exp(t\boldsymbol\xi)\)?</span></div>
+    <div class="opts">
+      <button class="opt"><span data-lang="zh">绕 z 轴的纯转动</span><span data-lang="en">A pure rotation about the z-axis</span></button>
+      <button class="opt"><span data-lang="zh">沿 z 轴的螺旋运动，每转 1 弧度上升 0.5</span><span data-lang="en">A screw along the z-axis, rising 0.5 per radian</span></button>
+      <button class="opt"><span data-lang="zh">沿 z 方向的纯平移</span><span data-lang="en">A pure translation along z</span></button>
+      <button class="opt"><span data-lang="zh">绕过点 (0.5, 0, 0) 的竖直轴的纯转动</span><span data-lang="en">A pure rotation about a vertical axis through (0.5, 0, 0)</span></button>
+    </div>
+    <div class="explain"><span data-lang="zh">\(h = \boldsymbol\omega\cdot\mathbf v/\|\boldsymbol\omega\|^2 = 0.5\)，\(\mathbf q = \boldsymbol\omega\times\mathbf v/\|\boldsymbol\omega\|^2 = \mathbf 0\)：螺旋轴就是 z 轴，螺距 0.5，像拧一颗螺丝。</span><span data-lang="en">\(h = \boldsymbol\omega\cdot\mathbf v/\|\boldsymbol\omega\|^2 = 0.5\) and \(\mathbf q = \boldsymbol\omega\times\mathbf v/\|\boldsymbol\omega\|^2 = \mathbf 0\): the screw axis is the z-axis with pitch 0.5, just like driving a screw.</span></div>
+  </div>
+
+  <div class="quiz" data-answer="3">
+    <div class="q"><span data-lang="zh">3. \(R\) 是绕 z 轴转 270°。标准的 \(\Log(R)\)（主值）返回什么？</span><span data-lang="en">3. \(R\) is a 270° rotation about z. What does the standard (principal) \(\Log(R)\) return?</span></div>
+    <div class="opts">
+      <button class="opt">\((0, 0, 3\pi/2)\)</button>
+      <button class="opt">\((0, 0, \pi/2)\)</button>
+      <button class="opt">\((0, 0, 0)\)</button>
+      <button class="opt">\((0, 0, -\pi/2)\)</button>
+    </div>
+    <div class="explain"><span data-lang="zh">主值要求 \(\theta \in [0, \pi]\)。绕 z 转 270° 和绕 z 转 −90°（等价于绕 −z 转 90°）是同一个旋转，所以 \(\Log\) 给出 \((0,0,-\pi/2)\)。\((0,0,3\pi/2)\) 也满足 \(\Exp = R\)，但它不是主值。</span><span data-lang="en">The principal value has \(\theta \in [0, \pi]\). A 270° turn about z is the same rotation as −90° about z (i.e. 90° about −z), so \(\Log\) gives \((0,0,-\pi/2)\). \((0,0,3\pi/2)\) also satisfies \(\Exp = R\), but it is not the principal value.</span></div>
+  </div>
+
+  <div class="quiz" data-answer="0">
+    <div class="q"><span data-lang="zh">4. 用 \(R_{k+1} = R_k\,\Exp(\boldsymbol\omega\,dt)\) 积分陀螺仪，而不用 \(R_k + R_k\skew{\boldsymbol\omega}dt\)，主要好处是什么？</span><span data-lang="en">4. What is the main advantage of integrating a gyro with \(R_{k+1} = R_k\,\Exp(\boldsymbol\omega\,dt)\) instead of \(R_k + R_k\skew{\boldsymbol\omega}dt\)?</span></div>
+    <div class="opts">
+      <button class="opt"><span data-lang="zh">每一步的结果都严格留在 \(\SO\) 中，而且在 \(\boldsymbol\omega\) 恒定时是精确解</span><span data-lang="en">Every step stays exactly in \(\SO\), and it is exact when \(\boldsymbol\omega\) is constant</span></button>
+      <button class="opt"><span data-lang="zh">它能自动消除陀螺仪的零偏</span><span data-lang="en">It automatically removes the gyro bias</span></button>
+      <button class="opt"><span data-lang="zh">它的计算量比欧拉法小</span><span data-lang="en">It is cheaper to compute than Euler</span></button>
+    </div>
+    <div class="explain"><span data-lang="zh">\(\Exp\) 的输出一定是旋转矩阵，乘积也一定是旋转矩阵；欧拉法每一步都会让 \(\det R\) 增大、各列不再正交。零偏需要另外估计（例如放进 EKF 的状态里），\(\Exp\) 也比加法稍贵一点。</span><span data-lang="en">\(\Exp\) always outputs a rotation matrix, and so does any product of them; Euler inflates \(\det R\) and breaks the orthogonality of the columns at every step. Bias must be estimated separately (e.g. in an EKF state), and \(\Exp\) is slightly more expensive than an addition.</span></div>
+  </div>
+</section>
+
+<!-- ============ 9. READING ============ -->
+<section class="step" id="reading">
+  <h2><span class="n">9</span><span data-lang="zh">延伸阅读</span><span data-lang="en">Further reading</span></h2>
+  <ul class="reading">
+    <li>K. Lynch &amp; F. Park, <a href="https://hades.mech.northwestern.edu/index.php/Modern_Robotics" target="_blank" rel="noopener"><i>Modern Robotics</i></a>, Ch. 3 — <span data-lang="zh">指数坐标、twist、螺旋运动；本课的 (ω, v) 顺序与它一致</span><span data-lang="en">exponential coordinates, twists and screw motion; uses the same (ω, v) ordering as this lesson</span></li>
+    <li>J. Solà, J. Deray, D. Atchuthan, <a href="https://arxiv.org/abs/1812.01537" target="_blank" rel="noopener">"A micro Lie theory for state estimation in robotics"</a>, arXiv:1812.01537 — <span data-lang="zh">Exp/Log、⊕/⊖ 和雅可比矩阵的简明手册（平移在前）</span><span data-lang="en">a compact handbook of Exp/Log, ⊕/⊖ and Jacobians (translation first)</span></li>
+    <li>T. Barfoot, <i>State Estimation for Robotics</i>, Ch. 7 (Matrix Lie Groups) — <span data-lang="zh">SO(3)/SE(3) 的指数映射、雅可比与不确定性</span><span data-lang="en">exponential maps, Jacobians and uncertainty on SO(3)/SE(3)</span></li>
+    <li>E. Eade, <i>Lie Groups for 2D and 3D Transformations</i> — <span data-lang="zh">简短的技术笔记，含所有闭式公式及其数值稳定写法</span><span data-lang="en">a short technical note with every closed form and its numerically safe version</span></li>
+  </ul>
+</section>
+
+</article>
+</main>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/katex@0.16.22/dist/katex.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/katex@0.16.22/dist/contrib/auto-render.min.js"></script>
+<script src="../assets/syllabus.js"></script>
+<script src="../assets/math.js"></script>
+<script src="../assets/course.js"></script>
+<script src="../assets/viz2d.js"></script>
+<script src="../assets/viz3d.js"></script>
+<script>
+R101.onReady(function () {
+  const { M, ui, L } = R101;
+  const D2R = Math.PI / 180, TAU = 2 * Math.PI;
+  const I3 = M.eye(3);
+  const near = (A, B, tol) => A.every((r, i) => r.every((x, j) => Math.abs(x - B[i][j]) < tol));
+  const deg = x => M.fmt(x / D2R, 1) + '°';
+
+  // Log on SO(3) with a sign fix near θ = π (the shared M.logSO3 picks the axis sign
+  // from the diagonal only, which flips the rotation when π − θ is tiny but non-zero).
+  function logSO3(R) {
+    const w = M.logSO3(R), th = M.norm(w);
+    if (th > Math.PI - 1e-3) {
+      const s = M.vee(M.madd(R, M.mscale(M.T(R), -1)));
+      if (M.dot(s, w) < 0) return M.scale(w, -1);
+    }
+    return w;
+  }
+  function logSE3(T) {
+    const w = logSO3(T.R), th = M.norm(w), W = M.hat(w), W2 = M.mul(W, W);
+    const D = th < 1e-6 ? 1 / 12 : (1 - (th * Math.sin(th)) / (2 * (1 - Math.cos(th)))) / (th * th);
+    const Vinv = M.madd(M.madd(I3, M.mscale(W, -0.5)), M.mscale(W2, D));
+    return w.concat(M.mv(Vinv, T.t));
+  }
+  const tex4 = T => M.texMat([T.R[0].concat(T.t[0]), T.R[1].concat(T.t[1]), T.R[2].concat(T.t[2]), [0, 0, 0, 1]]);
+  const texRow = (v, d = 2) => v.map(x => M.tex(x, d)).join(',\\,');
+
+  // a box drawn as six translucent faces: corners off ± half, mapped by x ↦ A x + t
+  const FACES = [[0, 1, 3, 2], [4, 5, 7, 6], [0, 1, 5, 4], [2, 3, 7, 6], [0, 2, 6, 4], [1, 3, 7, 5]];
+  function boxCorners(A, t, half, off) {
+    const P = [];
+    for (let i = 0; i < 8; i++) {
+      const l = [off[0] + (i & 1 ? half[0] : -half[0]), off[1] + (i & 2 ? half[1] : -half[1]), off[2] + (i & 4 ? half[2] : -half[2])];
+      P.push(M.add(M.mv(A, l), t));
+    }
+    return P;
+  }
+  function drawBox(V, A, t, half, off, o = {}) {
+    const P = boxCorners(A, t, half, off);
+    FACES.forEach(f => V.poly(f.map(k => P[k]), { fill: o.fill, fillAlpha: o.fillAlpha != null ? o.fillAlpha : 0.16, stroke: o.stroke || 'x', alpha: o.alpha != null ? o.alpha : 0.85, width: o.width || 1.2 }));
+  }
+
+  /* ---------------- FIG 1: SO(2) wrapping & power series ---------------- */
+  (function () {
+    let th = 2.2, n = 3, mode = 'wrap', wrapK = 1, anim = null;
+    const subs = k => String(k).split('').map(d => '₀₁₂₃₄₅₆₇₈₉'[+d]).join('');
+    const P = new R101.Plane2D('#so2-canvas', { height: 430, view: { cx: 0.4, cy: 0, span: 5 }, draw });
+    const strPt = (s, a) => (Math.abs(s) <= Math.abs(a) ? [Math.cos(s), Math.sin(s)] : [Math.cos(a) - (s - a) * Math.sin(a), Math.sin(a) + (s - a) * Math.cos(a)]);
+    function partial(k) { // [0, S_0, S_1, ..., S_k]
+      const pts = [[0, 0]];
+      let term = [1, 0], S = [0, 0];
+      for (let j = 0; j <= k; j++) {
+        if (j > 0) term = [-term[1] * th / j, term[0] * th / j];
+        S = [S[0] + term[0], S[1] + term[1]];
+        pts.push(S);
+      }
+      return pts;
+    }
+    function fit(pts) {
+      let x0 = -1.25, x1 = 1.45, y0 = -1.3, y1 = 1.3;
+      pts.forEach(p => { x0 = Math.min(x0, p[0]); x1 = Math.max(x1, p[0]); y0 = Math.min(y0, p[1]); y1 = Math.max(y1, p[1]); });
+      const pad = 0.5, ar = P.H / P.W;
+      P.view.cx = (x0 + x1) / 2; P.view.cy = (y0 + y1) / 2;
+      P.view.span = Math.max(y1 - y0 + 2 * pad, (x1 - x0 + 2 * pad) * ar, 3.4);
+    }
+    function draw(P) {
+      const c = [Math.cos(th), Math.sin(th)];
+      const S = mode === 'series' ? partial(n) : null;
+      if (mode === 'wrap') { const a = wrapK * th; fit([strPt(th, a), [1, th * (1 - wrapK)]]); }
+      else fit(S.concat([[1, Math.max(-1.5, Math.min(1.5, th))]]));
+      P.grid({ color: 'grid', axisColor: 'grid-2' });
+      const b = P.bounds();
+      // tangent line (the Lie algebra) with unit ticks
+      P.line([1, b.ymin - 1], [1, b.ymax + 1], { color: 'w', width: 1.5, alpha: 0.55, dash: [6, 5] });
+      for (let k = Math.ceil(b.ymin); k <= b.ymax; k++) if (k !== 0) P.line([0.94, k], [1.06, k], { color: 'w', alpha: 0.6 });
+      P.text(R101.t('切线 = 李代数', 'tangent line = Lie algebra'), [1, b.ymin], { offset: [-8, -14], color: 'w', size: 12, bold: true, align: 'right' });
+      P.circle([0, 0], 1, { color: 'x', width: 2.5, alpha: 0.9 });
+      P.text(R101.t('单位圆 = SO(2)', 'unit circle = SO(2)'), [-0.71, -0.71], { offset: [-8, 14], color: 'x', size: 12, bold: true, align: 'right' });
+      P.point([1, 0], { color: 'text', r: 4 });
+      P.text(R101.t('1（单位元）', '1 (identity)'), [1, 0], { offset: [8, 12], color: 'text-2', size: 12 });
+      if (mode === 'wrap') {
+        const a = wrapK * th, pts = [], N = Math.max(24, Math.ceil(Math.abs(th) * 24));
+        for (let i = 0; i <= N; i++) pts.push(strPt(th * i / N, a));
+        P.point([1, th], { color: 'v', r: 5, alpha: 0.35 });
+        P.path(pts, { color: 'v', width: 4.5 });
+        for (let k = 1; k <= Math.floor(Math.abs(th) + 1e-9); k++) P.point(strPt(Math.sign(th) * k, a), { color: 'canvas', r: 3.2, stroke: 'v', strokeWidth: 2 });
+        const e = strPt(th, a);
+        P.point(e, { color: 'v', r: 7, stroke: 'canvas', strokeWidth: 2 });
+        P.text(wrapK > 0.999 ? 'exp(θ)' : 'θ', e, { offset: [12, -12], color: 'v', bold: true, size: 14 });
+      } else {
+        P.path(partial(24), { color: 'grid-2', width: 1.2, dash: [3, 4] });
+        for (let j = 1; j < S.length; j++) {
+          const hi = j === S.length - 1;
+          P.arrow(S[j - 1], S[j], { color: 'w', width: hi ? 3 : 2, alpha: hi ? 1 : 0.7, head: 9 });
+          if (j <= 4) {
+            const m = [(S[j - 1][0] + S[j][0]) / 2, (S[j - 1][1] + S[j][1]) / 2];
+            P.text(['I', 'A', 'A²/2!', 'A³/3!'][j - 1], m, { offset: [6, -8], color: 'w', size: 12, bold: true });
+          }
+        }
+        P.point(c, { color: 'canvas', r: 8, stroke: 'v', strokeWidth: 2.5 });
+        P.text('exp(A)', c, { offset: [12, 14], color: 'v', bold: true });
+        P.point(S[S.length - 1], { color: 'w', r: 5.5, stroke: 'canvas' });
+        P.text('S' + subs(n), S[S.length - 1], { offset: [10, -12], color: 'w', bold: true });
+      }
+    }
+    const ctr = document.getElementById('so2-controls');
+    const slT = ui.slider(ctr, { zh: '角速度 θ (rad)', en: 'angular velocity θ (rad)', min: -7, max: 7, step: 0.01, value: th, fmt: v => M.fmt(v, 2), onInput: v => {
+      stop(); th = v; wrapK = 1; sync();
+      if (Math.abs(Math.abs(th) - TAU) < 0.03) R101.done('fullturn');
+    } });
+    const slN = ui.slider(ctr, { zh: '级数项数 n', en: 'series terms n', min: 0, max: 20, step: 1, value: n, fmt: v => String(Math.round(v)), onInput: v => { stop(); n = Math.round(v); if (mode !== 'series') { mode = 'series'; seg.set('series'); } sync(); } });
+    const seg = ui.seg(document.getElementById('so2-seg'), [{ value: 'wrap', zh: '缠绕', en: 'Wrap' }, { value: 'series', zh: '级数', en: 'Series' }], mode, v => { stop(); mode = v; wrapK = 1; sync(); });
+    function stop() { if (anim) { anim(); anim = null; } }
+    document.getElementById('so2-play').onclick = () => {
+      stop();
+      if (mode === 'wrap') anim = R101.animate(1800, e => { wrapK = e; sync(); }, () => { anim = null; });
+      else anim = R101.animate(3600, (e, raw) => { n = Math.round(raw * 14); slN.set(n); sync(); }, () => { anim = null; });
+    };
+    const ta = document.getElementById('so2-tex-a'), tb = document.getElementById('so2-tex-b'), tc = document.getElementById('so2-tex-c'), rd = document.getElementById('so2-read');
+    function sync() {
+      const c = Math.cos(th), s = Math.sin(th);
+      R101.tex(ta, `A = \\begin{bmatrix}0 & ${M.tex(-th)}\\\\ ${M.tex(th)} & 0\\end{bmatrix}`);
+      R101.tex(tb, `\\exp(A) = ${M.texMat([[c, -s], [s, c]])}`);
+      if (mode === 'series') {
+        const S = partial(n), e = S[S.length - 1], err = Math.hypot(e[0] - c, e[1] - s);
+        R101.tex(tc, `\\cw{S_{${n}}} = \\sum_{k=0}^{${n}} \\tfrac{A^k}{k!} = ${M.texMat([[e[0], -e[1]], [e[1], e[0]]])}`);
+        rd.innerHTML = `${L('与 exp(A) 的误差', 'error vs exp(A)')}: <b>${err < 1e-4 ? err.toExponential(1) : M.fmt(err, 4)}</b>` + (n === 1 ? `<br>${L('只取 I + A：正好是切线上的点', 'just I + A: the tangent-line point')}` : '');
+      } else {
+        R101.tex(tc, `\\theta = ${M.tex(th)}\\ \\text{rad} = ${M.tex(th / D2R, 1)}^\\circ`);
+        const turns = Math.abs(th) / TAU;
+        rd.innerHTML = `${L('切线上的长度', 'length on the line')} = ${L('圆上的弧长', 'arc length')} = <b>${M.fmt(Math.abs(th), 2)}</b><br>${L('缠绕圈数', 'turns wrapped')}: <b>${M.fmt(turns, 2)}</b>`;
+      }
+      P.invalidate();
+    }
+    R101.on('lang', sync);
+    sync();
+  })();
+
+  /* ---------------- FIG 2: rotation vector ---------------- */
+  (function () {
+    let az = 30, el = 35, thDeg = 120, t = 1, anim = null;
+    let u, w, R, orbits, arcs;
+    const SC = 1.6;
+    const V = new R101.View3D('#rv-canvas', { height: 440, dist: 8.2, yaw: -0.55, pitch: 0.38, target: [0, 0, 0.4], draw });
+    function compute() {
+      u = [Math.cos(el * D2R) * Math.cos(az * D2R), Math.cos(el * D2R) * Math.sin(az * D2R), Math.sin(el * D2R)];
+      w = M.scale(u, thDeg * D2R);
+      R = M.expSO3(M.scale(w, t));
+      orbits = [[], [], []]; arcs = [[], [], []];
+      for (let k = 0; k <= 64; k++) {
+        const Rk = M.expSO3(M.scale(u, TAU * k / 64));
+        for (let j = 0; j < 3; j++) orbits[j].push([Rk[0][j] * SC, Rk[1][j] * SC, Rk[2][j] * SC]);
+      }
+      const N = 48;
+      for (let k = 0; k <= N; k++) {
+        const Rk = M.expSO3(M.scale(w, t * k / N));
+        for (let j = 0; j < 3; j++) arcs[j].push([Rk[0][j] * SC, Rk[1][j] * SC, Rk[2][j] * SC]);
+      }
+    }
+    function draw(V) {
+      const hl = R101.hl;
+      V.grid({ extent: 3 });
+      V.frame({ R: I3, t: [0, 0, 0] }, { scale: SC, width: 2, alpha: 0.28 });
+      V.line(M.scale(u, -2.8), M.scale(u, 2.8), { color: 'w', width: hl === 'u' ? 4 : 2, dash: [8, 6], alpha: hl === 'u' ? 1 : 0.8 });
+      V.text(R101.t('转轴 û', 'axis û'), M.scale(u, 2.9), { color: 'w', size: 12 });
+      if (thDeg > 0.5) V.arrow([0, 0, 0], M.scale(w, 0.4), { color: 'v', width: 4, label: 'ω', bias: 0.05 });
+      const cols = ['i', 'j', 'k'];
+      for (let j = 0; j < 3; j++) {
+        V.polyline(orbits[j], { color: cols[j], width: 1, alpha: 0.22 });
+        V.polyline(arcs[j], { color: cols[j], width: hl === 'theta' ? 4.5 : 2.6, alpha: 0.95 });
+      }
+      V.frame({ R, t: [0, 0, 0] }, { scale: SC, width: 3.5, labels: ["x'", "y'", "z'"] });
+    }
+    const ctr = document.getElementById('rv-controls');
+    const userIn = () => { stop(); sync(); if (near(R, [[-1, 0, 0], [0, -1, 0], [0, 0, 1]], 0.05)) R101.done('z180'); };
+    const sAz = ui.slider(ctr, { zh: '轴方位角', en: 'axis azimuth', min: -180, max: 180, step: 1, value: az, fmt: v => Math.round(v) + '°', onInput: v => { az = v; userIn(); } });
+    const sEl = ui.slider(ctr, { zh: '轴仰角', en: 'axis elevation', min: -90, max: 90, step: 1, value: el, fmt: v => Math.round(v) + '°', onInput: v => { el = v; userIn(); } });
+    const sTh = ui.slider(ctr, { zh: '转角 θ', en: 'angle θ', min: 0, max: 360, step: 1, value: thDeg, fmt: v => Math.round(v) + '°', onInput: v => { thDeg = v; userIn(); } });
+    const sT = ui.slider(ctr, { zh: '时间 t', en: 'time t', min: 0, max: 1, step: 0.01, value: t, fmt: v => M.fmt(v, 2), onInput: v => { t = v; userIn(); } });
+    function stop() { if (anim) { anim(); anim = null; } }
+    function setAll(a, e, th) { az = a; el = e; thDeg = th; sAz.set(a); sEl.set(e); sTh.set(th); }
+    const presets = [
+      ['绕 z 转 90°', '90° about z', () => setAll(0, 90, 90)],
+      ['绕 x 转 90°', '90° about x', () => setAll(0, 0, 90)],
+      ['绕 (1,1,1) 转 120°', '120° about (1,1,1)', () => setAll(45, Math.atan(1 / Math.SQRT2) / D2R, 120)]
+    ];
+    const ph = document.getElementById('rv-presets');
+    presets.forEach(([zh, en, f]) => ui.button(ph, { zh, en, cls: 'sm', onClick: () => { f(); play(); } }));
+    function play() {
+      stop();
+      anim = R101.animate(1600, e => { t = e; sT.set(t); sync(); }, () => { anim = null; });
+    }
+    document.getElementById('rv-play').onclick = play;
+    const tw = document.getElementById('rv-tex-w'), tk = document.getElementById('rv-tex-k'), tr = document.getElementById('rv-tex-r'), rd = document.getElementById('rv-read');
+    function sync() {
+      compute();
+      R101.tex(tw, `\\cv{\\boldsymbol\\omega} = \\theta\\,\\cw{\\hat{\\mathbf u}} = ${M.texVec(w)}`);
+      R101.tex(tk, `\\skew{\\boldsymbol\\omega} = ${M.texMat(M.hat(w))}`);
+      R101.tex(tr, `\\Exp(${M.tex(t)}\\,\\boldsymbol\\omega) = ${M.texMat(R)}`);
+      const tt = M.trace(R), back = Math.acos(M.clamp((tt - 1) / 2, -1, 1));
+      rd.innerHTML = `${L('已转过', 'turned so far')} tθ = <b>${Math.round(t * thDeg)}°</b><br>tr R = <b>${M.fmt(tt, 3)}</b> → arccos((tr R − 1)/2) = <b>${deg(back)}</b>`;
+      V.invalidate();
+    }
+    R101.on('lang', sync);
+    sync();
+  })();
+
+  /* ---------------- FIG 3: twist lab ---------------- */
+  (function () {
+    let w = [0, 0, 4.5], v = [0, -3.15, 1.35], s = 1, anim = null;
+    const HALF = [0.4, 0.25, 0.175], OFF = [0, 0, 0.175], CORNER = [0.4, 0.25, 0.35], NP = 72;
+    let th, what, q, h, pathO, pathC, Tcur, kind;
+    const V = new R101.View3D('#tw-canvas', { height: 500, dist: 7.2, yaw: -0.75, pitch: 0.4, target: [0.4, 0, 0.75], draw });
+    function compute() {
+      th = M.norm(w);
+      if (th > 1e-6) { what = M.scale(w, 1 / th); q = M.scale(M.cross(w, v), 1 / (th * th)); h = M.dot(w, v) / (th * th); }
+      else { what = null; q = null; h = Infinity; }
+      kind = th <= 1e-6 ? (M.norm(v) < 1e-6 ? 'id' : 'trans') : Math.abs(h) < 1e-3 ? 'rot' : 'screw';
+      const xi = w.concat(v);
+      pathO = []; pathC = [];
+      for (let k = 0; k <= NP; k++) {
+        const T = M.expSE3(M.scale(xi, k / NP));
+        pathO.push(T.t); pathC.push(M.add(M.mv(T.R, CORNER), T.t));
+      }
+      Tcur = M.expSE3(M.scale(xi, s));
+    }
+    function draw(V) {
+      const hl = R101.hl;
+      V.grid({ extent: 4 });
+      if (what) {
+        const big = hl === 'w';
+        V.line(M.add(q, M.scale(what, -5)), M.add(q, M.scale(what, 5)), { color: 'w', width: big ? 4 : 2, dash: [9, 6], alpha: big ? 1 : 0.85 });
+        V.arrow(q, M.add(q, M.scale(what, 1.3)), { color: 'w', width: big ? 5 : 3, label: 'ω', bias: 0.05 });
+        V.point(q, { color: 'w', r: hl === 'q' ? 8 : 5, stroke: 'canvas', label: 'q' });
+        if (hl === 'q') V.line([0, 0, 0], q, { color: 'w', width: 2.5, dash: [4, 4] });
+        if (hl === 'h' && Math.abs(h) > 1e-6) {
+          // axial advance h·θ·s, drawn along the axis from the foot of the start origin
+          const a = M.add(q, M.scale(what, M.dot(M.sub([0, 0, 0], q), what)));
+          V.arrow(a, M.add(a, M.scale(what, h * th * s)), { color: 'v', width: 5, label: 'hθ' });
+        }
+      } else if (kind === 'trans') {
+        V.text(R101.t('纯平移：螺旋轴在无穷远处', 'pure translation: screw axis at infinity'), [0, 0, 2.6], { color: 'w', size: 12 });
+      }
+      if (M.norm(v) > 1e-6) V.arrow([0, 0, 0], M.scale(v, 0.5), { color: 'v', width: hl === 'v' ? 5 : 2.5, alpha: hl === 'v' ? 1 : 0.55, label: 'v', dash: hl === 'v' ? null : [5, 4] });
+      const k = Math.round(s * NP);
+      V.polyline(pathO, { color: 'v', width: 1.4, alpha: 0.35 });
+      V.polyline(pathO.slice(0, k + 1), { color: 'v', width: 3 });
+      V.polyline(pathC, { color: 'x', width: 1, alpha: 0.3 });
+      V.polyline(pathC.slice(0, k + 1), { color: 'x', width: 1.8, alpha: 0.8 });
+      drawBox(V, I3, [0, 0, 0], HALF, OFF, { stroke: 'axis', alpha: 0.35, width: 1 });
+      V.frame({ R: I3, t: [0, 0, 0] }, { scale: 0.9, width: 2, alpha: 0.3 });
+      drawBox(V, Tcur.R, Tcur.t, HALF, OFF, { fill: 'x', fillAlpha: 0.2, stroke: 'x' });
+      V.frame(Tcur, { scale: 0.9, width: 3.2 });
+    }
+    const user = () => {
+      stop(); sync();
+      const nv = M.norm(v);
+      if (th < 1e-9 && nv > 0.3) R101.done('trans');
+      if (th > 0.3 && Math.abs(h) < 0.01 && M.norm(q) > 0.3) R101.done('pitch0');
+      const T1 = M.expSE3(w.concat(v));
+      if (th + nv > 0.5 && near(T1.R, I3, 0.06) && M.norm(T1.t) < 0.08) R101.done('loop');
+    };
+    const mk = (host, zh, en, get, set, lo, hi) => ui.slider(host, { zh, en, min: lo, max: hi, step: 0.05, value: get(), fmt: x => M.fmt(x, 2), onInput: x => { set(x); user(); } });
+    const cw = document.getElementById('tw-ctl-w'), cv = document.getElementById('tw-ctl-v'), cs = document.getElementById('tw-ctl-s');
+    const sl = [
+      mk(cw, '<span class="cw">ω<sub>x</sub></span>', '<span class="cw">ω<sub>x</sub></span>', () => w[0], x => { w[0] = x; }, -6.5, 6.5),
+      mk(cw, '<span class="cw">ω<sub>y</sub></span>', '<span class="cw">ω<sub>y</sub></span>', () => w[1], x => { w[1] = x; }, -6.5, 6.5),
+      mk(cw, '<span class="cw">ω<sub>z</sub></span>', '<span class="cw">ω<sub>z</sub></span>', () => w[2], x => { w[2] = x; }, -6.5, 6.5),
+      mk(cv, '<span class="cv">v<sub>x</sub></span>', '<span class="cv">v<sub>x</sub></span>', () => v[0], x => { v[0] = x; }, -4, 4),
+      mk(cv, '<span class="cv">v<sub>y</sub></span>', '<span class="cv">v<sub>y</sub></span>', () => v[1], x => { v[1] = x; }, -4, 4),
+      mk(cv, '<span class="cv">v<sub>z</sub></span>', '<span class="cv">v<sub>z</sub></span>', () => v[2], x => { v[2] = x; }, -4, 4)
+    ];
+    const sS = ui.slider(cs, { zh: '时间 s', en: 'time s', min: 0, max: 1, step: 0.01, value: s, fmt: x => M.fmt(x, 2), onInput: x => { s = x; stop(); sync(); } });
+    function stop() { if (anim) { anim(); anim = null; } }
+    function play() { stop(); anim = R101.animate(2400, e => { s = e; sS.set(s); sync(); }, () => { anim = null; }); }
+    document.getElementById('tw-play').onclick = play;
+    const presets = [
+      ['纯转动', 'Pure rotation', [0, 0, 1.6], [0, 0, 0]],
+      ['纯平移', 'Pure translation', [0, 0, 0], [1.5, 0.8, 1]],
+      ['门铰链', 'Door hinge', [0, 0, 1.5], [1.8, 0, 0]],
+      ['拧螺丝', 'Driving a screw', [0, 0, 6.3], [0, 0, 1.2]],
+      ['箱子翻倒', 'Box tipping over', [0, 1.5, 0], [0, 0, 0.6]],
+      ['随机', 'Random', null, null]
+    ];
+    const ph = document.getElementById('tw-presets');
+    presets.forEach(([zh, en, pw, pv]) => ui.button(ph, { zh, en, cls: 'sm', onClick: () => {
+      const rnd = (a) => Math.round((Math.random() * 2 - 1) * a * 20) / 20;
+      w = pw ? pw.slice() : [rnd(2.5), rnd(2.5), rnd(2.5)];
+      v = pv ? pv.slice() : [rnd(1.5), rnd(1.5), rnd(1.5)];
+      w.concat(v).forEach((x, i) => sl[i].set(x));
+      play();
+    } }));
+    const tx = document.getElementById('tw-tex-xi'), tT = document.getElementById('tw-tex-T'), rd = document.getElementById('tw-read');
+    function sync() {
+      compute();
+      R101.tex(tx, `\\begin{aligned}\\boldsymbol\\xi &= (\\cw{\\boldsymbol\\omega},\\ \\cv{\\mathbf v})\\\\ \\cw{\\boldsymbol\\omega} &= \\cw{(${texRow(w)})}\\\\ \\cv{\\mathbf v} &= \\cv{(${texRow(v)})}\\end{aligned}`);
+      R101.tex(tT, `\\exp(${M.tex(s)}\\,\\boldsymbol\\xi^\\wedge) = ${tex4(Tcur)}`);
+      const kindTxt = { id: L('静止', 'no motion'), trans: L('纯平移', 'pure translation'), rot: L('纯转动（h = 0）', 'pure rotation (h = 0)'), screw: L('螺旋运动', 'screw motion') }[kind];
+      let h2 = `${L('类型', 'type')}: <b>${kindTxt}</b><br>θ = ‖ω‖ = <b>${M.fmt(th, 2)}</b> rad (${deg(th)})`;
+      if (what) h2 += `<br>ω/‖ω‖ = (${what.map(x => M.fmt(x, 2)).join(', ')})<br>q = (<b>${q.map(x => M.fmt(x, 2)).join(', ')}</b>)<br>h = <b>${M.fmt(h, 3)}</b> · ${L('沿轴前进', 'advance')} hθ = <b>${M.fmt(h * th, 2)}</b>`;
+      else if (kind === 'trans') h2 += `<br>${L('位移', 'displacement')} = v = (${v.map(x => M.fmt(x, 2)).join(', ')})`;
+      rd.innerHTML = h2;
+      V.invalidate();
+    }
+    R101.on('lang', sync);
+    sync();
+  })();
+
+  /* ---------------- FIG 4: log & interpolation ---------------- */
+  (function () {
+    let ypr = [150, 20, 30], pos = [1.5, 1.0, 0.6], s = 0.5, anim = null;
+    let Tg, xi, geoPath, Tgeo, Alin, tlin, minDet;
+    const HALF = [0.45, 0.3, 0.2], OFF = [0, 0, 0];
+    const opts = { height: 380, dist: 6, yaw: -0.9, pitch: 0.42, target: [0.7, 0.45, 0.35] };
+    const VG = new R101.View3D('#li-geo', Object.assign({}, opts, { draw: drawG }));
+    const VL = new R101.View3D('#li-lin', Object.assign({}, opts, { draw: drawL }));
+    VL.cam = VG.cam; // one shared camera
+    [VG, VL].forEach(Vx => Vx.canvas.addEventListener('pointermove', () => { VG.invalidate(); VL.invalidate(); }));
+    function compute() {
+      const R = M.eulerZYX(ypr[0] * D2R, ypr[1] * D2R, ypr[2] * D2R);
+      Tg = { R, t: pos.slice() };
+      xi = logSE3(Tg);
+      geoPath = [];
+      for (let k = 0; k <= 48; k++) geoPath.push(M.expSE3(M.scale(xi, k / 48)).t);
+      Tgeo = M.expSE3(M.scale(xi, s));
+      Alin = M.madd(M.mscale(I3, 1 - s), M.mscale(R, s));
+      tlin = M.scale(pos, s);
+      minDet = Infinity;
+      for (let k = 0; k <= 100; k++) { const a = k / 100; minDet = Math.min(minDet, M.det3(M.madd(M.mscale(I3, 1 - a), M.mscale(R, a)))); }
+    }
+    function common(V) {
+      V.grid({ extent: 3 });
+      V.frame({ R: I3, t: [0, 0, 0] }, { scale: 1, width: 2, alpha: 0.3 });
+      V.frame(Tg, { scale: 1, width: 2, alpha: 0.3 });
+      drawBox(V, Tg.R, Tg.t, HALF, OFF, { stroke: 'axis', alpha: 0.3, width: 1 });
+      V.text('T', Tg.t, { color: 'text-2', dx: -10, dy: 14 });
+    }
+    function drawG(V) {
+      common(V);
+      V.polyline(geoPath, { color: 'v', width: 2.2, alpha: 0.85 });
+      drawBox(V, Tgeo.R, Tgeo.t, HALF, OFF, { fill: 'good', fillAlpha: 0.18, stroke: 'good' });
+      V.frame(Tgeo, { scale: 1, width: 3.2 });
+    }
+    function drawL(V) {
+      common(V);
+      V.line([0, 0, 0], pos, { color: 'v', width: 2.2, alpha: 0.85 });
+      drawBox(V, Alin, tlin, HALF, OFF, { fill: 'bad', fillAlpha: 0.18, stroke: 'bad' });
+      V.frame({ R: Alin, t: tlin }, { scale: 1, width: 3.2 });
+    }
+    const user = () => { stop(); sync(); if (minDet < 0.01) R101.done('collapse'); };
+    const cr = document.getElementById('li-ctl-r'), ct = document.getElementById('li-ctl-t'), cs = document.getElementById('li-ctl-s');
+    [['偏航 yaw', 'yaw', -180, 180], ['俯仰 pitch', 'pitch', -89, 89], ['横滚 roll', 'roll', -180, 180]].forEach(([zh, en, lo, hi], i) =>
+      ui.slider(cr, { zh, en, min: lo, max: hi, step: 1, value: ypr[i], fmt: x => Math.round(x) + '°', onInput: x => { ypr[i] = x; user(); } }));
+    ['x', 'y', 'z'].forEach((a, i) => ui.slider(ct, { zh: a, en: a, min: -2.5, max: 2.5, step: 0.05, value: pos[i], fmt: x => M.fmt(x, 2), onInput: x => { pos[i] = x; user(); } }));
+    const sS = ui.slider(cs, { zh: '插值参数 s', en: 'interpolation s', min: 0, max: 1, step: 0.01, value: s, fmt: x => M.fmt(x, 2), onInput: x => { s = x; stop(); sync(); } });
+    function stop() { if (anim) { anim(); anim = null; } }
+    document.getElementById('li-play').onclick = () => { stop(); anim = R101.animate(2600, (e, raw) => { s = raw; sS.set(s); sync(); }, () => { anim = null; }); };
+    const tl = document.getElementById('li-log'), rg = document.getElementById('li-read-g'), rl = document.getElementById('li-read-l');
+    const colN = A => [0, 1, 2].map(j => Math.hypot(A[0][j], A[1][j], A[2][j]));
+    const ok = (good, txt) => `<b style="color:var(--c-${good ? 'good' : 'bad'})">${txt}</b>`;
+    function sync() {
+      compute();
+      const w = xi.slice(0, 3), v = xi.slice(3), th = M.norm(w);
+      R101.tex(tl, `\\Log(T) = \\boldsymbol\\xi = (\\cw{${texRow(w)}},\\;\\cv{${texRow(v)}}), \\quad \\theta = \\|\\boldsymbol\\omega\\| = ${M.tex(th / D2R, 1)}^\\circ`);
+      const dg = M.det3(Tgeo.R), dl = M.det3(Alin), ng = colN(Tgeo.R), nl = colN(Alin);
+      rg.innerHTML = `det R(s) = ${ok(true, M.fmt(dg, 3))}<br>${L('列长', 'column norms')}: ${ng.map(x => ok(true, M.fmt(x, 3))).join(' ')}`;
+      rl.innerHTML = `det = ${ok(Math.abs(dl - 1) < 0.005, M.fmt(dl, 3))}<br>${L('列长', 'column norms')}: ${nl.map(x => ok(Math.abs(x - 1) < 0.005, M.fmt(x, 3))).join(' ')}<br>${L('全程最小 det', 'min det over s')}: <b>${M.fmt(minDet, 3)}</b>`;
+      VG.invalidate(); VL.invalidate();
+    }
+    R101.on('lang', sync);
+    sync();
+  })();
+
+  /* ---------------- FIG 5: gyro integration ---------------- */
+  (function () {
+    const T_END = 20, DIR = M.normalize([0.35, 0.25, 1]);
+    let dt = 0.05, speed = 1, tNow = T_END, playing = false, last = 0;
+    let N, RE, RN, errE, errN, detE, detN, maxDetN;
+    function sim() {
+      N = Math.ceil(T_END / dt - 1e-9);
+      RE = new Float64Array(9 * (N + 1)); RN = new Float64Array(9 * (N + 1));
+      errE = new Float64Array(N + 1); errN = new Float64Array(N + 1); detE = new Float64Array(N + 1); detN = new Float64Array(N + 1);
+      const w = M.scale(DIR, speed);
+      const E = [].concat(...M.expSO3(M.scale(w, dt)));
+      const F = [].concat(...M.madd(I3, M.mscale(M.hat(w), dt)));
+      const id = [1, 0, 0, 0, 1, 0, 0, 0, 1];
+      for (let i = 0; i < 9; i++) { RE[i] = id[i]; RN[i] = id[i]; }
+      const mul = (A, a, B, out, o) => {
+        for (let i = 0; i < 3; i++) for (let j = 0; j < 3; j++)
+          out[o + 3 * i + j] = A[a + 3 * i] * B[j] + A[a + 3 * i + 1] * B[3 + j] + A[a + 3 * i + 2] * B[6 + j];
+      };
+      const metrics = (A, a) => {
+        let e = 0;
+        for (let i = 0; i < 3; i++) for (let j = 0; j < 3; j++) {
+          const d = A[a + i] * A[a + j] + A[a + 3 + i] * A[a + 3 + j] + A[a + 6 + i] * A[a + 6 + j] - (i === j ? 1 : 0);
+          e += d * d;
+        }
+        const det = A[a] * (A[a + 4] * A[a + 8] - A[a + 5] * A[a + 7]) - A[a + 1] * (A[a + 3] * A[a + 8] - A[a + 5] * A[a + 6]) + A[a + 2] * (A[a + 3] * A[a + 7] - A[a + 4] * A[a + 6]);
+        return [Math.sqrt(e), det];
+      };
+      maxDetN = 1;
+      for (let k = 0; k <= N; k++) {
+        if (k > 0) { mul(RE, 9 * (k - 1), E, RE, 9 * k); mul(RN, 9 * (k - 1), F, RN, 9 * k); }
+        const me = metrics(RE, 9 * k), mn = metrics(RN, 9 * k);
+        errE[k] = me[0]; detE[k] = me[1]; errN[k] = mn[0]; detN[k] = mn[1];
+        maxDetN = Math.max(maxDetN, mn[1]);
+      }
+    }
+    const idx = () => Math.min(N, Math.round(tNow / dt));
+    const getR = (A, k) => [[A[9 * k], A[9 * k + 1], A[9 * k + 2]], [A[9 * k + 3], A[9 * k + 4], A[9 * k + 5]], [A[9 * k + 6], A[9 * k + 7], A[9 * k + 8]]];
+    const PE = [0, -1.6, 0], PN = [0, 1.6, 0], HALF = [0.5, 0.5, 0.5];
+    const V = new R101.View3D('#gy-3d', { height: 360, dist: 7, yaw: -0.3, pitch: 0.35, target: [0, 0, 0.35], draw: draw3 });
+    let lastW = 0;
+    function draw3(V) {
+      if (V.W !== lastW) { lastW = V.W; V.cam.dist = V.W < 440 ? 9.6 : 7; } // fit both cubes on narrow screens
+      const k = idx(), Re = getR(RE, k), Rn = getR(RN, k);
+      V.grid({ extent: 3 });
+      drawBox(V, Re, PE, HALF, [0, 0, 0], { fill: 'good', fillAlpha: 0.14, stroke: 'good', alpha: 0.7 });
+      V.frame({ R: Re, t: PE }, { scale: 1.15, width: 3 });
+      drawBox(V, Rn, PN, HALF, [0, 0, 0], { fill: 'bad', fillAlpha: 0.14, stroke: 'bad', alpha: 0.7 });
+      V.frame({ R: Re, t: PN }, { scale: 1.15, width: 1.6, alpha: 0.35 });
+      V.frame({ R: Rn, t: PN }, { scale: 1.15, width: 3 });
+      V.text('R·Exp(ω dt)', M.add(PE, [0, 0, 1.75]), { color: 'good', align: 'center' });
+      V.text(R101.t('R + R[ω]× dt（欧拉）', 'R + R[ω]× dt (Euler)'), M.add(PN, [0, 0, 1.75]), { color: 'bad', align: 'center' });
+    }
+    const PL = { l: 62, r: 14, t: 22, b: 28, gap: 34 };
+    const P = new R101.Plane2D('#gy-plot', { height: 360, draw: drawPlot, dragEmpty: true, onPointerDown: scrub, onPointerDrag: scrub, cursor: 'ew-resize' });
+    function scrub(wpt) {
+      const pw = P.W - PL.l - PL.r;
+      tNow = M.clamp((wpt[0] - PL.l) / pw * T_END, 0, T_END);
+      playing = false; setPlayLabel(); sT.set(tNow); sync();
+    }
+    function drawPlot(P) {
+      const W = P.W, H = P.H;
+      P.view.cx = W / 2; P.view.cy = H / 2; P.view.span = Math.min(W, H); // world units = pixels (y up)
+      const w = (x, y) => [x, H - y];
+      const ph = (H - PL.t - PL.b - PL.gap) / 2, pw = W - PL.l - PL.r;
+      const X = t => PL.l + t / T_END * pw;
+      const y0a = PL.t, y0b = PL.t + ph + PL.gap;
+      const Ya = e => y0a + (1 - (Math.log10(Math.max(e, 1e-17)) + 17) / 18) * ph; // 1e-17 … 1e1
+      const yMax = M.clamp(maxDetN * 1.08, 1.25, 10), yMin = 0.9;
+      const Yb = d => y0b + (1 - (Math.min(d, yMax) - yMin) / (yMax - yMin)) * ph;
+      // panels
+      [[y0a, ph], [y0b, ph]].forEach(([y0, hh]) => P.poly([w(PL.l, y0), w(PL.l + pw, y0), w(PL.l + pw, y0 + hh), w(PL.l, y0 + hh)], { stroke: 'grid-2', width: 1 }));
+      [-15, -10, -5, 0].forEach(e => {
+        const y = Ya(Math.pow(10, e));
+        P.line(w(PL.l, y), w(PL.l + pw, y), { color: 'grid', width: 1 });
+        P.textPx(e === 0 ? '1' : '1e' + e, PL.l - 6, y, { color: 'text-2', size: 11, align: 'right', mono: true });
+      });
+      const dTicks = yMax < 2 ? [1, 1.5] : yMax < 4 ? [1, 2, 3] : [1, 4, 7, 10];
+      dTicks.filter(d => d <= yMax).forEach(d => {
+        const y = Yb(d);
+        P.line(w(PL.l, y), w(PL.l + pw, y), { color: d === 1 ? 'grid-2' : 'grid', width: 1 });
+        P.textPx(String(d), PL.l - 6, y, { color: 'text-2', size: 11, align: 'right', mono: true });
+      });
+      [0, 5, 10, 15, 20].forEach(t => P.textPx(t + ' s', X(t), H - PL.b + 14, { color: 'text-2', size: 11, align: 'center', mono: true }));
+      P.textPx('‖RᵀR − I‖', PL.l + 6, y0a - 10, { color: 'text', size: 12, bold: true });
+      P.textPx('det R', PL.l + 6, y0b - 10, { color: 'text', size: 12, bold: true });
+      P.textPx('— Exp', PL.l + pw - 78, y0a - 10, { color: 'good', size: 12, bold: true, align: 'right' });
+      P.textPx(R101.t('— 欧拉', '— Euler'), PL.l + pw, y0a - 10, { color: 'bad', size: 12, bold: true, align: 'right' });
+      // curves: faint over the full run, bold up to the current time
+      const kNow = idx(), stride = Math.max(1, Math.floor(N / 400));
+      const series = (arr, Y, upto) => { const pts = []; for (let k = 0; k <= upto; k += stride) pts.push(w(X(k * dt), Y(arr[k]))); pts.push(w(X(upto * dt), Y(arr[upto]))); return pts; };
+      [[errE, Ya, 'good'], [errN, Ya, 'bad'], [detE, Yb, 'good'], [detN, Yb, 'bad']].forEach(([arr, Y, c]) => {
+        P.path(series(arr, Y, N), { color: c, width: 1.2, alpha: 0.3 });
+        P.path(series(arr, Y, kNow), { color: c, width: 2.4 });
+      });
+      const xc = X(tNow);
+      P.line(w(xc, y0a), w(xc, y0b + ph), { color: 'v', width: 1.5, dash: [4, 4] });
+    }
+    const ctr = document.getElementById('gy-controls');
+    ui.slider(ctr, { zh: '步长 dt (s)', en: 'step dt (s)', min: 0.005, max: 0.25, step: 0.005, value: dt, fmt: x => M.fmt(x, 3), onInput: x => { dt = x; sim(); sync(); } });
+    ui.slider(ctr, { zh: '角速度 ‖ω‖ (rad/s)', en: 'rate ‖ω‖ (rad/s)', min: 0.2, max: 1.5, step: 0.05, value: speed, fmt: x => M.fmt(x, 2), onInput: x => { speed = x; sim(); sync(); } });
+    const sT = ui.slider(ctr, { zh: '时间 t (s)', en: 'time t (s)', min: 0, max: T_END, step: 0.05, value: tNow, fmt: x => M.fmt(x, 1), onInput: x => { tNow = x; playing = false; setPlayLabel(); sync(); } });
+    const btn = document.getElementById('gy-play');
+    function setPlayLabel() { btn.innerHTML = playing ? '❚❚ ' + L('暂停', 'Pause') : '▶ ' + L('播放', 'Play'); }
+    function loop(now) {
+      if (!playing) return;
+      tNow = Math.min(T_END, tNow + (now - last) / 1000 * 2);
+      last = now;
+      sT.set(tNow); sync();
+      if (tNow >= T_END) { playing = false; setPlayLabel(); return; }
+      requestAnimationFrame(loop);
+    }
+    btn.onclick = () => {
+      playing = !playing;
+      if (playing) { if (tNow >= T_END - 1e-6) tNow = 0; last = performance.now(); requestAnimationFrame(loop); }
+      setPlayLabel();
+    };
+    const re = document.getElementById('gy-read-e'), rn = document.getElementById('gy-read-n');
+    const sci = x => (x < 1e-3 ? x.toExponential(1).replace('-', '−') : M.fmt(x, 3));
+    function sync() {
+      const k = idx();
+      const cn = (A) => { const R = getR(A, k); return [0, 1, 2].map(j => M.fmt(Math.hypot(R[0][j], R[1][j], R[2][j]), 3)).join(' '); };
+      re.innerHTML = `<b style="color:var(--c-good)">Exp</b> · t = ${M.fmt(k * dt, 2)} s<br>det R = <b>${M.fmt(detE[k], 6)}</b><br>‖RᵀR − I‖ = <b>${sci(errE[k])}</b><br>${L('列长', 'column norms')}: ${cn(RE)}`;
+      rn.innerHTML = `<b style="color:var(--c-bad)">${L('欧拉', 'Euler')}</b> · ${N} ${L('步', 'steps')}<br>det R = <b>${M.fmt(detN[k], 6)}</b><br>‖RᵀR − I‖ = <b>${sci(errN[k])}</b><br>${L('列长', 'column norms')}: ${cn(RN)}`;
+      V.invalidate(); P.invalidate();
+    }
+    R101.on('lang', () => { setPlayLabel(); sync(); });
+    sim(); sync();
+  })();
+});
+</script>
+</body>
+</html>

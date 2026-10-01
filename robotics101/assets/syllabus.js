@@ -35,7 +35,7 @@ window.R101_SYLLABUS = {
         { n: 3, zh: '多元与向量微积分', en: 'Multivariable & Vector Calculus', pages: [
           { n: '3.1', slug: 'partial-derivatives', zh: '多元函数与偏导', en: 'Multivariable Functions & Partial Derivatives' },
           { n: '3.2', slug: 'gradient', zh: '梯度与方向导数', en: 'Gradient & Directional Derivative' },
-          { n: '3.3', slug: 'jacobian', zh: '雅可比：局部线性变换', en: 'The Jacobian: a Local Linear Map', star: true },
+          { n: '3.3', slug: 'jacobian', zh: '雅可比：局部线性变换', en: 'The Jacobian: a Local Linear Map', ready: true, star: true },
           { n: '3.4', slug: 'robot-jacobian', zh: '机器人雅可比', en: 'The Robot Jacobian' },
           { n: '3.5', slug: 'hessian', zh: 'Hessian 与曲率', en: 'Hessian & Curvature' },
           { n: '3.6', slug: 'vector-fields', zh: '向量场与流', en: 'Vector Fields & Flows' }
@@ -59,7 +59,7 @@ window.R101_SYLLABUS = {
           { n: '5.3', slug: 'se3', zh: '齐次变换与 SE(3)', en: 'Homogeneous Transforms & SE(3)' },
           { n: '5.4', slug: 'why-lie-groups', zh: '为什么需要李群', en: 'Why Lie Groups?' },
           { n: '5.5', slug: 'lie-algebra', zh: '李代数与 hat / vee', en: 'Lie Algebras, hat & vee' },
-          { n: '5.6', slug: 'exp-log', zh: '指数映射与对数映射', en: 'The Exponential & Logarithm Maps', star: true },
+          { n: '5.6', slug: 'exp-log', zh: '指数映射与对数映射', en: 'The Exponential & Logarithm Maps', ready: true, star: true },
           { n: '5.7', slug: 'perturbation', zh: '扰动与流形上的求导', en: 'Perturbations & Derivatives on Manifolds' },
           { n: '5.8', slug: 'adjoint', zh: '伴随表示', en: 'The Adjoint' },
           { n: '5.9', slug: 'interpolation-uncertainty', zh: '插值与流形上的不确定性', en: 'Interpolation & Uncertainty on Manifolds' },

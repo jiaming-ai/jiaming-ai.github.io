@@ -119,11 +119,13 @@
     const c = M.clamp((M.trace(R) - 1) / 2, -1, 1), th = Math.acos(c);
     if (th < 1e-6) return M.vee(M.mscale(M.madd(R, M.mscale(M.T(R), -1)), 0.5));
     if (Math.PI - th < 1e-4) {
-      // near π: axis from the largest diagonal entry of (R + I)/2
-      const B = M.mscale(M.madd(R, M.eye(3)), 0.5);
+      // near π: u uᵀ = ((R + Rᵀ)/2 − cosθ I) / (1 − cosθ); take the column with the largest diagonal
+      const B = M.mscale(M.madd(M.mscale(M.madd(R, M.T(R)), 0.5), M.mscale(M.eye(3), -c)), 1 / (1 - c));
       let k = 0; if (B[1][1] > B[k][k]) k = 1; if (B[2][2] > B[k][k]) k = 2;
-      let axis = [B[0][k], B[1][k], B[2][k]];
-      axis = M.normalize(axis);
+      let axis = M.normalize([B[0][k], B[1][k], B[2][k]]);
+      // (R - Rᵀ) = 2 sinθ [u]× still carries the sign of the axis for θ slightly below π
+      const s = M.vee(M.madd(R, M.mscale(M.T(R), -1)));
+      if (M.dot(axis, s) < 0) axis = M.scale(axis, -1);
       return M.scale(axis, th);
     }
     return M.scale(M.vee(M.madd(R, M.mscale(M.T(R), -1))), th / (2 * Math.sin(th)));

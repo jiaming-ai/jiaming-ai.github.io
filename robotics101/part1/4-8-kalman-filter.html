@@ -1,0 +1,1137 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-theme="dark" data-lang-ui="zh">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>4.8 卡尔曼滤波与 EKF · Robotics for Beginners</title>
+<meta name="description" content="An interactive, intuition-first lesson on the Kalman filter and the extended Kalman filter: belief as a Gaussian blob, predict and update, the Kalman gain as trust, covariance ellipses in phase space, and EKF localization with landmarks.">
+<link rel="icon" href="../../favicon.svg" type="image/svg+xml">
+<script>(function(){var d=document.documentElement,t='dark',l=null;try{t=localStorage.getItem('theme')||'dark'}catch(e){}d.setAttribute('data-theme',t);try{l=new URLSearchParams(location.search).get('lang')||localStorage.getItem('r101-lang')}catch(e){}if(l!=='zh'&&l!=='en')l=(navigator.language||'').toLowerCase().indexOf('zh')===0?'zh':'en';d.setAttribute('data-lang-ui',l);d.lang=l==='zh'?'zh-CN':'en';})();</script>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.22/dist/katex.min.css">
+<link rel="stylesheet" href="../assets/course.css">
+</head>
+<body data-page="4.8" data-root=".." data-title-zh="4.8 卡尔曼滤波与 EKF · Robotics for Beginners" data-title-en="4.8 Kalman Filter &amp; EKF · Robotics for Beginners">
+<div class="r101-layout">
+<aside class="r101-side" id="r101-side"></aside>
+<main class="r101-main">
+<article class="lesson">
+
+<header class="lesson-head">
+  <div class="eyebrow"><span data-lang="zh">Part I · 第 4 章 概率 · 4.8</span><span data-lang="en">Part I · Ch. 4 Probability · 4.8</span></div>
+  <h1><span data-lang="zh">卡尔曼滤波与 EKF</span><span data-lang="en">Kalman Filter &amp; EKF</span></h1>
+  <p class="lede">
+    <span data-lang="zh">轮式里程计会慢慢漂走，GPS 又抖又跳，单靠哪一个都不靠谱。卡尔曼滤波 (Kalman filter) 用一团高斯分布表示"我大概在哪"：<b>预测</b>时把这团信念挪过去、再吹胖一点；<b>更新</b>时把它和测量相乘，得到一团更瘦、更可信的信念。把线性模型换成雅可比矩阵，它就成了机器人状态估计里的老黄牛：扩展卡尔曼滤波 (EKF)。</span>
+    <span data-lang="en">Wheel odometry slowly drifts; GPS is noisy and jumpy; neither is good enough on its own. The Kalman filter keeps a Gaussian blob for "where I probably am": <b>predict</b> moves the blob and makes it fatter; <b>update</b> multiplies it with a measurement into a thinner, more trustworthy blob. Swap the linear model for Jacobians and you get the workhorse of robot state estimation: the extended Kalman filter (EKF).</span>
+  </p>
+  <div class="lesson-meta">
+    <span class="chip"><span data-lang="zh">约 35 分钟</span><span data-lang="en">~35 min</span></span>
+    <span class="chip"><span data-lang="zh">前置：4.4 高斯分布 · 4.5 不确定性传播 · 4.7 贝叶斯滤波 · 3.3 雅可比（EKF 部分）</span><span data-lang="en">Prereqs: 4.4 Gaussians · 4.5 Propagating Uncertainty · 4.7 Bayes Filter · 3.3 Jacobian (for the EKF)</span></span>
+    <span class="chip"><span data-lang="zh">5 个交互</span><span data-lang="en">5 interactives</span></span>
+  </div>
+  <ul class="toc-steps" id="step-toc"></ul>
+</header>
+
+<!-- ============ 1. WHY ============ -->
+<section class="step" id="why">
+  <h2><span class="n">1</span><span data-lang="zh">为什么机器人需要它</span><span data-lang="en">Why robots need this</span></h2>
+  <div data-lang="zh">
+    <p>一辆送货小车在园区里跑。它有两个信息来源：轮子上的编码器（里程计）告诉它"我刚才往前走了 0.52 米、左转了 3°"；GPS 每秒报一次"你在 (x, y)"。</p>
+    <p>里程计短期内又准又平滑，可每一步的小误差都会<b>累积</b>：轮子打滑一下、地面颠一下，十分钟后它可能以为自己在隔壁楼里。GPS 不会累积误差，但每次读数都在真值附近<b>乱跳</b>好几米，进了楼还会丢信号。</p>
+    <p>一个"短期可信、长期漂移"，一个"长期可信、短期乱跳"。卡尔曼滤波按<b>各自的可信程度</b>把两者融合起来；在线性、高斯的假设下，它给出的估计是最优的。无人机飞控、自动驾驶定位、手机里 IMU 与 GPS 的融合、SLAM 的前端，到处都有它。它就是 4.7 节贝叶斯滤波在"高斯世界"里的精确实现：信念不再是一张直方图，而只用两个量描述，<b>均值</b>和<b>协方差</b>。</p>
+  </div>
+  <div data-lang="en">
+    <p>A delivery robot drives around a campus. It has two sources of information: wheel encoders (odometry) say "I just moved 0.52 m forward and turned 3° left"; GPS reports "you are at (x, y)" once a second.</p>
+    <p>Odometry is accurate and smooth over short spans, but every small error <b>accumulates</b>: a wheel slips, the ground is bumpy, and ten minutes later the robot thinks it is in the next building. GPS never accumulates error, but each reading <b>jumps around</b> the truth by several meters, and it drops out indoors.</p>
+    <p>One is "trustworthy short-term, drifts long-term"; the other is "trustworthy long-term, jumpy short-term". The Kalman filter fuses them <b>according to how much each deserves to be trusted</b>, and for linear-Gaussian systems the result is optimal. You will find it in drone autopilots, self-driving localization, IMU + GPS fusion in your phone and SLAM front-ends. It is the exact implementation of the Bayes filter from Lesson 4.7 in a "Gaussian world": the belief is no longer a histogram but just two quantities, a <b>mean</b> and a <b>covariance</b>.</p>
+  </div>
+</section>
+
+<!-- ============ 2. INTUITION ============ -->
+<section class="step" id="intuition">
+  <h2><span class="n">2</span><span data-lang="zh">直觉：一团会移动、会胖瘦的信念</span><span data-lang="en">Intuition: a blob of belief that moves, grows and shrinks</span></h2>
+  <div data-lang="zh">
+    <p>机器人从来不知道自己<em>确切</em>在哪，它只有一个<b>信念 (belief)</b>：一个高斯分布。均值是"最可能的位置"，宽度（标准差 σ）是"我有多拿不准"。不妨把它想成桌上的一堆沙子。</p>
+    <p>卡尔曼滤波只做两件事，交替进行：</p>
+    <ul>
+      <li><b>预测 (predict)</b>：机器人按运动模型往前走，沙堆跟着<b>挪过去</b>。运动本身有噪声，所以沙堆同时<b>摊开</b>一些：不确定性变大了。</li>
+      <li><b>更新 (update)</b>：来了一个测量，它自己也是一堆沙子（传感器噪声）。把两堆沙子<b>相乘</b>，得到一堆<b>更窄</b>的新沙堆，位置落在两者之间，偏向更有把握的那一方。</li>
+    </ul>
+    <p>"偏向谁、偏多少"由一个 0 到 1 之间的数决定：<b>卡尔曼增益 (Kalman gain) K</b>。K 越接近 1，越相信测量；越接近 0，越相信自己的预测。先来亲手体会一次更新。</p>
+  </div>
+  <div data-lang="en">
+    <p>A robot never knows <em>exactly</em> where it is. All it has is a <b>belief</b>: a Gaussian. The mean is "where I most likely am", the width (standard deviation σ) is "how unsure I am". Picture a pile of sand on a table.</p>
+    <p>The Kalman filter does just two things, over and over:</p>
+    <ul>
+      <li><b>Predict</b>: the robot moves according to its motion model, so the sand pile <b>slides along</b>. The motion itself is noisy, so the pile also <b>spreads out</b>: uncertainty grows.</li>
+      <li><b>Update</b>: a measurement arrives. It is a sand pile of its own (sensor noise). <b>Multiply</b> the two piles and you get a <b>narrower</b> pile that sits between them, closer to whichever one was more certain.</li>
+    </ul>
+    <p>"Closer to whom, and by how much" is set by a single number between 0 and 1: the <b>Kalman gain K</b>. K near 1 means "trust the measurement"; K near 0 means "trust my prediction". Let's feel one update with our hands first.</p>
+  </div>
+
+  <figure class="fig" id="fig-fuse">
+    <div class="fig-head"><span class="fig-kind">FIG 1</span><span class="fig-title"><span data-lang="zh">两团高斯相乘：一次更新</span><span data-lang="en">Multiplying two Gaussians: one update</span></span><span class="spacer"></span><span class="presets" id="fuse-presets"></span></div>
+    <div class="fig-body split">
+      <div class="canvas-wrap" id="fuse-canvas"></div>
+      <div class="fig-side">
+        <div class="katex-live" id="fuse-tex1"></div>
+        <div class="katex-live" id="fuse-tex2"></div>
+        <div class="katex-live" id="fuse-tex3"></div>
+        <div id="fuse-trust"></div>
+        <div class="small" id="fuse-msg"></div>
+      </div>
+    </div>
+    <div class="fig-controls" id="fuse-controls"></div>
+    <figcaption class="fig-cap">
+      <span data-lang="zh"><span class="cx">青色</span>是预测（先验），<span class="cw">紫色</span>是测量，<span class="cv">黄色</span>是两者相乘再归一化的结果（后验）。拖曲线底部的圆点移动均值，拖曲线腰部的圆点改变宽度。底部紫色虚线箭头是"新息"（测量与预测之差），黄色箭头是实际挪动的那一段，正好是新息的 K 倍。注意：黄色曲线<b>总比两者都窄</b>，哪怕两个读数互相矛盾。</span>
+      <span data-lang="en"><span class="cx">Cyan</span> is the prediction (prior), <span class="cw">purple</span> the measurement, <span class="cv">amber</span> their normalized product (posterior). Drag the dot at the base of a curve to move its mean, the dot on its flank to change its width. The dashed purple arrow at the bottom is the "innovation" (measurement minus prediction); the amber arrow is how far the estimate actually moves: exactly K times the innovation. Notice the amber curve is <b>always narrower than both</b>, even when the two readings disagree.</span>
+    </figcaption>
+  </figure>
+  <ul class="tasks">
+    <li data-task="k-half"><span><span data-lang="zh">让 <b>K ≈ 0.5</b>：预测和测量各占一半。这时两条曲线的宽度有什么关系？</span><span data-lang="en">Make <b>K ≈ 0.5</b>: prediction and measurement get equal say. What must be true of the two widths?</span></span></li>
+    <li data-task="trust-meas"><span><span data-lang="zh">让后验<b>几乎和测量重合</b>（K &gt; 0.95）。用一句话说出这对应什么样的传感器。</span><span data-lang="en">Make the posterior <b>almost identical to the measurement</b> (K &gt; 0.95). In one sentence, what kind of sensor is this?</span></span></li>
+  </ul>
+
+  <p data-lang="zh">把刚才看到的写成公式（这里 \(\mu^-, (\sigma^-)^2\) 是预测的均值与方差，\(z, \sigma_z^2\) 是测量及其噪声方差）：</p>
+  <p data-lang="en">Here is what you just saw, as formulas (\(\mu^-, (\sigma^-)^2\) are the predicted mean and variance; \(z, \sigma_z^2\) are the measurement and its noise variance):</p>
+  <div class="math-card">
+  $$ \hl{K}{K} = \frac{\hl{prior}{\cx{(\sigma^-)^2}}}{\hl{prior}{\cx{(\sigma^-)^2}} + \hl{meas}{\cw{\sigma_z^2}}}, \qquad
+     \hl{post}{\cv{\mu}} = \hl{prior}{\cx{\mu^-}} + \hl{K}{K}\,\hl{innov}{(\cw{z} - \cx{\mu^-})}, \qquad
+     \hl{post}{\cv{\sigma^2}} = (1 - \hl{K}{K})\,\hl{prior}{\cx{(\sigma^-)^2}} $$
+  </div>
+  <p class="hl-hint"><span data-lang="zh">提示：把鼠标悬停在公式中带底色的符号上，FIG 1 中对应的曲线或箭头会被高亮。</span><span data-lang="en">Tip: hover the shaded symbols in the formula; the matching curve or arrow in FIG 1 lights up.</span></p>
+  <div class="callout key">
+    <div class="ct"><span data-lang="zh">核心洞见</span><span data-lang="en">Key insight</span></div>
+    <p data-lang="zh">卡尔曼增益就是一个<b>信任比例</b>：K = 我的不确定性 ÷（我的不确定性 + 传感器的不确定性）。谁更拿不准，谁就让步。更新后的方差 \((1-K)(\sigma^-)^2\) 一定比先验小：只要模型是对的，<b>多一个测量永远不会让你更糊涂</b>。</p>
+    <p data-lang="en">The Kalman gain is a <b>trust ratio</b>: K = my uncertainty ÷ (my uncertainty + the sensor's uncertainty). Whoever is less sure gives way. The updated variance \((1-K)(\sigma^-)^2\) is always smaller than the prior: as long as the model is right, <b>one more measurement never makes you more confused</b>.</p>
+  </div>
+</section>
+
+<!-- ============ 3. PLAY ============ -->
+<section class="step" id="play">
+  <h2><span class="n">3</span><span data-lang="zh">动手玩：追踪一辆小车</span><span data-lang="en">Play: tracking a cart</span></h2>
+  <div data-lang="zh">
+    <p>现在让时间流动起来。一辆小车在轨道上来回跑：大体匀速，但会随机加减速，到了两端被缓冲器弹回。一个很烂的"GPS"每 0.2 秒给出一个位置读数（紫色），噪声标准差 1.2 米。滤波器的状态是位置和速度 \((p, v)\)，运动模型是"匀速"：\(p \leftarrow p + v\,\Delta t\)。</p>
+    <p>你手里有两个旋钮，它们是滤波器<b>自以为</b>的噪声水平，不改变真实世界：</p>
+    <ul>
+      <li><b>Q（过程噪声）</b>：滤波器认为"匀速模型"有多不靠谱，用随机加速度 σₐ 表示。Q 大 = "小车随时可能变速，别太信预测"。</li>
+      <li><b>R（测量噪声）</b>：滤波器认为 GPS 有多不靠谱，用 σ_z 表示。R 大 = "GPS 很烂，别太信测量"。</li>
+    </ul>
+    <p>先一步一步按 <b>预测</b>、<b>更新</b>，看信念的团怎么变胖、变瘦；然后打开自动播放，转动旋钮。</p>
+  </div>
+  <div data-lang="en">
+    <p>Now let time run. A cart shuttles back and forth on a track: roughly constant speed, with random speed-ups and slow-downs, bounced back by bumpers at both ends. A terrible "GPS" reports its position every 0.2 s (purple) with 1.2 m of noise. The filter's state is position and velocity \((p, v)\), and its motion model is "constant velocity": \(p \leftarrow p + v\,\Delta t\).</p>
+    <p>You have two knobs. They are the noise levels the filter <b>believes in</b>; they do not change the real world:</p>
+    <ul>
+      <li><b>Q (process noise)</b>: how wrong the filter thinks its constant-velocity model is, expressed as a random acceleration σₐ. Large Q = "the cart may change speed any time; don't over-trust the prediction".</li>
+      <li><b>R (measurement noise)</b>: how bad the filter thinks the GPS is, expressed as σ_z. Large R = "the GPS is awful; don't over-trust the measurement".</li>
+    </ul>
+    <p>First press <b>Predict</b> and <b>Update</b> one at a time and watch the blob grow and shrink; then turn on auto-play and play with the knobs.</p>
+  </div>
+
+  <figure class="fig bleed" id="fig-track">
+    <div class="fig-head"><span class="fig-kind">FIG 2</span><span class="fig-title"><span data-lang="zh">一维追踪实验室</span><span data-lang="en">1D tracking lab</span></span><span class="spacer"></span><span class="presets" id="trk-btns"></span></div>
+    <div class="fig-body split">
+      <div style="min-width:0">
+        <div class="canvas-wrap" id="trk-top"><span class="overlay-label"><span data-lang="zh">轨道</span><span data-lang="en">TRACK</span></span></div>
+        <div class="canvas-wrap" id="trk-plot" style="border-top:1px solid var(--border)"><span class="overlay-label"><span data-lang="zh">位置 − 时间</span><span data-lang="en">POSITION vs TIME</span></span></div>
+      </div>
+      <div class="fig-side">
+        <div class="small" id="trk-phase"></div>
+        <div class="katex-live" id="trk-tex1"></div>
+        <div class="katex-live" id="trk-tex2"></div>
+        <div class="katex-live" id="trk-tex3"></div>
+        <div class="readout" id="trk-read"></div>
+        <div><div class="small muted" style="margin-bottom:6px"><span data-lang="zh">预设</span><span data-lang="en">Presets</span></div><div class="presets" id="trk-presets"></div></div>
+      </div>
+    </div>
+    <div class="fig-controls" id="trk-controls"></div>
+    <figcaption class="fig-cap">
+      <span data-lang="zh">图例：<b>白/黑实线</b>与小车 = 真实位置；<span class="cw">紫点</span> = GPS 读数（空心 = 没被用上）；<span class="cv">黄线与黄带</span> = 估计值与 ±2σ 范围；<span class="cx">青色</span> = 刚预测完、还没更新的信念。真实的随机加速度约 0.4 m/s²，但小车还会被缓冲器弹、被"巡航"拉回 1.5 m/s，匀速模型其实是错的。所以表现最好的 Q 往往比 0.4 大：<b>Q 不只代表噪声，也替你的模型误差买单</b>。</span>
+      <span data-lang="en">Legend: <b>solid white/black line</b> and the cart = true position; <span class="cw">purple dots</span> = GPS readings (hollow = never used); <span class="cv">amber line and band</span> = estimate and ±2σ; <span class="cx">cyan</span> = a belief that has been predicted but not yet updated. The true random acceleration is about 0.4 m/s², but the cart is also bounced by bumpers and pulled back to a 1.5 m/s "cruise", so the constant-velocity model is actually wrong. That is why the best Q is usually larger than 0.4: <b>Q pays not only for noise but also for your model's mistakes</b>.</span>
+    </figcaption>
+  </figure>
+
+  <div class="tasks-title"><span data-lang="zh">试一试</span><span data-lang="en">Try this</span></div>
+  <ul class="tasks">
+    <li data-task="sluggish"><span><span data-lang="zh">把滤波器调得<b>迟钝</b>：让位置的卡尔曼增益低于 0.08，并至少跑 20 次更新。小车被弹回时，黄线跟得上吗？</span><span data-lang="en">Make the filter <b>sluggish</b>: get the position gain below 0.08 and run at least 20 updates. When the cart bounces, does the amber line keep up?</span></span></li>
+    <li data-task="jumpy"><span><span data-lang="zh">把它调得<b>神经质</b>：增益高于 0.9，跑 20 次更新。黄线和紫点一样抖，滤波器等于没开。</span><span data-lang="en">Make it <b>jumpy</b>: gain above 0.9 for 20 updates. The amber line now shakes as much as the purple dots; the filter might as well be off.</span></span></li>
+    <li data-task="beat"><span><span data-lang="zh"><b>打败传感器</b>：找一组 Q、R，在同一组设置下连续 50 次更新，让估计误差 (RMSE) 低于 GPS 误差的 70%。</span><span data-lang="en"><b>Beat the sensor</b>: find Q and R such that, over 50 updates with the same settings, the estimate's RMSE is below 70% of the GPS's.</span></span></li>
+  </ul>
+  <div class="callout key">
+    <div class="ct"><span data-lang="zh">读懂旋钮</span><span data-lang="en">Reading the knobs</span></div>
+    <p data-lang="zh">对均值来说，真正起作用的是 Q 与 R 的<b>比值</b>：Q/R 小，滤波器相信模型，输出平滑但反应慢；Q/R 大，滤波器相信传感器，反应快但抖。把 Q、R 同时放大 10 倍，K 和黄线都不会变，只有 ±2σ 带会变宽。这说明 Q、R 的<b>绝对大小</b>决定的是滤波器"自称"有多准，这一点在第 7 节还会咬人。</p>
+    <p data-lang="en">For the mean, what really matters is the <b>ratio</b> Q/R: small Q/R trusts the model (smooth but slow), large Q/R trusts the sensor (fast but jittery). Scale Q and R together by 10 and neither K nor the amber line changes; only the ±2σ band widens. So the <b>absolute size</b> of Q and R sets how accurate the filter <em>claims</em> to be, and that will bite us in section 7.</p>
+  </div>
+</section>
+
+<!-- ============ 4. SECOND VIEW ============ -->
+<section class="step" id="phase">
+  <h2><span class="n">4</span><span data-lang="zh">第二个视角：相空间里的协方差椭圆</span><span data-lang="en">A second view: the covariance ellipse in phase space</span></h2>
+  <div data-lang="zh">
+    <p>FIG 2 只画了位置那一维，可滤波器心里装的是二维状态 \((p, v)\)。二维高斯的"团"是一个<b>椭圆</b>（4.4 节）：横轴是位置，纵轴是速度。</p>
+    <p><b>预测</b>那一步 \(p \leftarrow p + v\,\Delta t\)，写成矩阵就是 \(F = \begin{bmatrix}1 & \Delta t\\ 0 & 1\end{bmatrix}\)。这正是 1.3 节里的<b>剪切</b>：椭圆上速度大的那些"可能的我"跑得更远，速度小的落在后面，椭圆于是被拉歪，位置和速度变得<b>相关</b>。按 4.5 节的规则，协方差变成 \(FPF^\top\)，再加上 Q。</p>
+    <p><b>更新</b>那一步只测位置。测量在相空间里是一条<b>竖直的条带</b>：它说"p 大概在这儿"，对 v 只字未提。后验是椭圆与条带的交集。神奇的地方来了：因为椭圆是歪的，横向挤一挤，竖向也跟着变窄。<b>速度从没被测过，却也变准了</b>。</p>
+  </div>
+  <div data-lang="en">
+    <p>FIG 2 only drew the position axis, but the filter actually carries a two-dimensional state \((p, v)\). A 2D Gaussian blob is an <b>ellipse</b> (Lesson 4.4): position across, velocity up.</p>
+    <p>The <b>predict</b> step \(p \leftarrow p + v\,\Delta t\) is the matrix \(F = \begin{bmatrix}1 & \Delta t\\ 0 & 1\end{bmatrix}\): exactly the <b>shear</b> from Lesson 1.3. Possible versions of me with high velocity run further ahead, slow ones fall behind, so the ellipse tilts and position and velocity become <b>correlated</b>. By the rule from Lesson 4.5 the covariance becomes \(FPF^\top\), plus Q.</p>
+    <p>The <b>update</b> measures position only. In phase space, that measurement is a <b>vertical strip</b>: it says "p is about here" and nothing about v. The posterior is where the ellipse and the strip overlap. Here is the magic: because the ellipse is tilted, squeezing it sideways also makes it shorter. <b>Velocity was never measured, yet it got more accurate.</b></p>
+  </div>
+
+  <figure class="fig" id="fig-phase">
+    <div class="fig-head"><span class="fig-kind">FIG 3</span><span class="fig-title"><span data-lang="zh">剪切、相关与"免费"的速度</span><span data-lang="en">Shear, correlation and "free" velocity</span></span><span class="spacer"></span><span class="presets" id="ph-btns"></span></div>
+    <div class="fig-body split">
+      <div class="canvas-wrap" id="ph-canvas"></div>
+      <div class="fig-side">
+        <div class="katex-live" id="ph-tex1"></div>
+        <div class="katex-live" id="ph-tex2"></div>
+        <div class="readout" id="ph-read"></div>
+        <div class="small" id="ph-msg"></div>
+      </div>
+    </div>
+    <div class="fig-controls" id="ph-controls"></div>
+    <figcaption class="fig-cap">
+      <span data-lang="zh">椭圆是 2σ 范围。<span class="cx">青色</span> = 预测后的信念，<span class="cv">黄色</span> = 更新后的信念，灰色虚线 = 上一步的样子。<span class="cw">紫色条带</span>是位置测量 \(z \pm 2\sigma_z\)，可以左右拖动 z；黄色虚线椭圆是"如果现在更新"会得到的结果。两边的粗线段是位置、速度各自的 ±2σ。先直接按"更新"试试：一开始椭圆没有倾斜，速度一点也不会变准。</span>
+      <span data-lang="en">Ellipses are 2σ. <span class="cx">Cyan</span> = belief after predict, <span class="cv">amber</span> = belief after update, dashed grey = the previous step. The <span class="cw">purple strip</span> is the position measurement \(z \pm 2\sigma_z\); drag z sideways. The dashed amber ellipse previews what an update would give right now. The thick bars on the edges are the ±2σ of position and of velocity alone. Try pressing "Update" first: the ellipse starts untilted, so velocity does not improve at all.</span>
+    </figcaption>
+  </figure>
+  <ul class="tasks">
+    <li data-task="magic"><span><span data-lang="zh">只用位置测量，把<b>速度</b>的标准差 σ_v 从 0.80 压到 0.40 以下。</span><span data-lang="en">Using only position measurements, push the <b>velocity</b> standard deviation σ_v from 0.80 below 0.40.</span></span></li>
+  </ul>
+  <div class="callout view">
+    <div class="ct"><span data-lang="zh">两个视角，一回事</span><span data-lang="en">Two views, one filter</span></div>
+    <p data-lang="zh">FIG 2 的位置 ±2σ 带，就是 FIG 3 椭圆在横轴上的"影子"。FIG 2 里滤波器明明只看到位置读数，却能估出速度、提前把团挪到小车要去的地方，靠的正是椭圆里的这份相关性。拖动 z 时留意：测量偏右，后验均值会<b>斜着</b>往右上方走，因为"小车比预想的更靠前"意味着"它大概也比预想的更快"。</p>
+    <p data-lang="en">The ±2σ position band in FIG 2 is the "shadow" of FIG 3's ellipse on the horizontal axis. FIG 2's filter only ever sees positions, yet it estimates velocity and moves the blob to where the cart is heading, thanks to this correlation inside the ellipse. While dragging z, notice: a measurement to the right moves the posterior mean <b>diagonally</b> up and right, because "the cart is further ahead than I thought" implies "it is probably also faster than I thought".</p>
+  </div>
+</section>
+
+<!-- ============ 5. MATH ============ -->
+<section class="step" id="math">
+  <h2><span class="n">5</span><span data-lang="zh">再看数学</span><span data-lang="en">The math</span></h2>
+  <p class="hl-hint"><span data-lang="zh">提示：悬停下面公式中带底色的符号，FIG 3 中对应的椭圆、条带或箭头会高亮（FIG 2 右侧的实时公式也可以悬停）。</span><span data-lang="en">Tip: hover the shaded symbols below and the matching ellipse, strip or arrow in FIG 3 lights up (the live formulas beside FIG 2 are hoverable too).</span></p>
+
+  <h3><span data-lang="zh">一维：两个高斯相乘</span><span data-lang="en">1D: multiplying two Gaussians</span></h3>
+  <p data-lang="zh">贝叶斯更新（4.7 节）说：后验 ∝ 似然 × 先验。两个都是高斯，相乘后指数部分仍然是 x 的二次式，所以结果还是高斯：</p>
+  <p data-lang="en">The Bayes update (Lesson 4.7) says posterior ∝ likelihood × prior. Both are Gaussians, and the product's exponent is still quadratic in x, so the result is again a Gaussian:</p>
+  <div class="math-card">$$ p(x \mid z) \;\propto\; \exp\!\Big(-\frac{(x-\mu^-)^2}{2(\sigma^-)^2}\Big)\cdot \exp\!\Big(-\frac{(z-x)^2}{2\sigma_z^2}\Big). $$</div>
+  <p data-lang="zh">比较 \(x^2\) 和 \(x\) 的系数，得到两条非常好记的规则：<b>精度（方差的倒数）相加</b>，<b>均值是按精度加权的平均</b>：</p>
+  <p data-lang="en">Matching the coefficients of \(x^2\) and \(x\) gives two easy-to-remember rules: <b>precisions (inverse variances) add</b>, and <b>the mean is a precision-weighted average</b>:</p>
+  <div class="math-card">$$ \frac{1}{\sigma^2} = \frac{1}{(\sigma^-)^2} + \frac{1}{\sigma_z^2}, \qquad \mu = \sigma^2\Big(\frac{\mu^-}{(\sigma^-)^2} + \frac{z}{\sigma_z^2}\Big). $$</div>
+  <p data-lang="zh">令 \(K = (\sigma^-)^2 / ((\sigma^-)^2 + \sigma_z^2)\)，整理一下就是第 2 节的形式 \(\mu = \mu^- + K(z-\mu^-)\)，\(\sigma^2 = (1-K)(\sigma^-)^2\)。两种写法完全等价，"增益 + 新息"的写法可以直接推广到多维。</p>
+  <p data-lang="en">With \(K = (\sigma^-)^2 / ((\sigma^-)^2 + \sigma_z^2)\), a little algebra turns this into the form from section 2: \(\mu = \mu^- + K(z-\mu^-)\) and \(\sigma^2 = (1-K)(\sigma^-)^2\). The two forms are identical; the "gain + innovation" form is the one that generalizes to many dimensions.</p>
+
+  <h3><span data-lang="zh">一般形式：卡尔曼滤波</span><span data-lang="en">The general Kalman filter</span></h3>
+  <p data-lang="zh">系统的状态 \(\x\) 按线性模型演化，传感器线性地观测它，两处都有零均值高斯噪声：</p>
+  <p data-lang="en">The state \(\x\) evolves by a linear model and a sensor observes it linearly, both with zero-mean Gaussian noise:</p>
+  <div class="math-card">$$ \x_k = F\,\x_{k-1} + B\,\mathbf u_k + \mathbf w_k,\;\; \mathbf w_k\sim\mathcal N(\mathbf 0, Q); \qquad \mathbf z_k = H\,\x_k + \boldsymbol\epsilon_k,\;\; \boldsymbol\epsilon_k \sim \mathcal N(\mathbf 0, R). $$</div>
+  <p data-lang="zh">信念是 \(\mathcal N(\hat{\x}, P)\)。每个时刻做两步：</p>
+  <p data-lang="en">The belief is \(\mathcal N(\hat{\x}, P)\). Every time step does two things:</p>
+  <div class="math-card">
+  $$ \textbf{Predict:}\qquad \hat{\x}^- = F\hat{\x} + B\mathbf u, \qquad \hl{prior}{\cx{P^-}} = \hl{FPF}{F P F^\top} + \hl{Q}{Q} $$
+  $$ \textbf{Update:}\qquad \hl{K}{K} = P^- H^\top \big(\hl{S}{H P^- H^\top + \hl{meas}{\cw{R}}}\big)^{-1} $$
+  $$ \hat{\x} = \hat{\x}^- + \hl{K}{K}\,\hl{innov}{(\cw{\mathbf z} - H\hat{\x}^-)}, \qquad \hl{post}{\cv{P}} = (I - K H)\, P^- $$
+  </div>
+  <div class="table-wrap">
+  <table class="compare">
+    <tr><th><span data-lang="zh">符号</span><span data-lang="en">Symbol</span></th><th><span data-lang="zh">含义</span><span data-lang="en">Meaning</span></th><th><span data-lang="zh">在图里</span><span data-lang="en">In the figures</span></th></tr>
+    <tr><td>\(\hat{\x}, P\)</td><td><span data-lang="zh">信念：均值与协方差</span><span data-lang="en">Belief: mean and covariance</span></td><td><span data-lang="zh">黄色的团 / 椭圆</span><span data-lang="en">The amber blob / ellipse</span></td></tr>
+    <tr><td>\(F\)</td><td><span data-lang="zh">运动模型：状态怎样演化</span><span data-lang="en">Motion model: how the state evolves</span></td><td><span data-lang="zh">FIG 3 里的剪切</span><span data-lang="en">The shear in FIG 3</span></td></tr>
+    <tr><td>\(Q\)</td><td><span data-lang="zh">过程噪声：模型有多不准</span><span data-lang="en">Process noise: how wrong the model is</span></td><td><span data-lang="zh">预测时团变胖</span><span data-lang="en">The blob fattening on predict</span></td></tr>
+    <tr><td>\(H\)</td><td><span data-lang="zh">测量模型：状态 → 读数</span><span data-lang="en">Measurement model: state → reading</span></td><td><span data-lang="zh">只测位置时 \(H = [1\;\,0]\)</span><span data-lang="en">Position only: \(H = [1\;\,0]\)</span></td></tr>
+    <tr><td>\(R\)</td><td><span data-lang="zh">测量噪声</span><span data-lang="en">Measurement noise</span></td><td><span data-lang="zh">紫色条带的宽度</span><span data-lang="en">Width of the purple strip</span></td></tr>
+    <tr><td>\(\mathbf z - H\hat{\x}^-\)</td><td><span data-lang="zh">新息 (innovation)：测量带来的"意外"</span><span data-lang="en">Innovation: the measurement's "surprise"</span></td><td><span data-lang="zh">紫色虚线箭头</span><span data-lang="en">The dashed purple arrow</span></td></tr>
+    <tr><td>\(S = HP^-H^\top + R\)</td><td><span data-lang="zh">新息的协方差：预期的意外有多大</span><span data-lang="en">Innovation covariance: how big a surprise to expect</span></td><td><span data-lang="zh">预测团与测量团宽度的合成</span><span data-lang="en">Prediction width and sensor width combined</span></td></tr>
+    <tr><td>\(K\)</td><td><span data-lang="zh">卡尔曼增益：信任比例</span><span data-lang="en">Kalman gain: the trust ratio</span></td><td><span data-lang="zh">FIG 1 的信任条</span><span data-lang="en">The trust bar in FIG 1</span></td></tr>
+  </table>
+  </div>
+  <div class="callout view">
+    <div class="ct"><span data-lang="zh">一维只是特例</span><span data-lang="en">1D is just a special case</span></div>
+    <p data-lang="zh">令 \(F = H = 1\)，\(P^- = (\sigma^-)^2\)，\(R = \sigma_z^2\)，上面的 \(K = P^-/(P^- + R)\) 就退化成 FIG 1 的公式。多维时 \(K\) 是一个矩阵：它不仅决定"信多少"，还决定一个位置上的意外该怎样分摊到速度等<b>没被测到的分量</b>上，FIG 3 里斜着走的那支箭头就是它干的。</p>
+    <p data-lang="en">Set \(F = H = 1\), \(P^- = (\sigma^-)^2\), \(R = \sigma_z^2\) and \(K = P^-/(P^- + R)\) collapses to FIG 1's formula. In many dimensions \(K\) is a matrix: it decides not only how much to trust, but also how a surprise in position should be shared out to <b>unmeasured components</b> like velocity. The diagonal arrow in FIG 3 is its doing.</p>
+  </div>
+
+  <h3><span data-lang="zh">扩展卡尔曼滤波 (EKF)</span><span data-lang="en">The extended Kalman filter (EKF)</span></h3>
+  <p data-lang="zh">真实机器人几乎都不是线性的：小车朝 \(\theta\) 方向开，位置的变化里有 \(\cos\theta\)；激光测到路标的距离里有平方根，方位里有 \(\operatorname{atan2}\)。模型变成</p>
+  <p data-lang="en">Real robots are almost never linear: a car heading at \(\theta\) moves by \(\cos\theta\); a range to a landmark has a square root, a bearing has an \(\operatorname{atan2}\). The model becomes</p>
+  <div class="math-card">$$ \x_k = f(\x_{k-1}, \mathbf u_k) + \mathbf w_k, \qquad \mathbf z_k = h(\x_k) + \boldsymbol\epsilon_k. $$</div>
+  <p data-lang="zh">EKF 的思路就是 3.3 节的雅可比：在当前估计附近，把 \(f\) 和 \(h\) 看成线性的。<b>均值</b>照常走真正的非线性函数，<b>协方差</b>则用雅可比矩阵传播（4.5 节的 \(J\Sigma J^\top\)）：</p>
+  <p data-lang="en">The EKF's idea is the Jacobian from Lesson 3.3: near the current estimate, treat \(f\) and \(h\) as linear. The <b>mean</b> goes through the true nonlinear functions; the <b>covariance</b> is propagated with Jacobians (the \(J\Sigma J^\top\) of Lesson 4.5):</p>
+  <div class="math-card">$$ \hat{\x}^- = f(\hat{\x}, \mathbf u),\quad F = \frac{\partial f}{\partial \x}\Big|_{\hat{\x},\,\mathbf u}; \qquad \hl{innov}{\mathbf z - h(\hat{\x}^-)},\quad \hl{H}{H = \frac{\partial h}{\partial \x}\Big|_{\hat{\x}^-}} $$</div>
+  <p data-lang="zh">其余公式和线性 KF 一字不差。以第 6 节的小车为例，状态 \(\x = (x, y, \theta)\)，控制量是里程计给出的线速度 \(v\) 与角速度 \(\omega\)，传感器测量到路标 \(\mathbf m\) 的<b>距离</b>与<b>方位</b>。记 \(\Delta x = m_x - x\)，\(\Delta y = m_y - y\)，\(r = \sqrt{\Delta x^2 + \Delta y^2}\)：</p>
+  <p data-lang="en">Every other formula is the linear KF, letter for letter. For the robot of section 6 the state is \(\x = (x, y, \theta)\), the controls are the odometry's linear and angular velocities \(v, \omega\), and the sensor measures the <b>range</b> and <b>bearing</b> to a landmark \(\mathbf m\). With \(\Delta x = m_x - x\), \(\Delta y = m_y - y\), \(r = \sqrt{\Delta x^2 + \Delta y^2}\):</p>
+  <div class="math-card">
+  $$ f = \begin{bmatrix} x + v\Delta t\cos\theta \\ y + v\Delta t\sin\theta \\ \theta + \omega\Delta t \end{bmatrix},\qquad
+     F = \begin{bmatrix} 1 & 0 & -v\Delta t\sin\theta \\ 0 & 1 & v\Delta t\cos\theta \\ 0 & 0 & 1 \end{bmatrix} $$
+  $$ h = \begin{bmatrix} r \\ \operatorname{atan2}(\Delta y, \Delta x) - \theta \end{bmatrix},\qquad
+     \hl{H}{H} = \begin{bmatrix} -\Delta x / r & -\Delta y / r & 0 \\ \Delta y / r^2 & -\Delta x / r^2 & -1 \end{bmatrix} $$
+  </div>
+  <p data-lang="zh">读一读 \(F\) 的第三列：朝向的一点误差，会按 \(v\Delta t\) 的比例变成<b>侧向</b>的位置误差。这就是为什么里程计的航向一偏，位置椭圆会沿着垂直于行驶方向的方向迅速变长。</p>
+  <p data-lang="en">Read the third column of \(F\): a small heading error turns into a <b>sideways</b> position error in proportion to \(v\Delta t\). That is why, once the odometry heading is off, the position ellipse quickly stretches perpendicular to the direction of travel.</p>
+</section>
+
+<!-- ============ 6. ROBOTICS ============ -->
+<section class="step" id="robotics">
+  <h2><span class="n">6</span><span data-lang="zh">机器人中的它：用路标做 EKF 定位</span><span data-lang="en">In robotics: EKF localization with landmarks</span></h2>
+  <div data-lang="zh">
+    <p>一台小车沿着椭圆形路线兜圈。它用里程计做预测，用激光测到附近路标的距离和方位做更新（假设它认得每个路标是谁，也就是数据关联已知）。路标都在地图上，位置是已知的。</p>
+    <p>看椭圆：在没有路标的那一侧，只有预测、没有更新，椭圆会越长越大，而且是<b>横着长</b>（航向误差变成侧向误差）。一看到路标，它就猛地缩回去。红色虚线是纯里程计（航位推算 dead reckoning），它永远不会被纠正。</p>
+  </div>
+  <div data-lang="en">
+    <p>A robot drives laps around an elliptical route. It predicts with odometry and updates with laser range-bearing measurements of nearby landmarks (assume it knows which landmark is which, i.e. known data association). The landmarks are on the map at known positions.</p>
+    <p>Watch the ellipse: on the side with no landmarks there is only predict and no update, so it keeps growing, and it grows <b>sideways</b> (heading error becomes lateral error). As soon as a landmark comes into view it snaps back. The dashed red line is pure odometry (dead reckoning), which is never corrected.</p>
+  </div>
+
+  <figure class="fig bleed" id="fig-ekf">
+    <div class="fig-head"><span class="fig-kind">FIG 4</span><span class="fig-title"><span data-lang="zh">EKF 定位：路标、椭圆与雅可比</span><span data-lang="en">EKF localization: landmarks, ellipses and Jacobians</span></span><span class="spacer"></span><span class="presets" id="ekf-btns"></span></div>
+    <div class="fig-body split">
+      <div class="canvas-wrap" id="ekf-canvas"></div>
+      <div class="fig-side">
+        <div class="readout" id="ekf-read"></div>
+        <div class="small muted"><span data-lang="zh">最近一次更新的线性化（在 \(\hat{\x}^-\) 处求值）：</span><span data-lang="en">Latest update's linearization (evaluated at \(\hat{\x}^-\)):</span></div>
+        <div class="katex-live" id="ekf-tex1"></div>
+        <div class="katex-live" id="ekf-tex2"></div>
+        <div class="katex-live" id="ekf-tex3"></div>
+      </div>
+    </div>
+    <div class="fig-controls" id="ekf-controls"></div>
+    <figcaption class="fig-cap">
+      <span data-lang="zh"><b>点击路标</b>开关它（空心 = 关闭），<b>点击空白处</b>添加新路标。<b>实线</b> = 真实轨迹，<span style="color:var(--c-bad)">红色虚线</span> = 纯里程计，<span class="cv">黄色</span> = EKF 估计与它的 2σ 位置椭圆、±2σ 航向扇形。青色虚线圆是传感器量程，紫线是这一刻测到的路标。</span>
+      <span data-lang="en"><b>Click a landmark</b> to toggle it (hollow = off); <b>click empty space</b> to add one. <b>Solid line</b> = true path, <span style="color:var(--c-bad)">dashed red</span> = pure odometry, <span class="cv">amber</span> = EKF estimate with its 2σ position ellipse and ±2σ heading wedge. The dashed cyan circle is the sensor range; purple lines are the landmarks being measured right now.</span>
+    </figcaption>
+  </figure>
+  <ul class="tasks">
+    <li data-task="ekf-shrink"><span><span data-lang="zh">关掉所有路标（或把量程调到 0），等椭圆长到超过 1.5 米（看右侧读数），再打开路标，看它缩回 0.35 米以内。</span><span data-lang="en">Switch off all landmarks (or set the range to 0), wait until the ellipse exceeds 1.5 m (see the readout), then switch them back on and watch it shrink below 0.35 m.</span></span></li>
+  </ul>
+
+  <div class="callout robot">
+    <div class="ct"><span data-lang="zh">真实系统里</span><span data-lang="en">In real systems</span></div>
+    <p data-lang="zh">ROS 的 <code>robot_localization</code> 包用 EKF 把轮式里程计、IMU 和 GPS 融合成一个位姿；PX4 飞控的 EKF2 同时估计无人机的姿态、速度、位置和传感器零偏；视觉惯性里程计里的 MSCKF 也是卡尔曼滤波的一个变种。对付三维旋转时，工程上常用"误差状态"卡尔曼滤波 (error-state KF)：把小的旋转误差放在李代数里（第 5 章）当作向量来滤，就绕开了旋转矩阵不能直接相加的麻烦。</p>
+    <p data-lang="en">ROS's <code>robot_localization</code> package fuses wheel odometry, IMU and GPS into one pose with an EKF; the PX4 autopilot's EKF2 estimates a drone's attitude, velocity, position and sensor biases all at once; the MSCKF used in visual-inertial odometry is a Kalman filter variant too. For 3D rotations, practitioners usually run an "error-state" Kalman filter: small rotation errors are kept in the Lie algebra (Chapter 5) and filtered as plain vectors, sidestepping the fact that rotation matrices cannot simply be added.</p>
+  </div>
+</section>
+
+<!-- ============ 7. PITFALLS ============ -->
+<section class="step" id="pitfalls">
+  <h2><span class="n">7</span><span data-lang="zh">常见误区</span><span data-lang="en">Common pitfalls</span></h2>
+  <div class="callout pitfall">
+    <div class="ct"><span data-lang="zh">误区 1：Q 和 R 随便调，反正能跑</span><span data-lang="en">Pitfall 1: tune Q and R until it "looks fine"</span></div>
+    <p data-lang="zh">R 描述的是传感器，可以测出来：让机器人静止，录一段读数，算方差就行。Q 描述的是"模型有多错"，更难确定，通常要调。两者含义不同，不要把 R 调小来"让滤波器跟得更快"，那是在对滤波器撒谎；跟不上说明模型不够好，应该加大 Q，或者换更好的模型。</p>
+    <p data-lang="en">R describes the sensor and can be measured: keep the robot still, log readings, compute the variance. Q describes "how wrong the model is" and is harder to pin down; it usually needs tuning. They mean different things, so do not shrink R just "to make the filter react faster"; that lies to the filter. If it lags, the model is not good enough: raise Q, or use a better model.</p>
+  </div>
+  <div class="callout pitfall">
+    <div class="ct"><span data-lang="zh">误区 2：P 越小越好</span><span data-lang="en">Pitfall 2: the smaller P, the better</span></div>
+    <p data-lang="zh">P 是滤波器<b>自称</b>的不确定性，不是真实误差。Q 设得太小，P 会一路缩到几乎为零，K 也跟着变成零，滤波器从此对测量充耳不闻。真实世界稍一变化，估计就一去不回，而 ±2σ 带还信誓旦旦地很窄。这叫<b>发散 (divergence)</b>。一个好滤波器应该"诚实"：真值大约 95% 的时间落在 ±2σ 带里。下面的 FIG 5 让你亲手把滤波器调到撒谎。</p>
+    <p data-lang="en">P is the uncertainty the filter <b>claims</b>, not the actual error. Make Q too small and P shrinks toward zero, K follows it to zero, and the filter stops listening to measurements altogether. The moment the real world changes, the estimate runs away while the ±2σ band still swears it is tight. This is <b>divergence</b>. A good filter is "honest": the truth falls inside ±2σ about 95% of the time. FIG 5 below lets you make a filter lie.</p>
+  </div>
+
+  <figure class="fig" id="fig-div">
+    <div class="fig-head"><span class="fig-kind">FIG 5</span><span class="fig-title"><span data-lang="zh">诚实的滤波器与撒谎的滤波器</span><span data-lang="en">Honest filters and lying filters</span></span><span class="spacer"></span><span class="presets" id="div-presets"></span></div>
+    <div class="fig-body split">
+      <div class="canvas-wrap" id="div-canvas"></div>
+      <div class="fig-side">
+        <div class="readout" id="div-read"></div>
+        <div class="katex-live" id="div-tex"></div>
+        <div class="small" id="div-msg"></div>
+      </div>
+    </div>
+    <div class="fig-controls" id="div-controls"></div>
+    <figcaption class="fig-cap">
+      <span data-lang="zh">同一段数据：小车匀速前进，在第 20 秒急刹并掉头（竖直虚线）。滑块只改变滤波器的假设，结果即时重算。真值跑出 ±2σ 带的时刻用<span style="color:var(--c-bad)">红点</span>标出；"覆盖率"是真值落在带内的时间比例。</span>
+      <span data-lang="en">The same data every time: the cart cruises, then at t = 20 s brakes hard and reverses (vertical dashed line). The sliders change only the filter's assumptions; everything is recomputed instantly. Moments when the truth escapes the ±2σ band are marked with <span style="color:var(--c-bad)">red dots</span>; "coverage" is the fraction of time the truth is inside the band.</span>
+    </figcaption>
+  </figure>
+  <ul class="tasks">
+    <li data-task="diverge"><span><span data-lang="zh">让滤波器<b>过度自信</b>：把覆盖率压到 50% 以下。然后想一想：只看黄线和黄带，你能发现它在撒谎吗？</span><span data-lang="en">Make the filter <b>overconfident</b>: get coverage below 50%. Then ask: looking only at the amber line and band, could you tell it is lying?</span></span></li>
+  </ul>
+
+  <div class="callout pitfall">
+    <div class="ct"><span data-lang="zh">误区 3：角度直接相减</span><span data-lang="en">Pitfall 3: subtracting angles directly</span></div>
+    <p data-lang="zh">预测方位是 −179°，测到 179°。直接相减得到新息 358°，滤波器会以为差了将近一圈，把机器人猛地转回去；正确答案是 −2°。凡是涉及角度的新息和状态，都要<b>归一化到 (−180°, 180°]</b>。FIG 4 每一次更新都做了这件事，否则小车绕到左边时就会抽风。</p>
+    <p data-lang="en">The predicted bearing is −179°, the measured one 179°. Subtract naively and the innovation is 358°: the filter thinks it is off by almost a full turn and yanks the robot around. The right answer is −2°. Every angle in an innovation or a state must be <b>wrapped to (−180°, 180°]</b>. FIG 4 does this on every update; without it the robot would go haywire each time it passes the left end of the loop.</p>
+  </div>
+  <div class="callout pitfall">
+    <div class="ct"><span data-lang="zh">误区 4：EKF 的线性化总是够好</span><span data-lang="en">Pitfall 4: the EKF's linearization is always good enough</span></div>
+    <p data-lang="zh">雅可比只在估计点附近可信。如果不确定性比函数"弯曲"的尺度还大（比如离一个很近的路标测方位，或者初始位姿完全不知道），线性化就会出错，滤波器可能变得过度自信甚至发散。对策：给 Q 留点余量，用迭代 EKF 重新线性化，或者换成无迹卡尔曼滤波 (UKF)。另外，数值误差会让 P 失去对称正定，实际代码常用 Joseph 形式 \((I-KH)P^-(I-KH)^\top + KRK^\top\) 来更新 P。</p>
+    <p data-lang="en">A Jacobian is only trustworthy near the point where it is evaluated. If the uncertainty is larger than the scale on which the function bends (bearings to a very close landmark, or a completely unknown initial pose), the linearization goes wrong and the filter can become overconfident or diverge. Remedies: leave margin in Q, relinearize with an iterated EKF, or switch to the unscented Kalman filter (UKF). Also, round-off can make P lose its symmetry and positive-definiteness; real code often updates P in Joseph form \((I-KH)P^-(I-KH)^\top + KRK^\top\).</p>
+  </div>
+  <div class="callout pitfall">
+    <div class="ct"><span data-lang="zh">误区 5：一个高斯什么都能表示</span><span data-lang="en">Pitfall 5: one Gaussian can represent anything</span></div>
+    <p data-lang="zh">卡尔曼滤波的信念永远是<b>单峰</b>的。一条走廊里有两扇一模一样的门，机器人看到一扇门时，真实的信念应该有两个峰；"被绑架"的机器人（突然被搬到别处）则需要在整张地图上撒开的信念。一个高斯只能取中间值或者二选一，这两种都是错的。这种时候要用 4.10 节的粒子滤波。</p>
+    <p data-lang="en">A Kalman filter's belief is always <b>unimodal</b>. In a corridor with two identical doors, seeing a door should give a belief with two peaks; a "kidnapped" robot (suddenly carried elsewhere) needs a belief spread over the whole map. A single Gaussian can only average the options or pick one, and both are wrong. That is the job of the particle filter in Lesson 4.10.</p>
+  </div>
+</section>
+
+<!-- ============ 8. QUIZ ============ -->
+<section class="step" id="quiz">
+  <h2><span class="n">8</span><span data-lang="zh">小练习</span><span data-lang="en">Check yourself</span></h2>
+
+  <div class="quiz" data-answer="1">
+    <div class="q"><span data-lang="zh">1. 传感器坏了，读数完全是噪声，相当于 \(R \to \infty\)。卡尔曼增益会怎样？</span><span data-lang="en">1. The sensor breaks and outputs pure noise, i.e. \(R \to \infty\). What happens to the Kalman gain?</span></div>
+    <div class="opts">
+      <button class="opt"><span data-lang="zh">K → 1，完全相信测量</span><span data-lang="en">K → 1: fully trust the measurement</span></button>
+      <button class="opt"><span data-lang="zh">K → 0，忽略测量，只靠预测</span><span data-lang="en">K → 0: ignore the measurement, rely on prediction</span></button>
+      <button class="opt"><span data-lang="zh">K → 0.5，两边各信一半</span><span data-lang="en">K → 0.5: split the difference</span></button>
+      <button class="opt"><span data-lang="zh">K 不变，只有 P 变大</span><span data-lang="en">K is unchanged; only P grows</span></button>
+    </div>
+    <div class="explain"><span data-lang="zh">\(K = P^-/(P^- + R)\)，分母趋于无穷，K → 0。新息乘以 0，测量对估计没有任何影响，这正是我们想要的。</span><span data-lang="en">\(K = P^-/(P^- + R)\): the denominator blows up, so K → 0. The innovation is multiplied by zero and the measurement has no effect, which is exactly what we want.</span></div>
+  </div>
+
+  <div class="quiz" data-answer="2">
+    <div class="q"><span data-lang="zh">2. 预测：位置 10 m，σ = 2 m。测量：14 m，σ_z = 2 m。融合之后是？</span><span data-lang="en">2. Prediction: 10 m with σ = 2 m. Measurement: 14 m with σ_z = 2 m. What is the fused belief?</span></div>
+    <div class="opts">
+      <button class="opt"><span data-lang="zh">均值 12 m，σ = 2 m</span><span data-lang="en">mean 12 m, σ = 2 m</span></button>
+      <button class="opt"><span data-lang="zh">均值 14 m，σ = 1 m</span><span data-lang="en">mean 14 m, σ = 1 m</span></button>
+      <button class="opt"><span data-lang="zh">均值 12 m，σ ≈ 1.41 m</span><span data-lang="en">mean 12 m, σ ≈ 1.41 m</span></button>
+      <button class="opt"><span data-lang="zh">均值 12 m，σ = 4 m</span><span data-lang="en">mean 12 m, σ = 4 m</span></button>
+    </div>
+    <div class="explain"><span data-lang="zh">\(K = 4/(4+4) = 0.5\)，\(\mu = 10 + 0.5\cdot 4 = 12\)，\(\sigma^2 = (1-0.5)\cdot 4 = 2\)，\(\sigma = \sqrt 2 \approx 1.41\)。两个同样可信的读数，融合后的方差减半，比任何一个都准。</span><span data-lang="en">\(K = 4/(4+4) = 0.5\), \(\mu = 10 + 0.5\cdot 4 = 12\), \(\sigma^2 = (1-0.5)\cdot 4 = 2\), \(\sigma = \sqrt 2 \approx 1.41\). Two equally good readings halve the variance: the fusion beats either one alone.</span></div>
+  </div>
+
+  <div class="quiz" data-answer="0">
+    <div class="q"><span data-lang="zh">3. FIG 3 中只测了位置，速度的不确定性却也变小了。根本原因是？</span><span data-lang="en">3. In FIG 3 only position is measured, yet velocity uncertainty shrinks too. Why?</span></div>
+    <div class="opts">
+      <button class="opt"><span data-lang="zh">预测步骤让 p 与 v 相关（椭圆倾斜），测 p 就间接告诉了 v</span><span data-lang="en">The predict step correlates p and v (the ellipse tilts), so measuring p tells us about v indirectly</span></button>
+      <button class="opt"><span data-lang="zh">H 矩阵里其实悄悄包含了速度</span><span data-lang="en">H secretly contains velocity</span></button>
+      <button class="opt"><span data-lang="zh">Q 在更新步骤里把 σ_v 缩小了</span><span data-lang="en">Q shrinks σ_v during the update</span></button>
+      <button class="opt"><span data-lang="zh">卡尔曼增益对每个分量都相同</span><span data-lang="en">The Kalman gain is the same for every component</span></button>
+    </div>
+    <div class="explain"><span data-lang="zh">\(H = [1\;\,0]\) 确实只看位置。速度的增益是 \(K_v = P^-_{vp}/S\)，正比于 p 与 v 的协方差。没有相关（椭圆不倾斜）时 \(K_v = 0\)，速度什么也学不到；剪切 \(F\) 制造了相关性。</span><span data-lang="en">\(H = [1\;\,0]\) really only sees position. The velocity gain is \(K_v = P^-_{vp}/S\), proportional to the p–v covariance. Without correlation (an untilted ellipse) \(K_v = 0\) and velocity learns nothing; the shear \(F\) creates the correlation.</span></div>
+  </div>
+
+  <div class="quiz" data-answer="3">
+    <div class="q"><span data-lang="zh">4. EKF 预测某路标的方位是 −179°，实际测到 179°。正确的方位新息是多少？</span><span data-lang="en">4. An EKF predicts a landmark bearing of −179° and measures 179°. What is the correct bearing innovation?</span></div>
+    <div class="opts">
+      <button class="opt">358°</button>
+      <button class="opt">−358°</button>
+      <button class="opt">2°</button>
+      <button class="opt">−2°</button>
+    </div>
+    <div class="explain"><span data-lang="zh">\(179° - (-179°) = 358°\)，归一化到 (−180°, 180°] 后是 \(358° - 360° = -2°\)。−179° 也就是 181°，测量比预测少 2°，所以是 −2°，不是 +2°。</span><span data-lang="en">\(179° - (-179°) = 358°\), which wraps into (−180°, 180°] as \(358° - 360° = -2°\). −179° is the same as 181°, and the measurement is 2° less than that, so −2°, not +2°.</span></div>
+  </div>
+</section>
+
+<!-- ============ 9. READING ============ -->
+<section class="step" id="reading">
+  <h2><span class="n">9</span><span data-lang="zh">延伸阅读</span><span data-lang="en">Further reading</span></h2>
+  <ul class="reading">
+    <li>S. Thrun, W. Burgard &amp; D. Fox, <i>Probabilistic Robotics</i>, MIT Press, 2005, Ch. 3 — <span data-lang="zh">高斯滤波器：KF、EKF、UKF 与信息滤波，以及第 7 章的 EKF 定位</span><span data-lang="en">Gaussian filters: KF, EKF, UKF and the information filter; Ch. 7 covers EKF localization</span></li>
+    <li>R. Labbe, <a href="https://github.com/rlabbe/Kalman-and-Bayesian-Filters-in-Python" target="_blank" rel="noopener"><i>Kalman and Bayesian Filters in Python</i></a> — <span data-lang="zh">免费的交互式 Jupyter 教材，从 g-h 滤波一路讲到 EKF 与 UKF</span><span data-lang="en">A free, interactive Jupyter book, from the g-h filter all the way to the EKF and UKF</span></li>
+    <li>G. Welch &amp; G. Bishop, <i>An Introduction to the Kalman Filter</i>, UNC-Chapel Hill TR 95-041 — <span data-lang="zh">简短经典的入门讲义，本节的 x̂⁻、P⁻ 记号即来自这里</span><span data-lang="en">A short classic tutorial; the x̂⁻, P⁻ notation used here follows it</span></li>
+    <li>T. Babb, <a href="https://www.bzarg.com/p/how-a-kalman-filter-works-in-pictures/" target="_blank" rel="noopener"><i>How a Kalman filter works, in pictures</i></a> — <span data-lang="zh">用图讲清"两个高斯相乘"的经典博文</span><span data-lang="en">The classic blog post explaining "multiplying two Gaussians" with pictures</span></li>
+    <li>R. E. Kalman, "A New Approach to Linear Filtering and Prediction Problems", <i>Journal of Basic Engineering</i>, 1960 — <span data-lang="zh">原始论文</span><span data-lang="en">The original paper</span></li>
+  </ul>
+</section>
+
+</article>
+</main>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/katex@0.16.22/dist/katex.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/katex@0.16.22/dist/contrib/auto-render.min.js"></script>
+<script src="../assets/syllabus.js"></script>
+<script src="../assets/math.js"></script>
+<script src="../assets/course.js"></script>
+<script src="../assets/viz2d.js"></script>
+<script>
+R101.onReady(function () {
+  const { M, ui, L } = R101;
+  const tr = R101.t;
+  const SQ2PI = Math.sqrt(2 * Math.PI);
+  const gauss = (x, m, s) => Math.exp(-0.5 * ((x - m) / s) * ((x - m) / s)) / (s * SQ2PI);
+  const wrap = a => { a = (a + Math.PI) % (2 * Math.PI); if (a < 0) a += 2 * Math.PI; return a - Math.PI; };
+  const sym2 = A => { const o = (A[0][1] + A[1][0]) / 2; return [[A[0][0], o], [o, A[1][1]]]; };
+  const par = (x, d) => (x < 0 ? `(${M.tex(x, d)})` : M.tex(x, d));
+  // Map a data box onto a Plane2D: world coords become pixels (y-up), q(x, y) maps data → world.
+  function box(P, x0, x1, y0, y1, pad) {
+    const [pl, pr, pt, pb] = pad || [0, 0, 0, 0];
+    P.view.span = Math.min(P.W, P.H); P.view.cx = P.W / 2; P.view.cy = P.H / 2;
+    const sx = (P.W - pl - pr) / (x1 - x0), sy = (P.H - pt - pb) / (y1 - y0);
+    const q = (x, y) => [pl + (x - x0) * sx, pb + (y - y0) * sy];
+    q.inv = w => [x0 + (w[0] - pl) / sx, y0 + (w[1] - pb) / sy];
+    q.sx = sx; q.sy = sy;
+    return q;
+  }
+  // points of the k-sigma ellipse of a 2×2 covariance S centred at c (data coords)
+  function covPts(c, S, k, n) {
+    const e = M.eigSym2(S), a = k * Math.sqrt(Math.max(e.l1, 0)), b = k * Math.sqrt(Math.max(e.l2, 0)), out = [];
+    n = n || 72;
+    for (let i = 0; i <= n; i++) {
+      const t = (i / n) * Math.PI * 2, ca = a * Math.cos(t), sb = b * Math.sin(t);
+      out.push([c[0] + ca * e.v1[0] + sb * e.v2[0], c[1] + ca * e.v1[1] + sb * e.v2[1]]);
+    }
+    return out;
+  }
+  // run fn while the element is on screen
+  function whenVisible(el, fn) {
+    if (!('IntersectionObserver' in window)) { fn(true); return; }
+    new IntersectionObserver(es => es.forEach(e => fn(e.isIntersecting)), { rootMargin: '80px' }).observe(el);
+  }
+  const logSlider = (parent, o) => ui.slider(parent, Object.assign({}, o, {
+    min: Math.log10(o.lo), max: Math.log10(o.hi), step: 0.01, value: Math.log10(o.value),
+    fmt: v => { const x = Math.pow(10, v); return x < 0.1 ? x.toFixed(3) : x < 10 ? x.toFixed(2) : x.toFixed(1); },
+    onInput: v => o.onInput(Math.pow(10, v))
+  }));
+
+  /* ---------------- FIG 1: multiplying two Gaussians ---------------- */
+  (function () {
+    const S_MIN = 0.4, S_MAX = 3, X0 = -6, X1 = 6;
+    const YS = 0.92 * (S_MIN / Math.SQRT2) * SQ2PI;       // tallest possible posterior → 0.92
+    let m0 = -1.5, s0 = 1.6, z = 2, sz = 0.9, q = null, touched = false;
+    const P = new R101.Plane2D('#fuse-canvas', { height: 340, draw, onChange: () => { touched = true; sync(); } });
+    const post = () => { const K = s0 * s0 / (s0 * s0 + sz * sz); return { K, m: m0 + K * (z - m0), s: Math.sqrt(1 - K) * s0 }; };
+    const Y = (x, m, s) => YS * gauss(x, m, s);
+    function curve(m, s) { const pts = []; for (let i = 0; i <= 180; i++) { const x = X0 + (X1 - X0) * i / 180; pts.push(q(x, Y(x, m, s))); } return pts; }
+    function draw(P) {
+      q = box(P, X0, X1, -0.24, 1.0, [12, 12, 8, 4]);
+      const hl = R101.hl, po = post();
+      // axis + ticks
+      P.line(q(X0, 0), q(X1, 0), { color: 'axis', width: 1.2 });
+      for (let x = X0; x <= X1; x++) {
+        const b = q(x, 0);
+        P.line(b, [b[0], b[1] - 4], { color: 'axis', width: 1 });
+        if (x % 2 === 0) P.text(String(x), b, { offset: [0, 13], align: 'center', size: 11, color: 'text-2' });
+      }
+      const G = (m, s, col, key, fa, w) => {
+        const pts = curve(m, s), on = hl === key;
+        P.poly([q(X0, 0)].concat(pts, [q(X1, 0)]), { fill: col, fillAlpha: on ? fa * 2.4 : fa });
+        P.path(pts, { color: col, width: on ? w + 2.5 : w });
+        P.line(q(m, 0), q(m, Y(m, m, s)), { color: col, width: 1, dash: [4, 4], alpha: 0.7 });
+      };
+      G(m0, s0, 'x', 'prior', 0.10, 2);
+      G(z, sz, 'w', 'meas', 0.10, 2);
+      G(po.m, po.s, 'v', 'post', 0.22, 3);
+      // labels at the peaks, pushed apart by order
+      const left = m0 <= z;
+      P.text(tr('预测', 'prediction'), q(m0, Y(m0, m0, s0)), { offset: [left ? -8 : 8, -10], align: left ? 'right' : 'left', color: 'x', bold: true });
+      P.text(tr('测量 z', 'measurement z'), q(z, Y(z, z, sz)), { offset: [left ? 8 : -8, -10], align: left ? 'left' : 'right', color: 'w', bold: true });
+      P.text(tr('融合', 'fused'), q(po.m, Y(po.m, po.m, po.s)), { offset: [0, -14], align: 'center', color: 'v', bold: true });
+      // innovation and K·innovation arrows
+      const ya = -0.13;
+      if (Math.abs(z - m0) > 0.05) {
+        P.arrow(q(m0, ya), q(z, ya), { color: 'w', width: hl === 'innov' ? 3.5 : 1.8, dash: [5, 4], head: 9, alpha: hl === 'innov' ? 1 : 0.8 });
+        P.arrow(q(m0, ya), q(po.m, ya), { color: 'v', width: hl === 'K' ? 5.5 : 3.2, head: 10 });
+        P.text(tr('新息 z − μ⁻', 'innovation z − μ⁻'), q((m0 + z) / 2, ya), { offset: [0, 15], align: 'center', size: 11.5, color: 'w' });
+      }
+    }
+    const hy = (m, s) => q(m + s, Y(m + s, m, s));
+    const mClamp = v => M.clamp(Math.round(v * 10) / 10, -5.5, 5.5);
+    P.handle({ pos: () => q(m0, 0), color: 'x', set: p => { m0 = mClamp(q.inv(p)[0]); } });
+    P.handle({ pos: () => hy(m0, s0), color: 'x', set: p => { s0 = M.clamp(Math.abs(q.inv(p)[0] - m0), S_MIN, S_MAX); } });
+    P.handle({ pos: () => q(z, 0), color: 'w', set: p => { z = mClamp(q.inv(p)[0]); } });
+    P.handle({ pos: () => hy(z, sz), color: 'w', set: p => { sz = M.clamp(Math.abs(q.inv(p)[0] - z), S_MIN, S_MAX); } });
+
+    const ctr = document.getElementById('fuse-controls');
+    const sl0 = ui.slider(ctr, { zh: '预测宽度 σ⁻', en: 'prediction σ⁻', min: S_MIN, max: S_MAX, step: 0.01, value: s0, onInput: v => { s0 = v; touched = true; sync(); } });
+    const slz = ui.slider(ctr, { zh: '测量宽度 σ_z', en: 'measurement σ_z', min: S_MIN, max: S_MAX, step: 0.01, value: sz, onInput: v => { sz = v; touched = true; sync(); } });
+    const presets = [['旗鼓相当', 'Equal', 1.2, 1.2], ['传感器很准', 'Precise sensor', 2.2, 0.45], ['传感器很烂', 'Poor sensor', 0.6, 2.6]];
+    const ph = document.getElementById('fuse-presets');
+    presets.forEach(([zh, en, a, b]) => ui.button(ph, { zh, en, cls: 'sm', onClick: () => {
+      const a0 = s0, b0 = sz;
+      R101.animate(500, e => { s0 = a0 + (a - a0) * e; sz = b0 + (b - b0) * e; sync(); }, () => { touched = true; sync(); });
+    } }));
+    const t1 = document.getElementById('fuse-tex1'), t2 = document.getElementById('fuse-tex2'), t3 = document.getElementById('fuse-tex3'), trust = document.getElementById('fuse-trust'), msg = document.getElementById('fuse-msg');
+    function sync() {
+      const po = post();
+      sl0.set(s0); slz.set(sz);
+      R101.tex(t1, `\\hl{K}{K} = \\frac{\\cx{${M.tex(s0, 2)}^2}}{\\cx{${M.tex(s0, 2)}^2} + \\cw{${M.tex(sz, 2)}^2}} = ${M.tex(po.K, 2)}`);
+      R101.tex(t2, `\\cv{\\mu} = \\cx{${M.tex(m0, 1)}} + ${M.tex(po.K, 2)}\\,(\\cw{${M.tex(z, 1)}} - ${par(m0, 1)}) = \\cv{${M.tex(po.m, 2)}}`);
+      R101.tex(t3, `\\cv{\\sigma} = \\sqrt{1 - ${M.tex(po.K, 2)}}\\;\\cx{${M.tex(s0, 2)}} = \\cv{${M.tex(po.s, 2)}}`);
+      const k = Math.round(po.K * 100);
+      trust.innerHTML = `<div class="small muted" style="display:flex;justify-content:space-between"><span>${L('信预测', 'trust prediction')} ${100 - k}%</span><span>${L('信测量', 'trust measurement')} ${k}%</span></div>
+        <div style="display:flex;height:12px;border-radius:6px;overflow:hidden;border:1px solid var(--border-2)"><div style="width:${100 - k}%;background:var(--c-x);opacity:.75"></div><div style="width:${k}%;background:var(--c-w);opacity:.75"></div></div>`;
+      msg.innerHTML = po.K > 0.95 ? L('后验几乎就是测量：传感器远比预测可靠。', 'The posterior is basically the measurement: the sensor is far more reliable than the prediction.')
+        : po.K < 0.05 ? L('测量几乎被无视：传感器太烂，或者预测已经很准。', 'The measurement is almost ignored: the sensor is poor, or the prediction is already sharp.')
+        : Math.abs(po.K - 0.5) < 0.02 ? L('K ≈ 0.5：两边宽度相同，融合结果落在正中间。', 'K ≈ 0.5: equal widths, so the fused mean lands halfway.')
+        : L(`融合后 σ = ${M.fmt(po.s, 2)}，比 ${M.fmt(Math.min(s0, sz), 2)} 还小。`, `Fused σ = ${M.fmt(po.s, 2)}, smaller than even ${M.fmt(Math.min(s0, sz), 2)}.`);
+      if (touched && Math.abs(po.K - 0.5) < 0.02) R101.done('k-half');
+      if (touched && po.K > 0.95) R101.done('trust-meas');
+      P.invalidate();
+    }
+    R101.on('lang', sync);
+    sync();
+  })();
+
+  /* ---------------- FIG 2: 1D tracking lab ---------------- */
+  (function () {
+    const DT = 0.2, SA = 0.4, SZ = 1.2, WIN = 100, LIM = 10, CRUISE = 1.5;
+    const F = [[1, DT], [0, 1]], G = [DT * DT / 2, DT];
+    let seed = 7, rng, tp, tv, k, hist, x, Pm, phase, sa = 0.5, sz = 1.2, gps = 'on', timer = null, visible = false, stat;
+    const Pt = new R101.Plane2D('#trk-top', { height: 150, draw: drawTrack });
+    const Ps = new R101.Plane2D('#trk-plot', { height: 270, draw: drawSeries });
+    const Qm = () => { const v = sa * sa; return [[v * G[0] * G[0], v * G[0] * G[1]], [v * G[0] * G[1], v * G[1] * G[1]]]; };
+    const hasGps = kk => gps === 'on' || (gps === 'sparse' && kk % 5 === 0);
+    const fresh = () => ({ n: 0, se: 0, sm: 0 });
+    function reset() {
+      rng = M.rng(seed); tp = -6; tv = 1.4; k = 0;
+      const z0 = tp + SZ * M.randn(rng);
+      x = [z0, 0]; Pm = [[sz * sz, 0], [0, 4]];
+      hist = [{ k: 0, t: tp, z: z0, used: true, m: x[0], s: Math.sqrt(Pm[0][0]), prior: false }];
+      phase = 'post'; stat = fresh();
+    }
+    function advanceTruth() {
+      let a = SA * M.randn(rng) + 0.3 * ((tv >= 0 ? 1 : -1) * CRUISE - tv);
+      if (tp > 6) a -= 1.2 * (tp - 6);
+      if (tp < -6) a += 1.2 * (-6 - tp);
+      tv += a * DT; tp += tv * DT;
+    }
+    function predict() {
+      const prev = { m: x[0], s: Math.sqrt(Pm[0][0]) };
+      advanceTruth(); k++;
+      const zn = tp + SZ * M.randn(rng);           // always drawn, so the data never depend on the clicks
+      x = M.mv(F, x); Pm = sym2(M.madd(M.mul(M.mul(F, Pm), M.T(F)), Qm()));
+      hist.push({ k, t: tp, z: hasGps(k) ? zn : null, used: false, m: x[0], s: Math.sqrt(Pm[0][0]), prior: true, pm: x[0], ps: Math.sqrt(Pm[0][0]), prev, xp: x.slice(), Pp: Pm.map(r => r.slice()) });
+      if (hist.length > 400) hist.splice(0, 100);
+      phase = 'prior';
+    }
+    function update() {
+      const h = hist[hist.length - 1];
+      if (phase !== 'prior' || h.z == null) return false;
+      const S = Pm[0][0] + sz * sz, K = [Pm[0][0] / S, Pm[1][0] / S], nu = h.z - x[0];
+      x = [x[0] + K[0] * nu, x[1] + K[1] * nu];
+      Pm = sym2([[Pm[0][0] - K[0] * Pm[0][0], Pm[0][1] - K[0] * Pm[0][1]], [Pm[1][0] - K[1] * Pm[0][0], Pm[1][1] - K[1] * Pm[0][1]]]);
+      Object.assign(h, { used: true, m: x[0], s: Math.sqrt(Pm[0][0]), prior: false, K, nu, S });
+      phase = 'post';
+      stat.n++; stat.se += (x[0] - h.t) ** 2; stat.sm += (h.z - h.t) ** 2;
+      if (stat.n >= 20 && K[0] < 0.08) R101.done('sluggish');
+      if (stat.n >= 20 && K[0] > 0.9) R101.done('jumpy');
+      if (stat.n >= 50 && Math.sqrt(stat.se / stat.sm) < 0.7) R101.done('beat');
+      return true;
+    }
+    function step() { if (phase === 'prior') { if (!update()) predict(); } else { predict(); update(); } }
+
+    function drawTrack(P) {
+      const q = box(P, -LIM, LIM, -0.62, 1.15, [14, 14, 6, 18]);
+      const hl = R101.hl, h = hist[hist.length - 1];
+      P.line(q(-LIM, 0), q(LIM, 0), { color: 'axis', width: 2 });
+      for (let xx = -LIM; xx <= LIM; xx += 2) {
+        const b = q(xx, 0);
+        P.line(b, [b[0], b[1] - 5], { color: 'axis', width: 1 });
+        P.text(xx + (xx === LIM ? ' m' : ''), q(xx, -0.62), { offset: [0, 9], align: 'center', size: 10.5, color: 'text-2' });
+      }
+      [-6, 6].forEach(b => P.line(q(b, -0.06), q(b, 0.22), { color: 'text-2', width: 3, alpha: 0.5 }));
+      const BS = 0.3 * SQ2PI;
+      const bump = (m, s, col, o) => {
+        const pts = [];
+        for (let i = 0; i <= 160; i++) { const xx = -LIM + 2 * LIM * i / 160; pts.push(q(xx, Math.min(1.12, BS * gauss(xx, m, s)))); }
+        if (o.fill) P.poly([q(-LIM, 0)].concat(pts, [q(LIM, 0)]), { fill: col, fillAlpha: o.fill });
+        P.path(pts, { color: col, width: o.width || 2, dash: o.dash, alpha: o.alpha != null ? o.alpha : 1 });
+      };
+      if (phase === 'prior') {
+        if (h.prev) bump(h.prev.m, h.prev.s, 'v', { width: 1.5, dash: [5, 4], alpha: 0.6 });
+        bump(h.m, h.s, 'x', { fill: 0.16, width: 2.5 });
+      } else {
+        if (h.used && h.pm != null) bump(h.pm, h.ps, 'x', { width: 1.5, dash: [5, 4], alpha: 0.6 });
+        bump(h.m, h.s, 'v', { fill: 0.2, width: 2.5 });
+      }
+      // recent measurement ticks
+      let shown = 0;
+      for (let i = hist.length - 1; i >= 0 && shown < 6; i--) {
+        const e = hist[i]; if (e.z == null) continue;
+        const cur = i === hist.length - 1, a = cur ? 1 : 0.55 - shown * 0.08;
+        const em = hl === 'meas' || (cur && hl === 'innov');
+        P.line(q(e.z, -0.08), q(e.z, -0.3), { color: 'w', width: cur || em ? 3 : 2, alpha: a });
+        if (cur) P.text('z', q(e.z, -0.3), { offset: [0, 9], align: 'center', color: 'w', bold: true, size: 12 });
+        shown++;
+      }
+      // innovation and K·innovation
+      const ya = -0.44;
+      if (h.z != null && (phase === 'prior' || h.used)) {
+        const from = phase === 'prior' ? h.m : h.pm;
+        if (Math.abs(h.z - from) > 0.05) P.arrow(q(from, ya), q(h.z, ya), { color: 'w', width: hl === 'innov' ? 3.5 : 1.6, dash: [5, 4], head: 8, alpha: hl === 'innov' ? 1 : 0.75 });
+        if (phase === 'post' && Math.abs(h.m - from) > 0.03) P.arrow(q(from, ya), q(h.m, ya), { color: 'v', width: hl === 'K' ? 5 : 3, head: 9 });
+      }
+      // the cart (truth)
+      const c = q(h.t, 0);
+      P.poly([[c[0] - 13, c[1] + 4], [c[0] + 13, c[1] + 4], [c[0] + 13, c[1] + 15], [c[0] - 13, c[1] + 15]], { fill: 'text', fillAlpha: 0.85 });
+      P.point([c[0] - 7, c[1] + 3], { color: 'text-2', r: 3.5 });
+      P.point([c[0] + 7, c[1] + 3], { color: 'text-2', r: 3.5 });
+    }
+
+    function drawSeries(P) {
+      const kEnd = hist[hist.length - 1].k, k0 = Math.max(0, kEnd - WIN + 4);
+      const q = box(P, k0 * DT, (k0 + WIN) * DT, -11, 11, [34, 10, 26, 20]);
+      const hl = R101.hl;
+      for (let y = -10; y <= 10; y += 5) {
+        P.line(q(k0 * DT, y), q((k0 + WIN) * DT, y), { color: y === 0 ? 'grid-2' : 'grid', width: 1 });
+        P.text(String(y), q(k0 * DT, y), { offset: [-6, 0], align: 'right', size: 10.5, color: 'text-2' });
+      }
+      for (let s = Math.ceil(k0 * DT / 5) * 5; s <= (k0 + WIN) * DT; s += 5) {
+        P.line(q(s, -11), q(s, 11), { color: 'grid', width: 1 });
+        P.text(s + ' s', q(s, -11), { offset: [0, 10], align: 'center', size: 10.5, color: 'text-2' });
+      }
+      const vis = hist.filter(e => e.k >= k0);
+      const up = vis.map(e => q(e.k * DT, e.m + 2 * e.s)), lo = vis.map(e => q(e.k * DT, e.m - 2 * e.s)).reverse();
+      P.poly(up.concat(lo), { fill: 'v', fillAlpha: 0.14 });
+      P.path(vis.map(e => q(e.k * DT, e.t)), { color: 'text', width: 2, alpha: 0.75 });
+      vis.forEach(e => {
+        if (e.z == null) return;
+        if (e.used) P.point(q(e.k * DT, e.z), { color: 'w', r: hl === 'meas' ? 3.5 : 2.6 });
+        else P.point(q(e.k * DT, e.z), { color: 'canvas', r: 2.6, stroke: 'w', strokeWidth: 1.3 });
+      });
+      P.path(vis.map(e => q(e.k * DT, e.m)), { color: 'v', width: 2.4 });
+      const h = hist[hist.length - 1];
+      if (phase === 'prior') P.point(q(h.k * DT, h.m), { color: 'x', r: 4.5, stroke: 'canvas' });
+      P.line(q(kEnd * DT, -11), q(kEnd * DT, 11), { color: 'x', width: 1, dash: [3, 4], alpha: 0.6 });
+    }
+
+    // ---- UI ----
+    const head = document.getElementById('trk-btns');
+    ui.button(head, { zh: '预测', en: 'Predict', cls: 'sm', onClick: () => { stopAuto(); predict(); sync(); } });
+    ui.button(head, { zh: '更新', en: 'Update', cls: 'sm', onClick: () => { stopAuto(); if (!update()) flash(); sync(); } });
+    ui.button(head, { zh: '单步', en: 'Step', cls: 'sm', onClick: () => { stopAuto(); step(); sync(); } });
+    const autoBtn = ui.button(head, { zh: '▶ 自动', en: '▶ Auto', cls: 'sm primary', onClick: () => (timer ? stopAuto() : startAuto()) });
+    ui.button(head, { zh: '重置', en: 'Reset', cls: 'sm', onClick: () => { stopAuto(); reset(); sync(); } });
+    ui.button(head, { zh: '换一组数据', en: 'New data', cls: 'sm', onClick: () => { seed = (seed * 7919 + 13) % 100003; reset(); sync(); } });
+    function startAuto() {
+      if (timer) return;
+      timer = setInterval(() => { if (visible) { step(); sync(); } }, 140);
+      autoBtn.innerHTML = L('⏸ 暂停', '⏸ Pause');
+    }
+    function stopAuto() { if (timer) { clearInterval(timer); timer = null; } autoBtn.innerHTML = L('▶ 自动', '▶ Auto'); }
+    whenVisible(document.getElementById('fig-track'), v => { visible = v; });
+
+    const ctr = document.getElementById('trk-controls');
+    const slQ = logSlider(ctr, { zh: 'Q：滤波器假设的 σₐ', en: 'Q: assumed σₐ', lo: 0.01, hi: 30, value: sa, onInput: v => { sa = v; stat = fresh(); sync(); } });
+    const slR = logSlider(ctr, { zh: 'R：滤波器假设的 σ_z', en: 'R: assumed σ_z', lo: 0.05, hi: 10, value: sz, onInput: v => { sz = v; stat = fresh(); sync(); } });
+    const gpsSeg = ui.seg(ctr, [{ value: 'on', zh: 'GPS 每步', en: 'GPS every step' }, { value: 'sparse', zh: '每 5 步', en: 'every 5th' }, { value: 'off', zh: '断开', en: 'outage' }], gps, v => { gps = v; stat = fresh(); sync(); });
+    const pre = document.getElementById('trk-presets');
+    [['较好', 'Well tuned', 1.5, 1.2], ['迟钝', 'Sluggish', 0.02, 3], ['神经质', 'Jumpy', 10, 0.15]].forEach(([zh, en, a, b]) =>
+      ui.button(pre, { zh, en, cls: 'sm', onClick: () => { sa = a; sz = b; slQ.set(Math.log10(a)); slR.set(Math.log10(b)); stat = fresh(); sync(); } }));
+
+    const phaseEl = document.getElementById('trk-phase'), t1 = document.getElementById('trk-tex1'), t2 = document.getElementById('trk-tex2'), t3 = document.getElementById('trk-tex3'), read = document.getElementById('trk-read');
+    let flashMsg = 0;
+    function flash() { flashMsg = 2; }
+    function sync() {
+      const h = hist[hist.length - 1];
+      if (phase === 'prior') {
+        phaseEl.innerHTML = h.z != null
+          ? `<b class="cx">${L('已预测', 'Predicted')}</b> · ${L('团变胖了。下一步：用紫色读数 z <b>更新</b>。', 'the blob grew. Next: <b>update</b> with the purple reading z.')}`
+          : `<b class="cx">${L('已预测', 'Predicted')}</b> · <span style="color:var(--c-bad)">${L('这一步没有 GPS 读数，只能继续预测。', 'no GPS reading this step; all you can do is predict again.')}</span>`;
+        R101.tex(t1, `\\cx{\\hat{\\x}^-} = F\\hat{\\x} = ${M.texVec(h.xp, 2)}`);
+        R101.tex(t2, `\\cx{P^-} = FPF^\\top + Q = ${M.texMat(h.Pp, 2)}`);
+        R101.tex(t3, h.z != null ? `\\hl{innov}{\\cw{z} - H\\cx{\\hat{\\x}^-}} = ${M.tex(h.z, 2)} - ${par(h.pm, 2)} = ${M.tex(h.z - h.pm, 2)}` : '');
+      } else {
+        phaseEl.innerHTML = flashMsg > 0
+          ? `<span style="color:var(--c-bad)">${L('这个读数已经用过了，先<b>预测</b>下一步。', 'That reading has been used; <b>predict</b> the next step first.')}</span>`
+          : `<b class="cv">${L('已更新', 'Updated')}</b> · ${L('团变瘦了。下一步：<b>预测</b>。', 'the blob shrank. Next: <b>predict</b>.')}`;
+        flashMsg = Math.max(0, flashMsg - 1);
+        if (h.K) {
+          R101.tex(t1, `\\hl{K}{K} = ${M.texVec(h.K, 3)},\\;\\; \\hl{innov}{\\nu} = ${M.tex(h.nu, 2)}`);
+          R101.tex(t2, `\\cv{\\hat{\\x}} = \\cx{\\hat{\\x}^-} + \\hl{K}{K}\\,\\hl{innov}{\\nu} = ${M.texVec(x, 2)}`);
+          R101.tex(t3, `\\cv{P} = (I - KH)P^- = ${M.texMat(Pm, 2)}`);
+        } else {
+          R101.tex(t1, `\\cv{\\hat{\\x}} = ${M.texVec(x, 2)}`);
+          R101.tex(t2, `\\cv{P} = ${M.texMat(Pm, 2)}`);
+          R101.tex(t3, '');
+        }
+      }
+      const lastK = (() => { for (let i = hist.length - 1; i >= 0; i--) if (hist[i].K) return hist[i].K[0]; return null; })();
+      const rE = stat.n ? Math.sqrt(stat.se / stat.n) : null, rM = stat.n ? Math.sqrt(stat.sm / stat.n) : null;
+      read.innerHTML = `t = <b>${M.fmt(k * DT, 1)} s</b> · ${L('位置增益', 'position gain')} K<sub>p</sub> = <b>${lastK == null ? '—' : M.fmt(lastK, 3)}</b><br>` +
+        `${L('当前设置下', 'with these settings')} (${stat.n} ${L('次更新', 'updates')}):<br>` +
+        `RMSE ${L('估计', 'estimate')} <b class="cv">${rE == null ? '—' : M.fmt(rE, 2)}</b> · GPS <b class="cw">${rM == null ? '—' : M.fmt(rM, 2)}</b> m` +
+        (rE != null && stat.n >= 10 ? `<br>${L('比值', 'ratio')} <b>${M.fmt(rE / rM, 2)}</b>` : '');
+      Pt.invalidate(); Ps.invalidate();
+    }
+    R101.on('hl', () => { Pt.invalidate(); });
+    R101.on('lang', () => { sync(); autoBtn.innerHTML = timer ? L('⏸ 暂停', '⏸ Pause') : L('▶ 自动', '▶ Auto'); });
+    reset();
+    for (let i = 0; i < 12; i++) step();   // start with a little history
+    stat = fresh();
+    predict();
+    sync();
+  })();
+
+  /* ---------------- FIG 3: covariance ellipse in phase space ---------------- */
+  (function () {
+    const DT = 1, SA = 0.25, X_SPAN = 6.5, V0 = -2.6, V1 = 4.2;
+    const Q0 = [[SA * SA / 4, SA * SA / 2], [SA * SA / 2, SA * SA]];
+    let x, Pm, z, sz = 0.4, useQ = true, phase, ghost, sheared, shown, anim = null, rng, lastOp, before, center = 0, q = null, K = null;
+    const P = new R101.Plane2D('#ph-canvas', { height: 400, draw, onChange: () => sync() });
+    function reset() {
+      if (anim) { anim(); anim = null; }
+      rng = M.rng(5); x = [0, 1]; Pm = [[0.25, 0], [0, 0.64]]; z = 0.7; phase = 'prior';
+      ghost = null; sheared = null; lastOp = 'init'; before = null; K = null;
+      shown = { x: x.slice(), P: Pm.map(r => r.slice()) }; center = x[0];
+    }
+    const Qeff = () => (useQ ? Q0 : [[0, 0], [0, 0]]);
+    function postOf(xx, PP) {
+      const S = PP[0][0] + sz * sz, Kk = [PP[0][0] / S, PP[1][0] / S], nu = z - xx[0];
+      return { K: Kk, nu, S, x: [xx[0] + Kk[0] * nu, xx[1] + Kk[1] * nu],
+        P: sym2([[PP[0][0] - Kk[0] * PP[0][0], PP[0][1] - Kk[0] * PP[0][1]], [PP[1][0] - Kk[1] * PP[0][0], PP[1][1] - Kk[1] * PP[0][1]]]) };
+    }
+    function predict() {
+      if (anim) return;
+      before = { x: x.slice(), P: Pm.map(r => r.slice()) }; ghost = before;
+      const Fm = [[1, DT], [0, 1]];
+      sheared = sym2(M.mul(M.mul(Fm, Pm), M.T(Fm)));
+      const Qe = Qeff(), x1 = M.mv(Fm, x), P1 = sym2(M.madd(sheared, Qe)), P0 = Pm, xs = x.slice();
+      lastOp = 'predict'; phase = 'anim';
+      anim = R101.animate(900, e => {
+        const Ft = [[1, e * DT], [0, 1]];
+        shown = { x: M.mv(Ft, xs), P: M.madd(M.mul(M.mul(Ft, P0), M.T(Ft)), M.mscale(Qe, e)) };
+        center = shown.x[0]; P.invalidate();
+      }, () => {
+        anim = null; x = x1; Pm = P1; shown = { x: x.slice(), P: Pm.map(r => r.slice()) }; center = x[0];
+        z = M.clamp(x[0] + Math.sqrt(Pm[0][0] + sz * sz) * M.randn(rng), x[0] - 4, x[0] + 4);
+        z = Math.round(z * 10) / 10;
+        phase = 'prior'; K = null; sync();
+      });
+      sync();
+    }
+    function update() {
+      if (anim) return;
+      if (phase !== 'prior') { msg('used'); return; }
+      before = { x: x.slice(), P: Pm.map(r => r.slice()) }; ghost = before;
+      const po = postOf(x, Pm), from = { x: x.slice(), P: Pm.map(r => r.slice()) };
+      K = po.K; lastOp = 'update'; phase = 'anim';
+      anim = R101.animate(600, e => {
+        shown = { x: from.x.map((v, i) => v + (po.x[i] - v) * e), P: M.lerpM(from.P, po.P, e) };
+        P.invalidate();
+      }, () => {
+        anim = null; x = po.x; Pm = po.P; shown = { x: x.slice(), P: Pm.map(r => r.slice()) };
+        phase = 'post'; sync();
+        if (Math.sqrt(Pm[1][1]) <= 0.4) R101.done('magic');
+      });
+      sync();
+    }
+    function draw(P) {
+      const X0 = center - X_SPAN + 0.6, X1 = center + X_SPAN + 0.6;
+      q = box(P, X0, X1, V0, V1, [30, 10, 8, 22]);
+      const hl = R101.hl, sc = shown;
+      // grid
+      for (let p = Math.ceil(X0); p <= X1; p++) {
+        P.line(q(p, V0), q(p, V1), { color: p === 0 ? 'grid-2' : 'grid', width: 1 });
+        if (p % 2 === 0) P.text(String(p), q(p, V0), { offset: [0, 11], align: 'center', size: 10.5, color: 'text-2' });
+      }
+      for (let v = Math.ceil(V0); v <= V1; v++) {
+        P.line(q(X0, v), q(X1, v), { color: v === 0 ? 'grid-2' : 'grid', width: v === 0 ? 1.5 : 1 });
+        P.text(String(v), q(X0, v), { offset: [-6, 0], align: 'right', size: 10.5, color: 'text-2' });
+      }
+      P.text(tr('位置 p →', 'position p →'), q(X1, V0), { offset: [-4, -10], align: 'right', size: 11.5, color: 'text-2' });
+      P.text(tr('↑ 速度 v', '↑ velocity v'), q(X0, V1), { offset: [6, 10], align: 'left', size: 11.5, color: 'text-2' });
+      // measurement strip
+      const showMeas = phase === 'prior' || lastOp === 'update' || phase === 'anim';
+      if (showMeas) {
+        const em = hl === 'meas';
+        P.poly([q(z - 2 * sz, V0), q(z + 2 * sz, V0), q(z + 2 * sz, V1), q(z - 2 * sz, V1)], { fill: 'w', fillAlpha: em ? 0.22 : 0.1 });
+        P.line(q(z, V0), q(z, V1), { color: 'w', width: em ? 2.5 : 1.3, dash: [5, 5], alpha: 0.8 });
+      }
+      // previous step
+      if (ghost) P.path(covPts(ghost.x, ghost.P, 2).map(p => q(p[0], p[1])), { color: 'text-2', width: 1.3, dash: [4, 4], alpha: 0.6 });
+      // the sheared ellipse without Q, and Q itself (hover)
+      if (sheared && lastOp === 'predict' && phase !== 'anim') {
+        const em = hl === 'FPF';
+        P.path(covPts(x, sheared, 2).map(p => q(p[0], p[1])), { color: 'x', width: em ? 3 : 1.2, dash: [3, 4], alpha: em ? 1 : 0.7 });
+      }
+      if (hl === 'Q') P.poly(covPts(sc.x, Qeff(), 2).map(p => q(p[0], p[1])), { fill: 'x', fillAlpha: 0.5, stroke: 'x', width: 2 });
+      // current belief
+      const col = (phase === 'prior' && lastOp !== 'init') || (phase === 'anim' && lastOp === 'predict') ? 'x' : 'v';
+      const emB = (col === 'x' && hl === 'prior') || (col === 'v' && hl === 'post');
+      P.poly(covPts(sc.x, sc.P, 2).map(p => q(p[0], p[1])), { fill: col, fillAlpha: emB ? 0.35 : 0.2, stroke: col, width: emB ? 4 : 2.5 });
+      P.point(q(sc.x[0], sc.x[1]), { color: col, r: 4.5, stroke: 'canvas' });
+      // preview of the update
+      if (phase === 'prior') {
+        const po = postOf(x, Pm);
+        const emP = hl === 'post';
+        P.path(covPts(po.x, po.P, 2).map(p => q(p[0], p[1])), { color: 'v', width: emP ? 3.5 : 2, dash: [6, 4], alpha: emP ? 1 : 0.85 });
+        if (Math.hypot(po.x[0] - x[0], po.x[1] - x[1]) > 0.04) P.arrow(q(x[0], x[1]), q(po.x[0], po.x[1]), { color: 'v', width: hl === 'K' ? 4.5 : 2.2, head: 9 });
+        const yi = V0 + 0.35, emI = hl === 'innov';
+        if (Math.abs(z - x[0]) > 0.05) P.arrow(q(x[0], yi), q(z, yi), { color: 'w', width: emI ? 3.5 : 1.6, dash: [5, 4], head: 8 });
+      }
+      // marginal bars
+      const sp = Math.sqrt(sc.P[0][0]), sv = Math.sqrt(sc.P[1][1]);
+      const yb = V0 + 0.08, xb = X0 + 0.12;
+      P.line(q(sc.x[0] - 2 * sp, yb), q(sc.x[0] + 2 * sp, yb), { color: col, width: 6, alpha: 0.85 });
+      P.line(q(xb, sc.x[1] - 2 * sv), q(xb, sc.x[1] + 2 * sv), { color: col, width: 6, alpha: 0.85 });
+      P.text('±2σ_v', q(xb, sc.x[1] + 2 * sv), { offset: [4, -8], size: 11, color: col, bold: true });
+    }
+    P.handle({ pos: () => q(z, V0 + 0.75), color: 'w', visible: () => phase === 'prior', set: p => { z = Math.round(M.clamp(q.inv(p)[0], center - 5.5, center + 6.5) * 10) / 10; } });
+
+    const bh = document.getElementById('ph-btns');
+    ui.button(bh, { zh: '预测 F', en: 'Predict F', cls: 'sm', onClick: predict });
+    ui.button(bh, { zh: '更新 H', en: 'Update H', cls: 'sm primary', onClick: update });
+    ui.button(bh, { zh: '重置', en: 'Reset', cls: 'sm', onClick: () => { reset(); sync(); } });
+    const ctr = document.getElementById('ph-controls');
+    ui.seg(ctr, [{ value: 'on', zh: 'Q 开', en: 'Q on' }, { value: 'off', zh: 'Q = 0', en: 'Q = 0' }], 'on', v => { useQ = v === 'on'; sync(); });
+    ui.slider(ctr, { zh: '测量噪声 σ_z', en: 'measurement σ_z', min: 0.1, max: 2, step: 0.05, value: sz, onInput: v => { sz = v; sync(); } });
+    const t1 = document.getElementById('ph-tex1'), t2 = document.getElementById('ph-tex2'), read = document.getElementById('ph-read'), msgEl = document.getElementById('ph-msg');
+    let note = null;
+    function msg(kind) { note = kind; sync(); }
+    const stats = PP => ({ sp: Math.sqrt(PP[0][0]), sv: Math.sqrt(PP[1][1]), rho: PP[0][1] / Math.sqrt(PP[0][0] * PP[1][1]) });
+    function sync() {
+      const S = stats(Pm);
+      if (lastOp === 'init') {
+        R101.tex(t1, `P_0 = ${M.texMat(Pm, 2)}`);
+        R101.tex(t2, `\\rho_{pv} = 0`);
+      } else if (lastOp === 'predict') {
+        R101.tex(t1, `P = ${M.texMat(before.P, 2)}`);
+        R101.tex(t2, `\\hl{prior}{\\cx{P^-}} = \\hl{FPF}{FPF^\\top} + \\hl{Q}{Q} = ${M.texMat(Pm, 2)}`);
+      } else {
+        R101.tex(t1, `\\cx{P^-} = ${M.texMat(before.P, 2)},\\;\\; \\hl{K}{K} = ${M.texVec(K, 2)}`);
+        R101.tex(t2, `\\hl{post}{\\cv{P}} = (I - KH)P^- = ${M.texMat(Pm, 2)}`);
+      }
+      const B = before ? stats(before.P) : null;
+      const arrow = (a, b) => (b == null ? '' : ` <span class="muted">(${M.fmt(b, 2)} →)</span>`);
+      read.innerHTML = `σ<sub>p</sub> = ${arrow(0, B && B.sp)}<b>${M.fmt(S.sp, 2)}</b><br>σ<sub>v</sub> = ${arrow(0, B && B.sv)}<b>${M.fmt(S.sv, 2)}</b><br>${L('相关系数', 'correlation')} ρ = <b>${M.fmt(S.rho, 2)}</b>`;
+      let m = '';
+      if (note === 'used') m = `<span style="color:var(--c-bad)">${L('这个测量已经用过了。重复使用同一个读数等于假装自己测了两次。先预测。', 'That measurement has been used. Reusing a reading pretends you measured twice. Predict first.')}</span>`;
+      else if (lastOp === 'update' && B && Math.abs(S.sv - B.sv) < 0.005) m = L('速度一点没变准：椭圆没有倾斜（ρ = 0），位置的信息传不到速度上。先按"预测"让它歪过来。', 'Velocity did not improve at all: the ellipse is not tilted (ρ = 0), so position information cannot reach velocity. Press "Predict" to tilt it first.');
+      else if (lastOp === 'update') m = L('只测了位置，σ<sub>v</sub> 却也变小了：这就是相关性的功劳。', 'Only position was measured, yet σ<sub>v</sub> shrank: that is the correlation at work.');
+      else if (lastOp === 'predict') m = L('剪切让椭圆歪了：p 和 v 相关了。拖动紫色的 z 看看预览，再按"更新"。', 'The shear tilted the ellipse: p and v are now correlated. Drag the purple z to see the preview, then press "Update".');
+      else m = L('起点：位置和速度互不相关。', 'Start: position and velocity are uncorrelated.');
+      msgEl.innerHTML = m; note = null;
+      P.invalidate();
+    }
+    R101.on('lang', sync);
+    reset();
+    sync();
+  })();
+
+  /* ---------------- FIG 4: EKF localization ---------------- */
+  (function () {
+    const DT = 0.1, A = 5.6, B = 3.3, VN = 1.0;
+    const SV = 0.15, SW = 0.12, SR = 0.25, SB = 0.06;
+    const Mn = [[SV * SV, 0], [0, SW * SW]], Rm = [[SR * SR, 0], [0, SB * SB]];
+    const LM0 = [[-4.6, 4.7, true], [0.2, 5.0, true], [4.6, 4.5, true], [7.7, 0.6, true], [3.4, -5.0, false], [-2.6, -5.0, false], [-7.7, -1.2, false]];
+    let lms, s, T, X, Pc, D, k, rng, trT, trD, trE, lastUp, visibleLms, playing = true, speed = 3, range = 3.5, raf = 0, last = 0, acc = 0, onScreen = false, wasBig = false, lastRead = 0;
+    const P = new R101.Plane2D('#ekf-canvas', {
+      heightFn: w => Math.round(M.clamp(w * 0.64, 320, 470)), draw, cursor: 'pointer',
+      onPointerDown: w => {
+        let best = -1, bd = 0.5;
+        lms.forEach((l, i) => { const d = Math.hypot(l[0] - w[0], l[1] - w[1]); if (d < bd) { bd = d; best = i; } });
+        if (best >= 0) lms[best][2] = !lms[best][2];
+        else if (lms.length < 16) lms.push([Math.round(w[0] * 10) / 10, Math.round(w[1] * 10) / 10, true]);
+        readout(true);
+      }
+    });
+    const truthAt = ss => ({ p: [A * Math.cos(ss), B * Math.sin(ss)], th: Math.atan2(B * Math.cos(ss), -A * Math.sin(ss)) });
+    function reset() {
+      lms = LM0.map(l => l.slice());
+      s = Math.PI / 2; const t0 = truthAt(s);
+      T = [t0.p[0], t0.p[1], t0.th]; X = T.slice(); D = T.slice();
+      Pc = [[0.05 ** 2, 0, 0], [0, 0.05 ** 2, 0], [0, 0, 0.02 ** 2]];
+      k = 0; rng = M.rng(42); trT = [T.slice(0, 2)]; trD = [D.slice(0, 2)]; trE = [X.slice(0, 2)]; lastUp = null; visibleLms = []; wasBig = false;
+    }
+    function ekfUpdate(lm, z) {
+      const Xp = X.slice();
+      const dx = lm[0] - X[0], dy = lm[1] - X[1], q2 = dx * dx + dy * dy, r = Math.sqrt(q2);
+      if (r < 0.2) return;
+      const H = [[-dx / r, -dy / r, 0], [dy / q2, -dx / q2, -1]];
+      const nu = [z[0] - r, wrap(z[1] - wrap(Math.atan2(dy, dx) - X[2]))];
+      const PHt = M.mul(Pc, M.T(H));
+      const S = M.madd(M.mul(H, PHt), Rm), Si = M.inv2(S);
+      if (!Si) return;
+      const K = M.mul(PHt, Si), d = M.mv(K, nu);
+      X = [X[0] + d[0], X[1] + d[1], wrap(X[2] + d[2])];
+      const IKH = M.madd(M.eye(3), M.mscale(M.mul(K, H), -1));
+      Pc = M.madd(M.mul(M.mul(IKH, Pc), M.T(IKH)), M.mul(M.mul(K, Rm), M.T(K)));   // Joseph form
+      Pc = Pc.map((row, i) => row.map((v, j) => (v + Pc[j][i]) / 2));
+      lastUp = { H, nu, Xp, lm: lm.slice(0, 2) };
+    }
+    function simStep() {
+      // truth: constant speed along the ellipse
+      const s1 = s + VN * DT / Math.hypot(A * Math.sin(s), B * Math.cos(s)), t1 = truthAt(s1);
+      const v = Math.hypot(t1.p[0] - T[0], t1.p[1] - T[1]) / DT, w = wrap(t1.th - T[2]) / DT;
+      s = s1 % (2 * Math.PI); T = [t1.p[0], t1.p[1], t1.th];
+      // noisy odometry
+      const vo = v + SV * M.randn(rng), wo = w + SW * M.randn(rng);
+      // dead reckoning
+      D = [D[0] + vo * DT * Math.cos(D[2]), D[1] + vo * DT * Math.sin(D[2]), wrap(D[2] + wo * DT)];
+      // EKF predict
+      const c = Math.cos(X[2]), sn = Math.sin(X[2]);
+      const Fm = [[1, 0, -vo * DT * sn], [0, 1, vo * DT * c], [0, 0, 1]], V = [[DT * c, 0], [DT * sn, 0], [0, DT]];
+      X = [X[0] + vo * DT * c, X[1] + vo * DT * sn, wrap(X[2] + wo * DT)];
+      Pc = M.madd(M.mul(M.mul(Fm, Pc), M.T(Fm)), M.mul(M.mul(V, Mn), M.T(V)));
+      // range-bearing measurements (5 Hz)
+      k++;
+      visibleLms = lms.filter(l => l[2] && Math.hypot(l[0] - T[0], l[1] - T[1]) <= range);
+      if (k % 2 === 0) visibleLms.forEach(l => {
+        const dx = l[0] - T[0], dy = l[1] - T[1];
+        const z = [Math.hypot(dx, dy) + SR * M.randn(rng), wrap(Math.atan2(dy, dx) - T[2] + SB * M.randn(rng))];
+        ekfUpdate(l, z);
+      });
+      trT.push([T[0], T[1]]); trD.push([D[0], D[1]]); trE.push([X[0], X[1]]);
+      if (trT.length > 1800) { trT.splice(0, 300); trD.splice(0, 300); trE.splice(0, 300); }
+      const big = majorSigma();
+      if (big > 1.5) wasBig = true;
+      if (wasBig && big < 0.35) R101.done('ekf-shrink');
+    }
+    const Pxy = () => [[Pc[0][0], Pc[0][1]], [Pc[1][0], Pc[1][1]]];
+    const majorSigma = () => Math.sqrt(Math.max(0, M.eigSym2(Pxy()).l1));
+    function robot(p, col, o) {
+      const c = Math.cos(p[2]), sn = Math.sin(p[2]), r = 0.32;
+      const pts = [[r * 1.3, 0], [-r * 0.8, r * 0.75], [-r * 0.5, 0], [-r * 0.8, -r * 0.75]].map(([a, b]) => [p[0] + a * c - b * sn, p[1] + a * sn + b * c]);
+      P.poly(pts, { fill: col, fillAlpha: o.fa != null ? o.fa : 0.9, stroke: col, width: 1.5, alpha: o.alpha != null ? o.alpha : 1 });
+    }
+    function draw(P) {
+      const need = Math.max(17.8 / P.W, 11.6 / P.H);
+      P.view.span = Math.min(P.W, P.H) * need; P.view.cx = 0.2; P.view.cy = 0;
+      const hl = R101.hl;
+      P.grid({ color: 'grid', axisColor: 'grid-2', step: 1 });
+      // sensor range
+      if (range > 0.05) P.circle([T[0], T[1]], range, { color: 'x', width: 1.2, dash: [5, 5], alpha: 0.6 });
+      // trajectories
+      P.path(trT, { color: 'text', width: 1.6, alpha: 0.55 });
+      P.path(trD, { color: 'bad', width: 1.6, dash: [6, 5], alpha: 0.85 });
+      P.path(trE, { color: 'v', width: 2.2, alpha: 0.9 });
+      // landmarks
+      lms.forEach(l => {
+        const d = 0.22, pts = [[l[0], l[1] + d], [l[0] + d, l[1]], [l[0], l[1] - d], [l[0] - d, l[1]]];
+        if (l[2]) P.poly(pts, { fill: 'x', fillAlpha: 0.9, stroke: 'x', width: 1.5 });
+        else P.poly(pts, { stroke: 'axis', width: 1.5, alpha: 0.7 });
+      });
+      // measurement rays
+      const emH = hl === 'H';
+      visibleLms.forEach(l => P.line([T[0], T[1]], [l[0], l[1]], { color: 'w', width: emH ? 3 : 1.5, alpha: emH ? 1 : 0.75 }));
+      if (emH && lastUp) P.line([lastUp.Xp[0], lastUp.Xp[1]], lastUp.lm, { color: 'v', width: 2, dash: [4, 4] });
+      // robots
+      robot(D, 'bad', { fa: 0.25, alpha: 0.8 });
+      robot(T, 'text', { fa: 0.85 });
+      // EKF: ellipse + heading wedge
+      P.poly(covPts([X[0], X[1]], Pxy(), 2), { fill: 'v', fillAlpha: 0.16, stroke: 'v', width: 2 });
+      const st = 2 * Math.sqrt(Math.max(0, Pc[2][2])), L1 = 0.95;
+      [-st, st].forEach(dth => P.line([X[0], X[1]], [X[0] + L1 * Math.cos(X[2] + dth), X[1] + L1 * Math.sin(X[2] + dth)], { color: 'v', width: 1.3, alpha: 0.8 }));
+      robot(X, 'v', { fa: 0.9 });
+      P.textPx(tr('点击路标开关 · 点击空白处添加', 'click a landmark to toggle · click empty space to add'), 10, 14, { size: 11.5, color: 'text-2' });
+    }
+    // ---- loop ----
+    function frame(now) {
+      raf = 0;
+      if (!playing || !onScreen) return;
+      const dtR = Math.min(0.1, (now - last) / 1000); last = now;
+      acc += dtR * speed / DT;
+      let n = 0;
+      while (acc >= 1 && n < 80) { simStep(); acc -= 1; n++; }
+      P.invalidate();
+      readout(false, now);
+      raf = requestAnimationFrame(frame);
+    }
+    function start() { if (!raf && playing && onScreen) { last = performance.now(); raf = requestAnimationFrame(frame); } }
+    whenVisible(document.getElementById('fig-ekf'), v => { onScreen = v; start(); });
+
+    const bh = document.getElementById('ekf-btns');
+    const playBtn = ui.button(bh, { zh: '⏸ 暂停', en: '⏸ Pause', cls: 'sm primary', onClick: () => { playing = !playing; playBtn.innerHTML = playing ? L('⏸ 暂停', '⏸ Pause') : L('▶ 播放', '▶ Play'); start(); } });
+    ui.button(bh, { zh: '路标全关', en: 'All off', cls: 'sm', onClick: () => { lms.forEach(l => { l[2] = false; }); readout(true); } });
+    ui.button(bh, { zh: '路标全开', en: 'All on', cls: 'sm', onClick: () => { lms.forEach(l => { l[2] = true; }); readout(true); } });
+    ui.button(bh, { zh: '重置', en: 'Reset', cls: 'sm', onClick: () => { reset(); P.invalidate(); readout(true); } });
+    const ctr = document.getElementById('ekf-controls');
+    ui.slider(ctr, { zh: '传感器量程', en: 'sensor range', min: 0, max: 8, step: 0.1, value: range, fmt: v => M.fmt(v, 1) + ' m', onInput: v => { range = v; P.invalidate(); } });
+    ui.slider(ctr, { zh: '速度', en: 'speed', min: 1, max: 8, step: 1, value: speed, fmt: v => v + '×', onInput: v => { speed = v; } });
+
+    const read = document.getElementById('ekf-read'), t1 = document.getElementById('ekf-tex1'), t2 = document.getElementById('ekf-tex2'), t3 = document.getElementById('ekf-tex3');
+    function readout(force, now) {
+      now = now || performance.now();
+      if (!force && now - lastRead < 200) return;
+      lastRead = now;
+      const ms = majorSigma(), eE = Math.hypot(X[0] - T[0], X[1] - T[1]), eD = Math.hypot(D[0] - T[0], D[1] - T[1]);
+      read.innerHTML = `${L('看到的路标', 'landmarks in view')}: <b>${visibleLms.length}</b><br>` +
+        `${L('椭圆长半轴 σ', 'ellipse major σ')}: <b style="color:${ms > 1.5 ? 'var(--c-bad)' : 'inherit'}">${M.fmt(ms, 2)} m</b> · σ<sub>θ</sub> <b>${M.fmt(Math.sqrt(Pc[2][2]) * 180 / Math.PI, 1)}°</b><br>` +
+        `${L('误差', 'error')}: EKF <b class="cv">${M.fmt(eE, 2)} m</b> · ${L('里程计', 'odometry')} <b style="color:var(--c-bad)">${M.fmt(eD, 2)} m</b>`;
+      if (lastUp) {
+        const { H, nu, Xp } = lastUp;
+        R101.tex(t1, `\\hat{\\x}^- = (${M.tex(Xp[0], 2)},\\, ${M.tex(Xp[1], 2)},\\, ${M.tex(Xp[2], 2)})`);
+        R101.tex(t2, `\\hl{H}{H} = ${M.texMat(H, 2)}`);
+        R101.tex(t3, `\\hl{innov}{\\mathbf z - h(\\hat{\\x}^-)} = \\begin{bmatrix} ${M.tex(nu[0], 2)}\\,\\text{m} \\\\ ${M.tex(nu[1] * 180 / Math.PI, 1)}^\\circ \\end{bmatrix}`);
+      } else {
+        R101.tex(t1, `\\hl{H}{H} = \\text{—}`);
+        R101.tex(t2, ''); R101.tex(t3, '');
+      }
+    }
+    R101.on('lang', () => { playBtn.innerHTML = playing ? L('⏸ 暂停', '⏸ Pause') : L('▶ 播放', '▶ Play'); readout(true); });
+    R101.on('hl', () => P.invalidate());
+    reset();
+    for (let i = 0; i < 30; i++) simStep();
+    readout(true);
+  })();
+
+  /* ---------------- FIG 5: honest vs. lying filters ---------------- */
+  (function () {
+    const DT = 0.2, N = 200, SZ = 1.0, KM = 100;
+    const truth = [], meas = [];
+    (function gen() {
+      const rng = M.rng(11);
+      let p = 0, v = 1.2;
+      for (let k = 0; k < N; k++) {
+        let a = 0.15 * M.randn(rng);
+        if (k >= KM && k < KM + 5) a += -2.4;
+        if (k > 0) { v += a * DT; p += v * DT; }
+        truth.push(p); meas.push(p + SZ * M.randn(rng));
+      }
+    })();
+    let sa = 0.8, sz = 1.0, res = null;
+    const F = [[1, DT], [0, 1]], G = [DT * DT / 2, DT];
+    function run() {
+      const q = sa * sa, Q = [[q * G[0] * G[0], q * G[0] * G[1]], [q * G[0] * G[1], q * G[1] * G[1]]];
+      let x = [meas[0], 0], Pm = [[sz * sz, 0], [0, 4]];
+      const m = new Float64Array(N), s = new Float64Array(N);
+      let inside = 0, cnt = 0, se = 0, band = 0, maxE = 0;
+      for (let k = 0; k < N; k++) {
+        if (k > 0) {
+          x = M.mv(F, x); Pm = M.madd(M.mul(M.mul(F, Pm), M.T(F)), Q);
+          const S = Pm[0][0] + sz * sz, K = [Pm[0][0] / S, Pm[1][0] / S], nu = meas[k] - x[0];
+          x = [x[0] + K[0] * nu, x[1] + K[1] * nu];
+          Pm = sym2([[Pm[0][0] - K[0] * Pm[0][0], Pm[0][1] - K[0] * Pm[0][1]], [Pm[1][0] - K[1] * Pm[0][0], Pm[1][1] - K[1] * Pm[0][1]]]);
+        }
+        m[k] = x[0]; s[k] = Math.sqrt(Math.max(0, Pm[0][0]));
+        if (k >= 10) {
+          const e = Math.abs(x[0] - truth[k]);
+          cnt++; if (e <= 2 * s[k]) inside++; se += e * e; band += 2 * s[k]; maxE = Math.max(maxE, e);
+        }
+      }
+      res = { m, s, cov: inside / cnt, rmse: Math.sqrt(se / cnt), band: band / cnt, maxE };
+    }
+    const P = new R101.Plane2D('#div-canvas', { height: 330, draw });
+    function draw(P) {
+      const q = box(P, 0, N * DT, -5, 29, [34, 10, 8, 20]);
+      for (let y = 0; y <= 25; y += 5) {
+        P.line(q(0, y), q(N * DT, y), { color: y === 0 ? 'grid-2' : 'grid', width: 1 });
+        P.text(String(y), q(0, y), { offset: [-6, 0], align: 'right', size: 10.5, color: 'text-2' });
+      }
+      for (let t = 0; t <= N * DT; t += 5) {
+        P.line(q(t, -5), q(t, 29), { color: 'grid', width: 1 });
+        P.text(t + ' s', q(t, -5), { offset: [0, 10], align: 'center', size: 10.5, color: 'text-2' });
+      }
+      P.line(q(KM * DT, -5), q(KM * DT, 29), { color: 'bad', width: 1.2, dash: [5, 5], alpha: 0.7 });
+      P.text(tr('急刹掉头', 'hard reverse'), q(KM * DT, 29), { offset: [6, 10], size: 11, color: 'bad' });
+      const up = [], lo = [], est = [], tru = [];
+      for (let k = 0; k < N; k++) {
+        const yU = M.clamp(res.m[k] + 2 * res.s[k], -6, 30), yL = M.clamp(res.m[k] - 2 * res.s[k], -6, 30);
+        up.push(q(k * DT, yU)); lo.push(q(k * DT, yL)); est.push(q(k * DT, M.clamp(res.m[k], -6, 30))); tru.push(q(k * DT, truth[k]));
+      }
+      P.poly(up.concat(lo.reverse()), { fill: 'v', fillAlpha: 0.16 });
+      for (let k = 0; k < N; k++) P.point(q(k * DT, meas[k]), { color: 'w', r: 1.8, alpha: 0.6 });
+      P.path(tru, { color: 'text', width: 2, alpha: 0.75 });
+      P.path(est, { color: 'v', width: 2.4 });
+      for (let k = 10; k < N; k++) if (Math.abs(res.m[k] - truth[k]) > 2 * res.s[k]) P.point(q(k * DT, truth[k]), { color: 'bad', r: 2.6 });
+    }
+    const ctr = document.getElementById('div-controls');
+    const slQ = logSlider(ctr, { zh: 'Q：假设的 σₐ', en: 'Q: assumed σₐ', lo: 0.001, hi: 10, value: sa, onInput: v => { sa = v; sync(); } });
+    const slR = logSlider(ctr, { zh: 'R：假设的 σ_z', en: 'R: assumed σ_z', lo: 0.05, hi: 10, value: sz, onInput: v => { sz = v; sync(); } });
+    const pre = document.getElementById('div-presets');
+    [['诚实', 'Honest', 0.8, 1.0], ['迷信模型', 'Trusts model blindly', 0.003, 1.0], ['迷信传感器', 'Trusts sensor blindly', 0.8, 0.1], ['过于谨慎', 'Over-cautious', 3, 4]].forEach(([zh, en, a, b]) =>
+      ui.button(pre, { zh, en, cls: 'sm', onClick: () => { sa = a; sz = b; slQ.set(Math.log10(a)); slR.set(Math.log10(b)); sync(); } }));
+    const read = document.getElementById('div-read'), tex = document.getElementById('div-tex'), msg = document.getElementById('div-msg');
+    function sync() {
+      run();
+      const c = res.cov * 100;
+      const col = c < 85 ? 'var(--c-bad)' : 'var(--c-good)';
+      read.innerHTML = `${L('覆盖率', 'coverage')} <span style="font-size:22px;font-weight:700;color:${col}">${M.fmt(c, 0)}%</span> <span class="muted">${L('（理想 ≈ 95%）', '(ideal ≈ 95%)')}</span><br>` +
+        `${L('实际误差', 'actual error')} RMSE <b>${M.fmt(res.rmse, 2)} m</b> · ${L('最大', 'max')} <b>${M.fmt(res.maxE, 2)} m</b><br>` +
+        `${L('自称的 2σ（平均）', 'claimed 2σ (mean)')} <b>${M.fmt(res.band, 2)} m</b>`;
+      R101.tex(tex, `\\frac{\\sigma_a^2}{\\sigma_z^2} = \\frac{${M.tex(sa * sa, sa < 0.03 ? 5 : 3)}}{${M.tex(sz * sz, 3)}}`);
+      msg.innerHTML = c < 85
+        ? `<b style="color:var(--c-bad)">${L('过度自信', 'Overconfident')}</b>：${L('黄带太窄，真值频频跑出去，滤波器在撒谎。', 'the band is too narrow and the truth keeps escaping it: the filter is lying.')}`
+        : (c > 99.4 && res.band > 2.5 * res.rmse)
+          ? `<b class="cx">${L('过于谨慎', 'Over-cautious')}</b>：${L('真值总在带内，但带比实际误差宽得多，下游模块会白白地不信任它。', 'the truth is always inside, but the band is far wider than the real error, so downstream modules will distrust it for no reason.')}`
+          : `<b style="color:var(--c-good)">${L('诚实', 'Honest')}</b>：${L('自称的不确定性与实际误差相符。', 'the claimed uncertainty matches the actual error.')}`;
+      if (c < 50) R101.done('diverge');
+      P.invalidate();
+    }
+    R101.on('lang', sync);
+    sync();
+  })();
+});
+</script>
+</body>
+</html>

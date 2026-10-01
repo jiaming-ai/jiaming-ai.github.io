@@ -1,0 +1,984 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-theme="dark" data-lang-ui="zh">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>3.3 雅可比：局部线性变换 · Robotics for Beginners</title>
+<meta name="description" content="An interactive, intuition-first lesson: zoom in on a nonlinear map and it becomes a matrix. The Jacobian as a local linear map, its columns as velocities, its determinant as local area scale, and the 2-link arm.">
+<link rel="icon" href="../../favicon.svg" type="image/svg+xml">
+<script>(function(){var d=document.documentElement,t='dark',l=null;try{t=localStorage.getItem('theme')||'dark'}catch(e){}d.setAttribute('data-theme',t);try{l=new URLSearchParams(location.search).get('lang')||localStorage.getItem('lang')}catch(e){}if(l!=='zh'&&l!=='en')l=(navigator.language||'').toLowerCase().indexOf('zh')===0?'zh':'en';d.setAttribute('data-lang-ui',l);d.lang=l==='zh'?'zh-CN':'en';})();</script>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.22/dist/katex.min.css">
+<link rel="stylesheet" href="../assets/course.css">
+<style>
+  .det-legend { height: 10px; border-radius: 5px; border: 1px solid var(--border); background: linear-gradient(90deg, var(--c-w), var(--c-canvas) 50%, var(--c-x)); }
+  .det-legend-labels { display: flex; justify-content: space-between; font-size: 12px; color: var(--fg-3); margin-top: 2px; }
+  .mini-wrap { border: 1px solid var(--border); border-radius: 8px; overflow: hidden; }
+  .fig-row { padding: 12px 16px; border-top: 1px solid var(--border); display: grid; gap: 8px; }
+</style>
+</head>
+<body data-page="3.3" data-root=".." data-title-zh="3.3 雅可比：局部线性变换 · Robotics for Beginners" data-title-en="3.3 The Jacobian: a Local Linear Map · Robotics for Beginners">
+<div class="r101-layout">
+<aside class="r101-side" id="r101-side"></aside>
+<main class="r101-main">
+<article class="lesson">
+
+<header class="lesson-head">
+  <div class="eyebrow"><span data-lang="zh">Part I · 第 3 章 多元与向量微积分 · 3.3</span><span data-lang="en">Part I · Ch. 3 Multivariable &amp; Vector Calculus · 3.3</span></div>
+  <h1><span data-lang="zh">雅可比：局部线性变换</span><span data-lang="en">The Jacobian: a Local Linear Map</span></h1>
+  <p class="lede">
+    <span data-lang="zh">非线性映射会把方格网弄弯。可只要拿放大镜对准任何一点，弯曲的网格就会变回一张笔直、等距、只是被斜拉过的网格，也就是一个<b>矩阵</b>。这个"放大之后看到的矩阵"就是<b>雅可比矩阵 (Jacobian)</b>。机械臂的速度、EKF 的线性化、逆运动学的每一步迭代，都靠它。</span>
+    <span data-lang="en">A nonlinear map bends the square grid. Yet point a magnifying glass at any spot and the bent grid turns back into a straight, evenly spaced, merely skewed grid: a <b>matrix</b>. That "matrix you see when you zoom in" is the <b>Jacobian</b>. Arm velocities, EKF linearization and every step of inverse kinematics run on it.</span>
+  </p>
+  <div class="lesson-meta">
+    <span class="chip"><span data-lang="zh">约 25 分钟</span><span data-lang="en">~25 min</span></span>
+    <span class="chip"><span data-lang="zh">前置：1.3 矩阵即变换 · 2.1 导数 · 3.1 偏导</span><span data-lang="en">Prereqs: 1.3 Matrices as Maps · 2.1 Derivatives · 3.1 Partials</span></span>
+    <span class="chip"><span data-lang="zh">5 个交互</span><span data-lang="en">5 interactives</span></span>
+  </div>
+  <ul class="toc-steps" id="step-toc"></ul>
+</header>
+
+<!-- ============ 1. WHY ============ -->
+<section class="step" id="why">
+  <h2><span class="n">1</span><span data-lang="zh">为什么机器人需要它</span><span data-lang="en">Why robots need this</span></h2>
+  <div data-lang="zh">
+    <p>机械臂的控制器每毫秒都要回答一个问题："如果让每个关节以某个速度转，手爪会朝哪个方向、以多快的速度移动？"从关节角到手爪位置的映射里全是 sin 和 cos，是弯的、非线性的。控制器想要的答案却是线性的：<b>关节速度乘以一个矩阵，等于手爪速度。</b></p>
+    <p>同样的需求在机器人里随处可见：</p>
+    <ul>
+      <li><b>扩展卡尔曼滤波 (EKF)</b> 要在当前估计附近，把非线性的传感器模型"拉直"成一个矩阵，才能套用卡尔曼滤波的公式；</li>
+      <li><b>视觉 SLAM 与相机标定</b>要知道：三维点挪动一点点，它在图像上的像素会挪多少；</li>
+      <li><b>逆运动学和 Gauss-Newton 优化</b>每一步都在问：参数朝哪个方向改，误差下降得最快？</li>
+    </ul>
+    <p>这些问题找的是同一个东西：一个非线性映射在某一点附近的<b>最佳线性近似</b>。它就是本节的主角。</p>
+  </div>
+  <div data-lang="en">
+    <p>An arm controller has to answer one question every millisecond: "if I spin each joint at some rate, which way and how fast does the gripper move?" The map from joint angles to gripper position is full of sines and cosines; it is curved and nonlinear. Yet the answer the controller wants is linear: <b>joint velocities times a matrix equals gripper velocity.</b></p>
+    <p>The same need shows up all over robotics:</p>
+    <ul>
+      <li>An <b>Extended Kalman Filter (EKF)</b> must "straighten out" a nonlinear sensor model into a matrix around the current estimate before the Kalman equations apply.</li>
+      <li><b>Visual SLAM and camera calibration</b> need to know how far a pixel moves when a 3D point moves a tiny bit.</li>
+      <li><b>Inverse kinematics and Gauss-Newton optimization</b> ask at every step: which way should the parameters change so the error drops fastest?</li>
+    </ul>
+    <p>All of them are after the same thing: the <b>best linear approximation</b> of a nonlinear map near one point. That is this lesson's star.</p>
+  </div>
+</section>
+
+<!-- ============ 2. INTUITION ============ -->
+<section class="step" id="intuition">
+  <h2><span class="n">2</span><span data-lang="zh">直觉：放大到足够近，弯的都会变直</span><span data-lang="en">Intuition: zoom in far enough and everything is straight</span></h2>
+  <div data-lang="zh">
+    <p>先回到一维（2.1 节）。一条曲线远看是弯的，但盯住曲线上一点不断放大，它会越来越像一条直线，也就是那一点的切线。切线的斜率 \(g'(a)\) 就是导数。</p>
+    <p>换个说法：在 \(a\) 附近，\(g\) 的行为就像"乘以 \(g'(a)\)"这个最简单的线性映射。输入挪动 \(\delta\)，输出就挪动 \(g'(a)\,\delta\)。拖动黄点换个位置，再把放大倍数拉高看看。</p>
+  </div>
+  <div data-lang="en">
+    <p>Start in one dimension (Lesson 2.1). A curve looks bent from afar, but keep zooming in on one of its points and it looks more and more like a straight line: the tangent at that point. The tangent's slope \(g'(a)\) is the derivative.</p>
+    <p>Put differently: near \(a\), \(g\) behaves like the simplest linear map there is, "multiply by \(g'(a)\)". Nudge the input by \(\delta\) and the output moves by \(g'(a)\,\delta\). Drag the amber dot somewhere else, then crank up the zoom.</p>
+  </div>
+
+  <figure class="fig" id="fig-zoom1d">
+    <div class="fig-head"><span class="fig-kind">FIG 1</span><span class="fig-title"><span data-lang="zh">放大一条曲线</span><span data-lang="en">Zooming in on a curve</span></span><span class="spacer"></span><button class="btn sm" id="d1-play">▶ <span data-lang="zh">一路放大</span><span data-lang="en">Zoom all the way</span></button></div>
+    <div class="fig-body split">
+      <div class="canvas-wrap" id="d1-canvas"></div>
+      <div class="fig-side"><div class="katex-live" id="d1-tex"></div><div class="readout" id="d1-read"></div></div>
+    </div>
+    <div class="fig-controls" id="d1-controls"></div>
+    <figcaption class="fig-cap">
+      <span data-lang="zh">青色是曲线 \(g(x)\)，黄色虚线是 \(a\) 处的切线。红色横边是输入的挪动 \(\delta\)，绿色竖边是切线预测的输出挪动 \(g'(a)\,\delta\)。放大 100 倍后，曲线和切线已经分不开了。</span>
+      <span data-lang="en">Cyan is the curve \(g(x)\); the dashed amber line is the tangent at \(a\). The red run is an input nudge \(\delta\); the green rise is the tangent's predicted output change \(g'(a)\,\delta\). At 100× zoom you can no longer tell curve and tangent apart.</span>
+    </figcaption>
+  </figure>
+
+  <div data-lang="zh">
+    <p>二维也是同一个故事。回想 1.3 节的橡皮膜：非线性映射 \(f:\R^2\to\R^2\) 把膜上的方格网弄得弯弯曲曲。可是用放大镜对准某一点 \(\mathbf p\)，放得越大，看到的网格就越接近<b>笔直、平行、等距</b>，只是被斜拉、旋转、伸缩过。这正是 1.3 节里线性变换的样子，而线性变换就是一个矩阵。</p>
+    <p>这个矩阵只属于 \(\mathbf p\) 这一点，换一个点，放大后看到的斜网格就不一样。它叫做 \(f\) 在 \(\mathbf p\) 处的<b>雅可比矩阵</b> \(J(\mathbf p)\)：</p>
+  </div>
+  <div data-lang="en">
+    <p>Two dimensions tell the same story. Recall the rubber sheet from Lesson 1.3: a nonlinear map \(f:\R^2\to\R^2\) bends the grid every which way. But aim a magnifying glass at a point \(\mathbf p\) and, the closer you zoom, the more the grid looks <b>straight, parallel and evenly spaced</b>, just skewed, turned and stretched. That is exactly what a linear map from Lesson 1.3 looks like, and a linear map is a matrix.</p>
+    <p>That matrix belongs to the point \(\mathbf p\) alone; pick another point and the zoomed-in skewed grid is different. It is called the <b>Jacobian</b> of \(f\) at \(\mathbf p\), written \(J(\mathbf p)\):</p>
+  </div>
+  <div class="math-card">
+  $$ f(\mathbf p + \boldsymbol\delta) \;\approx\; \cv{f(\mathbf p)} \;+\; \cw{J(\mathbf p)}\,\boldsymbol\delta \qquad (\boldsymbol\delta \text{ small}) $$
+  </div>
+  <div class="callout key">
+    <div class="ct"><span data-lang="zh">核心洞见</span><span data-lang="en">Key insight</span></div>
+    <p data-lang="zh">雅可比矩阵就是<b>放大之后看到的那个线性变换</b>。按 1.3 节的读法读它的列：第 1 列是"沿第 1 个输入方向轻推一下，输出往哪走、走多快"，第 2 列是"沿第 2 个输入方向轻推一下"。所以第 \(j\) 列就是偏导数 \(\partial f/\partial x_j\)（3.1 节）。</p>
+    <p data-lang="en">The Jacobian is <b>the linear map you see after zooming in</b>. Read its columns the Lesson 1.3 way: column 1 says "nudge input 1, and here is which way and how fast the output moves"; column 2 does the same for input 2. So column \(j\) is the partial derivative \(\partial f/\partial x_j\) (Lesson 3.1).</p>
+  </div>
+</section>
+
+<!-- ============ 3. PLAY ============ -->
+<section class="step" id="play">
+  <h2><span class="n">3</span><span data-lang="zh">动手玩：雅可比实验室</span><span data-lang="en">Play: the Jacobian lab</span></h2>
+  <p data-lang="zh">左边是输入平面：拖动黄点 \(\mathbf p\)，它周围有一个边长为 \(h\) 的小方块。右边是输出平面：青色的弯曲网格是 \(f\) 作用之后的网格；黄色区域是小方块的<b>真实像</b>（边是弯的）；紫色虚线平行四边形是雅可比的<b>预测</b> \(f(\mathbf p) + J\,\boldsymbol\delta\)。切换到"放大"视图，再把 \(h\) 往小拉，看两者如何重合。</p>
+  <p data-lang="en">The left panel is the input plane: drag the amber point \(\mathbf p\), which carries a small square of side \(h\). The right panel is the output plane: the bent cyan grid is the grid after \(f\); the amber region is the square's <b>true image</b> (with curved edges); the dashed purple parallelogram is the Jacobian's <b>prediction</b> \(f(\mathbf p) + J\,\boldsymbol\delta\). Switch to the zoomed view and pull \(h\) down to watch the two merge.</p>
+
+  <figure class="fig bleed" id="fig-lab">
+    <div class="fig-head"><span class="fig-kind">FIG 2</span><span class="fig-title"><span data-lang="zh">雅可比实验室</span><span data-lang="en">Jacobian lab</span></span><span class="spacer"></span><span id="lab-maps"></span></div>
+    <div class="fig-body two">
+      <div class="canvas-wrap" id="lab-in"><span class="overlay-label" id="lab-in-label"></span></div>
+      <div class="canvas-wrap" id="lab-out"><span class="overlay-label" id="lab-out-label"></span></div>
+    </div>
+    <div class="fig-body two" style="border-top:1px solid var(--border)">
+      <div class="fig-side" style="border:0"><div class="katex-live" id="lab-tex"></div></div>
+      <div class="fig-side" style="border-left:1px solid var(--border)"><div class="katex-live" id="lab-tex2"></div><div class="readout" id="lab-read"></div></div>
+    </div>
+    <div class="fig-controls" id="lab-controls"></div>
+    <figcaption class="fig-cap">
+      <span data-lang="zh">小方块的红边沿第 1 个输入方向，绿边沿第 2 个输入方向；它们的像在右边仍用红、绿表示。穿过 \(\mathbf p\) 的两条网格线也标成了红、绿。黄色是真实的像，紫色虚线是线性预测，短红线连接对应的角点，长度就是误差。注意：把 \(h\) 减半，角点误差大约变成原来的四分之一。</span>
+      <span data-lang="en">The square's red edges run along input 1 and its green edges along input 2; their images on the right keep the same colors, as do the two grid lines through \(\mathbf p\). Amber is the true image, dashed purple the linear prediction, and the short red segments join matching corners: their length is the error. Notice: halve \(h\) and the corner error drops to about a quarter.</span>
+    </figcaption>
+  </figure>
+
+  <div class="tasks-title"><span data-lang="zh">试一试</span><span data-lang="en">Try this</span></div>
+  <ul class="tasks">
+    <li data-task="shrink"><span><span data-lang="zh">把 \(h\) 缩小，直到<b>相对误差低于 1%</b>：这时弯曲的像和平行四边形已经肉眼难辨。</span><span data-lang="en">Shrink \(h\) until the <b>relative error drops below 1%</b>: by then the curved image and the parallelogram are hard to tell apart.</span></span></li>
+    <li data-task="fold"><span><span data-lang="zh">找一个让 \(J\) <b>退化</b>（\(\det J \approx 0\)）的点。提示：试试"复平方"的原点，或者极坐标里的 \(r = 0\)。小方块的像变成了什么？</span><span data-lang="en">Find a point where \(J\) <b>degenerates</b> (\(\det J \approx 0\)). Hint: try the origin of "square z²", or \(r = 0\) in polar. What does the square's image turn into?</span></span></li>
+    <li data-task="flip"><span><span data-lang="zh">在"镜头畸变"里找一个让网格<b>翻面</b>（\(\det J &lt; 0\)）的点。它们都在一个圆环外面，那个圆环就是"折痕"。</span><span data-lang="en">In "lens distortion", find a point where the grid <b>flips over</b> (\(\det J &lt; 0\)). They all lie outside a ring, and that ring is the "crease".</span></span></li>
+  </ul>
+
+  <div data-lang="zh">
+    <p>从实验里可以读出两件事。第一，误差随 \(h\) 按<b>平方</b>缩小：\(h\) 减半，误差约变为四分之一；而方块本身只缩小一半，所以<b>相对误差</b>也跟着减半。这就是"一阶近似"的确切含义：剩下的误差比 \(\boldsymbol\delta\) 本身小得多。</p>
+    <p>第二，\(J\) 在每一点都不同。在极坐标的例子里，越往外（\(r\) 越大），绿色那一列越长：同样转动角度 \(\theta\)，离原点越远的点走得越远。</p>
+  </div>
+  <div data-lang="en">
+    <p>Two things can be read off the lab. First, the error shrinks with the <b>square</b> of \(h\): halve \(h\) and the error drops to about a quarter, while the square itself only halves, so the <b>relative error</b> halves too. That is precisely what "first-order approximation" means: what is left over is much smaller than \(\boldsymbol\delta\) itself.</p>
+    <p>Second, \(J\) is different at every point. In the polar example, the green column gets longer the farther out you go (larger \(r\)): turning by the same angle \(\theta\) carries a far-away point a longer distance.</p>
+  </div>
+</section>
+
+<!-- ============ 4. SECOND VIEW ============ -->
+<section class="step" id="columns">
+  <h2><span class="n">4</span><span data-lang="zh">第二视角：列是速度，行列式是面积</span><span data-lang="en">A second view: columns are velocities, the determinant is area</span></h2>
+  <div data-lang="zh">
+    <p>1.3 节说，矩阵的列是 <span class="ci">î</span>、<span class="cj">ĵ</span> 的去向。对雅可比来说，"去向"换成了"<b>速度</b>"：让输入点沿第 1 个坐标方向以单位速度匀速前进，它的像会沿一条弯曲的路走，像在每一时刻的速度向量，正好是<b>那一时刻所在点</b>的雅可比的第 1 列。</p>
+    <p>下面的动画就在做这件事。看实线箭头（当前位置的速度）经过 \(\mathbf p\) 时，与虚线箭头 \(J(\mathbf p)\) 的那一列完全重合。</p>
+  </div>
+  <div data-lang="en">
+    <p>Lesson 1.3 said the columns of a matrix are where <span class="ci">î</span> and <span class="cj">ĵ</span> land. For a Jacobian, "where they land" becomes "<b>velocity</b>": move the input point along coordinate 1 at unit speed, and its image travels along a curved path; the image's velocity at each instant is exactly column 1 of the Jacobian <b>at the point it is currently passing</b>.</p>
+    <p>The animation below does just that. Watch the solid arrow (velocity at the current position) line up exactly with the dashed arrow, the column of \(J(\mathbf p)\), as the dot passes \(\mathbf p\).</p>
+  </div>
+
+  <figure class="fig bleed" id="fig-cols">
+    <div class="fig-head"><span class="fig-kind">FIG 3</span><span class="fig-title"><span data-lang="zh">雅可比的列 = 输出的速度</span><span data-lang="en">Columns of J = output velocities</span></span><span class="spacer"></span><span id="cols-dir"></span><button class="btn sm" id="cols-play">❚❚</button></div>
+    <div class="fig-body two">
+      <div class="canvas-wrap" id="cols-in"><span class="overlay-label"><span data-lang="zh">输入：匀速直线运动</span><span data-lang="en">INPUT · straight, unit speed</span></span></div>
+      <div class="canvas-wrap" id="cols-out"><span class="overlay-label"><span data-lang="zh">输出：弯曲路径上的速度</span><span data-lang="en">OUTPUT · velocity along a curve</span></span></div>
+    </div>
+    <div class="fig-row">
+      <div class="katex-live" id="cols-tex"></div>
+      <div class="readout" id="cols-read"></div>
+    </div>
+    <div class="fig-controls" id="cols-controls"></div>
+    <div class="fig-row"><div class="readout" id="cols-fd"></div></div>
+    <figcaption class="fig-cap">
+      <span data-lang="zh">箭头都按 0.55 倍长度绘制。左边的箭头始终是单位长度的 \(\hat e_j\)；右边的实线箭头是当前点处的 \(J\,\hat e_j\)，即第 \(j\) 列。下方的有限差分读数用 \(\big(f(\mathbf p+\varepsilon\hat e_j)-f(\mathbf p)\big)/\varepsilon\) 估计这一列：把 \(\varepsilon\) 从 1 一路拉到 \(10^{-15}\)，误差会先下降、再回升。</span>
+      <span data-lang="en">All arrows are drawn at 0.55× length. The left arrow is always the unit vector \(\hat e_j\); the solid right arrow is \(J\,\hat e_j\) at the current point, i.e. column \(j\). The finite-difference readout estimates that column as \(\big(f(\mathbf p+\varepsilon\hat e_j)-f(\mathbf p)\big)/\varepsilon\): sweep \(\varepsilon\) from 1 down to \(10^{-15}\) and the error first falls, then climbs back up.</span>
+    </figcaption>
+  </figure>
+
+  <div data-lang="zh">
+    <p>再看行列式。1.5 节讲过，矩阵的行列式是<b>面积的缩放倍数</b>，负号表示网格翻了面。非线性映射在每一点都有自己的雅可比，也就有自己的缩放倍数 \(\det J(\mathbf p)\)：那一点附近的小方块，面积被放大（或缩小）了这么多倍。</p>
+    <p>下图把 \(\det J\) 画成输入平面上的一张热力图。把鼠标移到图上（手机上点一下），右边会显示那一点的 \(J\) 把单位正方形变成了什么。</p>
+  </div>
+  <div data-lang="en">
+    <p>Now the determinant. Lesson 1.5 showed that a matrix's determinant is its <b>area scale factor</b>, with a minus sign meaning the grid flipped over. A nonlinear map has its own Jacobian at every point, and so its own scale factor \(\det J(\mathbf p)\): a tiny square near that point has its area multiplied by that much.</p>
+    <p>The figure below paints \(\det J\) as a heatmap over the input plane. Hover over it (tap on a phone) and the side panel shows what the \(J\) at that point does to the unit square.</p>
+  </div>
+
+  <figure class="fig" id="fig-det">
+    <div class="fig-head"><span class="fig-kind">FIG 4</span><span class="fig-title"><span data-lang="zh">\(\det J\)：每一点的面积缩放</span><span data-lang="en">\(\det J\): area scaling, point by point</span></span><span class="spacer"></span><span id="det-maps"></span></div>
+    <div class="fig-body split">
+      <div class="canvas-wrap" id="det-canvas"></div>
+      <div class="fig-side">
+        <div class="mini-wrap"><div class="canvas-wrap" id="det-mini"></div></div>
+        <div class="katex-live" id="det-tex"></div>
+        <div class="readout" id="det-read"></div>
+        <div><div class="det-legend"></div><div class="det-legend-labels"><span>&lt; 0</span><span>0</span><span>&gt; 0</span></div></div>
+      </div>
+    </div>
+    <figcaption class="fig-cap">
+      <span data-lang="zh">青色表示 \(\det J &gt; 0\)（保持朝向），紫色表示 \(\det J &lt; 0\)（翻面），颜色越淡越接近 0。红色细线标出 \(\det J\) 变号的位置，也就是"折痕"。右上小图：浅色虚线是单位正方形，彩色平行四边形是它在 \(J\) 下的像，红、绿边分别是 \(J\) 的两列。</span>
+      <span data-lang="en">Cyan means \(\det J &gt; 0\) (orientation kept), purple means \(\det J &lt; 0\) (flipped); the paler, the closer to 0. Thin red lines mark where \(\det J\) changes sign: the "crease". Small panel: the faint dashed square is the unit square, the colored parallelogram its image under \(J\), with red and green edges the two columns of \(J\).</span>
+    </figcaption>
+  </figure>
+
+  <div data-lang="zh">
+    <p>几个值得留意的现象：<b>漩涡</b>看起来扭得很厉害，\(\det J\) 却处处等于 1，它只搬动不压缩，是一个<b>保面积</b>的映射。<b>极坐标</b>的 \(\det J = r\)，越靠近 \(r=0\) 越淡。<b>镜头畸变</b>有一圈 \(\det J = 0\) 的折痕，折痕以外的部分被翻折回来，同一个像素对应了两个方向的光线。真实的鱼眼镜头模型只在折痕以内才可逆，标定时要特别小心。</p>
+  </div>
+  <div data-lang="en">
+    <p>A few things worth noticing. The <b>swirl</b> looks violently twisted, yet \(\det J = 1\) everywhere: it moves things around without compressing them, an <b>area-preserving</b> map. In <b>polar</b>, \(\det J = r\), fading toward \(r = 0\). The <b>lens distortion</b> has a ring where \(\det J = 0\), and everything outside that crease is folded back, so one pixel corresponds to rays from two directions. Real fisheye models are invertible only inside the crease, something to watch out for in calibration.</p>
+  </div>
+</section>
+
+<!-- ============ 5. MATH ============ -->
+<section class="step" id="math">
+  <h2><span class="n">5</span><span data-lang="zh">再看数学</span><span data-lang="en">The math</span></h2>
+  <p class="hl-hint"><span data-lang="zh">提示：把鼠标悬停在公式中带底色的符号上，FIG 2 中对应的元素会被高亮。</span><span data-lang="en">Tip: hover the highlighted symbols in the formulas; the matching element in FIG 2 lights up.</span></p>
+
+  <h3><span data-lang="zh">定义</span><span data-lang="en">Definition</span></h3>
+  <p data-lang="zh">设 \(f:\R^n\to\R^m\)，\(f = (f_1,\dots,f_m)\)。它在点 \(\mathbf p\) 处的雅可比矩阵是 \(m\times n\) 的偏导数表：第 \(i\) 行第 \(j\) 列是"第 \(i\) 个输出对第 \(j\) 个输入的偏导"。</p>
+  <p data-lang="en">Let \(f:\R^n\to\R^m\) with \(f = (f_1,\dots,f_m)\). Its Jacobian at \(\mathbf p\) is the \(m\times n\) table of partial derivatives: row \(i\), column \(j\) holds "output \(i\) differentiated with respect to input \(j\)".</p>
+  <div class="math-card">
+  $$ J_f(\mathbf p) = \begin{bmatrix} \hl{c1}{\ci{\dfrac{\partial f}{\partial x_1}}} & \hl{c2}{\cj{\dfrac{\partial f}{\partial x_2}}} & \cdots & \dfrac{\partial f}{\partial x_n} \end{bmatrix} = \begin{bmatrix} \ci{\dfrac{\partial f_1}{\partial x_1}} & \cj{\dfrac{\partial f_1}{\partial x_2}} & \cdots & \dfrac{\partial f_1}{\partial x_n} \\ \vdots & \vdots & & \vdots \\ \ci{\dfrac{\partial f_m}{\partial x_1}} & \cj{\dfrac{\partial f_m}{\partial x_2}} & \cdots & \dfrac{\partial f_m}{\partial x_n} \end{bmatrix}, \qquad J_{ij} = \frac{\partial f_i}{\partial x_j}(\mathbf p). $$
+  </div>
+  <p data-lang="zh">按<b>列</b>读：第 \(j\) 列是沿 \(x_j\) 轻推时输出的速度（FIG 3）。按<b>行</b>读：第 \(i\) 行是单个输出 \(f_i\) 的梯度 \(\nabla f_i^\top\)（3.2 节）。特别地，如果输出只有一个数（\(m = 1\)），雅可比就是一行，正好是梯度的转置：\(J = \nabla f^\top\)。</p>
+  <p data-lang="en">Read by <b>columns</b>: column \(j\) is the output velocity when you nudge \(x_j\) (FIG 3). Read by <b>rows</b>: row \(i\) is the gradient \(\nabla f_i^\top\) of the single output \(f_i\) (Lesson 3.2). In particular, when the output is a single number (\(m = 1\)), the Jacobian is one row, the gradient transposed: \(J = \nabla f^\top\).</p>
+
+  <h3><span data-lang="zh">一阶泰勒展开</span><span data-lang="en">First-order Taylor expansion</span></h3>
+  <p data-lang="zh">"放大后像一个矩阵"写成公式，就是：</p>
+  <p data-lang="en">"Zoomed in, it looks like a matrix" in symbols:</p>
+  <div class="math-card">
+  $$ f(\mathbf p + \hl{d}{\boldsymbol\delta}) \;=\; \hl{fp}{\cv{f(\mathbf p)}} \;+\; \hl{J}{\cw{J(\mathbf p)}}\,\hl{d}{\boldsymbol\delta} \;+\; \hl{err}{o(\|\boldsymbol\delta\|)} $$
+  </div>
+  <p data-lang="zh">余项 \(o(\|\boldsymbol\delta\|)\) 的意思是：它比 \(\|\boldsymbol\delta\|\) 消失得更快，除以 \(\|\boldsymbol\delta\|\) 后趋于 0。对光滑的 \(f\)，余项的大小是 \(O(\|\boldsymbol\delta\|^2)\)，这正是 FIG 2 里"\(h\) 减半，误差变为四分之一"的原因。而且 \(J(\mathbf p)\) 是唯一满足这个式子的矩阵，所以叫它"最佳"线性近似。</p>
+  <p data-lang="en">The remainder \(o(\|\boldsymbol\delta\|)\) means it vanishes faster than \(\|\boldsymbol\delta\|\): divided by \(\|\boldsymbol\delta\|\), it goes to 0. For smooth \(f\) the remainder is \(O(\|\boldsymbol\delta\|^2)\), which is exactly why halving \(h\) in FIG 2 quarters the error. And \(J(\mathbf p)\) is the only matrix that makes this hold, which is what earns it the title of "best" linear approximation.</p>
+
+  <h3><span data-lang="zh">链式法则：局部线性映射的复合就是矩阵乘法</span><span data-lang="en">Chain rule: composing local linear maps is matrix multiplication</span></h3>
+  <p data-lang="zh">先做 \(f\)，再做 \(g\)。在 \(\mathbf p\) 附近，\(f\) 像矩阵 \(J_f(\mathbf p)\)；在 \(f(\mathbf p)\) 附近，\(g\) 像矩阵 \(J_g(f(\mathbf p))\)。两个线性映射接连作用，就是两个矩阵相乘（1.4 节）：</p>
+  <p data-lang="en">Apply \(f\), then \(g\). Near \(\mathbf p\), \(f\) acts like the matrix \(J_f(\mathbf p)\); near \(f(\mathbf p)\), \(g\) acts like \(J_g(f(\mathbf p))\). Two linear maps in a row are one matrix product (Lesson 1.4):</p>
+  <div class="math-card">
+  $$ J_{g\circ f}(\mathbf p) \;=\; J_g\big(f(\mathbf p)\big)\; J_f(\mathbf p). $$
+  </div>
+  <p data-lang="zh">注意两件事：顺序是"后做的在左边"，和 1.4 节的矩阵复合一样；\(J_g\) 要在 \(f(\mathbf p)\) 处求值，而不是在 \(\mathbf p\) 处。机器人里，相机投影的雅可比就是这样拼出来的：世界点 → 相机坐标（位姿变换）→ 像素（针孔投影），各自的雅可比相乘即可。</p>
+  <p data-lang="en">Two details: the map applied last sits on the left, just like matrix composition in Lesson 1.4; and \(J_g\) is evaluated at \(f(\mathbf p)\), not at \(\mathbf p\). In robotics, this is how the camera-projection Jacobian is assembled: world point → camera coordinates (pose transform) → pixel (pinhole projection), multiplying the Jacobian of each stage.</p>
+
+  <h3><span data-lang="zh">行列式与反函数</span><span data-lang="en">Determinant and the inverse map</span></h3>
+  <p data-lang="zh">由 1.5 节，小区域经过 \(f\) 后面积约放大 \(|\det J|\) 倍，这就是换元积分里那个因子的来源。在 \(\det J(\mathbf p)\ne 0\) 的地方，\(f\) 在局部可逆，反函数的雅可比就是雅可比的逆（反函数定理）：</p>
+  <p data-lang="en">By Lesson 1.5, a small region's area gets multiplied by about \(|\det J|\) under \(f\); that is where the factor in a change of variables comes from. Wherever \(\det J(\mathbf p)\ne 0\), \(f\) is locally invertible, and the Jacobian of the inverse is the inverse of the Jacobian (inverse function theorem):</p>
+  <div class="math-card">
+  $$ \operatorname{area}\big(f(\Omega)\big) \approx |\det J(\mathbf p)|\cdot\operatorname{area}(\Omega), \qquad J_{f^{-1}}\big(f(\mathbf p)\big) = J_f(\mathbf p)^{-1}\quad (\det J_f(\mathbf p)\neq 0). $$
+  </div>
+
+  <h3><span data-lang="zh">例题：极坐标</span><span data-lang="en">Worked example: polar coordinates</span></h3>
+  <p data-lang="zh">\(f(r,\theta) = (r\cos\theta,\; r\sin\theta)\)。对 \(r\) 求偏导得第 1 列，对 \(\theta\) 求偏导得第 2 列：</p>
+  <p data-lang="en">\(f(r,\theta) = (r\cos\theta,\; r\sin\theta)\). Differentiate by \(r\) for column 1 and by \(\theta\) for column 2:</p>
+  <div class="math-card">
+  $$ J(r,\theta) = \begin{bmatrix} \ci{\cos\theta} & \cj{-r\sin\theta} \\ \ci{\sin\theta} & \cj{r\cos\theta} \end{bmatrix}, \qquad \det J = r\cos^2\theta + r\sin^2\theta = r. $$
+  </div>
+  <p data-lang="zh">逐列读出几何意义：<span class="ci">第 1 列</span>是单位长度的径向向量，沿 \(r\) 走一步，点就朝外走一步；<span class="cj">第 2 列</span>垂直于径向、长度为 \(r\)，转动 \(\theta\) 时，离原点越远的点走得越快。\(\det J = r\) 说明 \(dr\times d\theta\) 的小矩形变成面积约 \(r\,dr\,d\theta\) 的小扇形，这就是 \(dx\,dy = r\,dr\,d\theta\)。在 \(r=0\) 处第 2 列为零，转动 \(\theta\) 根本不动，\(J\) 退化，这正是 FIG 2 的任务 2。</p>
+  <p data-lang="en">Read each column geometrically: <span class="ci">column 1</span> is the unit radial vector, so a step in \(r\) moves the point one step outward; <span class="cj">column 2</span> is perpendicular to it with length \(r\), so turning \(\theta\) moves far-away points faster. \(\det J = r\) says a small \(dr\times d\theta\) rectangle becomes a small wedge of area about \(r\,dr\,d\theta\): that is \(dx\,dy = r\,dr\,d\theta\). At \(r = 0\) column 2 vanishes, turning \(\theta\) does nothing, and \(J\) degenerates: task 2 of FIG 2.</p>
+</section>
+
+<!-- ============ 6. ROBOTICS ============ -->
+<section class="step" id="robotics">
+  <h2><span class="n">6</span><span data-lang="zh">机器人中的它：两连杆机械臂</span><span data-lang="en">In robotics: the two-link arm</span></h2>
+  <div data-lang="zh">
+    <p>平面两连杆机械臂，连杆长 \(l_1, l_2\)，关节角 \(\theta_1, \theta_2\)。正运动学把关节角映射到末端位置，这就是一个 \(\R^2\to\R^2\) 的非线性映射，和 FIG 2 里的那些映射没有本质区别：</p>
+  </div>
+  <div data-lang="en">
+    <p>A planar two-link arm has link lengths \(l_1, l_2\) and joint angles \(\theta_1, \theta_2\). Forward kinematics maps joint angles to the tip position, an \(\R^2\to\R^2\) nonlinear map no different in kind from the ones in FIG 2:</p>
+  </div>
+  <div class="math-card">
+  $$ \mathbf x(\boldsymbol\theta) = \begin{bmatrix} l_1\cos\theta_1 + l_2\cos(\theta_1+\theta_2) \\ l_1\sin\theta_1 + l_2\sin(\theta_1+\theta_2) \end{bmatrix}, \qquad \cv{\dot{\mathbf x}} = J(\boldsymbol\theta)\,\dot{\boldsymbol\theta}, $$
+  $$ J(\boldsymbol\theta) = \begin{bmatrix} \ci{-l_1 s_1 - l_2 s_{12}} & \cj{-l_2 s_{12}} \\ \ci{l_1 c_1 + l_2 c_{12}} & \cj{l_2 c_{12}} \end{bmatrix}, \qquad \det J = l_1 l_2 \sin\theta_2 $$
+  </div>
+  <p data-lang="zh">（\(s_1 = \sin\theta_1\)，\(c_{12} = \cos(\theta_1+\theta_2)\)，以此类推。）<span class="ci">第 1 列</span>是只转关节 1 时末端的速度：整条手臂绕基座转，所以它垂直于"基座→末端"的连线。<span class="cj">第 2 列</span>是只转关节 2 时的速度：只有前臂绕肘部转，所以它垂直于前臂。当两列平行时，也就是基座、肘部、末端三点共线（手臂完全伸直或完全折回，\(\theta_2 = 0\) 或 \(\pi\)），\(\det J = 0\)，末端在某个方向上<b>无论关节怎么转都动不了</b>。这叫<b>奇异位形 (singular configuration)</b>。</p>
+  <p data-lang="en">(\(s_1 = \sin\theta_1\), \(c_{12} = \cos(\theta_1+\theta_2)\), and so on.) <span class="ci">Column 1</span> is the tip velocity when only joint 1 turns: the whole arm swings about the base, so it is perpendicular to the base-to-tip line. <span class="cj">Column 2</span> is the velocity when only joint 2 turns: just the forearm swings about the elbow, so it is perpendicular to the forearm. When the two columns are parallel, i.e. base, elbow and tip are collinear (arm fully stretched or fully folded, \(\theta_2 = 0\) or \(\pi\)), \(\det J = 0\) and there is a direction the tip <b>cannot move in, no matter how the joints turn</b>. This is a <b>singular configuration</b>.</p>
+  <p data-lang="zh">左边是关节空间：拖动黄点改变 \((\theta_1, \theta_2)\)，背景是 \(\det J\) 的热力图。右边是工作空间：也可以直接拖动末端，机械臂会用雅可比做逆运动学跟上来。关节空间里的黄色小圆被映射成工作空间里的黄色椭圆（速度椭圆），紫色虚线是小圆的真实像。</p>
+  <p data-lang="en">The left panel is joint space: drag the amber dot to change \((\theta_1, \theta_2)\); the background is a heatmap of \(\det J\). The right panel is the workspace: you can also drag the tip directly, and the arm follows by running Jacobian-based inverse kinematics. The small amber circle in joint space maps to the amber ellipse in the workspace (the velocity ellipse); the dashed purple curve is the circle's true image.</p>
+
+  <figure class="fig bleed" id="fig-arm">
+    <div class="fig-head"><span class="fig-kind">FIG 5</span><span class="fig-title"><span data-lang="zh">两连杆机械臂的雅可比</span><span data-lang="en">Jacobian of a two-link arm</span></span><span class="spacer"></span><button class="btn sm" id="arm-reset"><span data-lang="zh">复位</span><span data-lang="en">Reset</span></button></div>
+    <div class="fig-body two">
+      <div class="canvas-wrap" id="arm-joint"><span class="overlay-label"><span data-lang="zh">关节空间 (θ₁, θ₂)</span><span data-lang="en">JOINT SPACE (θ₁, θ₂)</span></span></div>
+      <div class="canvas-wrap" id="arm-work"><span class="overlay-label"><span data-lang="zh">工作空间 (x, y)</span><span data-lang="en">WORKSPACE (x, y)</span></span></div>
+    </div>
+    <div class="fig-body two" style="border-top:1px solid var(--border)">
+      <div class="fig-side" style="border:0"><div class="katex-live" id="arm-tex"></div></div>
+      <div class="fig-side" style="border-left:1px solid var(--border)"><div class="readout" id="arm-read"></div></div>
+    </div>
+    <div class="fig-controls" id="arm-controls"></div>
+    <figcaption class="fig-cap">
+      <span data-lang="zh">末端的红、绿箭头是 \(J\) 的两列（按小圆半径 ρ 缩放），也就是只转关节 1 或只转关节 2 时末端的速度。红色细虚线是基座到末端的连线，红箭头总是垂直于它。左图中的红色虚线 \(\theta_2 = 0, \pm\pi\) 是奇异位形。把末端往工作空间的边缘拖，看看手臂和椭圆会怎样。</span>
+      <span data-lang="en">The red and green arrows at the tip are the two columns of \(J\) (scaled by the circle radius ρ): the tip velocity when only joint 1, or only joint 2, turns. The thin dashed red line joins base and tip, and the red arrow is always perpendicular to it. In the left panel, the dashed red lines \(\theta_2 = 0, \pm\pi\) are the singular configurations. Drag the tip toward the edge of the workspace and watch the arm and the ellipse.</span>
+    </figcaption>
+  </figure>
+  <ul class="tasks"><li data-task="singular"><span><span data-lang="zh">让机械臂进入<b>奇异位形</b>：速度椭圆被压扁成一条线段，两个红绿箭头变得共线。</span><span data-lang="en">Put the arm into a <b>singular configuration</b>: the velocity ellipse flattens into a segment and the red and green arrows become collinear.</span></span></li></ul>
+
+  <div class="callout robot">
+    <div class="ct"><span data-lang="zh">真实系统里</span><span data-lang="en">In real systems</span></div>
+    <p data-lang="zh"><b>速度控制</b>：给定末端期望速度 \(\dot{\mathbf x}\)，求关节速度 \(\dot{\boldsymbol\theta} = J^{-1}\dot{\mathbf x}\)。靠近奇异位形时 \(J^{-1}\) 会爆炸，所以工业控制器普遍使用阻尼最小二乘 \(J^\top(JJ^\top+\lambda^2 I)^{-1}\)，FIG 5 的拖动逆解用的就是它。<b>EKF</b>：观测模型 \(h(\mathbf x)\) 的雅可比 \(H = \partial h/\partial\mathbf x\) 决定了卡尔曼增益，每一步都要在新的估计点上重新计算。<b>SLAM / 光束法平差</b>：重投影误差对位姿和三维点的雅可比，按链式法则由"位姿变换"和"针孔投影"两段拼出。6 自由度机械臂的完整雅可比（包含角速度）留到 3.4 节。</p>
+    <p data-lang="en"><b>Velocity control</b>: given a desired tip velocity \(\dot{\mathbf x}\), solve for joint rates \(\dot{\boldsymbol\theta} = J^{-1}\dot{\mathbf x}\). Near a singularity \(J^{-1}\) blows up, so industrial controllers typically use damped least squares, \(J^\top(JJ^\top+\lambda^2 I)^{-1}\); that is what the drag-the-tip IK in FIG 5 runs. <b>EKF</b>: the Jacobian \(H = \partial h/\partial\mathbf x\) of the measurement model sets the Kalman gain and must be recomputed at every new estimate. <b>SLAM / bundle adjustment</b>: the Jacobians of the reprojection error with respect to poses and 3D points are assembled by the chain rule from a "pose transform" stage and a "pinhole projection" stage. The full Jacobian of a 6-DoF arm, angular velocity included, waits for Lesson 3.4.</p>
+  </div>
+</section>
+
+<!-- ============ 7. PITFALLS ============ -->
+<section class="step" id="pitfalls">
+  <h2><span class="n">7</span><span data-lang="zh">常见误区</span><span data-lang="en">Common pitfalls</span></h2>
+  <div class="callout pitfall">
+    <div class="ct"><span data-lang="zh">误区 1：雅可比是一个固定的矩阵</span><span data-lang="en">Pitfall 1: the Jacobian is one fixed matrix</span></div>
+    <p data-lang="zh">不是。它是一个<b>矩阵场</b>：每个点都有自己的 \(J(\mathbf p)\)。用旧点上算出的 \(J\) 去处理新点，是 EKF 和逆运动学代码里的经典 bug。状态一变，就要在新的点上重新线性化。</p>
+    <p data-lang="en">It isn't. It is a <b>field of matrices</b>: every point has its own \(J(\mathbf p)\). Applying a \(J\) computed at an old point to a new one is a classic bug in EKF and IK code. When the state changes, relinearize at the new point.</p>
+  </div>
+  <div class="callout pitfall">
+    <div class="ct"><span data-lang="zh">误区 2：把 \(J\) 当成反方向的映射，或者随手求逆</span><span data-lang="en">Pitfall 2: treating \(J\) as the reverse map, or inverting it blindly</span></div>
+    <p data-lang="zh">\(J\) 把<b>输入的微小变化</b>映射成<b>输出的微小变化</b>，方向是固定的。反方向要用 \(J^{-1}\)，而它只在 \(\det J\ne 0\) 时存在。在奇异点附近，\(J^{-1}\) 里的数会变得极大：末端只想挪一毫米，关节却要飞速转动。</p>
+    <p data-lang="en">\(J\) sends <b>small input changes</b> to <b>small output changes</b>, in that direction only. Going backwards needs \(J^{-1}\), which exists only when \(\det J\ne 0\). Near a singularity the entries of \(J^{-1}\) explode: the tip wants to move a millimetre and the joints have to whip around.</p>
+  </div>
+  <div class="callout pitfall">
+    <div class="ct"><span data-lang="zh">误区 3：忘了近似只在局部成立</span><span data-lang="en">Pitfall 3: forgetting the approximation is only local</span></div>
+    <p data-lang="zh">误差按 \(\|\boldsymbol\delta\|^2\) 增长。在 FIG 2 里把 \(h\) 调大，预测很快就离谱了。Gauss-Newton 和牛顿法如果一步迈得太大，就会跳出线性近似成立的范围，所以实际实现里总有步长控制或阻尼（Levenberg-Marquardt）。</p>
+    <p data-lang="en">The error grows like \(\|\boldsymbol\delta\|^2\). Turn \(h\) up in FIG 2 and the prediction goes wrong fast. Gauss-Newton or Newton steps that are too large jump out of the region where the linearization holds, which is why real implementations always add step control or damping (Levenberg-Marquardt).</p>
+  </div>
+  <div class="callout pitfall">
+    <div class="ct"><span data-lang="zh">误区 4：变量顺序和单位</span><span data-lang="en">Pitfall 4: variable ordering and units</span></div>
+    <p data-lang="zh">列的顺序跟着输入变量的顺序走：写成 \((r,\theta)\) 还是 \((\theta,r)\)，矩阵的列就会对调，行列式也会变号。各列的单位也可能不同：极坐标的第 1 列是"米/米"，第 2 列是"米/弧度"。把位置（米）和角度（弧度）放进同一个状态向量时，要想清楚尺度，否则矩阵的条件数会很差。</p>
+    <p data-lang="en">The column order follows the order of the input variables: write \((r,\theta)\) or \((\theta,r)\) and the columns swap, flipping the sign of the determinant. Columns may also carry different units: in polar, column 1 is "metres per metre" and column 2 "metres per radian". When positions (metres) and angles (radians) share one state vector, think about scaling, or the matrix will be badly conditioned.</p>
+  </div>
+  <div class="callout pitfall">
+    <div class="ct"><span data-lang="zh">误区 5：有限差分的步长随便取</span><span data-lang="en">Pitfall 5: picking any finite-difference step</span></div>
+    <p data-lang="zh">用 \(\big(f(\mathbf p+\varepsilon\hat e_j)-f(\mathbf p)\big)/\varepsilon\) 数值求雅可比时，\(\varepsilon\) 太大有截断误差，太小则两个几乎相等的浮点数相减，舍入误差会被放大。双精度下前向差分的经验值约为 \(\varepsilon\approx 10^{-8}\times\)（变量的尺度），中心差分更准。FIG 3 下方的滑块可以亲自验证这一点。</p>
+    <p data-lang="en">When estimating a Jacobian numerically as \(\big(f(\mathbf p+\varepsilon\hat e_j)-f(\mathbf p)\big)/\varepsilon\), a large \(\varepsilon\) brings truncation error, and a tiny one subtracts two nearly equal floats and amplifies round-off. In double precision the rule of thumb for forward differences is \(\varepsilon\approx 10^{-8}\times\) (the variable's scale); central differences are more accurate. The slider under FIG 3 lets you see this for yourself.</p>
+  </div>
+</section>
+
+<!-- ============ 8. QUIZ ============ -->
+<section class="step" id="quiz">
+  <h2><span class="n">8</span><span data-lang="zh">小练习</span><span data-lang="en">Check yourself</span></h2>
+
+  <div class="quiz" data-answer="2">
+    <div class="q"><span data-lang="zh">1. \(f(x,y) = (x^2,\; xy)\)。它在点 \((1, 2)\) 处的雅可比是？</span><span data-lang="en">1. \(f(x,y) = (x^2,\; xy)\). What is its Jacobian at \((1, 2)\)?</span></div>
+    <div class="opts">
+      <button class="opt">\(\begin{bmatrix}2&2\\0&1\end{bmatrix}\)</button>
+      <button class="opt">\(\begin{bmatrix}2&0\\1&2\end{bmatrix}\)</button>
+      <button class="opt">\(\begin{bmatrix}2&0\\2&1\end{bmatrix}\)</button>
+      <button class="opt">\(\begin{bmatrix}1&0\\2&1\end{bmatrix}\)</button>
+    </div>
+    <div class="explain"><span data-lang="zh">第 1 行是 \(f_1 = x^2\) 的偏导 \((2x,\,0)\)，第 2 行是 \(f_2 = xy\) 的偏导 \((y,\,x)\)。代入 \((1,2)\) 得 \(\begin{bmatrix}2&0\\2&1\end{bmatrix}\)。第一个选项是它的转置，正是"行列搞反"的错误。</span><span data-lang="en">Row 1 holds the partials of \(f_1 = x^2\): \((2x,\,0)\). Row 2 holds those of \(f_2 = xy\): \((y,\,x)\). At \((1,2)\) that gives \(\begin{bmatrix}2&0\\2&1\end{bmatrix}\). The first option is its transpose, the classic rows-versus-columns mix-up.</span></div>
+  </div>
+
+  <div class="quiz" data-answer="0">
+    <div class="q"><span data-lang="zh">2. 在极坐标映射下，输入平面中 \(r = 2\) 附近一个 \(dr\times d\theta\) 的小矩形，它的像面积约为？</span><span data-lang="en">2. Under the polar map, a small \(dr\times d\theta\) rectangle near \(r = 2\) has an image of area about…?</span></div>
+    <div class="opts">
+      <button class="opt">\(2\,dr\,d\theta\)</button>
+      <button class="opt">\(dr\,d\theta\)</button>
+      <button class="opt">\(4\,dr\,d\theta\)</button>
+      <button class="opt">\(\tfrac12\,dr\,d\theta\)</button>
+    </div>
+    <div class="explain"><span data-lang="zh">面积缩放倍数是 \(|\det J| = r = 2\)。直观上：径向长度不变，角向长度被放大成 \(r\,d\theta\)。</span><span data-lang="en">The area scale is \(|\det J| = r = 2\). Intuitively: the radial side keeps its length while the angular side becomes \(r\,d\theta\).</span></div>
+  </div>
+
+  <div class="quiz" data-answer="3">
+    <div class="q"><span data-lang="zh">3. 平面两连杆机械臂（\(l_1, l_2 &gt; 0\)）在什么情况下处于奇异位形？</span><span data-lang="en">3. When is a planar two-link arm (\(l_1, l_2 &gt; 0\)) singular?</span></div>
+    <div class="opts">
+      <button class="opt"><span data-lang="zh">\(\theta_1 = 0\)</span><span data-lang="en">\(\theta_1 = 0\)</span></button>
+      <button class="opt"><span data-lang="zh">\(\theta_1 = \theta_2\)</span><span data-lang="en">\(\theta_1 = \theta_2\)</span></button>
+      <button class="opt"><span data-lang="zh">\(\theta_2 = \pi/2\)，前臂与上臂垂直</span><span data-lang="en">\(\theta_2 = \pi/2\), forearm perpendicular to upper arm</span></button>
+      <button class="opt"><span data-lang="zh">\(\theta_2 = 0\) 或 \(\pi\)，手臂伸直或折回</span><span data-lang="en">\(\theta_2 = 0\) or \(\pi\), arm stretched or folded back</span></button>
+    </div>
+    <div class="explain"><span data-lang="zh">\(\det J = l_1 l_2\sin\theta_2\)，只和 \(\theta_2\) 有关，在 \(\theta_2 = 0, \pi\) 时为零。此时两列都垂直于同一条直线，末端沿这条直线方向动不了。\(\theta_2 = \pi/2\) 恰恰相反，\(|\det J|\) 最大，最灵活。</span><span data-lang="en">\(\det J = l_1 l_2\sin\theta_2\) depends only on \(\theta_2\) and vanishes at \(\theta_2 = 0, \pi\). Both columns are then perpendicular to the same line, and the tip cannot move along it. \(\theta_2 = \pi/2\) is the opposite: \(|\det J|\) is largest and the arm is most dexterous.</span></div>
+  </div>
+
+  <div class="quiz" data-answer="1">
+    <div class="q"><span data-lang="zh">4. 像素坐标 = \(g(f(\mathbf p))\)，其中 \(f\) 把世界点变到相机坐标系，\(g\) 是针孔投影。像素对 \(\mathbf p\) 的雅可比是？</span><span data-lang="en">4. Pixel = \(g(f(\mathbf p))\), where \(f\) moves a world point into the camera frame and \(g\) is the pinhole projection. What is the Jacobian of the pixel with respect to \(\mathbf p\)?</span></div>
+    <div class="opts">
+      <button class="opt">\(J_f(\mathbf p)\,J_g(f(\mathbf p))\)</button>
+      <button class="opt">\(J_g(f(\mathbf p))\,J_f(\mathbf p)\)</button>
+      <button class="opt">\(J_g(\mathbf p)\,J_f(\mathbf p)\)</button>
+      <button class="opt">\(J_g(f(\mathbf p)) + J_f(\mathbf p)\)</button>
+    </div>
+    <div class="explain"><span data-lang="zh">链式法则：后做的 \(g\) 在左边，而且要在 \(f(\mathbf p)\) 处求值。第三个选项把求值点弄错了，第一个选项顺序反了（维度通常也对不上：\(J_g\) 是 2×3，\(J_f\) 是 3×3）。</span><span data-lang="en">Chain rule: \(g\), applied last, goes on the left, and it is evaluated at \(f(\mathbf p)\). The third option uses the wrong evaluation point; the first has the order reversed (and the shapes usually do not even match: \(J_g\) is 2×3, \(J_f\) is 3×3).</span></div>
+  </div>
+</section>
+
+<!-- ============ 9. READING ============ -->
+<section class="step" id="reading">
+  <h2><span class="n">9</span><span data-lang="zh">延伸阅读</span><span data-lang="en">Further reading</span></h2>
+  <ul class="reading">
+    <li>K. Lynch &amp; F. Park, <a href="https://hades.mech.northwestern.edu/index.php/Modern_Robotics" target="_blank" rel="noopener"><i>Modern Robotics</i></a>, Ch. 5 — <span data-lang="zh">速度运动学与静力学（机械臂雅可比、奇异性、可操作度椭球）</span><span data-lang="en">Velocity kinematics and statics (the manipulator Jacobian, singularities, manipulability ellipsoids)</span></li>
+    <li>Khan Academy, <a href="https://www.khanacademy.org/math/multivariable-calculus" target="_blank" rel="noopener"><i>Multivariable Calculus</i></a> — <span data-lang="zh">Grant Sanderson（3Blue1Brown）讲解的"局部线性"与"雅可比矩阵"系列视频</span><span data-lang="en">Grant Sanderson's (3Blue1Brown) videos on local linearity and the Jacobian matrix</span></li>
+    <li>G. Strang, <i>Calculus</i> (MIT OpenCourseWare) — <span data-lang="zh">偏导数、链式法则与重积分换元</span><span data-lang="en">Partial derivatives, the chain rule and change of variables in multiple integrals</span></li>
+    <li>S. Thrun, W. Burgard &amp; D. Fox, <i>Probabilistic Robotics</i>, Ch. 3.3 — <span data-lang="zh">扩展卡尔曼滤波中的雅可比线性化</span><span data-lang="en">Jacobian linearization in the Extended Kalman Filter</span></li>
+    <li>J. Nocedal &amp; S. Wright, <i>Numerical Optimization</i>, Ch. 8 &amp; 10 — <span data-lang="zh">有限差分求导、Gauss-Newton 与 Levenberg-Marquardt</span><span data-lang="en">Finite-difference derivatives, Gauss-Newton and Levenberg-Marquardt</span></li>
+  </ul>
+</section>
+
+</article>
+</main>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/katex@0.16.22/dist/katex.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/katex@0.16.22/dist/contrib/auto-render.min.js"></script>
+<script src="../assets/syllabus.js"></script>
+<script src="../assets/math.js"></script>
+<script src="../assets/course.js"></script>
+<script src="../assets/viz2d.js"></script>
+<script>
+R101.onReady(function () {
+  const { M, ui, L } = R101;
+  const PI = Math.PI;
+  const colOf = (A, j) => [A[0][j], A[1][j]];
+  const niceStep = x => { const e = Math.pow(10, Math.floor(Math.log10(x))), m = x / e; return (m < 1.5 ? 1 : m < 3.5 ? 2 : m < 7.5 ? 5 : 10) * e; };
+  const SUP = { '-': '⁻', '0': '⁰', '1': '¹', '2': '²', '3': '³', '4': '⁴', '5': '⁵', '6': '⁶', '7': '⁷', '8': '⁸', '9': '⁹' };
+  const sci = x => {
+    if (!isFinite(x)) return '—';
+    const a = Math.abs(x);
+    if (a === 0) return '0';
+    if (a >= 1e-3 && a < 1e4) return M.fmt(x, a < 0.01 ? 5 : a < 1 ? 4 : 3);
+    const e = Math.floor(Math.log10(a));
+    return M.fmt(x / Math.pow(10, e), 2) + '×10' + String(e).split('').map(c => SUP[c]).join('');
+  };
+  const texJ = (A, d = 2) => `\\begin{bmatrix}\\ci{${M.tex(A[0][0], d)}} & \\cj{${M.tex(A[0][1], d)}} \\\\ \\ci{${M.tex(A[1][0], d)}} & \\cj{${M.tex(A[1][1], d)}}\\end{bmatrix}`;
+  const vfmt = (v, d = 2) => `(${M.fmt(v[0], d)}, ${M.fmt(v[1], d)})`;
+
+  /* ---------------- shared nonlinear maps ---------------- */
+  const SW = 2.2, LK = -0.1;
+  const MAPS = {
+    polar: {
+      zh: '极坐标', en: 'Polar',
+      f: p => [p[0] * Math.cos(p[1]), p[0] * Math.sin(p[1])],
+      J: p => { const c = Math.cos(p[1]), s = Math.sin(p[1]); return [[c, -p[0] * s], [s, p[0] * c]]; },
+      dom: [[0, 3.2], [-PI, PI]], step: [0.4, PI / 8], sweepL: [0.8, 0.9],
+      inView: { cx: 1.6, cy: 0, span: 7.4 }, outView: { cx: 0, cy: 0, span: 7.4 },
+      v: ['r', 'θ'], tv: ['r', '\\theta'], p0: [1.6, 0.8],
+      def: 'f(r,\\theta)=(r\\cos\\theta,\\; r\\sin\\theta)',
+      sym: '\\begin{bmatrix}\\ci{\\cos\\theta} & \\cj{-r\\sin\\theta} \\\\ \\ci{\\sin\\theta} & \\cj{r\\cos\\theta}\\end{bmatrix}'
+    },
+    square: {
+      zh: '复平方 z²', en: 'Square z²',
+      f: p => [p[0] * p[0] - p[1] * p[1], 2 * p[0] * p[1]],
+      J: p => [[2 * p[0], -2 * p[1]], [2 * p[1], 2 * p[0]]],
+      dom: [[-1.6, 1.6], [-1.6, 1.6]], step: [0.2, 0.2], sweepL: [0.5, 0.5],
+      inView: { cx: 0, cy: 0, span: 3.8 }, outView: { cx: 0, cy: 0, span: 6.2 },
+      v: ['x', 'y'], tv: ['x', 'y'], p0: [0.9, 0.5],
+      def: 'f(x,y)=(x^2-y^2,\\; 2xy)',
+      sym: '\\begin{bmatrix}\\ci{2x} & \\cj{-2y} \\\\ \\ci{2y} & \\cj{2x}\\end{bmatrix}'
+    },
+    swirl: {
+      zh: '漩涡', en: 'Swirl',
+      f: p => { const a = SW * Math.exp(-(p[0] * p[0] + p[1] * p[1]) / 2), c = Math.cos(a), s = Math.sin(a); return [c * p[0] - s * p[1], s * p[0] + c * p[1]]; },
+      // J = R(φ) (I − φ p⊥ pᵀ),  p⊥ = (−y, x),  φ = SW·exp(−|p|²/2)
+      J: p => {
+        const a = SW * Math.exp(-(p[0] * p[0] + p[1] * p[1]) / 2), c = Math.cos(a), s = Math.sin(a);
+        const q = [-p[1], p[0]];
+        const B = [[1 - a * q[0] * p[0], -a * q[0] * p[1]], [-a * q[1] * p[0], 1 - a * q[1] * p[1]]];
+        return M.mul([[c, -s], [s, c]], B);
+      },
+      dom: [[-2.4, 2.4], [-2.4, 2.4]], step: [0.3, 0.3], sweepL: [0.8, 0.8],
+      inView: { cx: 0, cy: 0, span: 5.6 }, outView: { cx: 0, cy: 0, span: 5.6 },
+      v: ['x', 'y'], tv: ['x', 'y'], p0: [1.0, 0.3],
+      def: 'f(\\mathbf p)=R(\\varphi)\\,\\mathbf p,\\;\\; \\varphi=2.2\\,e^{-\\|\\mathbf p\\|^2/2}',
+      sym: 'R(\\varphi)\\big(I-\\varphi\\,\\mathbf p^{\\perp}\\mathbf p^{\\top}\\big),\\;\\; \\mathbf p^{\\perp}=(-y,\\,x)'
+    },
+    lens: {
+      zh: '镜头畸变', en: 'Lens',
+      f: p => { const k = 1 + LK * (p[0] * p[0] + p[1] * p[1]); return [k * p[0], k * p[1]]; },
+      J: p => { const k = 1 + LK * (p[0] * p[0] + p[1] * p[1]); return [[k + 2 * LK * p[0] * p[0], 2 * LK * p[0] * p[1]], [2 * LK * p[0] * p[1], k + 2 * LK * p[1] * p[1]]]; },
+      dom: [[-2.4, 2.4], [-2.4, 2.4]], step: [0.3, 0.3], sweepL: [0.8, 0.8],
+      inView: { cx: 0, cy: 0, span: 5.6 }, outView: { cx: 0, cy: 0, span: 3.2 },
+      v: ['x', 'y'], tv: ['x', 'y'], p0: [1.2, 0.6],
+      def: 'f(\\mathbf p)=(1+k\\|\\mathbf p\\|^2)\\,\\mathbf p,\\;\\; k=-0.1',
+      sym: '(1+k\\|\\mathbf p\\|^2)\\,I+2k\\,\\mathbf p\\,\\mathbf p^{\\top}'
+    }
+  };
+  const MAP_OPTS = Object.keys(MAPS).map(k => ({ value: k, zh: MAPS[k].zh, en: MAPS[k].en }));
+  const inDom = (m, q) => q[0] >= m.dom[0][0] - 1e-9 && q[0] <= m.dom[0][1] + 1e-9 && q[1] >= m.dom[1][0] - 1e-9 && q[1] <= m.dom[1][1] + 1e-9;
+  const clampDom = (m, q) => [M.clamp(q[0], m.dom[0][0], m.dom[0][1]), M.clamp(q[1], m.dom[1][0], m.dom[1][1])];
+  // the domain grid and its image (computed once per map)
+  function mapLines(m) {
+    if (m._lines) return m._lines;
+    const [[x0, x1], [y0, y1]] = m.dom, N = 120, out = [];
+    const add = pts => out.push({ inp: pts, out: pts.map(m.f) });
+    for (let x = x0; x <= x1 + 1e-9; x += m.step[0]) { const pts = []; for (let k = 0; k <= N; k++) pts.push([x, y0 + (y1 - y0) * k / N]); add(pts); }
+    for (let y = y0; y <= y1 + 1e-9; y += m.step[1]) { const pts = []; for (let k = 0; k <= N; k++) pts.push([x0 + (x1 - x0) * k / N, y]); add(pts); }
+    return (m._lines = out);
+  }
+  function drawMapGrid(P, m, which, o) { mapLines(m).forEach(l => P.path(l[which], o)); }
+  // points on the line through p along input direction dir, offsets s in [a, b]
+  function sweep(p, dir, a, b, n) {
+    const pts = [];
+    for (let k = 0; k <= n; k++) { const s = a + (b - a) * k / n; pts.push(dir === 0 ? [p[0] + s, p[1]] : [p[0], p[1] + s]); }
+    return pts;
+  }
+  // label placed just beyond an arrow's tip, along the arrow direction
+  function tipLabel(P, from, to, str, color, avoid) {
+    const A = P.px(from), B = P.px(to), dx = B[0] - A[0], dy = B[1] - A[1], n = Math.hypot(dx, dy);
+    const u = n > 2 ? [dx / n, dy / n] : [1, 0];
+    let x = B[0] + u[0] * 22, y = B[1] + u[1] * 14;
+    if (avoid && Math.hypot(x - avoid[0], y - avoid[1]) < 26) { x += -u[1] * 22; y += u[0] * 22; }
+    P.textPx(str, x, y, { color, bold: true, align: 'center', size: 13 });
+    return [x, y];
+  }
+  function axisLabels(P, m) {
+    const X0 = P.X(0), Y0 = P.Y(0);
+    if (Y0 > 14 && Y0 < P.H - 6) P.textPx(m.v[0], P.W - 12, Y0 - 11, { color: 'text-2', align: 'right', bold: true });
+    if (X0 > 6 && X0 < P.W - 16) P.textPx(m.v[1], X0 + 9, 34, { color: 'text-2', bold: true });
+  }
+
+  /* heatmap layer for det J; get() → {id, det(q), inDom(q)} */
+  function rgbOf(name) {
+    const s = R101.color(name);
+    let mm = /^#([0-9a-f]{6})$/i.exec(s);
+    if (mm) { const n = parseInt(mm[1], 16); return [n >> 16, (n >> 8) & 255, n & 255]; }
+    mm = /rgba?\(([^)]+)\)/.exec(s);
+    if (mm) return mm[1].split(',').slice(0, 3).map(parseFloat);
+    return [128, 128, 128];
+  }
+  function heatLayer(get) {
+    const off = document.createElement('canvas');
+    let key = '';
+    return function (P) {
+      const g = get(), cell = 3, w = Math.ceil(P.W / cell), h = Math.ceil(P.H / cell);
+      const k = [g.id, w, h, P.view.cx, P.view.cy, P.view.span, document.documentElement.getAttribute('data-theme')].join('|');
+      if (k !== key) {
+        key = k;
+        off.width = w; off.height = h;
+        const cx = off.getContext('2d'), img = cx.createImageData(w, h), D = img.data;
+        const vals = new Float32Array(w * h);
+        for (let j = 0; j < h; j++) for (let i = 0; i < w; i++) {
+          const q = P.world((i + 0.5) * cell, (j + 0.5) * cell);
+          vals[j * w + i] = g.inDom(q) ? g.det(q) : NaN;
+        }
+        const bg = rgbOf('canvas'), pos = rgbOf('x'), neg = rgbOf('w'), bad = rgbOf('bad');
+        for (let j = 0; j < h; j++) for (let i = 0; i < w; i++) {
+          const idx = j * w + i, d = vals[idx], o = idx * 4;
+          if (isNaN(d)) { D[o + 3] = 0; continue; }
+          const r = i + 1 < w ? vals[idx + 1] : NaN, b = j + 1 < h ? vals[idx + w] : NaN;
+          let c;
+          if ((!isNaN(r) && r * d < 0) || (!isNaN(b) && b * d < 0)) c = bad;
+          else {
+            const t = 0.85 * Math.pow(Math.abs(d) / (Math.abs(d) + 1), 0.85), tc = d >= 0 ? pos : neg;
+            c = [bg[0] + (tc[0] - bg[0]) * t, bg[1] + (tc[1] - bg[1]) * t, bg[2] + (tc[2] - bg[2]) * t];
+          }
+          D[o] = c[0]; D[o + 1] = c[1]; D[o + 2] = c[2]; D[o + 3] = 255;
+        }
+        cx.putImageData(img, 0, 0);
+      }
+      const c = P.ctx;
+      c.save(); c.imageSmoothingEnabled = true; c.drawImage(off, 0, 0, w * cell, h * cell); c.restore();
+    };
+  }
+
+  /* ---------------- FIG 1: zoom into a curve ---------------- */
+  (function () {
+    const g = x => 0.25 * x * x * x - x + 0.5 * Math.sin(2 * x);
+    const dg = x => 0.75 * x * x - 1 + Math.cos(2 * x);
+    const SPAN = 7;
+    let a = 1.1, zoom = 1, anim = null;
+    const P = new R101.Plane2D('#d1-canvas', { heightFn: w => Math.round(M.clamp(w * 0.62, 280, 360)), view: { cx: a, cy: g(a), span: SPAN }, draw, onChange: sync });
+    const recenter = () => P.setView({ cx: a, cy: g(a), span: SPAN / zoom });
+    function draw(P) {
+      const b = P.bounds(), sp = P.view.span, s = dg(a), y0 = g(a);
+      P.grid({ step: niceStep(sp / 6), color: 'grid', axisColor: 'grid-2' });
+      const pts = [];
+      for (let k = 0; k <= 300; k++) { const x = b.xmin + (b.xmax - b.xmin) * k / 300; pts.push([x, g(x)]); }
+      P.line([b.xmin, y0 + s * (b.xmin - a)], [b.xmax, y0 + s * (b.xmax - a)], { color: 'v', width: 2, dash: [8, 6], alpha: 0.9 });
+      P.path(pts, { color: 'x', width: 3 });
+      const run = sp * 0.24, p1 = [a + run, y0], p2 = [a + run, y0 + s * run];
+      P.line([a, y0], p1, { color: 'i', width: 2.5 });
+      P.line(p1, p2, { color: 'j', width: 2.5 });
+      P.text('δ', [a + run / 2, y0], { offset: [0, s >= 0 ? 13 : -13], color: 'i', bold: true, align: 'center' });
+      P.text('g′(a)·δ', [a + run, y0 + s * run / 2], { offset: [8, 0], color: 'j', bold: true });
+      P.point([a, y0], { color: 'v', r: 6, stroke: 'canvas', strokeWidth: 2 });
+      P.text('a', [a, y0], { offset: [-12, -14], color: 'v', bold: true });
+      P.textPx(R101.t('放大 ×', 'zoom ×') + (zoom < 10 ? zoom.toFixed(1) : Math.round(zoom)), 12, P.H - 14, { color: 'text-2', mono: true, size: 12 });
+    }
+    P.handle({ pos: () => [a, g(a)], color: 'v', set: q => { a = M.clamp(q[0], -2.8, 2.8); }, end: () => recenter() });
+    const ctr = document.getElementById('d1-controls');
+    const sl = ui.slider(ctr, { zh: '放大倍数', en: 'zoom', min: 0, max: 3, step: 0.01, value: 0, fmt: v => '×' + (Math.pow(10, v) < 10 ? Math.pow(10, v).toFixed(1) : Math.round(Math.pow(10, v))), onInput: v => { if (anim) { anim(); anim = null; } zoom = Math.pow(10, v); recenter(); sync(); } });
+    document.getElementById('d1-play').onclick = () => {
+      if (anim) anim();
+      const z0 = Math.log10(zoom) > 2.9 ? 0 : Math.log10(zoom);
+      anim = R101.animate(2600, e => { const v = z0 + (3 - z0) * e; zoom = Math.pow(10, v); sl.set(v); recenter(); sync(); }, () => { anim = null; });
+    };
+    const tex = document.getElementById('d1-tex'), read = document.getElementById('d1-read');
+    function sync() {
+      const s = dg(a), w = SPAN / zoom, y0 = g(a);
+      let gap = 0;
+      for (let k = 0; k <= 200; k++) { const x = a - w / 2 + w * k / 200; gap = Math.max(gap, Math.abs(g(x) - y0 - s * (x - a))); }
+      R101.tex(tex, `g(a+\\delta)\\approx g(a)+\\cv{g'(a)}\\,\\delta,\\quad \\cv{g'(a)} = ${M.tex(s, 3)}`);
+      read.innerHTML = `a = <b>${M.fmt(a, 3)}</b><br>` + L('视野内曲线与切线的最大偏离 ÷ 视野宽度', 'max gap between curve and tangent ÷ view width') + ` = <b>${M.fmt(100 * gap / w, gap / w < 0.001 ? 4 : 2)}%</b>`;
+      P.invalidate();
+    }
+    R101.on('lang', sync);
+    sync();
+  })();
+
+  /* ---------------- FIG 2: the Jacobian lab ---------------- */
+  (function () {
+    let key = 'polar', m = MAPS[key], p = m.p0.slice(), h = 0.6, zoom = false, S = null;
+    const hFn = w => Math.round(M.clamp(w * 0.86, 290, 400));
+    const PIn = new R101.Plane2D('#lab-in', { heightFn: hFn, view: Object.assign({}, m.inView), draw: drawIn, onChange: sync });
+    const POut = new R101.Plane2D('#lab-out', { heightFn: hFn, view: Object.assign({}, m.outView), draw: drawOut });
+    const inLabel = document.getElementById('lab-in-label'), outLabel = document.getElementById('lab-out-label');
+
+    function compute() {
+      const J = m.J(p), fp = m.f(p), r = h / 2, ns = 16, nsub = 4;
+      const corners = [[-r, -r], [r, -r], [r, r], [-r, r]];
+      const trueC = corners.map(d => m.f([p[0] + d[0], p[1] + d[1]]));
+      const predC = corners.map(d => M.add(fp, M.mv(J, d)));
+      const errs = trueC.map((c, i) => M.norm(M.sub(c, predC[i])));
+      const maxErr = Math.max.apply(null, errs);
+      const reach = Math.max.apply(null, corners.map(d => M.norm(M.mv(J, d))));
+      // edges: 0 bottom (input 1 varies, red), 1 right (green), 2 top (red), 3 left (green)
+      const edgesIn = [0, 1, 2, 3].map(i => {
+        const a = corners[i], b = corners[(i + 1) % 4], pts = [];
+        for (let k = 0; k <= ns; k++) { const t = k / ns; pts.push([p[0] + a[0] + (b[0] - a[0]) * t, p[1] + a[1] + (b[1] - a[1]) * t]); }
+        return pts;
+      });
+      const subIn = [];
+      for (let k = 1; k < nsub; k++) {
+        const u = -r + 2 * r * k / nsub, v1 = [], v2 = [];
+        for (let j = 0; j <= ns; j++) { const t = -r + 2 * r * j / ns; v1.push([p[0] + u, p[1] + t]); v2.push([p[0] + t, p[1] + u]); }
+        subIn.push(v1, v2);
+      }
+      const outlineIn = [].concat(...edgesIn.map(e => e.slice(0, -1)));
+      const [[x0, x1], [y0, y1]] = m.dom;
+      const thruIn = [sweep(p, 0, x0 - p[0], x1 - p[0], 160), sweep(p, 1, y0 - p[1], y1 - p[1], 160)];
+      const locIn = [sweep(p, 0, -3 * h, 3 * h, 60), sweep(p, 1, -3 * h, 3 * h, 60)];
+      S = {
+        J, fp, trueC, predC, errs, maxErr, reach, rel: reach > 1e-9 ? maxErr / reach : Infinity, det: M.det2(J),
+        edgesIn, edgesOut: edgesIn.map(e => e.map(m.f)), subIn, subOut: subIn.map(l => l.map(m.f)),
+        outlineIn, outlineOut: outlineIn.map(m.f), thruIn, thruOut: thruIn.map(l => l.map(m.f)), locOut: locIn.map(l => l.map(m.f))
+      };
+      if (zoom) {
+        let ext = 0;
+        S.outlineOut.concat(S.predC).forEach(q => { ext = Math.max(ext, Math.abs(q[0] - fp[0]), Math.abs(q[1] - fp[1])); });
+        POut.setView({ cx: fp[0], cy: fp[1], span: Math.max(ext * 2 * 1.45, 1e-9) });
+      } else POut.setView(Object.assign({}, m.outView));
+    }
+
+    function drawSquare(P, edges, sub, outline, emph) {
+      sub.forEach(l => P.path(l, { color: 'x', width: 1, alpha: 0.7 }));
+      P.poly(outline, { fill: 'v', fillAlpha: emph ? 0.38 : 0.22 });
+      const hl = R101.hl;
+      edges.forEach((e, i) => {
+        const c1 = i % 2 === 0, on = (c1 && hl === 'c1') || (!c1 && hl === 'c2');
+        P.path(e, { color: c1 ? 'i' : 'j', width: on ? 4.5 : 2.5 });
+      });
+    }
+    function drawIn(P) {
+      const hl = R101.hl;
+      P.grid({ step: niceStep(P.view.span / 8), color: 'grid', axisColor: 'grid-2' });
+      drawMapGrid(P, m, 'inp', { color: 'x', width: 1, alpha: 0.3 });
+      if (!S) return;
+      P.path(S.thruIn[0], { color: 'i', width: 1.8, alpha: 0.75 });
+      P.path(S.thruIn[1], { color: 'j', width: 1.8, alpha: 0.75 });
+      drawSquare(P, S.edgesIn, S.subIn, S.outlineIn, hl === 'd');
+      if (h * P.scale < 14) P.circle(p, 16 / P.scale, { color: 'v', width: 1.5, alpha: 0.8 });
+      if (hl === 'd') P.arrow(p, [p[0] + h / 2, p[1] + h / 2], { color: 'v', width: 3, label: 'δ' });
+      P.point(p, { color: 'v', r: 4 });
+      P.text('p', p, { offset: [-14, -14], color: 'v', bold: true });
+      axisLabels(P, m);
+    }
+    function drawOut(P) {
+      const hl = R101.hl;
+      if (zoom) P.grid({ step: niceStep(P.view.span / 6), color: 'grid', axisColor: 'grid-2' });
+      else {
+        P.grid({ step: niceStep(P.view.span / 8), color: 'grid', axisColor: 'grid-2' });
+        drawMapGrid(P, m, 'out', { color: 'x', width: 1, alpha: 0.3 });
+      }
+      if (!S) return;
+      const thru = zoom ? S.locOut : S.thruOut;
+      P.path(thru[0], { color: 'i', width: 1.8, alpha: 0.75 });
+      P.path(thru[1], { color: 'j', width: 1.8, alpha: 0.75 });
+      drawSquare(P, S.edgesOut, S.subOut, S.outlineOut, false);
+      // Jacobian prediction
+      const em = hl === 'J';
+      P.poly(S.predC, { stroke: 'w', width: em ? 4 : 2.2, dash: [7, 5], fill: em ? 'w' : null, fillAlpha: 0.15 });
+      // corner errors
+      S.trueC.forEach((c, i) => {
+        P.line(S.predC[i], c, { color: 'bad', width: hl === 'err' ? 4 : 2 });
+        if (hl === 'err') P.point(c, { color: 'bad', r: 4 });
+      });
+      if (hl === 'd') P.arrow(S.fp, S.predC[2], { color: 'w', width: 3, label: 'Jδ', labelColor: 'w' });
+      P.point(S.fp, { color: 'v', r: hl === 'fp' ? 8 : 5, stroke: 'canvas', strokeWidth: 1.5 });
+      P.text('f(p)', S.fp, { offset: [-12, -16], color: 'v', bold: true, align: 'right', size: hl === 'fp' ? 16 : 13 });
+      if (!zoom) {
+        const px = Math.max(S.reach, S.maxErr) * P.scale;
+        if (px < 10) {
+          P.circle(S.fp, 18 / P.scale, { color: 'v', width: 1.5, alpha: 0.8 });
+          P.text(R101.t('太小了？试试"放大"', 'Too small? Try "zoom"'), S.fp, { offset: [22, 16], color: 'text-2', size: 12 });
+        }
+      } else {
+        P.textPx(R101.t('视野宽 ≈ ', 'view ≈ ') + sci(P.view.span * P.W / Math.min(P.W, P.H)), 12, P.H - 14, { color: 'text-2', mono: true, size: 12 });
+      }
+    }
+
+    PIn.handle({
+      pos: () => p, color: 'v',
+      snap: q => clampDom(m, [Math.round(q[0] / 0.05) * 0.05, Math.round(q[1] / 0.05) * 0.05]),
+      set: q => { p = q; }
+    });
+
+    ui.seg(document.getElementById('lab-maps'), MAP_OPTS, key, v => {
+      key = v; m = MAPS[v]; p = m.p0.slice();
+      PIn.setView(Object.assign({}, m.inView));
+      sync();
+    });
+    const ctr = document.getElementById('lab-controls');
+    const hs = ui.slider(ctr, { zh: '方块边长 h', en: 'square size h', min: -2, max: 0, step: 0.01, value: Math.log10(h), fmt: v => M.fmt(Math.pow(10, v), 3), onInput: v => { h = Math.pow(10, v); sync(); } });
+    hs.el.style.flex = '2 1 260px';
+    ui.seg(ctr, [{ value: 'full', zh: '全局视图', en: 'Full view' }, { value: 'zoom', zh: '放大到 f(p)', en: 'Zoom to f(p)' }], 'full', v => { zoom = v === 'zoom'; sync(); });
+
+    const tex = document.getElementById('lab-tex'), tex2 = document.getElementById('lab-tex2'), read = document.getElementById('lab-read');
+    function sync() {
+      compute();
+      const [v0, v1] = m.v;
+      inLabel.innerHTML = L(`输入平面 (${v0}, ${v1})`, `INPUT (${v0}, ${v1})`);
+      outLabel.innerHTML = zoom ? L('输出平面 · 放大到 f(p)', 'OUTPUT · zoomed to f(p)') : L('输出平面 f', 'OUTPUT f');
+      R101.tex(tex, `\\begin{gathered} ${m.def} \\\\[2pt] J = ${m.sym} \\\\[2pt] J(\\mathbf p) = ${texJ(S.J)},\\;\\; \\det J = ${M.tex(S.det, 3)} \\end{gathered}`);
+      R101.tex(tex2, `f(\\mathbf p+\\boldsymbol\\delta)\\approx \\cv{f(\\mathbf p)} + \\cw{J(\\mathbf p)}\\,\\boldsymbol\\delta,\\quad \\cv{f(\\mathbf p)} = ${M.texVec(S.fp)}`);
+      const d = S.det, degenerate = S.reach < 1e-6;
+      let msg = '';
+      if (Math.abs(d) < 0.04) msg = `<span style="color:var(--c-bad)">${L('J 退化：小方块被压成一条线，甚至一个点。', 'J is degenerate: the square is crushed to a segment, or even a point.')}</span>`;
+      else if (d < 0) msg = `<span style="color:var(--c-w)">${L('这里网格翻了面（det J &lt; 0）。', 'The grid is flipped here (det J &lt; 0).')}</span>`;
+      else if (S.rel < 0.01) msg = `<span style="color:var(--c-good)">${L('线性预测几乎完美。', 'The linear prediction is nearly perfect.')}</span>`;
+      read.innerHTML =
+        `p = ${vfmt(p)} · h = <b>${M.fmt(h, 3)}</b><br>` +
+        `${L('角点最大误差', 'max corner error')} = <b>${sci(S.maxErr)}</b><br>` +
+        `${L('相对误差', 'relative error')} = <b>${degenerate ? '—' : M.fmt(100 * S.rel, S.rel < 0.01 ? 3 : 1) + '%'}</b><br>` +
+        `${L('面积缩放', 'area scale')} det J = <b>${M.fmt(d, 3)}</b>` + (msg ? '<br>' + msg : '');
+      if (S.rel < 0.01 && !degenerate) R101.done('shrink');
+      if (Math.abs(d) < 0.04) R101.done('fold');
+      if (d < -0.05) R101.done('flip');
+      PIn.invalidate(); POut.invalidate();
+    }
+    R101.on('lang', sync);
+    sync();
+  })();
+
+  /* ---------------- FIG 3: columns of J are velocities ---------------- */
+  (function () {
+    let key = 'polar', m = MAPS[key], p = m.p0.slice(), dir = 0, s = 0, phase = 0, playing = true, epsExp = -8, visible = true;
+    const VS = 0.55;
+    const hFn = w => Math.round(M.clamp(w * 0.82, 270, 360));
+    const PIn = new R101.Plane2D('#cols-in', { heightFn: hFn, view: Object.assign({}, m.inView), draw: drawIn, onChange: syncStatic });
+    const POut = new R101.Plane2D('#cols-out', { heightFn: hFn, view: Object.assign({}, m.outView), draw: drawOut });
+    const E = () => (dir === 0 ? [1, 0] : [0, 1]);
+    const cname = () => (dir === 0 ? 'i' : 'j');
+    const cur = () => (dir === 0 ? [p[0] + s, p[1]] : [p[0], p[1] + s]);
+    let lineIn = null, lineOut = null, segIn = null, segOut = null;
+    function prep() {
+      const [[x0, x1], [y0, y1]] = m.dom, Ls = m.sweepL[dir];
+      lineIn = dir === 0 ? sweep(p, 0, x0 - p[0], x1 - p[0], 160) : sweep(p, 1, y0 - p[1], y1 - p[1], 160);
+      lineOut = lineIn.map(m.f);
+      segIn = sweep(p, dir, -Ls, Ls, 80);
+      segOut = segIn.map(m.f);
+    }
+    function drawIn(P) {
+      P.grid({ step: niceStep(P.view.span / 8), color: 'grid', axisColor: 'grid-2' });
+      drawMapGrid(P, m, 'inp', { color: 'x', width: 1, alpha: 0.22 });
+      if (!lineIn) return;
+      const c = cname(), q = cur();
+      P.path(lineIn, { color: c, width: 1.5, alpha: 0.4 });
+      P.path(segIn, { color: c, width: 3.5, alpha: 0.85 });
+      P.point(p, { color: 'axis', r: 3 });
+      P.arrow(q, M.add(q, M.scale(E(), VS)), { color: c, width: 3.5, label: dir === 0 ? 'ê₁' : 'ê₂' });
+      P.point(q, { color: 'v', r: 6, stroke: 'canvas', strokeWidth: 2 });
+      P.text('p', p, { offset: [-14, -12], color: 'text-2', bold: true });
+      axisLabels(P, m);
+    }
+    function drawOut(P) {
+      P.grid({ step: niceStep(P.view.span / 8), color: 'grid', axisColor: 'grid-2' });
+      drawMapGrid(P, m, 'out', { color: 'x', width: 1, alpha: 0.22 });
+      if (!lineOut) return;
+      const c = cname(), q = cur(), fq = m.f(q), fp = m.f(p);
+      P.path(lineOut, { color: c, width: 1.5, alpha: 0.4 });
+      P.path(segOut, { color: c, width: 3.5, alpha: 0.85 });
+      const colP = colOf(m.J(p), dir), colQ = colOf(m.J(q), dir);
+      const gEnd = M.add(fp, M.scale(colP, VS));
+      P.arrow(fp, gEnd, { color: 'text-2', width: 2, dash: [5, 4], head: 10, alpha: 0.9 });
+      tipLabel(P, fp, gEnd, dir === 0 ? R101.t('J(p) 第 1 列', 'col 1 of J(p)') : R101.t('J(p) 第 2 列', 'col 2 of J(p)'), 'text-2');
+      P.arrow(fq, M.add(fq, M.scale(colQ, VS)), { color: c, width: 3.5 });
+      P.point(fq, { color: 'v', r: 6, stroke: 'canvas', strokeWidth: 2 });
+    }
+    PIn.handle({
+      pos: () => p, color: 'axis',
+      snap: q => clampDom(m, [Math.round(q[0] / 0.05) * 0.05, Math.round(q[1] / 0.05) * 0.05]),
+      set: q => { p = q; }
+    });
+
+    const playBtn = document.getElementById('cols-play');
+    playBtn.onclick = () => { playing = !playing; playBtn.textContent = playing ? '❚❚' : '▶'; };
+    ui.seg(document.getElementById('cols-dir'), [{ value: '0', zh: '推第 1 个输入', en: 'Nudge input 1' }, { value: '1', zh: '推第 2 个输入', en: 'Nudge input 2' }], '0', v => { dir = +v; syncStatic(); });
+    const ctr = document.getElementById('cols-controls');
+    ui.seg(ctr, MAP_OPTS, key, v => {
+      key = v; m = MAPS[v]; p = m.p0.slice();
+      PIn.setView(Object.assign({}, m.inView)); POut.setView(Object.assign({}, m.outView));
+      syncStatic();
+    });
+    ui.slider(ctr, { zh: '差分步长 ε', en: 'difference step ε', min: -15, max: 0, step: 0.5, value: epsExp, fmt: v => sci(Math.pow(10, v)), onInput: v => { epsExp = v; syncFD(); } });
+
+    const tex = document.getElementById('cols-tex'), read = document.getElementById('cols-read'), fdEl = document.getElementById('cols-fd');
+    function syncFD() {
+      const eps = Math.pow(10, epsExp), e = E();
+      const fp = m.f(p), fe = m.f([p[0] + eps * e[0], p[1] + eps * e[1]]);
+      const fd = [(fe[0] - fp[0]) / eps, (fe[1] - fp[1]) / eps], an = colOf(m.J(p), dir), err = M.norm(M.sub(fd, an));
+      const good = err < 1e-6;
+      fdEl.innerHTML = `${L('前向差分', 'forward difference')} (ε = ${sci(eps)}): <b>(${sci(fd[0])}, ${sci(fd[1])})</b> · ${L('解析', 'analytic')}: <b>(${sci(an[0])}, ${sci(an[1])})</b> · ${L('误差', 'error')} = <b style="color:var(--c-${good ? 'good' : 'bad'})">${sci(err)}</b>`;
+    }
+    function syncStatic() {
+      prep();
+      const col = colOf(m.J(p), dir), v = m.tv[dir], cc = dir === 0 ? '\\ci' : '\\cj', ej = dir === 0 ? '\\hat e_1' : '\\hat e_2';
+      R101.tex(tex, `\\frac{d}{ds}\\, f(\\mathbf p + s\\,${ej})\\Big|_{s=0} = ${cc}{\\frac{\\partial f}{\\partial ${v}}(\\mathbf p)} = ${cc}{J(\\mathbf p)\\,${ej}} = ${cc}{${M.texVec(col)}}`);
+      syncFD();
+      syncLive();
+    }
+    function syncLive() {
+      const q = cur(), vel = colOf(m.J(q), dir);
+      read.innerHTML = `${L('当前输入点', 'current input')} q = ${vfmt(q)} · ${L('输出速度', 'output velocity')} J(q)ê${dir === 0 ? '₁' : '₂'} = <b>${vfmt(vel)}</b> · ${L('速率', 'speed')} = <b>${M.fmt(M.norm(vel), 2)}</b>`;
+      PIn.invalidate(); POut.invalidate();
+    }
+    let last = performance.now();
+    function loop(now) {
+      const dt = Math.min(0.05, (now - last) / 1000); last = now;
+      if (playing && visible) {
+        phase = (phase + dt / 3.2) % 1;
+        const tri = phase < 0.5 ? -1 + 4 * phase : 3 - 4 * phase;
+        s = m.sweepL[dir] * tri;
+        syncLive();
+      }
+      requestAnimationFrame(loop);
+    }
+    if ('IntersectionObserver' in window) new IntersectionObserver(es => { visible = es[0].isIntersecting; }).observe(document.getElementById('fig-cols'));
+    R101.on('lang', syncStatic);
+    syncStatic();
+    requestAnimationFrame(loop);
+  })();
+
+  /* ---------------- FIG 4: det J heatmap ---------------- */
+  (function () {
+    let key = 'lens', m = MAPS[key], probe = m.p0.slice();
+    const setProbe = w => { if (w && inDom(m, w)) { probe = w; sync(); } };
+    const P = new R101.Plane2D('#det-canvas', { heightFn: w => Math.round(M.clamp(w * 0.8, 300, 430)), view: Object.assign({}, m.inView), draw, onHover: setProbe, onPointerDown: setProbe, cursor: 'crosshair' });
+    const heat = heatLayer(() => ({ id: key, det: q => M.det2(m.J(q)), inDom: q => inDom(m, q) }));
+    function draw(P) {
+      heat(P);
+      drawMapGrid(P, m, 'inp', { color: 'axis', width: 0.8, alpha: 0.14 });
+      const r = 0.12 * P.view.span / 5.6;
+      P.poly([[probe[0] - r, probe[1] - r], [probe[0] + r, probe[1] - r], [probe[0] + r, probe[1] + r], [probe[0] - r, probe[1] + r]], { stroke: 'v', width: 2.2 });
+      P.point(probe, { color: 'v', r: 3 });
+      axisLabels(P, m);
+    }
+    const Q = new R101.Plane2D('#det-mini', { height: 180, view: { span: 3 }, draw: drawMini });
+    function drawMini(Q) {
+      const J = m.J(probe), d = M.det2(J), c1 = colOf(J, 0), c2 = colOf(J, 1);
+      Q.grid({ step: niceStep(Q.view.span / 5), color: 'grid', axisColor: 'grid-2' });
+      Q.poly([[0, 0], [1, 0], [1, 1], [0, 1]], { stroke: 'axis', width: 1.2, dash: [4, 4], alpha: 0.7 });
+      Q.poly([[0, 0], c1, M.add(c1, c2), c2], { fill: d >= 0 ? 'x' : 'w', fillAlpha: 0.3 });
+      Q.arrow([0, 0], c1, { color: 'i', width: 3, head: 10 });
+      Q.arrow([0, 0], c2, { color: 'j', width: 3, head: 10 });
+    }
+    ui.seg(document.getElementById('det-maps'), MAP_OPTS, key, v => {
+      key = v; m = MAPS[v]; probe = m.p0.slice();
+      P.setView(Object.assign({}, m.inView));
+      sync();
+    });
+    const tex = document.getElementById('det-tex'), read = document.getElementById('det-read');
+    function sync() {
+      const J = m.J(probe), d = M.det2(J), c1 = colOf(J, 0), c2 = colOf(J, 1);
+      const xs = [0, 1, c1[0], c2[0], c1[0] + c2[0]], ys = [0, 1, c1[1], c2[1], c1[1] + c2[1]];
+      const xmn = Math.min(...xs), xmx = Math.max(...xs), ymn = Math.min(...ys), ymx = Math.max(...ys);
+      Q.setView({ cx: (xmn + xmx) / 2, cy: (ymn + ymx) / 2, span: Math.max(xmx - xmn, ymx - ymn) * 1.35 + 0.3 });
+      R101.tex(tex, `\\begin{gathered} J(\\mathbf p) = ${texJ(J)} \\\\[2pt] \\det J = ${M.tex(d, 3)} \\end{gathered}`);
+      let msg;
+      if (Math.abs(d) < 0.03) msg = `<span style="color:var(--c-bad)">${L('几乎退化：小方块被压扁，J 不可逆。', 'Nearly degenerate: the square is crushed, J is not invertible.')}</span>`;
+      else if (d < 0) msg = `<span style="color:var(--c-w)">${L('翻面：红绿两列的先后顺序反了过来，面积 ×', 'Flipped: red and green swapped their order; area ×')}${M.fmt(-d, 2)}</span>`;
+      else if (Math.abs(d - 1) < 0.02) msg = L('面积不变（×1）。', 'Area unchanged (×1).');
+      else msg = d > 1 ? L(`面积放大 ×${M.fmt(d, 2)}`, `area grows ×${M.fmt(d, 2)}`) : L(`面积缩小 ×${M.fmt(d, 2)}`, `area shrinks ×${M.fmt(d, 2)}`);
+      read.innerHTML = `p = ${vfmt(probe)}<br>${msg}`;
+      P.invalidate(); Q.invalidate();
+    }
+    R101.on('lang', sync);
+    sync();
+  })();
+
+  /* ---------------- FIG 5: two-link arm ---------------- */
+  (function () {
+    const l1 = 1.2, l2 = 0.9, Q0 = [0.5, 1.4];
+    let q = Q0.slice(), rho = 0.35;
+    const wrap = a => a - 2 * PI * Math.floor((a + PI) / (2 * PI));
+    const fk = t => [l1 * Math.cos(t[0]) + l2 * Math.cos(t[0] + t[1]), l1 * Math.sin(t[0]) + l2 * Math.sin(t[0] + t[1])];
+    const elbow = t => [l1 * Math.cos(t[0]), l1 * Math.sin(t[0])];
+    const Jarm = t => {
+      const s1 = Math.sin(t[0]), c1 = Math.cos(t[0]), s12 = Math.sin(t[0] + t[1]), c12 = Math.cos(t[0] + t[1]);
+      return [[-l1 * s1 - l2 * s12, -l2 * s12], [l1 * c1 + l2 * c12, l2 * c12]];
+    };
+    // damped least-squares IK: Δθ = Jᵀ (J Jᵀ + λ² I)⁻¹ e
+    function ik(target) {
+      const r = M.norm(target), rc = M.clamp(r, Math.abs(l1 - l2) + 1e-3, l1 + l2 - 1e-4);
+      if (r > 1e-9) target = M.scale(target, rc / r);
+      for (let it = 0; it < 120; it++) {
+        const e = M.sub(target, fk(q));
+        if (M.norm(e) < 1e-5) break;
+        const J = Jarm(q), JJt = M.mul(J, M.T(J)), lam2 = 0.01;
+        const y = M.mv(M.inv2([[JJt[0][0] + lam2, JJt[0][1]], [JJt[1][0], JJt[1][1] + lam2]]), e);
+        let dq = M.mv(M.T(J), y);
+        const n = M.norm(dq);
+        if (n > 0.25) dq = M.scale(dq, 0.25 / n);
+        q = M.add(q, dq);
+      }
+      q = q.map(wrap);
+    }
+    const hFn = w => Math.round(M.clamp(w * 0.9, 290, 420));
+    const PJ = new R101.Plane2D('#arm-joint', { heightFn: hFn, view: { cx: 0, cy: 0, span: 2 * PI + 0.9 }, draw: drawJ, onChange: sync });
+    const PW = new R101.Plane2D('#arm-work', { heightFn: hFn, view: { cx: 0, cy: 0.1, span: 2 * (l1 + l2) + 0.7 }, draw: drawW, onChange: sync });
+    const heat = heatLayer(() => ({ id: 'arm', det: t => l1 * l2 * Math.sin(t[1]), inDom: t => Math.abs(t[0]) <= PI && Math.abs(t[1]) <= PI }));
+    function drawJ(P) {
+      heat(P);
+      P.poly([[-PI, -PI], [PI, -PI], [PI, PI], [-PI, PI]], { stroke: 'grid-2', width: 1 });
+      [-PI, 0, PI].forEach(y => P.line([-PI, y], [PI, y], { color: 'bad', width: 1.6, dash: [6, 5], alpha: 0.85 }));
+      P.text('θ₂ = 0', [PI, 0], { offset: [-6, -10], color: 'bad', align: 'right', size: 12 });
+      P.textPx('θ₁ →', P.X(0), P.Y(-PI) + 14, { color: 'text-2', bold: true, align: 'center' });
+      P.textPx('θ₂', P.X(-PI) + 6, P.Y(PI) + 12, { color: 'text-2', bold: true });
+      P.text('π', [PI, -PI], { offset: [0, 14], color: 'text-2', size: 12, align: 'center' });
+      P.text('−π', [-PI, -PI], { offset: [0, 14], color: 'text-2', size: 12, align: 'center' });
+      P.circle(q, rho, { fill: 'v', fillAlpha: 0.2, stroke: 'v', width: 1.8 });
+      P.arrow(q, [q[0] + rho, q[1]], { color: 'i', width: 3, head: 10 });
+      P.arrow(q, [q[0], q[1] + rho], { color: 'j', width: 3, head: 10 });
+      P.point(q, { color: 'v', r: 4 });
+    }
+    function drawW(P) {
+      P.grid({ step: 0.5, color: 'grid', axisColor: 'grid-2' });
+      P.circle([0, 0], l1 + l2, { color: 'axis', width: 1, dash: [4, 5], alpha: 0.5 });
+      P.circle([0, 0], Math.abs(l1 - l2), { color: 'axis', width: 1, dash: [4, 5], alpha: 0.5 });
+      const el = elbow(q), tip = fk(q), J = Jarm(q), c1 = colOf(J, 0), c2 = colOf(J, 1);
+      P.line([0, 0], tip, { color: 'i', width: 1.2, dash: [3, 5], alpha: 0.6 });
+      // true image of the joint-space circle
+      const img = [];
+      for (let k = 0; k <= 96; k++) { const a = 2 * PI * k / 96; img.push(fk([q[0] + rho * Math.cos(a), q[1] + rho * Math.sin(a)])); }
+      P.ellipse(tip, M.mscale(J, rho), { fill: 'v', fillAlpha: 0.2, stroke: 'v', width: 1.8 });
+      P.path(img, { color: 'w', width: 2, dash: [6, 4] });
+      // arm
+      P.line([0, 0], el, { color: 'text-2', width: 8, alpha: 0.85 });
+      P.line(el, tip, { color: 'text-2', width: 6, alpha: 0.85 });
+      P.poly([[-0.22, -0.16], [0.22, -0.16], [0, 0.06]], { fill: 'axis', fillAlpha: 0.6 });
+      P.point([0, 0], { color: 'canvas', r: 6, stroke: 'text', strokeWidth: 2 });
+      P.point(el, { color: 'canvas', r: 5, stroke: 'text', strokeWidth: 2 });
+      const e1 = M.add(tip, M.scale(c1, rho)), e2 = M.add(tip, M.scale(c2, rho));
+      P.arrow(tip, e1, { color: 'i', width: 3.5 });
+      P.arrow(tip, e2, { color: 'j', width: 3.5 });
+      const l1pos = tipLabel(P, tip, e1, '∂x/∂θ₁', 'i');
+      tipLabel(P, tip, e2, '∂x/∂θ₂', 'j', l1pos);
+      P.point(tip, { color: 'v', r: 5 });
+    }
+    PJ.handle({
+      pos: () => q, color: 'v',
+      snap: t => [M.clamp(Math.round(t[0] / 0.02) * 0.02, -PI, PI), M.clamp(Math.round(t[1] / 0.02) * 0.02, -PI, PI)],
+      set: t => { q = t; }
+    });
+    PW.handle({ pos: () => fk(q), color: 'v', set: t => ik(t) });
+    const ctr = document.getElementById('arm-controls');
+    const rs = ui.slider(ctr, { zh: '关节空间小圆半径 ρ', en: 'joint-space circle radius ρ', min: 0.05, max: 0.8, step: 0.01, value: rho, onInput: v => { rho = v; sync(); } });
+    document.getElementById('arm-reset').onclick = () => { q = Q0.slice(); rho = 0.35; rs.set(rho); sync(); };
+    const tex = document.getElementById('arm-tex'), read = document.getElementById('arm-read');
+    function sync() {
+      const J = Jarm(q), d = M.det2(J), tip = fk(q), sv = M.svd2(J).S;
+      R101.tex(tex, `\\begin{gathered} J(\\boldsymbol\\theta) = ${texJ(J)} \\\\[2pt] \\det J = l_1 l_2 \\sin\\theta_2 = ${M.tex(d, 3)} \\end{gathered}`);
+      const sing = Math.abs(Math.sin(q[1])) < 0.03;
+      read.innerHTML =
+        `θ = (${M.fmt(q[0], 2)}, ${M.fmt(q[1], 2)}) rad<br>` +
+        `${L('末端', 'tip')} x = ${vfmt(tip)}<br>` +
+        `${L('椭圆半轴', 'ellipse semi-axes')} ρσ = ${M.fmt(rho * sv[0], 3)}, ${M.fmt(rho * sv[1], 3)}<br>` +
+        (sing ? `<b style="color:var(--c-bad)">${L('奇异位形！两列共线，末端沿手臂方向动不了。', 'Singular! The columns are collinear; the tip cannot move along the arm.')}</b>`
+              : `${L('离奇异还有多远', 'distance from singular')}: |sin θ₂| = <b>${M.fmt(Math.abs(Math.sin(q[1])), 2)}</b>`);
+      if (sing) R101.done('singular');
+      PJ.invalidate(); PW.invalidate();
+    }
+    R101.on('lang', sync);
+    sync();
+  })();
+});
+</script>
+</body>
+</html>
