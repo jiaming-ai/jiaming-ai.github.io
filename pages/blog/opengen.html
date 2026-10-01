@@ -8,9 +8,10 @@
     <link rel="icon" href="../../favicon-32.png" type="image/png" sizes="32x32">
     <link rel="apple-touch-icon" href="../../apple-touch-icon.png">
     <script>try{document.documentElement.setAttribute('data-theme',localStorage.getItem('theme')||'dark')}catch(e){document.documentElement.setAttribute('data-theme','dark')}</script>
+    <script>(function(){var d=document.documentElement,l;try{var p=new URLSearchParams(location.search).get('lang');l=(p==='zh'||p==='en')?p:localStorage.getItem('lang')}catch(e){}if(l!=='zh'&&l!=='en')l=/^zh/i.test(navigator.language||'')?'zh':'en';d.setAttribute('data-site-lang',l);d.lang=l==='zh'?'zh-Hans':'en'})()</script>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-    <link rel="stylesheet" href="../../css/styles.css?v=20260928c">
+    <link rel="stylesheet" href="../../css/styles.css?v=202610011400">
     <!-- KaTeX (remove if no math) -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
     <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
@@ -39,14 +40,14 @@
             <!-- Post header -->
             <div class="blog-article-header">
                 <a href="../blog.html" class="blog-back-link">
-                    <i class="fas fa-arrow-left"></i> Back to Blog
+                    <i class="fas fa-arrow-left"></i> <span lang="en">Back to Blog</span><span lang="zh-Hans">返回博客</span>
                 </a>
-                <h1 class="blog-article-title">OpenGEN-1: Reconstructing GEN-1 from First Principles</h1>
+                <h1 class="blog-article-title" data-title-en="OpenGEN-1: Reconstructing GEN-1 from First Principles" data-title-zh="OpenGEN-1：从第一性原理重构 GEN-1">OpenGEN-1: Reconstructing GEN-1 from First Principles</h1>
                 <div class="blog-article-meta">
-                    <span class="blog-post-date">July 26, 2026</span>
+                    <span class="blog-post-date"><span lang="en">July 26, 2026</span><span lang="zh-Hans">2026年7月26日</span></span>
                     <div class="blog-post-tags">
-                                                <span class="blog-tag">Technical</span>
-                        <span class="blog-tag">Research</span>
+                                                <span class="blog-tag"><span lang="en">Technical</span><span lang="zh-Hans">技术</span></span>
+                        <span class="blog-tag"><span lang="en">Research</span><span lang="zh-Hans">研究</span></span>
                     </div>
                 </div>
                 <!-- Language toggle -->
@@ -489,7 +490,7 @@
         <!-- Footer -->
         <footer class="border-t py-8" style="border-color: var(--border); background-color: var(--bg-secondary);">
             <div class="max-w-7xl mx-auto px-6 text-center">
-                <p style="color: var(--text-secondary);">&copy; 2025 Jiaming Wang. All rights reserved.</p>
+                <p style="color: var(--text-secondary);"><span lang="en">&copy; 2025 Jiaming Wang. All rights reserved.</span><span lang="zh-Hans">&copy; 2025 Jiaming Wang。版权所有。</span></p>
             </div>
         </footer>
     </div>
@@ -497,20 +498,6 @@
     <script>
     function getPathPrefix() { return '../../'; }
     </script>
-    <script src="../../js/main.js?v=20260928c"></script>
-    <script>
-    function switchLang(lang) {
-        document.querySelectorAll('[data-lang]').forEach(el => {
-            el.style.display = el.getAttribute('data-lang') === lang ? 'block' : 'none';
-        });
-        document.querySelectorAll('.blog-lang-btn').forEach(btn => {
-            btn.classList.toggle('active', btn.getAttribute('data-target') === lang);
-        });
-    }
-    const urlLang = new URLSearchParams(window.location.search).get('lang');
-    if (urlLang) {
-        document.addEventListener('DOMContentLoaded', () => switchLang(urlLang));
-    }
-    </script>
+    <script src="../../js/main.js?v=202610011400"></script>
 </body>
 </html>

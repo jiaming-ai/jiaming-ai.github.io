@@ -1,3 +1,75 @@
+// ---------- Language (EN / 中文) ----------
+// The active language lives on <html data-site-lang="en|zh"> (set by the inline
+// bootstrap in every page <head>, so there is no flash). Bilingual text is authored
+// as <span lang="en">…</span><span lang="zh-Hans">…</span> and the inactive one is
+// hidden by CSS. Everything below only has to keep the attribute, storage and a few
+// non-CSS bits (title, placeholders, typewriter, nav) in sync.
+function getLang() {
+    return document.documentElement.getAttribute('data-site-lang') === 'zh' ? 'zh' : 'en';
+}
+
+// Bilingual inline markup for strings built in JS
+function L(en, zh) {
+    return `<span lang="en">${en}</span><span lang="zh-Hans">${zh}</span>`;
+}
+
+// Plain-text pick, for attributes such as title="" and placeholder=""
+function tt(en, zh) {
+    return getLang() === 'zh' ? zh : en;
+}
+
+function applyLangToPage() {
+    const lang = getLang();
+    document.documentElement.lang = lang === 'zh' ? 'zh-Hans' : 'en';
+
+    // <title> and <meta name="description"> carry their Chinese text in data-zh
+    const title = document.querySelector('title');
+    if (title) {
+        if (title.dataset.en === undefined) title.dataset.en = title.textContent;
+        document.title = lang === 'zh' && title.dataset.zh ? title.dataset.zh : title.dataset.en;
+    }
+    const meta = document.querySelector('meta[name="description"]');
+    if (meta) {
+        if (meta.dataset.en === undefined) meta.dataset.en = meta.getAttribute('content') || '';
+        meta.setAttribute('content', lang === 'zh' && meta.dataset.zh ? meta.dataset.zh : meta.dataset.en);
+    }
+
+    // Blog posts carry both titles on the <h1>; it also drives the page title
+    const articleTitle = document.querySelector('.blog-article-title[data-title-zh]');
+    if (articleTitle) {
+        const text = articleTitle.getAttribute('data-title-' + lang) || articleTitle.getAttribute('data-title-en');
+        articleTitle.textContent = text;
+        document.title = text + ' - Jiaming Wang';
+    }
+
+    // Placeholders: <input data-placeholder-zh="…">
+    document.querySelectorAll('[data-placeholder-zh]').forEach(el => {
+        if (el.dataset.placeholderEn === undefined) el.dataset.placeholderEn = el.getAttribute('placeholder') || '';
+        el.setAttribute('placeholder', lang === 'zh' ? el.dataset.placeholderZh : el.dataset.placeholderEn);
+    });
+
+    // Blog EN/中文 buttons (listing and posts) mirror the site language
+    document.querySelectorAll('.blog-lang-btn').forEach(btn => {
+        btn.classList.toggle('active', btn.getAttribute('data-target') === lang);
+    });
+}
+
+function setLang(lang) {
+    lang = lang === 'zh' ? 'zh' : 'en';
+    document.documentElement.setAttribute('data-site-lang', lang);
+    try { localStorage.setItem('lang', lang); } catch (e) {}
+    applyLangToPage();
+    if (typeof initNavigation === 'function') initNavigation();
+    document.dispatchEvent(new CustomEvent('langchange', { detail: { lang } }));
+}
+
+function toggleLang() {
+    setLang(getLang() === 'zh' ? 'en' : 'zh');
+}
+
+// Blog posts call switchLang('en'|'zh') from their own EN/中文 buttons
+function switchLang(lang) { setLang(lang); }
+
 // Navigation Generator
 function initNavigation() {
     // Detect directory depth relative to root
@@ -23,27 +95,31 @@ function initNavigation() {
     const md2imgLink = isNestedSubdirectory ? '../md2img.html' : (isSubdirectory ? 'md2img.html' : 'pages/md2img.html');
     
     const links = [
-        { page: 'index.html', label: 'Home', icon: 'fas fa-house', href: homeLink },
-        { page: 'about.html', label: 'About', icon: 'fas fa-user-astronaut', href: aboutLink },
-        { page: 'research.html', label: 'Research', icon: 'fas fa-robot', href: researchLink },
-        { page: 'blog.html', label: 'Blog', icon: 'fas fa-pen-nib', href: blogLink },
-        { page: 'contact.html', label: 'Contact', icon: 'fas fa-satellite-dish', href: contactLink },
-        { page: 'md2img.html', label: 'MD to Image', icon: 'fas fa-image', href: md2imgLink }
+        { page: 'index.html', label: L('Home', '首页'), text: tt('Home', '首页'), icon: 'fas fa-house', href: homeLink },
+        { page: 'about.html', label: L('About', '关于'), text: tt('About', '关于'), icon: 'fas fa-user-astronaut', href: aboutLink },
+        { page: 'research.html', label: L('Research', '研究'), text: tt('Research', '研究'), icon: 'fas fa-robot', href: researchLink },
+        { page: 'blog.html', label: L('Blog', '博客'), text: tt('Blog', '博客'), icon: 'fas fa-pen-nib', href: blogLink },
+        { page: 'contact.html', label: L('Contact', '联系'), text: tt('Contact', '联系'), icon: 'fas fa-satellite-dish', href: contactLink },
+        { page: 'md2img.html', label: L('MD to Image', 'MD 转图片'), text: tt('MD to Image', 'MD 转图片'), icon: 'fas fa-image', href: md2imgLink }
     ];
+
+    // Shows the language you would switch to
+    const langToggleLabel = L('中文', 'EN');
+    const langToggleTitle = tt('切换到中文', 'Switch to English');
 
     const brand = (size) => `
         <a href="${homeLink}" class="brand">
             <span class="brand-mark">JW</span>
             <span class="brand-text">
                 <span class="side-nav-title"${size ? ` style="font-size:${size}"` : ''}>Jiaming Wang</span>
-                <span class="brand-sub">Embodied AI · NUS</span>
+                <span class="brand-sub">${L('Embodied AI · NUS', '具身智能 · NUS')}</span>
             </span>
         </a>`;
 
     // Generate side navigation HTML
     const sideNavHTML = `
         <div class="side-nav-header">${brand()}</div>
-        <div class="nav-status"><span class="status-dot"></span>Online · Singapore</div>
+        <div class="nav-status"><span class="status-dot"></span>${L('Online · Singapore', '在线 · 新加坡')}</div>
         <div class="side-nav-links">
             ${links.map((l, i) => `<a href="${l.href}" class="side-nav-link ${isActive(l.page) ? 'active' : ''}"><i class="${l.icon}"></i> <span class="nav-text">${l.label}</span><span class="nav-idx">0${i + 1}</span></a>`).join('')}
         </div>
@@ -52,15 +128,16 @@ function initNavigation() {
                 <a href="https://www.linkedin.com/in/jiaming-wang-ai/" target="_blank" rel="noopener noreferrer" class="footer-icon-link" title="LinkedIn">
                     <i class="fab fa-linkedin"></i>
                 </a>
-                <a href="mailto:jiaming@comp.nus.edu.sg" class="footer-icon-link" title="Email">
+                <a href="mailto:jiaming@comp.nus.edu.sg" class="footer-icon-link" title="${tt('Email', '邮箱')}">
                     <i class="fas fa-envelope"></i>
                 </a>
-                <div class="footer-icon-link theme-toggle" onclick="toggleTheme()" title="Toggle theme">
+                <div class="footer-icon-link theme-toggle" onclick="toggleTheme()" title="${tt('Toggle theme', '切换主题')}">
                     <i class="fas fa-moon theme-icon"></i>
                 </div>
+                <div class="footer-icon-link lang-toggle" onclick="toggleLang()" title="${langToggleTitle}" role="button" tabindex="0">${langToggleLabel}</div>
             </div>
             <div class="footer-text">
-                Building robots that<br>find their way
+                ${L('Building robots that<br>find their way', '让机器人<br>找到自己的路')}
             </div>
         </div>
     `;
@@ -71,15 +148,17 @@ function initNavigation() {
             ${brand('0.95rem')}
             <div class="flex items-center gap-6">
                 ${links.slice(0, 5).map(l => `<a href="${l.href}" class="nav-link hidden md:inline ${isActive(l.page) ? 'active' : ''}">${l.label}</a>`).join('')}
-                <div class="theme-toggle-mobile hidden md:inline-flex" onclick="toggleTheme()" title="Toggle theme">
+                <div class="theme-toggle-mobile hidden md:inline-flex" onclick="toggleTheme()" title="${tt('Toggle theme', '切换主题')}">
                     <i class="fas fa-moon theme-icon"></i>
                 </div>
+                <div class="lang-toggle-mobile hidden md:inline-flex" onclick="toggleLang()" title="${langToggleTitle}" role="button" tabindex="0">${langToggleLabel}</div>
 
                 <!-- Mobile icons (visible only on small screens) -->
-                ${links.slice(1, 5).map(l => `<a href="${l.href}" class="nav-link-icon md:hidden ${isActive(l.page) ? 'active' : ''}" title="${l.label}"><i class="${l.icon}"></i></a>`).join('')}
-                <div class="theme-toggle-mobile md:hidden" onclick="toggleTheme()" title="Toggle theme">
+                ${links.slice(1, 5).map(l => `<a href="${l.href}" class="nav-link-icon md:hidden ${isActive(l.page) ? 'active' : ''}" title="${l.text}"><i class="${l.icon}"></i></a>`).join('')}
+                <div class="theme-toggle-mobile md:hidden" onclick="toggleTheme()" title="${tt('Toggle theme', '切换主题')}">
                     <i class="fas fa-moon theme-icon"></i>
                 </div>
+                <div class="lang-toggle-mobile md:hidden" onclick="toggleLang()" title="${langToggleTitle}" role="button" tabindex="0">${langToggleLabel}</div>
             </div>
         </div>
     `;
@@ -173,7 +252,7 @@ function getRootPrefix() {
 function pubLinkButtons(pub, id) {
     const root = getRootPrefix();
     const resolve = url => /^https?:/.test(url) ? url : root + url;
-    const labels = { arxiv: 'arXiv', paper: 'Paper', code: 'Code', project: 'Project', video: 'Video', blog: 'Blog' };
+    const labels = { arxiv: 'arXiv', paper: L('Paper', '论文'), code: L('Code', '代码'), project: L('Project', '项目'), video: L('Video', '视频'), blog: L('Blog', '博客') };
     const icons = { arxiv: 'fas fa-file-lines', paper: 'fas fa-file-pdf', code: 'fab fa-github', project: 'fas fa-globe', video: 'fas fa-video', blog: 'fas fa-pen-nib' };
     const links = Object.entries(pub.links || {})
         .filter(([, url]) => url && url !== '#')
@@ -205,7 +284,7 @@ function renderPublications() {
                     <div class="pub-title">${pub.title}</div>
                     <div class="pub-authors">${authors}</div>
                     <div class="pub-venue">${pub.venue}, ${pub.year}</div>
-                    ${pub.award ? `<div class="award-badge"><i class="fas fa-trophy"></i>${pub.award}</div>` : ''}
+                    ${pub.award ? `<div class="award-badge"><i class="fas fa-trophy"></i>${L(pub.award, pub.awardZh || pub.award)}</div>` : ''}
                     <div class="pub-actions">${pubLinkButtons(pub, id)}</div>
                     <pre id="bibtex-${id}" class="pub-bibtex" hidden>${pub.bibtex}</pre>
                 </div>
@@ -417,25 +496,28 @@ function initCounters() {
     els.forEach(el => io.observe(el));
 }
 
-// Typewriter that cycles through phrases
+// Typewriter that cycles through phrases. A page can carry one .typer per language
+// (inside lang-tagged blocks); the hidden one is skipped by CSS and costs nothing.
 function initTyper() {
-    const el = document.querySelector('.typer[data-words]');
-    if (!el || prefersReducedMotion) return;
-    let words;
-    try { words = JSON.parse(el.dataset.words); } catch (e) { return; }
-    let w = 0, i = words[0].length, deleting = true;
-    const tick = () => {
-        const word = words[w];
-        el.textContent = word.slice(0, i);
-        let delay = deleting ? 28 : 55;
-        if (deleting) {
-            if (--i < 0) { deleting = false; w = (w + 1) % words.length; i = 0; delay = 350; }
-        } else if (++i > words[w].length) {
-            deleting = true; i = words[w].length; delay = 2400;
-        }
-        setTimeout(tick, delay);
-    };
-    setTimeout(tick, 3200);
+    document.querySelectorAll('.typer[data-words]').forEach(el => {
+        let words;
+        try { words = JSON.parse(el.dataset.words); } catch (e) { return; }
+        // Reduced motion: show the first phrase and stay still
+        if (prefersReducedMotion) { el.textContent = words[0]; return; }
+        let w = 0, i = words[0].length, deleting = true;
+        const tick = () => {
+            const word = words[w];
+            el.textContent = word.slice(0, i);
+            let delay = deleting ? 28 : 55;
+            if (deleting) {
+                if (--i < 0) { deleting = false; w = (w + 1) % words.length; i = 0; delay = 350; }
+            } else if (++i > words[w].length) {
+                deleting = true; i = words[w].length; delay = 2400;
+            }
+            setTimeout(tick, delay);
+        };
+        setTimeout(tick, 3200);
+    });
 }
 
 // Thin progress bar showing how far down the page you are
@@ -480,7 +562,8 @@ async function initVisitorCounter() {
 
 // Initialize on page load
 document.addEventListener('DOMContentLoaded', function() {
-    // Initialize navigation first
+    // Language first: navigation labels and the page title depend on it
+    applyLangToPage();
     initNavigation();
     loadTheme();
     initScrollProgress();

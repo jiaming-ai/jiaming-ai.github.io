@@ -10,6 +10,7 @@
             "blog": "pages/blog/how-to-win.html"
         },
         "award": "Winner, REAL-I Challenge @ ICRA 2026",
+        "awardZh": "ICRA 2026 REAL-I 挑战赛冠军",
         "selected": true,
         "bibtex": "@article{wang2026realivla,\n  title={How to Better Train VLAs: Lessons Learned From the REAL-I Challenge at ICRA 2026},\n  author={Wang, Jiaming and Chen, Jizhuo and Liu, Diwen and Song, Wang and Wang, Qiang and Ren, Jie and Fu, Chao and Zhu, Dingkun and Ruan, Minchi and Li, Hongtong and Jiang, Yuhua and Xue, Zhiwei and Pan, Yongping and Soh, Harold},\n  journal={arXiv preprint arXiv:2609.13679},\n  year={2026}\n}"
     },
@@ -73,6 +74,7 @@
             "arxiv": "https://arxiv.org/abs/2506.17960"
         },
         "award": "Winner, Earth Rover Challenge @ ICRA 2025",
+        "awardZh": "ICRA 2025 Earth Rover Challenge 冠军",
         "selected": true,
         "bibtex": "@article{wang2025genie,\n  title={GeNIE: A Generalizable Navigation System for In-the-Wild Environments},\n  author={Wang, Jiaming and Liu, Diwen and Chen, Jizhuo and Da, Jiaxuan and Qian, Nuowen and Man, Tram Minh and Soh, Harold},\n  journal={IEEE Robotics and Automation Letters},\n  year={2025}\n}"
     },
@@ -86,6 +88,7 @@
             "arxiv": "https://arxiv.org/abs/2502.04873"
         },
         "award": "Best Workshop Paper Prize",
+        "awardZh": "Workshop 最佳论文奖",
         "selected": true,
         "bibtex": "@article{wang2025tog,\n  title={Training-Free Task-Oriented Grasp Generation},\n  author={Wang, Jiaming and Liu, Diwen and Chen, Jizhuo and Soh, Harold},\n  journal={arXiv preprint arXiv:2502.04873},\n  year={2025}\n}"
     },
@@ -99,6 +102,7 @@
             "arxiv": "https://arxiv.org/abs/2509.11594"
         },
         "award": "Best Paper Award",
+        "awardZh": "最佳论文奖",
         "selected": true,
         "bibtex": "@article{chen2025gbpp,\n  title={GBPP: Grasp-Aware Base Placement Prediction for Robots via Two-Stage Learning},\n  author={Chen, Jizhuo and Liu, Diwen and Wang, Jiaming and Soh, Harold},\n  journal={arXiv preprint arXiv:2509.11594},\n  year={2025}\n}"
     },
