@@ -1,0 +1,982 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-theme="dark" data-lang-ui="zh">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>1.8 叉积 · Robotics for Beginners</title>
+<meta name="description" content="An interactive, intuition-first lesson on the cross product: a perpendicular vector whose length is a parallelogram's area, the 2D signed-area version, the skew-symmetric matrix [a]x, and its use in torque, velocity and surface normals.">
+<link rel="icon" href="../../favicon.svg" type="image/svg+xml">
+<script>(function(){var d=document.documentElement,t='dark',l=null;try{t=localStorage.getItem('theme')||'dark'}catch(e){}d.setAttribute('data-theme',t);try{l=new URLSearchParams(location.search).get('lang')||localStorage.getItem('lang')}catch(e){}if(l!=='zh'&&l!=='en')l=(navigator.language||'').toLowerCase().indexOf('zh')===0?'zh':'en';d.setAttribute('data-lang-ui',l);d.lang=l==='zh'?'zh-CN':'en';})();</script>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.22/dist/katex.min.css">
+<link rel="stylesheet" href="../assets/course.css">
+</head>
+<body data-page="1.8" data-root=".." data-title-zh="1.8 叉积 · Robotics for Beginners" data-title-en="1.8 The Cross Product · Robotics for Beginners">
+<div class="r101-layout">
+<aside class="r101-side" id="r101-side"></aside>
+<main class="r101-main">
+<article class="lesson">
+
+<header class="lesson-head">
+  <div class="eyebrow"><span data-lang="zh">Part I · 第 1 章 线性代数 · 1.8</span><span data-lang="en">Part I · Ch. 1 Linear Algebra · 1.8</span></div>
+  <h1><span data-lang="zh">叉积</span><span data-lang="en">The Cross Product</span></h1>
+  <p class="lede">
+    <span data-lang="zh">叉积把两个三维向量变成<b>第三个向量</b>：它垂直于两者，长度等于两者围成的平行四边形的面积，方向由右手定则决定。力矩、旋转物体上一点的速度、曲面的法向量，背后都是它。把它写成一个<b>斜对称矩阵</b> \(\skew{\mathbf a}\)，还能通向李群。</span>
+    <span data-lang="en">The cross product turns two 3D vectors into a <b>third vector</b>: perpendicular to both, as long as the area of the parallelogram they span, pointing the way the right-hand rule says. Torque, the velocity of a point on a spinning body and the normal of a surface are all cross products. Written as a <b>skew-symmetric matrix</b> \(\skew{\mathbf a}\), it is also the doorway to Lie groups.</span>
+  </p>
+  <div class="lesson-meta">
+    <span class="chip"><span data-lang="zh">约 30 分钟</span><span data-lang="en">~30 min</span></span>
+    <span class="chip"><span data-lang="zh">前置：1.5 行列式 · 1.7 点积</span><span data-lang="en">Prereqs: 1.5 Determinant · 1.7 Dot Product</span></span>
+    <span class="chip"><span data-lang="zh">7 个交互</span><span data-lang="en">7 interactives</span></span>
+  </div>
+  <ul class="toc-steps" id="step-toc"></ul>
+</header>
+
+<!-- ============ 1. WHY ============ -->
+<section class="step" id="why">
+  <h2><span class="n">1</span><span data-lang="zh">为什么机器人需要它</span><span data-lang="en">Why robots need this</span></h2>
+  <div data-lang="zh">
+    <p>机械臂手里拿着一块砖，肩关节要出多大的力来撑住它？这取决于砖有多重，也取决于砖离关节有多远、往哪个方向压。同样 10 牛的力，顺着手臂的方向推，关节纹丝不动；垂直于手臂推，关节被拧得最狠。"一个力对关节有多大的<b>拧劲</b>"，就是叉积算出来的：\(\boldsymbol\tau = \mathbf r \times \mathbf F\)。</p>
+    <p>同一个运算在机器人里反复出现：</p>
+    <ul>
+      <li><b>力矩</b>：\(\boldsymbol\tau = \mathbf r\times\mathbf F\)，一个力拧关节的力度。</li>
+      <li><b>旋转物体上一点的速度</b>：转台、轮子、旋转的夹爪上，离轴心 \(\mathbf r\) 处的点速度为 \(\mathbf v = \boldsymbol\omega\times\mathbf r\)。</li>
+      <li><b>曲面的法向量</b>：点云里取相邻三点，用叉积得到它们所在平面的法向，这就是抓取时的接近方向。</li>
+      <li><b>左转还是右转</b>：二维路径规划里，判断拐角、求凸包、判断障碍物在直线哪一侧，用的都是叉积的符号。</li>
+    </ul>
+    <p>更往后，叉积的矩阵形式 \(\skew{\boldsymbol\omega}\) 是旋转的"导数"，5.5 和 5.6 节的李代数、指数映射都建立在它上面。</p>
+  </div>
+  <div data-lang="en">
+    <p>A robot arm holds a brick. How hard must the shoulder joint work to keep it up? It depends on the weight, but also on how far the brick is from the joint and in which direction it pushes. A force of 10 N pushing along the arm leaves the joint unmoved; pushing across the arm twists it the hardest. "How much a force <b>twists</b> a joint" is computed by a cross product: \(\boldsymbol\tau = \mathbf r \times \mathbf F\).</p>
+    <p>The same operation keeps coming back in robotics:</p>
+    <ul>
+      <li><b>Torque</b>: \(\boldsymbol\tau = \mathbf r\times\mathbf F\), how hard a force twists a joint.</li>
+      <li><b>Velocity of a point on a spinning body</b>: on a turntable, a wheel or a rotating gripper, the point at \(\mathbf r\) from the axis moves with \(\mathbf v = \boldsymbol\omega\times\mathbf r\).</li>
+      <li><b>Surface normals</b>: take three neighbouring points of a point cloud, and a cross product gives the normal of the plane through them: the approach direction for a grasp.</li>
+      <li><b>Left turn or right turn</b>: in 2D path planning, detecting corners, building convex hulls and deciding which side of a line an obstacle is on all use the sign of a cross product.</li>
+    </ul>
+    <p>Further on, the matrix form \(\skew{\boldsymbol\omega}\) of the cross product is the "derivative" of rotation: the Lie algebra and the exponential map of Lessons 5.5 and 5.6 are built on it.</p>
+  </div>
+</section>
+
+<!-- ============ 2. INTUITION ============ -->
+<section class="step" id="intuition">
+  <h2><span class="n">2</span><span data-lang="zh">直觉：一支垂直的箭头，长度是面积</span><span data-lang="en">Intuition: a perpendicular arrow whose length is an area</span></h2>
+  <div data-lang="zh">
+    <p>在平面里，两个向量围出一个平行四边形，面积是一个数（1.5 节的行列式）。到了三维，这个平行四边形可以朝任何方向"躺着"：只说面积还不够，还得说它躺在哪个平面里。<b>叉积</b>把两件事打包成一个向量：</p>
+    <ul>
+      <li><b>长度</b>是平行四边形的<b>面积</b>，\(\lVert\mathbf a\times\mathbf b\rVert = \lVert\mathbf a\rVert\lVert\mathbf b\rVert\sin\theta\)；</li>
+      <li><b>方向</b>垂直于这个平面，也就是同时垂直于 \(\mathbf a\) 和 \(\mathbf b\)。垂直方向有两个（朝上或朝下），由<b>右手定则</b>选：四指从 \(\mathbf a\) 弯向 \(\mathbf b\)，拇指指向 \(\mathbf a\times\mathbf b\)。</li>
+    </ul>
+    <p>如果 \(\mathbf a\)、\(\mathbf b\) 平行，平行四边形压成一条线，面积为零，叉积就是<b>零向量</b>。下面固定 <span class="cx">a</span>，让 <span class="cw">b</span> 在水平面里转一圈，看 <span class="cv">a × b</span> 怎么变。</p>
+  </div>
+  <div data-lang="en">
+    <p>In the plane, two vectors span a parallelogram, and its area is one number (the determinant of Lesson 1.5). In 3D that parallelogram can lie in any orientation: the area alone is not enough, you also need to say which plane it lies in. The <b>cross product</b> packs both facts into one vector:</p>
+    <ul>
+      <li>its <b>length</b> is the parallelogram's <b>area</b>, \(\lVert\mathbf a\times\mathbf b\rVert = \lVert\mathbf a\rVert\lVert\mathbf b\rVert\sin\theta\);</li>
+      <li>its <b>direction</b> is perpendicular to that plane, i.e. to both \(\mathbf a\) and \(\mathbf b\). There are two perpendicular directions (up or down), and the <b>right-hand rule</b> picks one: curl your fingers from \(\mathbf a\) toward \(\mathbf b\), and your thumb points along \(\mathbf a\times\mathbf b\).</li>
+    </ul>
+    <p>If \(\mathbf a\) and \(\mathbf b\) are parallel, the parallelogram collapses to a line, its area is zero, and the cross product is the <b>zero vector</b>. Below, <span class="cx">a</span> is fixed and <span class="cw">b</span> sweeps once around the horizontal plane. Watch <span class="cv">a × b</span>.</p>
+  </div>
+
+  <figure class="fig" id="fig-sweep">
+    <div class="fig-head"><span class="fig-kind">FIG 1</span><span class="fig-title"><span data-lang="zh">让 b 绕一圈</span><span data-lang="en">Sweep b around a</span></span><span class="spacer"></span><span id="sweep-btn"></span></div>
+    <div class="fig-body split">
+      <div class="canvas-wrap" id="sweep-canvas"></div>
+      <div class="fig-side"><div class="readout" id="sweep-read"></div></div>
+    </div>
+    <div class="fig-controls" id="sweep-ctrl"></div>
+    <figcaption class="fig-cap">
+      <span data-lang="zh">青色 <span class="cx">a</span> 不动，紫色 <span class="cw">b</span> 在水平面里转动，琥珀色 <span class="cv">a × b</span> 始终竖直。b 在 a 的逆时针一侧（φ 在 0° 到 180° 之间）时它朝上，到了另一侧就翻到朝下；φ = 0° 或 180° 时两者平行，它缩成零。拖动画面可以转动视角。</span>
+      <span data-lang="en">Cyan <span class="cx">a</span> stays put, purple <span class="cw">b</span> turns in the horizontal plane, and amber <span class="cv">a × b</span> always stands vertical. While b is on the counter-clockwise side of a (φ between 0° and 180°) it points up; on the other side it flips down; at φ = 0° or 180° the two are parallel and it shrinks to nothing. Drag the picture to orbit.</span>
+    </figcaption>
+  </figure>
+
+  <div class="callout key">
+    <div class="ct"><span data-lang="zh">核心洞见</span><span data-lang="en">Key insight</span></div>
+    <p data-lang="zh">叉积 = <b>面积</b> + <b>朝向</b>，装进一个向量里。长度告诉你"围出了多少面积"，方向告诉你"这块面积躺在哪个平面里、哪一面朝外"。</p>
+    <p data-lang="en">Cross product = <b>area</b> + <b>orientation</b>, packed into one vector. The length says how much area the two vectors enclose; the direction says which plane that area lies in and which side faces out.</p>
+  </div>
+</section>
+
+<!-- ============ 3. PLAY ============ -->
+<section class="step" id="play">
+  <h2><span class="n">3</span><span data-lang="zh">动手玩：三维叉积实验室</span><span data-lang="en">Play: the 3D cross-product lab</span></h2>
+  <p data-lang="zh">用下面六个滑块摆放 <span class="cx">a</span> 和 <span class="cw">b</span>：每个向量由方位角（绕 z 轴转）、仰角（离开水平面）和长度决定。右边是实时读数，下方是逐分量的计算。也可以点一个预设，或者显示灰色虚线的 <span class="cv">b × a</span>。</p>
+  <p data-lang="en">Place <span class="cx">a</span> and <span class="cw">b</span> with the six sliders: each vector is set by an azimuth (turning about the z-axis), an elevation (tilting out of the horizontal plane) and a length. The readouts are live, and the component-by-component computation is underneath. You can also pick a preset, or show the dashed <span class="cv">b × a</span>.</p>
+
+  <figure class="fig bleed" id="fig-lab">
+    <div class="fig-head"><span class="fig-kind">FIG 2</span><span class="fig-title"><span data-lang="zh">叉积实验室</span><span data-lang="en">Cross-product lab</span></span><span class="spacer"></span><span id="lab-ghost"></span></div>
+    <div class="fig-body split">
+      <div class="canvas-wrap" id="lab-canvas"></div>
+      <div class="fig-side">
+        <div class="readout" id="lab-read"></div>
+        <div><div class="small muted" style="margin-bottom:6px"><span data-lang="zh">预设</span><span data-lang="en">Presets</span></div><div class="presets" id="lab-presets"></div></div>
+      </div>
+    </div>
+    <div class="fig-body" style="border-top:1px solid var(--border)"><div class="fig-side" style="border:0"><div class="katex-live" id="lab-tex"></div></div></div>
+    <div class="fig-controls" id="lab-ctrl"></div>
+    <figcaption class="fig-cap">
+      <span data-lang="zh">配色约定：<span class="cx">a</span> 青色，<span class="cw">b</span> 紫色，<span class="cv">a × b</span> 琥珀色；坐标轴用灰色，避免和 a、b 混淆。淡青色的平行四边形就是 a、b 围出的面积，它的大小等于 a × b 的长度。小弧线是夹角 θ，弧线的转向就是右手定则里四指的转向。</span>
+      <span data-lang="en">Colour convention: <span class="cx">a</span> cyan, <span class="cw">b</span> purple, <span class="cv">a × b</span> amber; the coordinate axes are grey so they are not confused with a and b. The pale cyan parallelogram is the area spanned by a and b, and its size equals the length of a × b. The small arc is the angle θ, and its turning direction is the curl of your fingers in the right-hand rule.</span>
+    </figcaption>
+  </figure>
+
+  <div class="tasks-title"><span data-lang="zh">试一试</span><span data-lang="en">Try this</span></div>
+  <ul class="tasks">
+    <li data-task="up"><span><span data-lang="zh">只用滑块（不用预设），让 <span class="cv">a × b</span> <b>笔直朝上</b>（+z）。提示：a、b 应该躺在哪个平面里？谁在谁的逆时针一侧？</span><span data-lang="en">Using the sliders only (no presets), make <span class="cv">a × b</span> point <b>straight up</b> (+z). Hint: which plane should a and b lie in, and who must be counter-clockwise of whom?</span></span></li>
+    <li data-task="zero"><span><span data-lang="zh">让 a、b 都不是零向量，但 <b>a × b = 0</b>。这时平行四边形变成了什么？</span><span data-lang="en">Keep both a and b non-zero but make <b>a × b = 0</b>. What has the parallelogram become?</span></span></li>
+    <li data-task="perp"><span><span data-lang="zh">让两个向量都不短于 1.2，并使 \(\lVert\mathbf a\times\mathbf b\rVert\) 达到上限 \(\lVert\mathbf a\rVert\lVert\mathbf b\rVert\)（读数两行相等）。夹角应该是多少？</span><span data-lang="en">With both vectors at least 1.2 long, make \(\lVert\mathbf a\times\mathbf b\rVert\) reach its ceiling \(\lVert\mathbf a\rVert\lVert\mathbf b\rVert\) (the two readout lines agree). What must the angle be?</span></span></li>
+    <li data-task="flip"><span><span data-lang="zh">点预设 <b>x × y = z</b>，然后<b>只改 b</b>（不碰 a 的滑块），让 <span class="cv">a × b</span> 翻成朝下。</span><span data-lang="en">Press the preset <b>x × y = z</b>, then change <b>only b</b> (do not touch a's sliders) so that <span class="cv">a × b</span> flips to point down.</span></span></li>
+  </ul>
+</section>
+
+<!-- ============ 4. TWO D ============ -->
+<section class="step" id="plane">
+  <h2><span class="n">4</span><span data-lang="zh">第二个视角：二维里的叉积是一个有符号的数</span><span data-lang="en">Second view: in 2D the cross product is one signed number</span></h2>
+  <div data-lang="zh">
+    <p>把 \(\mathbf a\)、\(\mathbf b\) 都放进 xy 平面（\(z=0\)）。它们围出的平行四边形躺在这个平面里，叉积必然沿着 z 轴，只剩一个分量要算：</p>
+  </div>
+  <div data-lang="en">
+    <p>Put both \(\mathbf a\) and \(\mathbf b\) in the xy-plane (\(z=0\)). The parallelogram they span lies in this plane, so the cross product must point along the z-axis, and only one component is left to compute:</p>
+  </div>
+  <div class="math-card">$$ \mathbf a\times\mathbf b = \begin{bmatrix} a_1\\ a_2\\ 0\end{bmatrix}\times\begin{bmatrix} b_1\\ b_2\\ 0\end{bmatrix} = \begin{bmatrix} 0\\ 0\\ a_1b_2 - a_2b_1\end{bmatrix}, \qquad a_1b_2 - a_2b_1 = \det\begin{bmatrix} \mathbf a & \mathbf b\end{bmatrix}. $$</div>
+  <div data-lang="zh">
+    <p>这正是 1.5 节的行列式：面积的<b>正负号</b>里藏着方向信息。结果为正，说明 \(\mathbf b\) 在 \(\mathbf a\) 的<b>左边</b>（从 \(\mathbf a\) 逆时针转不到 180° 就能到 \(\mathbf b\)）；为负，\(\mathbf b\) 在右边；为零，两者共线。拖动下图的两个箭头尖。</p>
+  </div>
+  <div data-lang="en">
+    <p>This is exactly the determinant of Lesson 1.5: the <b>sign</b> of the area carries orientation. A positive value means \(\mathbf b\) is on the <b>left</b> of \(\mathbf a\) (you reach \(\mathbf b\) by turning counter-clockwise from \(\mathbf a\) by less than 180°); a negative value means b is on the right; zero means they are collinear. Drag the two arrow tips below.</p>
+  </div>
+
+  <figure class="fig" id="fig-plane">
+    <div class="fig-head"><span class="fig-kind">FIG 3</span><span class="fig-title"><span data-lang="zh">有符号面积 = 左右判断</span><span data-lang="en">Signed area = left/right test</span></span></div>
+    <div class="fig-body split">
+      <div class="canvas-wrap" id="p2-canvas"></div>
+      <div class="fig-side">
+        <div class="katex-live" id="p2-tex"></div>
+        <div class="readout" id="p2-read"></div>
+      </div>
+    </div>
+    <figcaption class="fig-cap">
+      <span data-lang="zh">绿色平行四边形表示正面积（b 在 a 左边），红色表示负面积（b 在右边）。弧线箭头是从 a 转向 b 的最短方向。注意：交换 a 和 b 会让颜色翻转，面积的大小不变。</span>
+      <span data-lang="en">A green parallelogram means positive area (b is left of a), a red one negative area (b is right of a). The curved arrow is the short way of turning from a to b. Swap a and b and the colour flips while the size of the area stays the same.</span>
+    </figcaption>
+  </figure>
+  <ul class="tasks">
+    <li data-task="left"><span><span data-lang="zh">让 <b>b 在 a 的左边</b>，面积大于 1。</span><span data-lang="en">Put <b>b on the left of a</b> with an area above 1.</span></span></li>
+    <li data-task="right"><span><span data-lang="zh">让 <b>b 在 a 的右边</b>，面积小于 −1。</span><span data-lang="en">Put <b>b on the right of a</b> with an area below −1.</span></span></li>
+    <li data-task="collinear"><span><span data-lang="zh">让两个向量都不短于 1，并且<b>共线</b>（面积为 0）。</span><span data-lang="en">Make the two vectors both at least 1 long and <b>collinear</b> (area 0).</span></span></li>
+    <li data-task="two"><span><span data-lang="zh">让叉积恰好等于 <b>2</b>（精度 0.05）。有很多种摆法，试试用最短的向量。</span><span data-lang="en">Make the cross product exactly <b>2</b> (within 0.05). Many placements work; try it with the shortest vectors you can.</span></span></li>
+  </ul>
+
+  <h3><span data-lang="zh">小游戏：左转还是右转</span><span data-lang="en">Mini-game: left turn or right turn</span></h3>
+  <div data-lang="zh">
+    <p>一台机器人沿着路径点走。在每个拐角处，设进来的方向是 \(\mathbf u = p_i - p_{i-1}\)，出去的方向是 \(\mathbf v = p_{i+1}-p_i\)，则 \(\mathbf u\times\mathbf v>0\) 是<b>左转</b>，\(<0\) 是<b>右转</b>。不用算角度，不用 \(\arctan\)，一次乘减就够了。</p>
+    <p>"搭路径"模式下拖动路径点，实时看每个拐角；"抢答"模式下看一眼就判断。</p>
+  </div>
+  <div data-lang="en">
+    <p>A robot follows a path through waypoints. At each corner let the incoming direction be \(\mathbf u = p_i - p_{i-1}\) and the outgoing one \(\mathbf v = p_{i+1}-p_i\). Then \(\mathbf u\times\mathbf v>0\) is a <b>left turn</b> and \(<0\) a <b>right turn</b>. No angles and no \(\arctan\): one multiply-and-subtract is enough.</p>
+    <p>In "Build" mode drag the waypoints and watch every corner live; in "Quiz" mode make the call at a glance.</p>
+  </div>
+
+  <figure class="fig" id="fig-turn">
+    <div class="fig-head"><span class="fig-kind">FIG 4</span><span class="fig-title"><span data-lang="zh">路径拐角</span><span data-lang="en">Path corners</span></span><span class="spacer"></span><span id="turn-seg"></span></div>
+    <div class="fig-body split">
+      <div class="canvas-wrap" id="turn-canvas"></div>
+      <div class="fig-side">
+        <div class="katex-live" id="turn-tex"></div>
+        <div id="turn-info" class="small"></div>
+        <div class="presets" id="turn-btns"></div>
+      </div>
+    </div>
+    <figcaption class="fig-cap">
+      <span data-lang="zh">每个拐角处的弧线表示"相对于直行，往哪边拐了多少"。绿色是左转（叉积为正），红色是右转（叉积为负），灰色是几乎直行。数值是 u × v，它同时也是以 u、v 为边的平行四边形面积，所以急转弯的数值大，缓弯的数值小。</span>
+      <span data-lang="en">The arc at each corner shows which way and how far the path bends relative to going straight. Green is a left turn (positive cross product), red a right turn (negative), grey nearly straight. The number is u × v, which is also the area of the parallelogram on u and v, so sharp, long turns give big values and gentle ones small values.</span>
+    </figcaption>
+  </figure>
+  <ul class="tasks">
+    <li data-task="twoL1R"><span><span data-lang="zh">在"搭路径"模式下，把路径改成<b>恰好两个左转、一个右转</b>（三个拐角，不能有"几乎直行"的）。</span><span data-lang="en">In "Build" mode, reshape the path to have <b>exactly two left turns and one right turn</b> (three corners, none of them "nearly straight").</span></span></li>
+    <li data-task="turn5"><span><span data-lang="zh">在"抢答"模式下<b>连续答对 5 题</b>。</span><span data-lang="en">In "Quiz" mode, <b>answer 5 in a row</b> correctly.</span></span></li>
+  </ul>
+
+  <div class="callout robot">
+    <div class="ct"><span data-lang="zh">真实系统里</span><span data-lang="en">In real systems</span></div>
+    <p data-lang="zh">同一个符号判断用在很多地方：<b>凸包</b>算法（Graham 扫描、Andrew 单调链）每加一个点都问"是不是左转"；多边形顶点按逆时针还是顺时针排列，看各边叉积之和（鞋带公式）的正负；障碍物在规划线段的哪一侧，用 \((\mathbf b-\mathbf a)\times(\mathbf p-\mathbf a)\) 的符号；轨迹上的急转弯检测也是它。它只用乘法和减法，没有三角函数，快而且稳。</p>
+    <p data-lang="en">The same sign test is everywhere: <b>convex hull</b> algorithms (Graham scan, Andrew's monotone chain) ask "is this a left turn?" for every point added; whether a polygon's vertices run counter-clockwise or clockwise follows from the sign of the sum of edge cross products (the shoelace formula); which side of a planned segment an obstacle is on is the sign of \((\mathbf b-\mathbf a)\times(\mathbf p-\mathbf a)\); sharp-corner detection on a trajectory is the same thing. It uses only multiplications and subtractions, no trigonometry: fast and robust.</p>
+  </div>
+</section>
+
+<!-- ============ 5. MATRIX ============ -->
+<section class="step" id="matrix">
+  <h2><span class="n">5</span><span data-lang="zh">第三个视角：叉积是一个矩阵</span><span data-lang="en">Third view: the cross product is a matrix</span></h2>
+  <div data-lang="zh">
+    <p>固定 \(\mathbf a\)，看 \(\mathbf b\mapsto\mathbf a\times\mathbf b\)。这个映射对 \(\mathbf b\) 是<b>线性</b>的：\(\mathbf a\times(s\mathbf b+t\mathbf c) = s\,\mathbf a\times\mathbf b + t\,\mathbf a\times\mathbf c\)。1.3 节说过，线性映射都是矩阵。它的矩阵由 \(\mathbf a\) 的三个分量排成，叫做 \(\mathbf a\) 的<b>叉积矩阵</b>（hat 矩阵）：</p>
+  </div>
+  <div data-lang="en">
+    <p>Fix \(\mathbf a\) and look at \(\mathbf b\mapsto\mathbf a\times\mathbf b\). This map is <b>linear</b> in \(\mathbf b\): \(\mathbf a\times(s\mathbf b+t\mathbf c) = s\,\mathbf a\times\mathbf b + t\,\mathbf a\times\mathbf c\). By Lesson 1.3, every linear map is a matrix. Its matrix is built from the three components of \(\mathbf a\) and is called the <b>cross-product matrix</b> (or hat matrix) of \(\mathbf a\):</p>
+  </div>
+  <div class="math-card">$$ \mathbf a\times\mathbf b = \skew{\mathbf a}\,\mathbf b, \qquad \skew{\mathbf a} = \begin{bmatrix} 0 & -a_3 & a_2\\ a_3 & 0 & -a_1\\ -a_2 & a_1 & 0\end{bmatrix}. $$</div>
+  <div data-lang="zh">
+    <p>用下面的图验证：改 \(\mathbf a\) 和 \(\mathbf b\)（左右拖动数字，或直接输入），看矩阵乘出来的结果是不是琥珀色的 \(\mathbf a\times\mathbf b\)。淡琥珀色的圆盘是单位球经过 \(\skew{\mathbf a}\) 后的像：球被<b>压扁成一个垂直于 \(\mathbf a\) 的圆盘</b>，半径 \(\lVert\mathbf a\rVert\)。矩阵的秩是 2，沿 \(\mathbf a\) 的方向被完全抹掉。</p>
+  </div>
+  <div data-lang="en">
+    <p>Check it in the figure below: change \(\mathbf a\) and \(\mathbf b\) (scrub the numbers sideways or type them) and see that the matrix product is the amber \(\mathbf a\times\mathbf b\). The pale amber disc is the image of the unit sphere under \(\skew{\mathbf a}\): the sphere is <b>flattened into a disc perpendicular to \(\mathbf a\)</b>, of radius \(\lVert\mathbf a\rVert\). The matrix has rank 2, and the direction of \(\mathbf a\) is wiped out completely.</p>
+  </div>
+
+  <figure class="fig bleed" id="fig-hat">
+    <div class="fig-head"><span class="fig-kind">FIG 5</span><span class="fig-title"><span data-lang="zh">hat 矩阵 [a]×</span><span data-lang="en">The hat matrix [a]×</span></span></div>
+    <div class="fig-body split">
+      <div class="canvas-wrap" id="hat-canvas"></div>
+      <div class="fig-side">
+        <div><div class="small muted"><span class="cx">a</span> <span data-lang="zh">（拖动或输入）</span><span data-lang="en">(drag or type)</span></div><div id="hat-a"></div></div>
+        <div><div class="small muted"><span class="cw">b</span></div><div id="hat-b"></div></div>
+        <div class="readout" id="hat-read"></div>
+      </div>
+    </div>
+    <div class="fig-body" style="border-top:1px solid var(--border)"><div class="fig-side" style="border:0"><div class="katex-live" id="hat-tex"></div></div></div>
+    <div class="fig-controls">
+      <span class="small muted"><span data-lang="zh">验证恒等式：</span><span data-lang="en">Check an identity:</span></span><span id="hat-pw"></span><span id="hat-unit"></span>
+    </div>
+    <div class="fig-body" style="border-top:1px solid var(--border)"><div class="fig-side" style="border:0"><div class="katex-live" id="hat-pow-tex"></div><div class="readout" id="hat-pow-read"></div></div></div>
+    <figcaption class="fig-cap">
+      <span data-lang="zh">上方：矩阵乘向量与叉积给出同一个结果。下方：选择 1、2、3 次幂，程序算出矩阵幂，并和右边的公式逐项比较。切到"归一化 â"再选 3 次幂，就是 5.6 节要用的 \(K^3=-K\)。</span>
+      <span data-lang="en">Top: the matrix-vector product and the cross product give the same result. Bottom: pick power 1, 2 or 3 and the page computes the matrix power and compares it entry by entry with the formula on the right. Switch to the normalised â and power 3 and you get the \(K^3=-K\) that Lesson 5.6 uses.</span>
+    </figcaption>
+  </figure>
+  <ul class="tasks">
+    <li data-task="zhat"><span><span data-lang="zh">把 a 设成 \((0,0,1)\)。矩阵的左上角 2×2 是哪个熟悉的矩阵？（见下面的提示框。）</span><span data-lang="en">Set a to \((0,0,1)\). Which familiar matrix is the top-left 2×2 block? (See the box below.)</span></span></li>
+    <li data-task="k3"><span><span data-lang="zh">选"归一化 â"和"3 次幂"，确认 \(\skew{\hat{\mathbf a}}^3 = -\skew{\hat{\mathbf a}}\)（最大差值为 0）。</span><span data-lang="en">Choose "normalised â" and "power 3" and confirm \(\skew{\hat{\mathbf a}}^3 = -\skew{\hat{\mathbf a}}\) (maximum difference 0).</span></span></li>
+  </ul>
+
+  <div class="callout view">
+    <div class="ct"><span data-lang="zh">另一种看法：绕 z 轴转 90°</span><span data-lang="en">Another way to see it: a 90° turn about z</span></div>
+    <p data-lang="zh">取 \(\mathbf a=\hat{\mathbf k}=(0,0,1)\)：\(\skew{\hat{\mathbf k}} = \begin{bmatrix}0&-1&0\\1&0&0\\0&0&0\end{bmatrix}\)。左上角的 2×2 就是 1.3 节的"逆时针 90° 旋转"，而 z 分量被抹掉。也就是说，\(\hat{\mathbf k}\times\mathbf b\) 把 \(\mathbf b\) 投到 xy 平面再逆时针转 90°。一般的 \(\mathbf a\) 做的是同样的事：把 \(\mathbf b\) 投到垂直于 \(\mathbf a\) 的平面，转 90°，再乘上 \(\lVert\mathbf a\rVert\)。</p>
+    <p data-lang="en">Take \(\mathbf a=\hat{\mathbf k}=(0,0,1)\): \(\skew{\hat{\mathbf k}} = \begin{bmatrix}0&-1&0\\1&0&0\\0&0&0\end{bmatrix}\). The top-left 2×2 block is the "90° counter-clockwise rotation" of Lesson 1.3, and the z-component is wiped out. So \(\hat{\mathbf k}\times\mathbf b\) projects \(\mathbf b\) onto the xy-plane and turns it 90° counter-clockwise. A general \(\mathbf a\) does the same thing: project \(\mathbf b\) onto the plane perpendicular to \(\mathbf a\), turn it 90°, and scale by \(\lVert\mathbf a\rVert\).</p>
+  </div>
+</section>
+
+<!-- ============ 6. MATH ============ -->
+<section class="step" id="math">
+  <h2><span class="n">6</span><span data-lang="zh">再看数学</span><span data-lang="en">The math</span></h2>
+  <p class="hl-hint"><span data-lang="zh">提示：把鼠标悬停在公式中带底色的符号上，FIG 2 中对应的元素会被高亮。</span><span data-lang="en">Tip: hover the highlighted symbols in the formulas; the matching element in FIG 2 lights up.</span></p>
+
+  <h3><span data-lang="zh">分量公式与记忆窍门</span><span data-lang="en">The component formula and a memory trick</span></h3>
+  <div class="math-card">$$ \hl{axb}{\cv{\mathbf a\times\mathbf b}} = \begin{bmatrix} a_2b_3 - a_3b_2\\ a_3b_1 - a_1b_3\\ a_1b_2 - a_2b_1\end{bmatrix} $$</div>
+  <div data-lang="zh">
+    <p>每个分量是"另外两个下标"的交叉相乘再相减，下标按 1→2→3→1 循环。更好记的是一个"形式上的行列式"，第一行放的不是数而是基向量：</p>
+  </div>
+  <div data-lang="en">
+    <p>Each component is a cross-multiplication of the "other two indices", with the indices running cyclically 1→2→3→1. Easier to remember is a "formal determinant" whose first row holds basis vectors instead of numbers:</p>
+  </div>
+  <div class="math-card">$$ \mathbf a\times\mathbf b = \begin{vmatrix} \ihat & \jhat & \khat\\ a_1 & a_2 & a_3\\ b_1 & b_2 & b_3\end{vmatrix} = \ihat\,(a_2b_3-a_3b_2) - \jhat\,(a_1b_3-a_3b_1) + \khat\,(a_1b_2-a_2b_1). $$</div>
+  <p data-lang="zh">例：\(\mathbf a=(1,0,2)\)，\(\mathbf b=(0,1,0)\)，则 \(\mathbf a\times\mathbf b = (0\cdot0-2\cdot1,\; 2\cdot0-1\cdot0,\; 1\cdot1-0\cdot0) = (-2,0,1)\)。检验：与 \(\mathbf a\) 的点积是 \(-2+0+2=0\)，与 \(\mathbf b\) 的点积是 0，确实同时垂直于两者。</p>
+  <p data-lang="en">Example: \(\mathbf a=(1,0,2)\), \(\mathbf b=(0,1,0)\) give \(\mathbf a\times\mathbf b = (0\cdot0-2\cdot1,\; 2\cdot0-1\cdot0,\; 1\cdot1-0\cdot0) = (-2,0,1)\). Check: its dot product with \(\mathbf a\) is \(-2+0+2=0\) and with \(\mathbf b\) it is 0, so it is perpendicular to both.</p>
+
+  <h3><span data-lang="zh">几何意义：长度与方向</span><span data-lang="en">Geometry: length and direction</span></h3>
+  <div class="math-card">$$ \lVert \hl{a}{\cx{\mathbf a}}\times\hl{b}{\cw{\mathbf b}}\rVert = \hl{area}{\lVert\mathbf a\rVert\,\lVert\mathbf b\rVert\,\sin\theta}, \qquad \mathbf a\cdot(\mathbf a\times\mathbf b)=0,\quad \mathbf b\cdot(\mathbf a\times\mathbf b)=0. $$</div>
+  <div data-lang="zh">
+    <p>其中 \(\hl{theta}{\theta}\in[0,\pi]\) 是 \(\mathbf a\)、\(\mathbf b\) 的夹角。理由：以 \(\lVert\mathbf a\rVert\) 为底，平行四边形的高是 \(\lVert\mathbf b\rVert\sin\theta\)，面积 = 底 × 高。把它和点积（1.7 节）放在一起看：</p>
+  </div>
+  <div data-lang="en">
+    <p>Here \(\hl{theta}{\theta}\in[0,\pi]\) is the angle between \(\mathbf a\) and \(\mathbf b\). Reason: with base \(\lVert\mathbf a\rVert\), the parallelogram's height is \(\lVert\mathbf b\rVert\sin\theta\), and area = base × height. Put it next to the dot product (Lesson 1.7):</p>
+  </div>
+  <div class="math-card">$$ \begin{aligned} \mathbf a\cdot\mathbf b &= \lVert\mathbf a\rVert\lVert\mathbf b\rVert\cos\theta, \qquad \lVert\mathbf a\times\mathbf b\rVert = \lVert\mathbf a\rVert\lVert\mathbf b\rVert\sin\theta,\\ \lVert\mathbf a\times\mathbf b\rVert^2 &+ (\mathbf a\cdot\mathbf b)^2 = \lVert\mathbf a\rVert^2\lVert\mathbf b\rVert^2. \end{aligned} $$</div>
+  <p data-lang="zh">点积量"有多同向"（cos 部分），叉积量"有多垂直"（sin 部分）。最后一个等式叫拉格朗日恒等式，把分量展开就能验证；它对应 \(\cos^2\theta+\sin^2\theta=1\)。</p>
+  <p data-lang="en">The dot product measures "how aligned" (the cos part), the cross product "how perpendicular" (the sin part). The last identity is Lagrange's; expand it in components to check it. It is \(\cos^2\theta+\sin^2\theta=1\) in disguise.</p>
+
+  <h3><span data-lang="zh">代数性质</span><span data-lang="en">Algebraic properties</span></h3>
+  <div class="table-wrap">
+  <table class="compare">
+    <tr><th><span data-lang="zh">性质</span><span data-lang="en">Property</span></th><th><span data-lang="zh">公式</span><span data-lang="en">Formula</span></th><th><span data-lang="zh">含义</span><span data-lang="en">Meaning</span></th></tr>
+    <tr><td><span data-lang="zh">反交换</span><span data-lang="en">Anti-commutative</span></td><td>\(\mathbf b\times\mathbf a = -\,\mathbf a\times\mathbf b\)</td><td><span data-lang="zh">交换顺序，方向翻转，长度不变</span><span data-lang="en">swap the order and the direction flips, the length does not</span></td></tr>
+    <tr><td><span data-lang="zh">自叉为零</span><span data-lang="en">Self-product</span></td><td>\(\mathbf a\times\mathbf a = \mathbf 0\)</td><td><span data-lang="zh">平行四边形没有面积</span><span data-lang="en">the parallelogram has no area</span></td></tr>
+    <tr><td><span data-lang="zh">平行判据</span><span data-lang="en">Parallel test</span></td><td>\(\mathbf a\times\mathbf b=\mathbf 0 \iff \mathbf a\parallel\mathbf b\)</td><td><span data-lang="zh">（其中一个为零向量也算）</span><span data-lang="en">(a zero vector counts as parallel)</span></td></tr>
+    <tr><td><span data-lang="zh">双线性</span><span data-lang="en">Bilinear</span></td><td>\(\mathbf a\times(s\mathbf b+t\mathbf c)=s\,\mathbf a\times\mathbf b+t\,\mathbf a\times\mathbf c\)</td><td><span data-lang="zh">对每个位置都线性，所以才有矩阵 \(\skew{\mathbf a}\)</span><span data-lang="en">linear in each slot, which is why the matrix \(\skew{\mathbf a}\) exists</span></td></tr>
+    <tr><td><span data-lang="zh">基向量循环</span><span data-lang="en">Basis cycle</span></td><td>\(\ihat\times\jhat=\khat,\ \jhat\times\khat=\ihat,\ \khat\times\ihat=\jhat\)</td><td><span data-lang="zh">右手系的定义性质</span><span data-lang="en">the defining property of a right-handed frame</span></td></tr>
+    <tr><td><span data-lang="zh">不满足结合律</span><span data-lang="en">Not associative</span></td><td>\((\mathbf a\times\mathbf b)\times\mathbf c\ne\mathbf a\times(\mathbf b\times\mathbf c)\)</td><td><span data-lang="zh">括号不能乱动，见下</span><span data-lang="en">brackets matter, see below</span></td></tr>
+  </table>
+  </div>
+  <p data-lang="zh"><b>非结合的反例</b>：\(\ihat\times(\ihat\times\jhat) = \ihat\times\khat = -\jhat\)，但 \((\ihat\times\ihat)\times\jhat = \mathbf 0\times\jhat=\mathbf 0\)。要化简嵌套的叉积，用 BAC-CAB 公式：\(\mathbf a\times(\mathbf b\times\mathbf c) = \mathbf b\,(\mathbf a\cdot\mathbf c) - \mathbf c\,(\mathbf a\cdot\mathbf b)\)。</p>
+  <p data-lang="en"><b>A counterexample to associativity</b>: \(\ihat\times(\ihat\times\jhat) = \ihat\times\khat = -\jhat\), but \((\ihat\times\ihat)\times\jhat = \mathbf 0\times\jhat=\mathbf 0\). To simplify nested cross products use the BAC-CAB rule: \(\mathbf a\times(\mathbf b\times\mathbf c) = \mathbf b\,(\mathbf a\cdot\mathbf c) - \mathbf c\,(\mathbf a\cdot\mathbf b)\).</p>
+
+  <h3><span data-lang="zh">三重积：体积</span><span data-lang="en">The triple product: volume</span></h3>
+  <div class="math-card">$$ \mathbf a\cdot(\mathbf b\times\mathbf c) \;=\; \det\begin{bmatrix}\mathbf a & \mathbf b & \mathbf c\end{bmatrix} \;=\; \text{signed volume of the parallelepiped spanned by }\mathbf a,\mathbf b,\mathbf c. $$</div>
+  <div data-lang="zh">
+    <p>\(\mathbf b\times\mathbf c\) 的长度是底面积，方向垂直于底面；再和 \(\mathbf a\) 点积，就是 \(\mathbf a\) 在垂直方向的分量（高）乘底面积，即体积。正负号反映 \((\mathbf a,\mathbf b,\mathbf c)\) 是不是右手系，这就是 1.5 节说的三维行列式。例：\(\mathbf a=(1,0,0)\)，\(\mathbf b=(1,2,0)\)，\(\mathbf c=(1,1,3)\)，则 \(\mathbf b\times\mathbf c=(6,-3,-1)\)，\(\mathbf a\cdot(\mathbf b\times\mathbf c)=6\)；矩阵是上三角的，行列式 \(1\cdot2\cdot3=6\)，一致。</p>
+  </div>
+  <div data-lang="en">
+    <p>The length of \(\mathbf b\times\mathbf c\) is the base area and its direction is perpendicular to the base; dotting with \(\mathbf a\) picks the component of \(\mathbf a\) along that perpendicular (the height) times the base area: the volume. The sign says whether \((\mathbf a,\mathbf b,\mathbf c)\) is right-handed, which is the 3D determinant of Lesson 1.5. Example: \(\mathbf a=(1,0,0)\), \(\mathbf b=(1,2,0)\), \(\mathbf c=(1,1,3)\) give \(\mathbf b\times\mathbf c=(6,-3,-1)\) and \(\mathbf a\cdot(\mathbf b\times\mathbf c)=6\); the matrix is upper triangular with determinant \(1\cdot2\cdot3=6\), the same.</p>
+  </div>
+
+  <h3><span data-lang="zh">hat 矩阵的恒等式</span><span data-lang="en">Identities of the hat matrix</span></h3>
+  <div class="math-card">$$ \skew{\mathbf a}\,\mathbf b = \mathbf a\times\mathbf b, \qquad \skew{\mathbf a}\T = -\skew{\mathbf a}, \qquad \skew{\mathbf a}\,\mathbf a = \mathbf 0, \qquad \skew{\mathbf a}^2 = \mathbf a\mathbf a\T - \lVert\mathbf a\rVert^2 I, \qquad \skew{\mathbf a}^3 = -\lVert\mathbf a\rVert^2\,\skew{\mathbf a}. $$</div>
+  <div data-lang="zh">
+    <p>第二条（<b>斜对称</b>）读矩阵就能看出：对角线是 0，关于对角线对称位置的两个数互为相反数。第三条是 \(\mathbf a\times\mathbf a=\mathbf 0\)。因为 \(\skew{\mathbf a}\) 把 \(\mathbf a\) 变成零，它不可逆，秩为 2，零空间是 \(\mathbf a\) 所在的直线（1.6 节）。第四条由 BAC-CAB 得到：\(\skew{\mathbf a}^2\mathbf b=\mathbf a\times(\mathbf a\times\mathbf b)=\mathbf a(\mathbf a\cdot\mathbf b)-\mathbf b\lVert\mathbf a\rVert^2\)。第五条再乘一次 \(\skew{\mathbf a}\)，利用 \(\skew{\mathbf a}\mathbf a=\mathbf 0\)：\(\skew{\mathbf a}^3=\skew{\mathbf a}\mathbf a\mathbf a\T-\lVert\mathbf a\rVert^2\skew{\mathbf a}=-\lVert\mathbf a\rVert^2\skew{\mathbf a}\)。</p>
+    <p>对单位向量 \(\hat{\mathbf u}\)，\(K=\skew{\hat{\mathbf u}}\) 满足 \(K^3=-K\)。于是 \(K\) 的高次幂只在 \(K\) 和 \(K^2\) 之间来回，指数级数 \(e^{\theta K}\) 能合并成 \(I+\sin\theta\,K+(1-\cos\theta)K^2\)：这就是 5.6 节的罗德里格斯公式。</p>
+  </div>
+  <div data-lang="en">
+    <p>The second one (<b>skew-symmetry</b>) can be read off the matrix: the diagonal is 0 and entries mirrored across the diagonal are negatives of each other. The third is \(\mathbf a\times\mathbf a=\mathbf 0\). Because \(\skew{\mathbf a}\) turns \(\mathbf a\) into zero, it is not invertible: its rank is 2 and its null space is the line through \(\mathbf a\) (Lesson 1.6). The fourth follows from BAC-CAB: \(\skew{\mathbf a}^2\mathbf b=\mathbf a\times(\mathbf a\times\mathbf b)=\mathbf a(\mathbf a\cdot\mathbf b)-\mathbf b\lVert\mathbf a\rVert^2\). The fifth multiplies by \(\skew{\mathbf a}\) once more and uses \(\skew{\mathbf a}\mathbf a=\mathbf 0\): \(\skew{\mathbf a}^3=\skew{\mathbf a}\mathbf a\mathbf a\T-\lVert\mathbf a\rVert^2\skew{\mathbf a}=-\lVert\mathbf a\rVert^2\skew{\mathbf a}\).</p>
+    <p>For a unit vector \(\hat{\mathbf u}\), \(K=\skew{\hat{\mathbf u}}\) satisfies \(K^3=-K\). Higher powers of \(K\) then just alternate between \(K\) and \(K^2\), and the exponential series \(e^{\theta K}\) collapses into \(I+\sin\theta\,K+(1-\cos\theta)K^2\): Rodrigues' formula of Lesson 5.6.</p>
+  </div>
+
+  <h3><span data-lang="zh">右手定则依赖右手系</span><span data-lang="en">The right-hand rule needs a right-handed frame</span></h3>
+  <p data-lang="zh">分量公式只是算术，在哪个坐标系里算数字都一样。"拇指方向"则是几何陈述，只有当 \((x,y,z)\) 构成<b>右手系</b>（\(\ihat\times\jhat=\khat\)，本课程的约定）时才成立。在左手系里，同样的算术给出的箭头会按左手定则取向，也就是整体翻到另一边。</p>
+  <p data-lang="en">The component formula is only arithmetic, and gives the same numbers in any coordinates. "Thumb direction" is a geometric statement that holds only when \((x,y,z)\) is a <b>right-handed</b> frame (\(\ihat\times\jhat=\khat\), this course's convention). In a left-handed frame the same arithmetic yields an arrow oriented by the left-hand rule: everything flips to the other side.</p>
+</section>
+
+<!-- ============ 7. ROBOTICS ============ -->
+<section class="step" id="robotics">
+  <h2><span class="n">7</span><span data-lang="zh">机器人中的它：力矩、转动的速度、法向量</span><span data-lang="en">In robotics: torque, spinning velocity, surface normals</span></h2>
+
+  <h3><span data-lang="zh">力矩：\(\boldsymbol\tau=\mathbf r\times\mathbf F\)</span><span data-lang="en">Torque: \(\boldsymbol\tau=\mathbf r\times\mathbf F\)</span></h3>
+  <div data-lang="zh">
+    <p>关节在原点，连杆伸到作用点 \(\mathbf r\)，那里有一个力 \(\mathbf F\)。关节感受到的拧劲是 \(\boldsymbol\tau=\mathbf r\times\mathbf F\)，它沿着关节轴。在平面里它退化成一个数 \(\tau=r_xF_y-r_yF_x\)：正号表示逆时针拧。大小还可以写成 \(\tau=\lVert\mathbf F\rVert\cdot d\)，\(d\) 是关节到<b>力的作用线</b>的垂直距离（力臂）。只有垂直于连杆的那部分力才拧关节。</p>
+    <p>拖动连杆末端（青色点）和力的箭头尖（紫色）。切换到"转动"模式，可以看同一个叉积的另一种用法。</p>
+  </div>
+  <div data-lang="en">
+    <p>The joint sits at the origin, the link reaches out to the point of application \(\mathbf r\), and a force \(\mathbf F\) acts there. The twist the joint feels is \(\boldsymbol\tau=\mathbf r\times\mathbf F\), directed along the joint axis. In a plane it collapses to one number, \(\tau=r_xF_y-r_yF_x\), positive for a counter-clockwise twist. Its size can also be written \(\tau=\lVert\mathbf F\rVert\cdot d\), where \(d\) is the perpendicular distance from the joint to the <b>line of action</b> of the force (the lever arm). Only the part of the force across the link twists the joint.</p>
+    <p>Drag the end of the link (cyan dot) and the tip of the force arrow (purple). Switch to "Spinning" mode for another use of the same cross product.</p>
+  </div>
+
+  <figure class="fig" id="fig-torque">
+    <div class="fig-head"><span class="fig-kind">FIG 6</span><span class="fig-title"><span data-lang="zh">力矩与转动速度</span><span data-lang="en">Torque and spinning velocity</span></span><span class="spacer"></span><span id="tq-seg"></span></div>
+    <div class="fig-body split">
+      <div class="canvas-wrap" id="tq-canvas"></div>
+      <div class="fig-side">
+        <div class="katex-live" id="tq-tex"></div>
+        <div class="readout" id="tq-read"></div>
+      </div>
+    </div>
+    <div class="fig-controls" id="tq-controls"></div>
+    <figcaption class="fig-cap">
+      <span data-lang="zh"><b>力矩模式</b>：一格 = 0.1 米，力箭头每牛 0.3 格。紫色虚线是力的作用线，琥珀色短线是力臂 d，弯箭头表示拧的方向和大小（转角正比于 τ）。<b>转动模式</b>：转台以角速度 ω 绕 z 轴转，每个点的速度（琥珀色）垂直于它到轴心的连线，离轴越远越快；淡色箭头是其他位置的速度。</span>
+      <span data-lang="en"><b>Torque mode</b>: one square = 0.1 m, and the force arrow is 0.3 square per newton. The dashed purple line is the line of action of the force, the short amber segment is the lever arm d, and the curved arrow shows the twist's direction and size (its sweep is proportional to τ). <b>Spinning mode</b>: a turntable spins about the z-axis at angular speed ω; each point's velocity (amber) is perpendicular to its radius and grows with distance from the axis; the pale arrows are the velocities elsewhere.</span>
+    </figcaption>
+  </figure>
+  <ul class="tasks">
+    <li data-task="zerotorque"><span><span data-lang="zh">在"力矩"模式下，<b>用力推（不小于 3 N），却产生零力矩</b>。力应该沿着什么方向？</span><span data-lang="en">In "Torque" mode, <b>push hard (at least 3 N) yet produce zero torque</b>. Along which direction must the force point?</span></span></li>
+    <li data-task="spinup"><span><span data-lang="zh">在"转动"模式下，让所选点的速度<b>笔直朝上</b>。点应该在转轴的哪一侧？把 ω 改成负数，答案怎么变？</span><span data-lang="en">In "Spinning" mode, make the chosen point's velocity point <b>straight up</b>. On which side of the axis must the point be? How does the answer change if ω is negative?</span></span></li>
+  </ul>
+
+  <div class="callout robot">
+    <div class="ct"><span data-lang="zh">真实系统里：\(\mathbf v=\boldsymbol\omega\times\mathbf r\)</span><span data-lang="en">In real systems: \(\mathbf v=\boldsymbol\omega\times\mathbf r\)</span></div>
+    <p data-lang="zh">转台以 30 转/分钟转动，\(\omega=30\cdot2\pi/60=\pi\approx3.14\) rad/s，方向沿转轴。距轴心 0.2 m 的点速度大小 \(\lVert\boldsymbol\omega\rVert\lVert\mathbf r\rVert\sin 90^\circ\approx0.63\) m/s，方向垂直于半径，沿切线。轮子、旋转的夹爪、机械臂连杆上任一点的速度都是这样算的。如果 \(\boldsymbol\omega\) 和 \(\mathbf r\) 平行（点正好在转轴上），叉积为零，点不动。写成矩阵就是 \(\mathbf v=\skew{\boldsymbol\omega}\mathbf r\)，这个 \(\skew{\boldsymbol\omega}\) 就是 5.5 节要讲的角速度的 hat。</p>
+    <p data-lang="en">A turntable spins at 30 rpm, so \(\omega=30\cdot2\pi/60=\pi\approx3.14\) rad/s along the spin axis. A point 0.2 m from the axis moves at \(\lVert\boldsymbol\omega\rVert\lVert\mathbf r\rVert\sin 90^\circ\approx0.63\) m/s, perpendicular to the radius, along the tangent. The velocity of any point on a wheel, a rotating gripper or an arm link is computed this way. If \(\boldsymbol\omega\) and \(\mathbf r\) are parallel (the point is on the axis), the cross product is zero and the point stays put. In matrix form, \(\mathbf v=\skew{\boldsymbol\omega}\mathbf r\), and this \(\skew{\boldsymbol\omega}\) is the hat of the angular velocity that Lesson 5.5 builds on.</p>
+  </div>
+
+  <h3><span data-lang="zh">三点求法向量</span><span data-lang="en">A normal from three points</span></h3>
+  <div data-lang="zh">
+    <p>点云里取相邻三点 \(p_1,p_2,p_3\)，两条边的叉积垂直于它们所在的平面：</p>
+  </div>
+  <div data-lang="en">
+    <p>Take three neighbouring points \(p_1,p_2,p_3\) of a point cloud; the cross product of two edges is perpendicular to the plane through them:</p>
+  </div>
+  <div class="math-card">$$ \mathbf n = \frac{(p_2-p_1)\times(p_3-p_1)}{\lVert(p_2-p_1)\times(p_3-p_1)\rVert}, \qquad \text{area} = \tfrac12\lVert(p_2-p_1)\times(p_3-p_1)\rVert. $$</div>
+  <div data-lang="zh">
+    <p>三角形的面积顺手就有了（平行四边形的一半）。下面给三个点加一点测量噪声，看噪声怎么影响法向量。深色的 <span class="cv">琥珀色箭头</span> 是无噪声的法向量，青色小点是 36 次加噪后的单位法向量的尖端。</p>
+  </div>
+  <div data-lang="en">
+    <p>The triangle's area comes for free (half the parallelogram). Below, a little measurement noise is added to the three points to see how it affects the normal. The <span class="cv">amber arrow</span> is the noise-free normal; the small cyan dots are the tips of the unit normals from 36 noisy trials.</p>
+  </div>
+
+  <figure class="fig" id="fig-normal">
+    <div class="fig-head"><span class="fig-kind">FIG 7</span><span class="fig-title"><span data-lang="zh">三点法向量与噪声</span><span data-lang="en">Three-point normals and noise</span></span><span class="spacer"></span><span id="nm-btn"></span></div>
+    <div class="fig-body split">
+      <div class="canvas-wrap" id="nm-canvas"></div>
+      <div class="fig-side"><div class="readout" id="nm-read"></div></div>
+    </div>
+    <div class="fig-controls" id="nm-ctrl"></div>
+    <figcaption class="fig-cap">
+      <span data-lang="zh">三个点各加标准差 0.03 的随机偏移。三角形胖的时候，36 个法向量几乎重合；把它压扁（三点接近一条直线），\(\lVert\mathbf n\rVert\)（面积）变小，噪声被放大，法向量四散，甚至翻到另一面。箭头 1→2→3 是点的顺序：交换 2 和 3 的顺序，法向量就翻向另一侧。</span>
+      <span data-lang="en">Each of the three points gets a random offset of standard deviation 0.03. With a fat triangle the 36 normals nearly coincide; squash it (three points close to a line) and \(\lVert\mathbf n\rVert\) (the area) shrinks, the noise is amplified, and the normals scatter and even flip to the other side. The arrows 1→2→3 show the point order: swap 2 and 3 and the normal flips to the other side.</span>
+    </figcaption>
+  </figure>
+  <ul class="tasks">
+    <li data-task="sliver"><span><span data-lang="zh">把三角形压得足够扁，使法向量的平均误差超过 <b>15°</b>。</span><span data-lang="en">Squash the triangle until the average normal error exceeds <b>15°</b>.</span></span></li>
+    <li data-task="flipnormal"><span><span data-lang="zh">不动任何点，只点"交换 2 ↔ 3"，让法向量朝<b>下</b>。</span><span data-lang="en">Without moving any point, press "swap 2 ↔ 3" so that the normal points <b>down</b>.</span></span></li>
+  </ul>
+
+  <div class="callout robot">
+    <div class="ct"><span data-lang="zh">真实系统里</span><span data-lang="en">In real systems</span></div>
+    <p data-lang="zh">点云库一般取一个点的 20 个左右近邻，用 PCA（1.12 节）拟合平面，取最小奇异方向作法向量：它用了所有点，比三点叉积稳得多。叉积仍然用在网格里：给每个三角面算法向量，顶点法向量取周围面的加权平均（面积就是权重，\(\lVert\mathbf n\rVert\) 本来就带着）。法向量的符号需要统一：常见做法是和朝向传感器的向量点乘，为负就翻转。</p>
+    <p data-lang="en">Point-cloud libraries usually take about 20 neighbours of a point, fit a plane with PCA (Lesson 1.12) and use the smallest singular direction as the normal: it uses all the points and is far more robust than a three-point cross product. The cross product is still used on meshes: compute each triangle's normal, and set a vertex normal as the average over the surrounding faces (the area is the weight, and the unnormalised \(\mathbf n\) already carries it). Normals also need a consistent sign: the usual trick is to dot them with the vector toward the sensor and flip when the result is negative.</p>
+  </div>
+</section>
+
+<!-- ============ 8. PITFALLS ============ -->
+<section class="step" id="pitfalls">
+  <h2><span class="n">8</span><span data-lang="zh">常见误区</span><span data-lang="en">Common pitfalls</span></h2>
+  <div class="callout pitfall">
+    <div class="ct"><span data-lang="zh">误区 1：顺序无所谓</span><span data-lang="en">Pitfall 1: the order does not matter</span></div>
+    <p data-lang="zh">\(\mathbf b\times\mathbf a=-\,\mathbf a\times\mathbf b\)。顺序写反，结果整个翻到另一侧。网格里三角形的顶点顺序（绕行方向）决定法向量朝外还是朝里：法向量指进物体内部，通常就是顶点顺序反了。力矩 \(\mathbf r\times\mathbf F\) 也一样，写成 \(\mathbf F\times\mathbf r\) 会得到相反的转向。</p>
+    <p data-lang="en">\(\mathbf b\times\mathbf a=-\,\mathbf a\times\mathbf b\). Write the order backwards and the whole result flips to the other side. The vertex order (winding) of a mesh triangle decides whether the normal points out of the object or into it: a normal pointing into the object usually means the vertex order is reversed. Torque is the same: writing \(\mathbf F\times\mathbf r\) instead of \(\mathbf r\times\mathbf F\) gives the opposite turning direction.</p>
+  </div>
+  <div class="callout pitfall">
+    <div class="ct"><span data-lang="zh">误区 2：叉积在二维也是一个向量</span><span data-lang="en">Pitfall 2: the 2D cross product is a vector</span></div>
+    <p data-lang="zh">叉积的"垂直于平面的方向"只有在三维才唯一。二维里的"叉积" \(a_1b_2-a_2b_1\) 是一个<b>数</b>，是三维叉积 z 分量的简写。把它当向量去加、去归一化，是常见的类型错误。</p>
+    <p data-lang="en">"The direction perpendicular to the plane" is unique only in 3D. The 2D "cross product" \(a_1b_2-a_2b_1\) is a <b>number</b>, shorthand for the z-component of the 3D cross product. Adding it to vectors or normalising it as if it were a vector is a common type error.</p>
+  </div>
+  <div class="callout pitfall">
+    <div class="ct"><span data-lang="zh">误区 3：忘了它没有归一化</span><span data-lang="en">Pitfall 3: forgetting it is not normalised</span></div>
+    <p data-lang="zh">\(\lVert\mathbf a\times\mathbf b\rVert=\lVert\mathbf a\rVert\lVert\mathbf b\rVert\sin\theta\)，不是 1。要单位法向量，必须再除以长度，并且防止除以零。近乎共线的三点，\(\sin\theta\) 很小，长度被压缩，方向几乎由噪声决定（FIG 7）。这种三角形（细长的"针"）不该拿来估计法向量。</p>
+    <p data-lang="en">\(\lVert\mathbf a\times\mathbf b\rVert=\lVert\mathbf a\rVert\lVert\mathbf b\rVert\sin\theta\), not 1. For a unit normal you must divide by the length, and guard against division by zero. For nearly collinear points \(\sin\theta\) is tiny, the length is squeezed, and the direction is almost pure noise (FIG 7). Such needle-like triangles should not be used to estimate normals.</p>
+  </div>
+  <div class="callout pitfall">
+    <div class="ct"><span data-lang="zh">误区 4：左手系里照搬右手定则</span><span data-lang="en">Pitfall 4: using the right-hand rule in a left-handed frame</span></div>
+    <p data-lang="zh">本课程的所有坐标系都是右手系。但 Unity、DirectX 等引擎默认左手系：用同样的公式，叉积指向反过来。接数据时先确认两边的手性，不一致就要换算，否则法向量、旋转轴、力矩的符号会全部反号。</p>
+    <p data-lang="en">Every frame in this course is right-handed. Engines such as Unity and DirectX default to left-handed frames: the same formula gives a cross product pointing the other way. Check the handedness on both sides when moving data between systems and convert if they differ, or the signs of normals, rotation axes and torques will all flip.</p>
+  </div>
+  <div class="callout pitfall">
+    <div class="ct"><span data-lang="zh">误区 5：当成满足结合律</span><span data-lang="en">Pitfall 5: treating it as associative</span></div>
+    <p data-lang="zh">\((\mathbf a\times\mathbf b)\times\mathbf c\) 与 \(\mathbf a\times(\mathbf b\times\mathbf c)\) 一般不相等（见"再看数学"里的反例）。连续叉乘（例如 \(\boldsymbol\omega\times(\boldsymbol\omega\times\mathbf r)\) 向心加速度）要保留括号，化简用 BAC-CAB。</p>
+    <p data-lang="en">\((\mathbf a\times\mathbf b)\times\mathbf c\) and \(\mathbf a\times(\mathbf b\times\mathbf c)\) are generally different (see the counterexample in "The math"). Keep the brackets in repeated cross products (for example the centripetal term \(\boldsymbol\omega\times(\boldsymbol\omega\times\mathbf r)\)) and simplify with BAC-CAB.</p>
+  </div>
+</section>
+
+<!-- ============ 9. QUIZ ============ -->
+<section class="step" id="quiz">
+  <h2><span class="n">9</span><span data-lang="zh">小练习</span><span data-lang="en">Check yourself</span></h2>
+
+  <div class="quiz" data-answer="2">
+    <div class="q"><span data-lang="zh">1. 已知 \(\mathbf a=(1,0,2)\)，\(\mathbf b=(0,1,0)\)，则 \(\mathbf a\times\mathbf b\) 是？</span><span data-lang="en">1. Given \(\mathbf a=(1,0,2)\) and \(\mathbf b=(0,1,0)\), what is \(\mathbf a\times\mathbf b\)?</span></div>
+    <div class="opts">
+      <button class="opt">\((2,0,-1)\)</button>
+      <button class="opt">\((0,0,1)\)</button>
+      <button class="opt">\((-2,0,1)\)</button>
+      <button class="opt">\((-2,0,-1)\)</button>
+    </div>
+    <div class="explain"><span data-lang="zh">\((a_2b_3-a_3b_2,\ a_3b_1-a_1b_3,\ a_1b_2-a_2b_1) = (0-2,\ 0-0,\ 1-0) = (-2,0,1)\)。选项 \((2,0,-1)\) 是 \(\mathbf b\times\mathbf a\)，顺序反了。检验：与 \(\mathbf a\) 的点积 \(-2+0+2=0\)。</span><span data-lang="en">\((a_2b_3-a_3b_2,\ a_3b_1-a_1b_3,\ a_1b_2-a_2b_1) = (0-2,\ 0-0,\ 1-0) = (-2,0,1)\). The option \((2,0,-1)\) is \(\mathbf b\times\mathbf a\), the order reversed. Check: the dot product with \(\mathbf a\) is \(-2+0+2=0\).</span></div>
+  </div>
+
+  <div class="quiz" data-answer="0">
+    <div class="q"><span data-lang="zh">2. 三角形的三个顶点是 \((0,0,0)\)、\((2,0,0)\)、\((0,3,4)\)，面积是多少？</span><span data-lang="en">2. A triangle has vertices \((0,0,0)\), \((2,0,0)\) and \((0,3,4)\). What is its area?</span></div>
+    <div class="opts">
+      <button class="opt">5</button>
+      <button class="opt">10</button>
+      <button class="opt">6</button>
+      <button class="opt">\(\sqrt{13}\)</button>
+    </div>
+    <div class="explain"><span data-lang="zh">两条边 \((2,0,0)\) 和 \((0,3,4)\) 的叉积是 \((0\cdot4-0\cdot3,\ 0\cdot0-2\cdot4,\ 2\cdot3-0)=(0,-8,6)\)，长度 \(\sqrt{64+36}=10\) 是平行四边形的面积；三角形是它的一半，所以是 5。</span><span data-lang="en">The edges \((2,0,0)\) and \((0,3,4)\) have cross product \((0\cdot4-0\cdot3,\ 0\cdot0-2\cdot4,\ 2\cdot3-0)=(0,-8,6)\) with length \(\sqrt{64+36}=10\), the parallelogram's area. The triangle is half of it: 5.</span></div>
+  </div>
+
+  <div class="quiz" data-answer="1">
+    <div class="q"><span data-lang="zh">3. 机器人从 \((0,0)\) 走到 \((1,1)\)，再走到 \((2,0)\)。它在 \((1,1)\) 处怎么转？</span><span data-lang="en">3. A robot drives from \((0,0)\) to \((1,1)\) and on to \((2,0)\). How does it turn at \((1,1)\)?</span></div>
+    <div class="opts">
+      <button class="opt"><span data-lang="zh">左转，叉积为 +2</span><span data-lang="en">Left, cross product +2</span></button>
+      <button class="opt"><span data-lang="zh">右转，叉积为 −2</span><span data-lang="en">Right, cross product −2</span></button>
+      <button class="opt"><span data-lang="zh">直行，叉积为 0</span><span data-lang="en">Straight, cross product 0</span></button>
+    </div>
+    <div class="explain"><span data-lang="zh">进来的方向 \(\mathbf u=(1,1)\)，出去的方向 \(\mathbf v=(1,-1)\)。\(\mathbf u\times\mathbf v=1\cdot(-1)-1\cdot1=-2<0\)，是右转。画个草图验证：先朝右上，再朝右下，确实是顺时针拐。</span><span data-lang="en">The incoming direction is \(\mathbf u=(1,1)\), the outgoing one \(\mathbf v=(1,-1)\). \(\mathbf u\times\mathbf v=1\cdot(-1)-1\cdot1=-2<0\): a right turn. Sketch it to confirm: up-right first, then down-right, a clockwise bend.</span></div>
+  </div>
+
+  <div class="quiz" data-answer="3">
+    <div class="q"><span data-lang="zh">4. 连杆沿 +x 伸出 0.5 m，末端受力 \(\mathbf F=(6,8,0)\) N。绕关节的力矩 \(\mathbf r\times\mathbf F\) 是？</span><span data-lang="en">4. A link extends 0.5 m along +x and a force \(\mathbf F=(6,8,0)\) N acts at its tip. What is the torque \(\mathbf r\times\mathbf F\) about the joint?</span></div>
+    <div class="opts">
+      <button class="opt"><span data-lang="zh">5 N·m，沿 +z（把 \(\lVert\mathbf F\rVert=10\) 全算上了）</span><span data-lang="en">5 N·m along +z (counting all of \(\lVert\mathbf F\rVert=10\))</span></button>
+      <button class="opt"><span data-lang="zh">3 N·m（\(\mathbf r\cdot\mathbf F\)，这是点积）</span><span data-lang="en">3 N·m (\(\mathbf r\cdot\mathbf F\), a dot product)</span></button>
+      <button class="opt"><span data-lang="zh">0，因为 \(\mathbf F\) 有 x 分量</span><span data-lang="en">0, because \(\mathbf F\) has an x-component</span></button>
+      <button class="opt"><span data-lang="zh">4 N·m，沿 +z</span><span data-lang="en">4 N·m along +z</span></button>
+    </div>
+    <div class="explain"><span data-lang="zh">\(\mathbf r\times\mathbf F=(0,0,\,0.5\cdot8-0\cdot6)=(0,0,4)\)。只有垂直于连杆的分量 \(F_y=8\) 起作用，沿杆的 6 N 不产生力矩。5 是忘了乘 \(\sin\theta\)，3 是算成了点积。</span><span data-lang="en">\(\mathbf r\times\mathbf F=(0,0,\,0.5\cdot8-0\cdot6)=(0,0,4)\). Only the component across the link, \(F_y=8\), works; the 6 N along the link makes no torque. 5 forgets the factor \(\sin\theta\), and 3 is the dot product.</span></div>
+  </div>
+
+  <div class="quiz" data-answer="1">
+    <div class="q"><span data-lang="zh">5. 用三个几乎在一条直线上的点估计平面法向量，结果很不稳定。最直接的原因是？</span><span data-lang="en">5. Estimating a plane normal from three almost collinear points gives unstable results. The most direct reason is:</span></div>
+    <div class="opts">
+      <button class="opt"><span data-lang="zh">叉积只在三个点不共线时才有定义</span><span data-lang="en">The cross product is defined only for non-collinear points</span></button>
+      <button class="opt"><span data-lang="zh">\(\lVert\mathbf n\rVert=\lVert\mathbf a\rVert\lVert\mathbf b\rVert\sin\theta\) 很小，噪声相对被放大，方向主要由噪声决定</span><span data-lang="en">\(\lVert\mathbf n\rVert=\lVert\mathbf a\rVert\lVert\mathbf b\rVert\sin\theta\) is tiny, so noise is relatively amplified and the direction is mostly noise</span></button>
+      <button class="opt"><span data-lang="zh">叉积不满足结合律</span><span data-lang="en">The cross product is not associative</span></button>
+      <button class="opt"><span data-lang="zh">右手定则在这种情况下失效</span><span data-lang="en">The right-hand rule fails in this case</span></button>
+    </div>
+    <div class="explain"><span data-lang="zh">共线时叉积是零向量，方向没有意义；<em>几乎</em>共线时，\(\sin\theta\) 很小，真实信号（面积）很小，而测量噪声的大小不变，所以方向由噪声主导。这不是未定义，也与结合律、右手定则无关。解决办法：用更多点做 PCA（1.12 节），或避开细长三角形。</span><span data-lang="en">For exactly collinear points the cross product is the zero vector and its direction is meaningless; for <em>almost</em> collinear points \(\sin\theta\) is small, so the true signal (the area) is small while the measurement noise stays the same, and the noise dominates the direction. It is not undefined, and has nothing to do with associativity or the right-hand rule. The fix is to use more points with PCA (Lesson 1.12) or to avoid needle triangles.</span></div>
+  </div>
+</section>
+
+<!-- ============ 10. READING ============ -->
+<section class="step" id="reading">
+  <h2><span class="n">10</span><span data-lang="zh">延伸阅读</span><span data-lang="en">Further reading</span></h2>
+  <ul class="reading">
+    <li>3Blue1Brown, <a href="https://www.3blue1brown.com/topics/linear-algebra" target="_blank" rel="noopener"><i>Essence of Linear Algebra</i></a> — <span data-lang="zh">第 10 章"叉积"与第 11 章"从线性变换看叉积"</span><span data-lang="en">Ch. 10 "Cross products" and Ch. 11 "Cross products in the light of linear transformations"</span></li>
+    <li>G. Strang, <i>Introduction to Linear Algebra</i>, §5.3 — <span data-lang="zh">叉积、面积与体积</span><span data-lang="en">The cross product, areas and volumes</span></li>
+    <li>K. Lynch &amp; F. Park, <a href="https://hades.mech.northwestern.edu/index.php/Modern_Robotics" target="_blank" rel="noopener"><i>Modern Robotics</i></a>, §3.2.3 — <span data-lang="zh">角速度与斜对称矩阵</span><span data-lang="en">Angular velocities and the skew-symmetric matrix</span></li>
+    <li>J. Solà, J. Deray &amp; D. Atchuthan, <a href="https://arxiv.org/abs/1812.01537" target="_blank" rel="noopener">"A micro Lie theory for state estimation in robotics"</a>, 2018 — <span data-lang="zh">hat 矩阵如何通向李代数</span><span data-lang="en">how the hat matrix leads to the Lie algebra</span></li>
+  </ul>
+</section>
+
+</article>
+</main>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/katex@0.16.22/dist/katex.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/katex@0.16.22/dist/contrib/auto-render.min.js"></script>
+<script src="../assets/syllabus.js"></script>
+<script src="../assets/math.js"></script>
+<script src="../assets/course.js"></script>
+<script src="../assets/viz2d.js"></script>
+<script src="../assets/viz3d.js"></script>
+<script>
+R101.onReady(function () {
+  const { M, ui, L } = R101;
+  const D2R = Math.PI / 180, TAU = Math.PI * 2;
+  const { add, sub, scale, dot, norm, cross } = M;
+  const f2 = x => M.fmt(x, 2);
+  const sph = (az, el, len) => [len * Math.cos(el * D2R) * Math.cos(az * D2R), len * Math.cos(el * D2R) * Math.sin(az * D2R), len * Math.sin(el * D2R)];
+  const wrapPi = d => ((d + Math.PI) % TAU + TAU) % TAU - Math.PI;
+  const clampV = (p, m) => [M.clamp(p[0], -m, m), M.clamp(p[1], -m, m)];
+  const O3 = [0, 0, 0];
+  const cross2 = (u, v) => u[0] * v[1] - u[1] * v[0];
+
+  // neutral coordinate axes with labels
+  function axes3(V, E) {
+    [[[E, 0, 0], 'x'], [[0, E, 0], 'y'], [[0, 0, E], 'z']].forEach(([p, n]) => {
+      V.line(O3, p, { color: 'axis', width: 1.2, alpha: 0.5 });
+      V.text(n, scale(p, 1.07), { color: 'text-2' });
+    });
+  }
+  // arc from a to b (short way) around the origin, radius r; null if parallel / zero
+  function arc3(a, b, r, n) {
+    n = n || 22;
+    const na = norm(a), nb = norm(b);
+    if (na < 1e-6 || nb < 1e-6) return null;
+    const ua = scale(a, 1 / na);
+    let e = sub(b, scale(ua, dot(b, ua)));
+    const ne = norm(e);
+    if (ne < 1e-4 * nb) return null;
+    e = scale(e, 1 / ne);
+    const th = Math.atan2(ne, dot(b, ua)), pts = [];
+    for (let k = 0; k <= n; k++) { const t = th * k / n; pts.push(add(scale(ua, r * Math.cos(t)), scale(e, r * Math.sin(t)))); }
+    return { pts, th };
+  }
+  const arcWithHead = (V, ar, color, width) => {
+    V.polyline(ar.pts, { color, width });
+    const n = ar.pts.length;
+    V.arrow(ar.pts[n - 3], ar.pts[n - 1], { color, width, head: 9 });
+  };
+
+  /* ---------------- FIG 1: sweep b around a ---------------- */
+  (function () {
+    const A = [1.6, 0, 0], LEN = 1.4;
+    let phi = 40, stopAnim = null;
+    const V = new R101.View3D('#sweep-canvas', { height: 380, dist: 8.2, yaw: -1.0, pitch: 0.5, target: [0.3, 0.3, 0.5], draw });
+    const bv = () => [LEN * Math.cos(phi * D2R), LEN * Math.sin(phi * D2R), 0];
+    function draw(V) {
+      const a = A, b = bv(), c = cross(a, b);
+      V.grid({ extent: 3 }); axes3(V, 3);
+      V.poly([O3, a, add(a, b), b], { fill: 'x', fillAlpha: 0.18, stroke: 'x', alpha: 0.6, width: 1 });
+      const ar = arc3(a, b, 0.5);
+      if (ar) arcWithHead(V, ar, 'text-2', 1.6);
+      V.arrow(O3, a, { color: 'x', width: 4, label: 'a' });
+      V.arrow(O3, b, { color: 'w', width: 4, label: 'b' });
+      if (norm(c) > 1e-3) V.arrow(O3, c, { color: 'v', width: 5, label: 'a × b', bias: 0.01 });
+      else V.point(O3, { color: 'v', r: 6, stroke: 'canvas' });
+    }
+    const read = document.getElementById('sweep-read');
+    function sync() {
+      const s = Math.sin(phi * D2R), c = cross(A, bv());
+      const dir = norm(c) < 0.02 ? L('零向量', 'zero vector') : c[2] > 0 ? L('朝上 (+z)', 'up (+z)') : L('朝下 (−z)', 'down (−z)');
+      read.innerHTML = `φ = <b>${Math.round(phi)}°</b><br>sin φ = <b>${f2(s)}</b><br>‖a‖‖b‖ |sin φ| = <b>${f2(norm(A) * LEN * Math.abs(s))}</b><br>‖a × b‖ = <b>${f2(norm(c))}</b><br>a × b: <b>${dir}</b>`;
+      V.invalidate();
+    }
+    const sl = ui.slider(document.getElementById('sweep-ctrl'), { zh: '<span class="cw">b</span> 的方向 φ', en: 'direction φ of <span class="cw">b</span>', min: 0, max: 360, step: 1, value: phi, fmt: v => Math.round(v) + '°', onInput: v => { if (stopAnim) { stopAnim(); stopAnim = null; } phi = v; sync(); } });
+    const btn = ui.button(document.getElementById('sweep-btn'), { zh: '▶ 转一圈', en: '▶ Sweep', cls: 'sm', onClick: () => {
+      if (stopAnim) stopAnim();
+      const from = phi;
+      stopAnim = R101.animate(6000, (e, t) => { phi = (from + 360 * t) % 360; sl.set(phi); sync(); }, () => { stopAnim = null; });
+    } });
+    R101.on('lang', sync);
+    sync();
+  })();
+
+  /* ---------------- FIG 2: the 3D lab ---------------- */
+  (function () {
+    const ST = { a: { az: 25, el: 15, len: 1.6 }, b: { az: 110, el: 40, len: 1.4 } };
+    let ghost = false, aTouched = false, lastPreset = null;
+    const vec = k => sph(ST[k].az, ST[k].el, ST[k].len);
+    const V = new R101.View3D('#lab-canvas', { height: 450, dist: 8.8, yaw: -0.9, pitch: 0.4, target: [0, 0, 1.1], draw });
+    function draw(V) {
+      const a = vec('a'), b = vec('b'), c = cross(a, b), hl = R101.hl;
+      V.grid({ extent: 3 }); axes3(V, 3);
+      const emA = hl === 'area';
+      V.poly([O3, a, add(a, b), b], { fill: 'x', fillAlpha: emA ? 0.34 : 0.16, stroke: 'x', alpha: emA ? 1 : 0.55, width: emA ? 2.4 : 1 });
+      const ar = arc3(a, b, 0.55);
+      if (ar) {
+        arcWithHead(V, ar, 'text-2', hl === 'theta' ? 3.6 : 1.7);
+        V.text('θ', scale(ar.pts[Math.floor(ar.pts.length / 2)], 1.3), { color: 'text-2' });
+      }
+      if (ghost) V.arrow(O3, scale(c, -1), { color: 'v', width: 3, dash: [6, 5], alpha: 0.55, label: 'b × a' });
+      V.arrow(O3, a, { color: 'x', width: hl === 'a' ? 6.5 : 4, label: 'a' });
+      V.arrow(O3, b, { color: 'w', width: hl === 'b' ? 6.5 : 4, label: 'b' });
+      if (norm(c) > 1e-3) V.arrow(O3, c, { color: 'v', width: hl === 'axb' ? 7.5 : 5, label: 'a × b', bias: 0.01 });
+      else V.point(O3, { color: 'v', r: 6, stroke: 'canvas' });
+    }
+    // sliders
+    const ctr = document.getElementById('lab-ctrl');
+    const SL = { a: {}, b: {} };
+    [['a', 'cx'], ['b', 'cw']].forEach(([k, cl]) => {
+      SL[k].az = ui.slider(ctr, { zh: `<span class="${cl}">${k}</span> 方位角`, en: `<span class="${cl}">${k}</span> azimuth`, min: -180, max: 180, step: 1, value: ST[k].az, fmt: v => Math.round(v) + '°', onInput: v => { ST[k].az = v; if (k === 'a') aTouched = true; sync('slider'); } });
+      SL[k].el = ui.slider(ctr, { zh: `<span class="${cl}">${k}</span> 仰角`, en: `<span class="${cl}">${k}</span> elevation`, min: -90, max: 90, step: 1, value: ST[k].el, fmt: v => Math.round(v) + '°', onInput: v => { ST[k].el = v; if (k === 'a') aTouched = true; sync('slider'); } });
+      SL[k].len = ui.slider(ctr, { zh: `<span class="${cl}">${k}</span> 长度`, en: `<span class="${cl}">${k}</span> length`, min: 0.3, max: 2, step: 0.05, value: ST[k].len, fmt: v => M.fmt(v, 2), onInput: v => { ST[k].len = v; if (k === 'a') aTouched = true; sync('slider'); } });
+    });
+    const ghostBtn = ui.button(document.getElementById('lab-ghost'), { zh: '显示 b × a', en: 'Show b × a', cls: 'sm', onClick: () => { ghost = !ghost; ghostBtn.classList.toggle('primary', ghost); V.invalidate(); } });
+    // presets
+    const presets = [
+      { id: 'xy', zh: 'x × y = z', en: 'x × y = z', a: [0, 0, 1.5], b: [90, 0, 1.5] },
+      { id: 'yx', zh: 'y × x = −z', en: 'y × x = −z', a: [90, 0, 1.5], b: [0, 0, 1.5] },
+      { id: 'par', zh: '平行', en: 'Parallel', a: [30, 20, 1.5], b: [30, 20, 1.0] },
+      { id: 'anti', zh: '反平行', en: 'Anti-parallel', a: [30, 20, 1.5], b: [-150, -20, 1.0] },
+      { id: '45', zh: '45°', en: '45°', a: [0, 0, 1.6], b: [45, 0, 1.6] },
+      { id: 'rand', zh: '随机', en: 'Random', a: null, b: null }
+    ];
+    const ph = document.getElementById('lab-presets');
+    presets.forEach(p => ui.button(ph, { zh: p.zh, en: p.en, cls: 'sm', onClick: () => {
+      const rnd = (lo, hi) => Math.round(lo + Math.random() * (hi - lo));
+      const a = p.a || [rnd(-180, 180), rnd(-60, 60), 1.2 + Math.round(Math.random() * 12) / 20];
+      const b = p.b || [rnd(-180, 180), rnd(-60, 60), 1.2 + Math.round(Math.random() * 12) / 20];
+      [['a', a], ['b', b]].forEach(([k, v]) => { ST[k].az = v[0]; ST[k].el = v[1]; ST[k].len = v[2]; SL[k].az.set(v[0]); SL[k].el.set(v[1]); SL[k].len.set(v[2]); });
+      aTouched = false; lastPreset = p.id;
+      sync('preset');
+    } }));
+
+    const read = document.getElementById('lab-read'), tex = document.getElementById('lab-tex');
+    function sync(src) {
+      const a = vec('a'), b = vec('b'), c = cross(a, b), na = norm(a), nb = norm(b), nc = norm(c);
+      const cosT = M.clamp(dot(a, b) / (na * nb), -1, 1), th = Math.acos(cosT), sinT = Math.sin(th);
+      read.innerHTML = [
+        `‖a × b‖ = <b>${f2(nc)}</b>`,
+        `‖a‖‖b‖ sin θ = <b>${f2(na * nb * sinT)}</b>`,
+        `θ = <b>${M.fmt(th / D2R, 1)}°</b>`,
+        `a · (a × b) = <b>${f2(dot(a, c))}</b>`,
+        `b · (a × b) = <b>${f2(dot(b, c))}</b>`
+      ].join('<br>');
+      const t = x => M.tex(x, 2), p = x => (x < 0 ? `(${t(x)})` : t(x));
+      const comp = [[1, 2], [2, 0], [0, 1]].map(([i, j]) => `${p(a[i])}\\cdot${p(b[j])} - ${p(a[j])}\\cdot${p(b[i])}`).join(' \\\\ ');
+      R101.tex(tex, `\\cv{\\mathbf a\\times\\mathbf b} = \\begin{bmatrix} a_2b_3-a_3b_2 \\\\ a_3b_1-a_1b_3 \\\\ a_1b_2-a_2b_1 \\end{bmatrix} = \\begin{bmatrix} ${comp} \\end{bmatrix} = \\cv{${M.texVec(c)}}`);
+      V.invalidate();
+      if (src === 'slider') {
+        const s = nc / (na * nb);
+        if (nc > 0.5 && c[2] / nc > Math.cos(6 * D2R)) R101.done('up');
+        if (na > 0.25 && nb > 0.25 && s < 0.04) R101.done('zero');
+        if (ST.a.len >= 1.2 && ST.b.len >= 1.2 && s > 0.995) R101.done('perp');
+      }
+      if (lastPreset === 'xy' && !aTouched && nc > 0.5 && c[2] / nc < -0.95) R101.done('flip');
+    }
+    R101.on('lang', () => sync());
+    sync();
+  })();
+
+  /* ---------------- FIG 3: 2D signed area ---------------- */
+  (function () {
+    let a = [2, 1], b = [0.5, 2];
+    const P = new R101.Plane2D('#p2-canvas', { height: 420, view: { span: 7.2 }, draw, onChange: () => sync(true) });
+    const sgn = () => cross2(a, b);
+    function draw(P) {
+      P.grid({ color: 'grid', axisColor: 'grid-2' });
+      const s = sgn(), col = s >= 0 ? 'good' : 'bad';
+      P.poly([[0, 0], a, add(a, b), b], { fill: col, fillAlpha: 0.2, stroke: col, alpha: 0.7, width: 1.5 });
+      P.line(a, add(a, b), { color: 'w', dash: [4, 4], alpha: 0.5 });
+      P.line(b, add(a, b), { color: 'x', dash: [4, 4], alpha: 0.5 });
+      // turning arc from a to b (short way)
+      if (norm(a) > 0.2 && norm(b) > 0.2) {
+        const t0 = Math.atan2(a[1], a[0]), d = wrapPi(Math.atan2(b[1], b[0]) - t0), pts = [];
+        for (let k = 0; k <= 24; k++) { const t = t0 + d * k / 24; pts.push([0.7 * Math.cos(t), 0.7 * Math.sin(t)]); }
+        P.path(pts, { color: col, width: 2.2 });
+        if (Math.abs(d) > 0.12) P.arrow(pts[21], pts[24], { color: col, width: 2.2, head: 9 });
+      }
+      P.arrow([0, 0], a, { color: 'x', width: 4, label: 'a' });
+      P.arrow([0, 0], b, { color: 'w', width: 4, label: 'b' });
+      const ctr = scale(add(a, b), 0.5);
+      P.text(`a × b = ${s >= 0 ? '+' : ''}${M.fmt(s, 2)}`, ctr, { align: 'center', bold: true, size: 14, color: col });
+    }
+    P.handle({ pos: () => a, set: p => { a = clampV(p, 3.4); }, color: 'x', snap: 0.25 });
+    P.handle({ pos: () => b, set: p => { b = clampV(p, 3.4); }, color: 'w', snap: 0.25 });
+    const tex = document.getElementById('p2-tex'), read = document.getElementById('p2-read');
+    function sync(user) {
+      const s = sgn(), na = norm(a), nb = norm(b), t = x => M.tex(x, 2);
+      R101.tex(tex, `\\cv{a_1b_2-a_2b_1} = \\det\\begin{bmatrix} \\cx{${t(a[0])}} & \\cw{${t(b[0])}} \\\\ \\cx{${t(a[1])}} & \\cw{${t(b[1])}} \\end{bmatrix} = \\cv{${t(s)}}`);
+      const eps = 0.05, side = Math.abs(s) < eps ? L('共线（面积为 0）', 'collinear (zero area)') : s > 0 ? L('b 在 a 的<b style="color:var(--c-good)">左边</b>（逆时针）', 'b is <b style="color:var(--c-good)">left</b> of a (counter-clockwise)') : L('b 在 a 的<b style="color:var(--c-bad)">右边</b>（顺时针）', 'b is <b style="color:var(--c-bad)">right</b> of a (clockwise)');
+      const th = na > 1e-6 && nb > 1e-6 ? Math.atan2(s, dot(a, b)) / D2R : 0;
+      read.innerHTML = `${side}<br>signed θ = <b>${M.fmt(th, 1)}°</b><br>‖a‖‖b‖ sin θ = <b>${f2(na * nb * Math.sin(th * D2R))}</b>`;
+      if (user === true) {
+        if (s > 1) R101.done('left');
+        if (s < -1) R101.done('right');
+        if (na >= 1 && nb >= 1 && Math.abs(s) < 0.04) R101.done('collinear');
+        if (Math.abs(s - 2) < 0.05) R101.done('two');
+      }
+      P.invalidate();
+    }
+    R101.on('lang', () => sync());
+    sync();
+  })();
+
+  /* ---------------- FIG 4: left or right turn ---------------- */
+  (function () {
+    let mode = 'build', streak = 0;
+    let W = [[-3, -2], [1, -2.5], [2.5, 0.5], [0, 2.5], [-2.5, 1]];
+    let Q = null;
+    const P = new R101.Plane2D('#turn-canvas', { height: 430, view: { span: 8 }, draw, onChange: sync });
+    const turn = (p0, p1, p2) => {
+      const u = sub(p1, p0), v = sub(p2, p1), c = cross2(u, v), s = c / (norm(u) * norm(v) || 1);
+      return { u, v, c, s, kind: Math.abs(s) < 0.06 ? 'S' : c > 0 ? 'L' : 'R' };
+    };
+    const corners = () => { const out = []; for (let i = 1; i < W.length - 1; i++) out.push(turn(W[i - 1], W[i], W[i + 1])); return out; };
+    const kcol = k => (k === 'L' ? 'good' : k === 'R' ? 'bad' : 'text-2');
+    function annotate(P, p0, p1, p2, T) {
+      const col = kcol(T.kind), h0 = Math.atan2(T.u[1], T.u[0]), d = wrapPi(Math.atan2(T.v[1], T.v[0]) - h0);
+      P.line(p1, add(p1, scale(T.u, 1 / norm(T.u))), { color: col, dash: [3, 4], alpha: 0.8 });
+      const pts = [];
+      for (let k = 0; k <= 20; k++) { const t = h0 + d * k / 20; pts.push([p1[0] + 0.6 * Math.cos(t), p1[1] + 0.6 * Math.sin(t)]); }
+      P.path(pts, { color: col, width: 3.2 });
+      const mid = h0 + d / 2, lp = [p1[0] + 1.05 * Math.cos(mid), p1[1] + 1.05 * Math.sin(mid)];
+      const name = T.kind === 'L' ? R101.t('左', 'left') : T.kind === 'R' ? R101.t('右', 'right') : R101.t('直', 'straight');
+      P.text(`${name} ${T.c >= 0 ? '+' : '−'}${Math.abs(T.c).toFixed(1)}`, lp, { color: col, bold: true, size: 13, align: 'center' });
+    }
+    function drawPath(P, pts) {
+      for (let i = 0; i + 1 < pts.length; i++) P.arrow(pts[i], pts[i + 1], { color: 'text-2', width: 2.5, head: 11, alpha: 0.9 });
+      pts.forEach((p, i) => P.point(p, { color: i === 0 ? 'x' : 'text-2', r: i === 0 ? 6 : 4, stroke: 'canvas' }));
+      P.text(R101.t('起点', 'start'), pts[0], { offset: [-8, 16], color: 'x', bold: true, align: 'right' });
+    }
+    function draw(P) {
+      P.grid({ color: 'grid', axisColor: 'grid-2' });
+      if (mode === 'build') {
+        drawPath(P, W);
+        corners().forEach((T, i) => annotate(P, W[i], W[i + 1], W[i + 2], T));
+      } else if (Q) {
+        drawPath(P, Q.pts);
+        if (Q.done) annotate(P, Q.pts[0], Q.pts[1], Q.pts[2], turn(Q.pts[0], Q.pts[1], Q.pts[2]));
+        else P.text('?', Q.pts[1], { offset: [0, -22], bold: true, size: 22, color: 'v', align: 'center' });
+      }
+    }
+    W.forEach((_, i) => P.handle({ pos: () => W[i], set: p => { W[i] = clampV(p, 3.7); }, color: i ? 'text' : 'x', snap: 0.25, visible: () => mode === 'build' }));
+
+    function newQ() {
+      const rnd = (lo, hi) => lo + Math.random() * (hi - lo);
+      for (let tries = 0; tries < 300; tries++) {
+        const p1 = [rnd(-2, 2), rnd(-1.8, 1.8)], h0 = rnd(0, TAU), L1 = rnd(1.8, 3), L2 = rnd(1.8, 3);
+        const mag = rnd(25, 150) * D2R * (Math.random() < 0.5 ? 1 : -1);
+        const p0 = sub(p1, [L1 * Math.cos(h0), L1 * Math.sin(h0)]), p2 = add(p1, [L2 * Math.cos(h0 + mag), L2 * Math.sin(h0 + mag)]);
+        if ([p0, p2].every(p => Math.abs(p[0]) < 3.7 && Math.abs(p[1]) < 3.7)) { Q = { pts: [p0, p1, p2], ans: mag > 0 ? 'L' : 'R', done: false }; return; }
+      }
+      Q = { pts: [[-2, -1], [0, 0], [2, -1]], ans: 'R', done: false };
+    }
+    const tex = document.getElementById('turn-tex'), info = document.getElementById('turn-info'), btns = document.getElementById('turn-btns');
+    const bL = ui.button(btns, { zh: '↰ 左转', en: '↰ Left', cls: 'sm', onClick: () => answer('L') });
+    const bR = ui.button(btns, { zh: '↱ 右转', en: '↱ Right', cls: 'sm', onClick: () => answer('R') });
+    const bN = ui.button(btns, { zh: '下一题', en: 'Next', cls: 'sm primary', onClick: () => { newQ(); sync(); } });
+    function answer(k) {
+      if (!Q || Q.done) return;
+      Q.done = true; Q.correct = k === Q.ans;
+      streak = Q.correct ? streak + 1 : 0;
+      if (streak >= 5) R101.done('turn5');
+      sync();
+    }
+    function sync() {
+      const quiz = mode === 'quiz';
+      btns.style.display = quiz ? '' : 'none';
+      bL.style.display = bR.style.display = quiz && Q && !Q.done ? '' : 'none';
+      bN.style.display = quiz ? '' : 'none';
+      const t = x => M.tex(x, 2);
+      if (!quiz) {
+        const cs = corners(), nL = cs.filter(c => c.kind === 'L').length, nR = cs.filter(c => c.kind === 'R').length, nS = cs.length - nL - nR;
+        R101.tex(tex, `\\operatorname{turn}_i = \\operatorname{sign}(\\mathbf u\\times\\mathbf v) = \\operatorname{sign}(u_xv_y - u_yv_x)`);
+        info.innerHTML = cs.map((c, i) => `${L('拐角', 'corner')} ${i + 1}: u × v = <b style="color:var(--c-${kcol(c.kind)})">${c.c >= 0 ? '+' : '−'}${Math.abs(c.c).toFixed(2)}</b> → ${c.kind === 'L' ? L('左转', 'left') : c.kind === 'R' ? L('右转', 'right') : L('几乎直行', 'nearly straight')}`).join('<br>') +
+          `<br><br><b>${nL}</b> ${L('个左转', 'left')} · <b>${nR}</b> ${L('个右转', 'right')}${nS ? ` · <b>${nS}</b> ${L('个直行', 'straight')}` : ''}`;
+        if (nL === 2 && nR === 1 && nS === 0) R101.done('twoL1R');
+      } else if (Q) {
+        const T = turn(Q.pts[0], Q.pts[1], Q.pts[2]);
+        if (!Q.done) {
+          R101.tex(tex, `\\mathbf u\\times\\mathbf v \\;\\gtrless\\; 0 \\;?`);
+          info.innerHTML = `${L('机器人在中间那个点处向哪边转？', 'Which way does the robot turn at the middle point?')}<br><br>${L('连续答对', 'streak')}: <b>${streak}</b> / 5`;
+        } else {
+          R101.tex(tex, `\\mathbf u = \\begin{bmatrix}${t(T.u[0])}\\\\${t(T.u[1])}\\end{bmatrix},\\ \\mathbf v = \\begin{bmatrix}${t(T.v[0])}\\\\${t(T.v[1])}\\end{bmatrix},\\ \\mathbf u\\times\\mathbf v = ${t(T.c)}`);
+          info.innerHTML = `<b style="color:var(--c-${Q.correct ? 'good' : 'bad'})">${Q.correct ? L('答对了', 'Correct') : L('答错了', 'Not quite')}</b>: ${T.c > 0 ? L('叉积为正，左转', 'positive, left turn') : L('叉积为负，右转', 'negative, right turn')}<br><br>${L('连续答对', 'streak')}: <b>${streak}</b> / 5`;
+        }
+      }
+      P.invalidate();
+    }
+    ui.seg(document.getElementById('turn-seg'), [{ value: 'build', zh: '搭路径', en: 'Build' }, { value: 'quiz', zh: '抢答', en: 'Quiz' }], mode, v => { mode = v; if (v === 'quiz' && !Q) newQ(); sync(); });
+    R101.on('lang', sync);
+    newQ();
+    sync();
+  })();
+
+  /* ---------------- FIG 5: hat matrix ---------------- */
+  (function () {
+    let a = [1, 0.5, 1.5], b = [0.5, 1.5, 0.5], pw = 3, unit = 'a';
+    const colv = v => v.map(x => [x]);
+    const V = new R101.View3D('#hat-canvas', { height: 410, dist: 9.5, yaw: -0.8, pitch: 0.4, target: [0, 0, 0.6], draw });
+    const outer = (u, v) => u.map(x => v.map(y => x * y));
+    const tint = (ed, c) => ed.el.querySelectorAll('input').forEach(i => { i.style.color = `var(--c-${c})`; i.style.borderColor = `color-mix(in srgb, var(--c-${c}) 50%, var(--border-2))`; });
+    function draw(V) {
+      const c = cross(a, b), na = norm(a);
+      V.grid({ extent: 3 }); axes3(V, 3);
+      V.ellipsoid(O3, M.eye(3), { color: 'axis', alpha: 0.13, lat: 5, lon: 8 });
+      V.ellipsoid(O3, M.hat(a), { color: 'v', alpha: 0.4, lat: 6, lon: 10, width: 1.1 });
+      if (na > 1e-3) {
+        const t = Math.abs(a[0]) < 0.8 * na ? [1, 0, 0] : [0, 1, 0];
+        const e1 = M.normalize(cross(a, t)), e2 = M.normalize(cross(a, e1)), pts = [];
+        for (let k = 0; k < 48; k++) { const th = TAU * k / 48; pts.push(add(scale(e1, na * Math.cos(th)), scale(e2, na * Math.sin(th)))); }
+        V.poly(pts, { fill: 'v', fillAlpha: 0.1, stroke: 'v', alpha: 0.5, width: 1.2, bias: 0.5 });
+      }
+      V.arrow(O3, a, { color: 'x', width: 4, label: 'a' });
+      V.arrow(O3, b, { color: 'w', width: 4, label: 'b' });
+      if (norm(c) > 1e-3) V.arrow(O3, c, { color: 'v', width: 5, label: '[a]× b', bias: 0.01 });
+    }
+    const edA = ui.matrixEditor(document.getElementById('hat-a'), { value: colv(a), step: 0.5, onInput: B => { a = B.map(r => r[0]); sync(); } });
+    const edB = ui.matrixEditor(document.getElementById('hat-b'), { value: colv(b), step: 0.5, onInput: B => { b = B.map(r => r[0]); sync(); } });
+    tint(edA, 'x'); tint(edB, 'w');
+    const segPw = ui.seg(document.getElementById('hat-pw'), [{ value: 1, zh: '1 次：转置', en: 'power 1: transpose' }, { value: 2, zh: '2 次幂', en: 'power 2' }, { value: 3, zh: '3 次幂', en: 'power 3' }], pw, v => { pw = +v; sync(); });
+    const segUnit = ui.seg(document.getElementById('hat-unit'), [{ value: 'a', zh: '用 a', en: 'use a' }, { value: 'u', zh: '归一化 â', en: 'normalised â' }], unit, v => { unit = v; sync(); });
+    const tex = document.getElementById('hat-tex'), read = document.getElementById('hat-read'), ptex = document.getElementById('hat-pow-tex'), pread = document.getElementById('hat-pow-read');
+    function sync() {
+      edA.set(colv(a)); edB.set(colv(b));
+      const H = M.hat(a), c = cross(a, b), Hb = M.mv(H, b);
+      R101.tex(tex, `\\underbrace{${'\\cx{' + M.texMat(H) + '}'}}_{\\skew{\\mathbf a}}\\,\\cw{${M.texVec(b)}} = \\cv{${M.texVec(Hb)}} \\;=\\; \\mathbf a\\times\\mathbf b`);
+      const Ha = M.mv(H, a), skewOK = M.T(H).every((r, i) => r.every((x, j) => Math.abs(x + H[i][j]) < 1e-12));
+      read.innerHTML = `[a]× b − a × b = <b>${f2(norm(sub(Hb, c)))}</b><br>[a]× a = (${Ha.map(f2).join(', ')})<br>[a]×ᵀ = −[a]× : <b style="color:var(--c-good)">${skewOK ? '✓' : '✗'}</b><br>rank [a]× = <b>${norm(a) > 1e-9 ? 2 : 0}</b>`;
+      // powers
+      const na = norm(a), u = unit === 'u', v = u ? (na > 1e-9 ? scale(a, 1 / na) : [0, 0, 1]) : a;
+      const K = M.hat(v), n2 = dot(v, v), nm = u ? '\\hat{\\mathbf a}' : '\\mathbf a';
+      let Lm, Rm, ls, rs;
+      if (pw === 1) { Lm = M.T(K); Rm = M.mscale(K, -1); ls = `\\skew{${nm}}^{\\top}`; rs = `-\\skew{${nm}}`; }
+      else if (pw === 2) { Lm = M.mul(K, K); Rm = M.madd(outer(v, v), M.mscale(M.eye(3), -n2)); ls = `\\skew{${nm}}^{2}`; rs = u ? `\\hat{\\mathbf a}\\hat{\\mathbf a}^{\\top} - I` : `\\mathbf a\\mathbf a^{\\top} - \\lVert\\mathbf a\\rVert^{2} I`; }
+      else { Lm = M.mul(M.mul(K, K), K); Rm = M.mscale(K, -n2); ls = `\\skew{${nm}}^{3}`; rs = u ? `-\\skew{\\hat{\\mathbf a}}` : `-\\lVert\\mathbf a\\rVert^{2}\\skew{\\mathbf a}`; }
+      let diff = 0; Lm.forEach((r, i) => r.forEach((x, j) => { diff = Math.max(diff, Math.abs(x - Rm[i][j])); }));
+      R101.tex(ptex, `\\begin{aligned} ${ls} &= ${M.texMat(Lm)} \\\\ ${rs} &= ${M.texMat(Rm)} \\end{aligned}`);
+      pread.innerHTML = `${L('逐项最大差值', 'largest entrywise difference')} = <b style="color:var(--c-${diff < 1e-9 ? 'good' : 'bad'})">${diff < 1e-9 ? '0 ✓' : diff.toExponential(1)}</b>` + (pw > 1 && !u ? ` · ‖a‖² = ${f2(n2)}` : '') + (na < 1e-9 && u ? ` · ${L('a = 0，没有方向，这里用 (0,0,1) 代替', 'a = 0 has no direction; (0,0,1) is used instead')}` : '');
+      if (Math.abs(a[0]) < 1e-9 && Math.abs(a[1]) < 1e-9 && Math.abs(a[2] - 1) < 1e-9) R101.done('zhat');
+      if (pw === 3 && u && na > 0.1 && diff < 1e-9) R101.done('k3');
+      V.invalidate();
+    }
+    R101.on('lang', sync);
+    sync();
+  })();
+
+  /* ---------------- FIG 6: torque and spinning velocity ---------------- */
+  (function () {
+    const S = 0.1, FS = 0.3, VS = 4;     // metres per grid unit, grid units per newton, grid units per (m/s)
+    let mode = 'torque', r = [2, 1.25], F = [-2, 4], rs = [2, 1], om = 1.5;
+    const P = new R101.Plane2D('#tq-canvas', { height: 440, view: { span: 6.4 }, draw, onChange: sync });
+    const tau = () => (r[0] * S) * F[1] - (r[1] * S) * F[0];
+    const vel = p => [-om * p[1] * S, om * p[0] * S];
+    const arcPts = (c, a0, sweep, rad, n) => { const pts = []; for (let k = 0; k <= n; k++) { const t = a0 + sweep * k / n; pts.push([c[0] + rad * Math.cos(t), c[1] + rad * Math.sin(t)]); } return pts; };
+    function curved(P, c, a0, sweep, rad, color, w) {
+      if (Math.abs(sweep) < 0.05) return;
+      const pts = arcPts(c, a0, sweep, rad, 40);
+      P.path(pts, { color, width: w });
+      P.arrow(pts[36], pts[40], { color, width: w, head: 11 });
+    }
+    function draw(P) {
+      P.grid({ color: 'grid', axisColor: 'grid-2' });
+      if (mode === 'torque') {
+        const t = tau(), nF = norm(F);
+        if (nF > 0.05) {
+          const u = scale(F, 1 / nF);
+          P.line(sub(r, scale(u, 8)), add(r, scale(u, 8)), { color: 'w', dash: [4, 5], alpha: 0.55, width: 1.3 });
+          const foot = add(r, scale(u, -dot(r, u)));
+          if (norm(foot) > 0.05) {
+            P.line([0, 0], foot, { color: 'v', width: 2.5, dash: [2, 3] });
+            P.point(foot, { color: 'v', r: 3.5 });
+            P.text('d', scale(foot, 0.5), { color: 'v', bold: true, offset: [-10, 10] });
+          }
+        }
+        P.line([0, 0], r, { color: 'text-2', width: 9, alpha: 0.7 });
+        P.arrow([0, 0], r, { color: 'x', width: 2.5, head: 10 });
+        P.text('r', scale(r, 0.5), { color: 'x', bold: true, offset: [-10, -12] });
+        P.arrow(r, add(r, scale(F, FS)), { color: 'w', width: 4, label: 'F' });
+        P.point([0, 0], { color: 'canvas', r: 9, stroke: 'text', strokeWidth: 2.5 });
+        P.text(R101.t('关节', 'joint'), [0, 0], { offset: [-14, 18], color: 'text-2', align: 'right' });
+        const a0 = Math.atan2(r[1], r[0]) + Math.PI;
+        const sw = M.clamp(t * 120, -320, 320) * D2R;
+        curved(P, [0, 0], a0, sw, 1.0, 'v', 4);
+        const am = a0 + sw / 2;
+        P.text(`τ = ${t >= 0 ? '+' : '−'}${Math.abs(t).toFixed(2)} N·m`, [1.5 * Math.cos(am), 1.5 * Math.sin(am)], { bold: true, color: 'v', align: 'center', size: 14 });
+      } else {
+        const R0 = norm(rs);
+        P.circle([0, 0], R0, { color: 'x', alpha: 0.5, dash: [4, 5], width: 1.2 });
+        for (let ring = 1; ring <= 2; ring++) for (let k = 0; k < 8; k++) {
+          const t = TAU * k / 8 + 0.3 * ring, p = [1.3 * ring * Math.cos(t), 1.3 * ring * Math.sin(t)];
+          P.arrow(p, add(p, scale(vel(p), VS)), { color: 'v', width: 1.8, head: 7, alpha: 0.35 });
+        }
+        P.arrow([0, 0], rs, { color: 'x', width: 3, label: 'r' });
+        P.point([0, 0], { color: 'canvas', r: 8, stroke: 'text', strokeWidth: 2.5 });
+        curved(P, [0, 0], 0.5, om >= 0 ? 4.4 : -4.4, 0.45, 'w', 2.4);
+        P.text(`ω ${om >= 0 ? '↺' : '↻'}`, [0, 0], { offset: [0, 28], color: 'w', bold: true, align: 'center' });
+        const v = vel(rs);
+        P.arrow(rs, add(rs, scale(v, VS)), { color: 'v', width: 4.5, label: 'v = ω × r' });
+        P.point(rs, { color: 'x', r: 6, stroke: 'canvas' });
+      }
+    }
+    P.handle({ pos: () => r, set: p => { r = clampV(p, 3); }, color: 'x', snap: 0.25, visible: () => mode === 'torque' });
+    P.handle({ pos: () => add(r, scale(F, FS)), set: p => { let f = sub(p, r).map(x => Math.round(x / FS * 4) / 4); const n = norm(f); if (n > 12) f = scale(f, 12 / n); F = f; }, color: 'w', visible: () => mode === 'torque' });
+    P.handle({ pos: () => rs, set: p => { rs = clampV(p, 3); }, color: 'x', snap: 0.25, visible: () => mode === 'spin' });
+    const ctr = document.getElementById('tq-controls');
+    const sl = ui.slider(ctr, { zh: '角速度 ω (rad/s)', en: 'angular speed ω (rad/s)', min: -3, max: 3, step: 0.1, value: om, fmt: v => M.fmt(v, 1), onInput: v => { om = v; sync(); } });
+    const tex = document.getElementById('tq-tex'), read = document.getElementById('tq-read');
+    function sync() {
+      ctr.style.display = mode === 'spin' ? '' : 'none';
+      const t = x => M.tex(x, 2);
+      if (mode === 'torque') {
+        const rm = scale(r, S), tt = tau(), nF = norm(F), d = nF > 1e-9 ? Math.abs(tt) / nF : 0;
+        R101.tex(tex, `\\cv{\\tau} = r_xF_y - r_yF_x = (${t(rm[0])})(${t(F[1])}) - (${t(rm[1])})(${t(F[0])}) = \\cv{${t(tt)}}`);
+        read.innerHTML = `r = (${f2(rm[0])}, ${f2(rm[1])}) m<br>F = (${f2(F[0])}, ${f2(F[1])}) N, ‖F‖ = ${f2(nF)} N<br>τ = <b>${tt >= 0 ? '+' : '−'}${f2(Math.abs(tt))} N·m</b> ${tt > 0.005 ? L('逆时针', 'counter-clockwise') : tt < -0.005 ? L('顺时针', 'clockwise') : L('零', 'zero')}<br>${L('力臂', 'lever arm')} d = ${f2(d)} m, ‖F‖·d = ${f2(nF * d)}`;
+        if (nF >= 3 && Math.abs(tt) <= 0.05 * norm(rm) * nF) R101.done('zerotorque');
+      } else {
+        const rm = scale(rs, S), v = vel(rs), nv = norm(v);
+        R101.tex(tex, `\\cv{\\mathbf v} = \\boldsymbol\\omega\\times\\mathbf r = \\omega\\begin{bmatrix}-r_y\\\\ r_x\\end{bmatrix} = \\cv{\\begin{bmatrix}${t(v[0])}\\\\${t(v[1])}\\end{bmatrix}}`);
+        read.innerHTML = `ω = ${M.fmt(om, 1)} rad/s (${om >= 0 ? L('逆时针', 'counter-clockwise') : L('顺时针', 'clockwise')})<br>r = (${f2(rm[0])}, ${f2(rm[1])}) m, ‖r‖ = ${f2(norm(rm))} m<br>‖v‖ = |ω|‖r‖ = <b>${f2(nv)} m/s</b><br>v · r = <b>${f2(dot(v, rm))}</b> (${L('垂直', 'perpendicular')})`;
+        if (nv > 0.1 && Math.abs(v[0]) < 0.1 * nv && v[1] > 0) R101.done('spinup');
+      }
+      P.invalidate();
+    }
+    ui.seg(document.getElementById('tq-seg'), [{ value: 'torque', zh: '力矩 r × F', en: 'Torque r × F' }, { value: 'spin', zh: '转动 ω × r', en: 'Spinning ω × r' }], mode, v => { mode = v; sync(); });
+    R101.on('lang', sync);
+    sync();
+  })();
+
+  /* ---------------- FIG 7: normals from three points ---------------- */
+  (function () {
+    const zf = (x, y) => 0.25 * x + 0.1 * y, pt = (x, y) => [x, y, zf(x, y)];
+    const SIGMA = 0.03, N = 36;
+    const rand = M.rng(7), noise = [];
+    for (let i = 0; i < N; i++) noise.push([0, 1, 2].map(() => [M.randn(rand), M.randn(rand), M.randn(rand)]));
+    let skinny = 20, swapped = false;
+    const V = new R101.View3D('#nm-canvas', { height: 420, dist: 7.2, yaw: -0.9, pitch: 0.5, target: [0, 0.2, 0.55], draw });
+    function pts() {
+      const s = skinny / 100, A = [-0.2, 1.4], Mp = [0.1, -0.86];
+      const p3 = [A[0] * (1 - s) + Mp[0] * s, A[1] * (1 - s) + Mp[1] * s];
+      const P3 = [pt(-1.4, -1.0), pt(1.4, -0.8), pt(p3[0], p3[1])];
+      return swapped ? [P3[0], P3[2], P3[1]] : P3;
+    }
+    const nrm = q => cross(sub(q[1], q[0]), sub(q[2], q[0]));
+    function stats() {
+      const q = pts(), n0 = nrm(q), len = norm(n0), u0 = len > 1e-12 ? scale(n0, 1 / len) : [0, 0, 1];
+      const us = noise.map(o => { const n = nrm(q.map((p, i) => add(p, scale(o[i], SIGMA)))), l = norm(n); return l > 1e-12 ? scale(n, 1 / l) : u0; });
+      const err = us.reduce((s, u) => s + Math.acos(M.clamp(dot(u, u0), -1, 1)), 0) / N / D2R;
+      return { q, n0, len, u0, us, err };
+    }
+    function draw(V) {
+      const { q, u0, us } = stats();
+      V.grid({ extent: 3 });
+      const cen = scale(add(add(q[0], q[1]), q[2]), 1 / 3);
+      V.poly(q, { fill: 'x', fillAlpha: 0.2, stroke: 'x', alpha: 0.7, width: 1.4 });
+      [[0, 1], [1, 2], [2, 0]].forEach(([i, j]) => V.arrow(q[i], q[j], { color: 'text-2', width: 1.8, head: 8, alpha: 0.85 }));
+      q.forEach((p, i) => V.point(p, { color: 'text', r: 4, stroke: 'canvas', label: String(i + 1), labelColor: 'text' }));
+      us.forEach(u => V.point(add(cen, scale(u, 1.6)), { color: 'x', r: 2.6, alpha: 0.85 }));
+      V.arrow(cen, add(cen, scale(u0, 1.6)), { color: 'v', width: 4.5, label: 'n', bias: 0.01 });
+    }
+    const read = document.getElementById('nm-read');
+    function sync() {
+      const s = stats(), area = s.len / 2;
+      read.innerHTML = `${L('三角形面积', 'area')} ½‖n‖ = <b>${f2(area)}</b><br>n̂ = (${s.u0.map(f2).join(', ')})<br>${L('法向量朝', 'normal points')} <b>${s.u0[2] > 0 ? L('上', 'up') : L('下', 'down')}</b><br>${L('加噪后平均误差', 'mean error under noise')} = <b style="color:var(--c-${s.err > 15 ? 'bad' : 'good'})">${M.fmt(s.err, 1)}°</b>`;
+      if (s.err > 15) R101.done('sliver');
+      if (swapped && s.u0[2] < 0) R101.done('flipnormal');
+      V.invalidate();
+    }
+    ui.slider(document.getElementById('nm-ctrl'), { zh: '三角形压扁程度', en: 'how squashed the triangle is', min: 0, max: 100, step: 1, value: skinny, fmt: v => Math.round(v) + '%', onInput: v => { skinny = v; sync(); } });
+    ui.button(document.getElementById('nm-btn'), { zh: '交换 2 ↔ 3', en: 'Swap 2 ↔ 3', cls: 'sm', onClick: () => { swapped = !swapped; sync(); } });
+    R101.on('lang', sync);
+    sync();
+  })();
+});
+</script>
+</body>
+</html>

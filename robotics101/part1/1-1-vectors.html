@@ -1,0 +1,983 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-theme="dark" data-lang-ui="zh">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>1.1 向量 · Robotics for Beginners</title>
+<meta name="description" content="An interactive, intuition-first first lesson on vectors: arrows, lists of numbers and points; addition, scaling and length; points versus displacements; joint-angle vectors in R^n; and dead reckoning as a sum of steps.">
+<link rel="icon" href="../../favicon.svg" type="image/svg+xml">
+<script>(function(){var d=document.documentElement,t='dark',l=null;try{t=localStorage.getItem('theme')||'dark'}catch(e){}d.setAttribute('data-theme',t);try{l=new URLSearchParams(location.search).get('lang')||localStorage.getItem('lang')}catch(e){}if(l!=='zh'&&l!=='en')l=(navigator.language||'').toLowerCase().indexOf('zh')===0?'zh':'en';d.setAttribute('data-lang-ui',l);d.lang=l==='zh'?'zh-CN':'en';})();</script>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.22/dist/katex.min.css">
+<link rel="stylesheet" href="../assets/course.css">
+</head>
+<body data-page="1.1" data-root=".." data-title-zh="1.1 向量 · Robotics for Beginners" data-title-en="1.1 Vectors · Robotics for Beginners">
+<div class="r101-layout">
+<aside class="r101-side" id="r101-side"></aside>
+<main class="r101-main">
+<article class="lesson">
+
+<header class="lesson-head">
+  <div class="eyebrow"><span data-lang="zh">Part I · 第 1 章 线性代数 · 1.1</span><span data-lang="en">Part I · Ch. 1 Linear Algebra · 1.1</span></div>
+  <h1><span data-lang="zh">向量</span><span data-lang="en">Vectors</span></h1>
+  <p class="lede">
+    <span data-lang="zh">机器人感知到的、发出去的几乎一切，都是一串带几何含义的数字：杯子在哪里，车跑多快，手爪受多大的力，机械臂六个关节各转了多少。这串数字就是<b>向量</b>。它同时是一支<b>箭头</b>、一张<b>数字清单</b>和空间里的一个<b>点</b>。能在这三种说法之间自由切换，是整门课的第一项本领。</span>
+    <span data-lang="en">Almost everything a robot senses or commands is a short list of numbers with a geometric meaning: where the cup is, how fast the car moves, how hard the gripper pushes, how far each of an arm's six joints has turned. That list is a <b>vector</b>. It is an <b>arrow</b>, a <b>list of numbers</b> and a <b>point</b> in space all at once. Switching freely between those three pictures is the first skill of this course.</span>
+  </p>
+  <div class="lesson-meta">
+    <span class="chip"><span data-lang="zh">约 20 分钟</span><span data-lang="en">~20 min</span></span>
+    <span class="chip"><span data-lang="zh">前置：高中数学</span><span data-lang="en">Prereqs: high-school math</span></span>
+    <span class="chip"><span data-lang="zh">7 个交互</span><span data-lang="en">7 interactives</span></span>
+  </div>
+  <ul class="toc-steps" id="step-toc"></ul>
+</header>
+
+<!-- ============ 1. WHY ============ -->
+<section class="step" id="why">
+  <h2><span class="n">1</span><span data-lang="zh">为什么机器人需要它</span><span data-lang="en">Why robots need this</span></h2>
+  <div data-lang="zh">
+    <p>相机看见桌上的杯子，报告："杯子在 (0.8, −0.2, 0.1) 米。"里程计说，这一秒车走了 (0.3, 0.05) 米。力传感器说，手爪受力 (0, 0, −4.9) 牛。机械臂控制器每个周期读到 6 个关节角。激光雷达每转一圈给出几千个点，每个点是一对 (x, y)。</p>
+    <p>这些东西看上去毫不相干，却有一个共同点：每一项都是<b>一列数字，而且每个数字都有几何含义</b>。数学上把它们统称为<b>向量</b> (vector)。一旦承认这一点，就能用同一套操作去处理它们：两段位移相加得到总位移，把速度放大一倍，量两点之间的距离，给一个方向配上长度。后面整门课的数学，都是从这几个朴素的操作里长出来的。</p>
+    <p>这一节只做一件事：让"向量"从一个名词变成手感。</p>
+  </div>
+  <div data-lang="en">
+    <p>A camera sees a cup on the table and reports: "the cup is at (0.8, −0.2, 0.1) metres." The odometry says the car moved (0.3, 0.05) metres in the last second. A force sensor says the gripper feels (0, 0, −4.9) newtons. An arm controller reads 6 joint angles every cycle. A lidar returns thousands of points per sweep, each one a pair (x, y).</p>
+    <p>These look unrelated, yet they share one trait: each is <b>a list of numbers, and every number has a geometric meaning</b>. Mathematics calls all of them <b>vectors</b>. Once you accept that, the same few operations work on all of them: add two displacements to get the total displacement, double a velocity, measure the distance between two points, attach a length to a direction. The mathematics of the rest of the course grows out of these plain operations.</p>
+    <p>This lesson does one thing: it turns "vector" from a noun into a feel.</p>
+  </div>
+  <div class="callout view">
+    <div class="ct"><span data-lang="zh">怎么玩这些页面</span><span data-lang="en">How these pages work</span></div>
+    <p data-lang="zh">图中带彩色圆环的点是<b>手柄</b>，直接拖动就行。"试一试"里的任务做到了会自己打勾。右上角可以切换 中文 / EN 和明暗主题。</p>
+    <p data-lang="en">The dots with a colored ring in a figure are <b>handles</b>: just drag them. The "Try this" tasks tick themselves when you get there. The top-right buttons switch 中文 / EN and the light or dark theme.</p>
+  </div>
+</section>
+
+<!-- ============ 2. INTUITION ============ -->
+<section class="step" id="intuition">
+  <h2><span class="n">2</span><span data-lang="zh">直觉：同一件事的三张脸</span><span data-lang="en">Intuition: three faces of one idea</span></h2>
+  <div data-lang="zh">
+    <p>向量有三张脸，说的是同一件事：</p>
+    <ul>
+      <li><b>箭头</b>：有<b>方向</b>和<b>长度</b>，不在乎尾巴钉在哪里。把它平移（不转、不拉长）到任何地方，它仍然是同一个向量。</li>
+      <li><b>一串数字</b>（分量 components）：沿 x 走多少，沿 y 走多少。竖着写成 \(\begin{bmatrix}3\\2\end{bmatrix}\)。在机器人代码里，它就是一个数组。</li>
+      <li><b>一个点</b>：把尾巴钉在原点，箭头尖落在平面上的某一点，这个点的坐标就是向量的分量。</li>
+    </ul>
+    <p>拖动下图：琥珀色箭头的尖端用来改变 \(\cv{\mathbf v}\)；青色小环抓着 \(\cv{\mathbf v}\) 的一个副本的尾巴，可以把它滑到别处。看看数字变不变。</p>
+  </div>
+  <div data-lang="en">
+    <p>A vector has three faces, and they say the same thing:</p>
+    <ul>
+      <li><b>An arrow</b>: it has a <b>direction</b> and a <b>length</b>, and does not care where its tail is pinned. Slide it anywhere (without turning or stretching) and it is still the same vector.</li>
+      <li><b>A list of numbers</b> (components): how far to go along x, how far along y. Written as a column, \(\begin{bmatrix}3\\2\end{bmatrix}\). In robot code it is just an array.</li>
+      <li><b>A point</b>: pin the tail at the origin and the arrow tip lands on one point of the plane. That point's coordinates are the vector's components.</li>
+    </ul>
+    <p>Drag the figure below: the amber arrow tip changes \(\cv{\mathbf v}\); the cyan ring grabs the tail of a copy of \(\cv{\mathbf v}\) and slides it elsewhere. Watch whether the numbers change.</p>
+  </div>
+
+  <figure class="fig" id="fig-faces">
+    <div class="fig-head"><span class="fig-kind">FIG 1</span><span class="fig-title"><span data-lang="zh">三张脸</span><span data-lang="en">Three faces</span></span><span class="spacer"></span></div>
+    <div class="fig-body split">
+      <div class="canvas-wrap" id="faces-canvas"></div>
+      <div class="fig-side">
+        <div id="faces-info"></div>
+        <div class="katex-live" id="faces-tex"></div>
+      </div>
+    </div>
+    <figcaption class="fig-cap">
+      <span data-lang="zh">红、绿虚线是 \(\mathbf v\) 沿 x、y 方向的两个分量。副本换了位置，"尖 − 尾"得到的仍是同一个 \(\mathbf v\)：箭头的身份是方向和长度，不是位置。</span>
+      <span data-lang="en">The red and green dashed lines are the two components of \(\mathbf v\) along x and y. The copy sits elsewhere, yet "tip − tail" still gives the same \(\mathbf v\): an arrow's identity is its direction and length, not its location.</span>
+    </figcaption>
+  </figure>
+  <ul class="tasks">
+    <li data-task="slide"><span><span data-lang="zh">用青色小环把副本<b>滑到别处</b>（至少挪开 1.5），确认右边"尖 − 尾"的结果没有变。</span><span data-lang="en"><b>Slide the copy</b> away with the cyan ring (at least 1.5 units) and confirm that "tip − tail" on the right does not change.</span></span></li>
+    <li data-task="setv"><span><span data-lang="zh">把 \(\mathbf v\) 拖成 \((-2,\,3)\)。</span><span data-lang="en">Drag \(\mathbf v\) to \((-2,\,3)\).</span></span></li>
+  </ul>
+
+  <div class="callout key">
+    <div class="ct"><span data-lang="zh">核心洞见：位移与位置</span><span data-lang="en">Key insight: displacement vs. position</span></div>
+    <p data-lang="zh"><b>位移</b> (displacement) 回答"从这里走到那里要走多少"，不需要原点，可以随意平移。<b>位置</b> (position) 回答"在哪里"，必须先约定原点和坐标轴；它其实是"从原点出发的位移"。本节把向量主要当作位移来用。第 4 节会专门玩这个区别，它是后面所有坐标系内容（5.1 节）的伏笔。</p>
+    <p data-lang="en"><b>Displacement</b> answers "how far do I go from here to there": it needs no origin and can be slid freely. <b>Position</b> answers "where is it": you must first agree on an origin and axes, and a position is really "the displacement from the origin". This lesson mostly uses vectors as displacements. Section 4 plays with exactly this difference, which sets up everything about frames later (Lesson 5.1).</p>
+  </div>
+</section>
+
+<!-- ============ 3. PLAY ============ -->
+<section class="step" id="play">
+  <h2><span class="n">3</span><span data-lang="zh">动手玩：向量实验室</span><span data-lang="en">Play: the vector lab</span></h2>
+  <div data-lang="zh">
+    <p>现在把两个向量放在一起。拖动琥珀色的 \(\cv{\mathbf a}\) 和紫色的 \(\cw{\mathbf b}\) 的箭头尖（会吸附到 0.5 的格点上），再用右上角的开关选一种运算：</p>
+    <ul>
+      <li><b>加法 \(\mathbf a+\mathbf b\)</b>：先走完 \(\mathbf a\)，再从它的尖出发走 \(\mathbf b\)（<b>首尾相接</b>）。先走 \(\mathbf b\) 再走 \(\mathbf a\) 也到同一点，两条路围成一个平行四边形。</li>
+      <li><b>减法 \(\mathbf a-\mathbf b\)</b>：从 \(\mathbf b\) 的尖指向 \(\mathbf a\) 的尖的那支箭头。</li>
+      <li><b>数乘 \(s\,\mathbf a\)</b>：沿 \(\mathbf a\) 所在的直线拉长或缩短；\(s\) 为负时掉头。</li>
+    </ul>
+  </div>
+  <div data-lang="en">
+    <p>Now put two vectors together. Drag the tips of the amber \(\cv{\mathbf a}\) and the purple \(\cw{\mathbf b}\) (they snap to a 0.5 grid), then pick an operation with the switch at the top right:</p>
+    <ul>
+      <li><b>Addition \(\mathbf a+\mathbf b\)</b>: walk \(\mathbf a\), then from its tip walk \(\mathbf b\) (<b>tip to tail</b>). Walking \(\mathbf b\) first and \(\mathbf a\) second ends at the same point; the two routes bound a parallelogram.</li>
+      <li><b>Subtraction \(\mathbf a-\mathbf b\)</b>: the arrow from the tip of \(\mathbf b\) to the tip of \(\mathbf a\).</li>
+      <li><b>Scaling \(s\,\mathbf a\)</b>: stretch or shrink along the line of \(\mathbf a\); a negative \(s\) turns it around.</li>
+    </ul>
+  </div>
+
+  <figure class="fig bleed" id="fig-lab">
+    <div class="fig-head"><span class="fig-kind">FIG 2</span><span class="fig-title"><span data-lang="zh">向量实验室</span><span data-lang="en">Vector lab</span></span><span class="spacer"></span><span id="lab-seg"></span></div>
+    <div class="fig-body split">
+      <div class="canvas-wrap" id="lab-canvas"></div>
+      <div class="fig-side">
+        <div class="katex-live" id="lab-tex"></div>
+        <div class="readout" id="lab-read"></div>
+        <div><div class="small muted" style="margin-bottom:6px"><span data-lang="zh">预设</span><span data-lang="en">Presets</span></div><div class="presets" id="lab-presets"></div></div>
+      </div>
+    </div>
+    <div class="fig-controls" id="lab-controls"></div>
+    <figcaption class="fig-cap">
+      <span data-lang="zh">加法档：虚线是把 \(\mathbf b\) 接在 \(\mathbf a\) 的尖上、再把 \(\mathbf a\) 接在 \(\mathbf b\) 的尖上，两条路到同一点。减法档：\(\mathbf a-\mathbf b\) 的虚线副本被平移到原点，数字相同。数乘档（用下面的滑块调 \(s\)）：\(s\,\mathbf a\) 永远在 \(\mathbf a\) 所在的那条虚线上。</span>
+      <span data-lang="en">Addition: the dashed arrows attach \(\mathbf b\) at the tip of \(\mathbf a\) and \(\mathbf a\) at the tip of \(\mathbf b\); both routes reach the same point. Subtraction: a dashed copy of \(\mathbf a-\mathbf b\) is slid to the origin; same numbers. Scaling (set \(s\) with the slider below): \(s\,\mathbf a\) always stays on the dotted line through \(\mathbf a\).</span>
+    </figcaption>
+  </figure>
+
+  <div class="tasks-title"><span data-lang="zh">试一试</span><span data-lang="en">Try this</span></div>
+  <ul class="tasks">
+    <li data-task="zero"><span><span data-lang="zh">让 \(\mathbf a+\mathbf b=\mathbf 0\)（两条路走回原点）。\(\mathbf b\) 该放在哪里？</span><span data-lang="en">Make \(\mathbf a+\mathbf b=\mathbf 0\) (the two legs return to the origin). Where must \(\mathbf b\) go?</span></span></li>
+    <li data-task="parallel"><span><span data-lang="zh">让 \(|\mathbf a+\mathbf b| = |\mathbf a|+|\mathbf b|\)（看右边的读数）。\(\mathbf a\) 和 \(\mathbf b\) 必须满足什么关系？</span><span data-lang="en">Make \(|\mathbf a+\mathbf b| = |\mathbf a|+|\mathbf b|\) (watch the readout). What must be true of \(\mathbf a\) and \(\mathbf b\)?</span></span></li>
+    <li data-task="diff"><span><span data-lang="zh">切到 \(\mathbf a-\mathbf b\) 档，让它恰好等于 \((1,\,2)\)。注意 \(\mathbf a\) 和 \(\mathbf b\) 都可以动，答案不止一个。</span><span data-lang="en">Switch to \(\mathbf a-\mathbf b\) and make it exactly \((1,\,2)\). Both \(\mathbf a\) and \(\mathbf b\) can move, so there are many answers.</span></span></li>
+    <li data-task="neg"><span><span data-lang="zh">切到 \(s\,\mathbf a\) 档，让它与 \(\mathbf a\) <b>方向相反</b>、长度恰为 \(\mathbf a\) 的一半（\(s=-0.5\)）。</span><span data-lang="en">Switch to \(s\,\mathbf a\) and make it point the <b>opposite</b> way at exactly half the length of \(\mathbf a\) (\(s=-0.5\)).</span></span></li>
+  </ul>
+
+  <h3><span data-lang="zh">小游戏：够到目标</span><span data-lang="en">Mini-game: reach the target</span></h3>
+  <div data-lang="zh">
+    <p>机器人每一步只能走两种固定的位移：琥珀色的 \(\cv{\mathbf d_1}\) 或青色的 \(\cx{\mathbf d_2}\)，可以前进，也可以后退。点按钮，把一段段位移<b>首尾相接</b>，让白点停在紫色的目标 \(\cw{T}\) 上。淡青色的小点是所有"整数份 \(\mathbf d_1\) 加整数份 \(\mathbf d_2\)"能到的位置，目标一定在其中。试试用最少的步数。</p>
+  </div>
+  <div data-lang="en">
+    <p>The robot can only take two fixed displacements per move: the amber \(\cv{\mathbf d_1}\) or the cyan \(\cx{\mathbf d_2}\), forward or backward. Press the buttons to chain the moves <b>tip to tail</b> until the white dot sits on the purple target \(\cw{T}\). The faint cyan dots mark every position reachable as "a whole number of \(\mathbf d_1\) plus a whole number of \(\mathbf d_2\)"; the target is always one of them. Try to use as few moves as possible.</p>
+  </div>
+  <figure class="fig" id="fig-game">
+    <div class="fig-head"><span class="fig-kind">FIG 3</span><span class="fig-title"><span data-lang="zh">够到目标</span><span data-lang="en">Reach the target</span></span><span class="spacer"></span><span class="readout" id="game-score"></span></div>
+    <div class="fig-body split">
+      <div class="canvas-wrap" id="game-canvas"></div>
+      <div class="fig-side">
+        <div class="presets" id="game-moves"></div>
+        <div class="katex-live" id="game-tex"></div>
+        <div id="game-msg" class="small"></div>
+        <div class="presets" id="game-ctl"></div>
+      </div>
+    </div>
+    <figcaption class="fig-cap">
+      <span data-lang="zh">每个目标都有唯一的最短走法（两个步向量方向不同，所以组合方式只有一种）。用最少的步数命中，会得到"最短"的标记。</span>
+      <span data-lang="en">Every target has exactly one shortest route (the two step vectors point in different directions, so each point has only one recipe). Hit it in the fewest moves and you earn the "shortest" tag.</span>
+    </figcaption>
+  </figure>
+  <ul class="tasks"><li data-task="game3"><span><span data-lang="zh">命中 3 个目标。</span><span data-lang="en">Hit 3 targets.</span></span></li></ul>
+</section>
+
+<!-- ============ 4. POINTS VS VECTORS ============ -->
+<section class="step" id="points">
+  <h2><span class="n">4</span><span data-lang="zh">第二个视角：点与向量不是一回事</span><span data-lang="en">Second view: points are not vectors</span></h2>
+  <div data-lang="zh">
+    <p>前面有件事一直悄悄成立：原点在画面中央。可现实里原点是人选的：世界坐标系的原点可能在房间的一角，也可能在机器人底座上。同一个杯子，换一个原点，坐标就变了。杯子没动，动的是尺子。</p>
+    <p>于是有一条要紧的区分。<b>点</b>的坐标依赖原点；从点 \(P\) 到点 \(Q\) 的<b>位移</b> \(\mathbf d = Q-P\) 却不依赖，因为原点一挪，\(P\) 和 \(Q\) 的坐标同时减去同一个数，差不变。这给出四条规则：</p>
+    <ul>
+      <li><b>点 − 点 = 向量</b>（位移）；</li>
+      <li><b>点 + 向量 = 点</b>（走了一段位移之后到哪里）；</li>
+      <li><b>向量 + 向量 = 向量</b>（位移接位移）；</li>
+      <li><b>点 + 点 = 没有意义</b>：结果会随原点而变。</li>
+    </ul>
+    <p>下面的图里，杯子 \(P\) 和盒子 \(Q\) 固定在桌上，你可以拖动<b>原点 \(O\)</b>（青色），也可以拖动 \(P\)、\(Q\)。网格是以 \(O\) 为原点画的坐标纸，右侧显示 \(P\)、\(Q\) 在这套坐标下的读数。</p>
+  </div>
+  <div data-lang="en">
+    <p>Something has quietly held so far: the origin sat in the middle of the picture. In real systems the origin is a choice: the world frame may start in a corner of the room or at the robot's base. Change the origin and the same cup gets different coordinates. The cup did not move; the ruler did.</p>
+    <p>That gives an important distinction. The coordinates of a <b>point</b> depend on the origin. The <b>displacement</b> \(\mathbf d = Q-P\) from point \(P\) to point \(Q\) does not: when the origin shifts, the coordinates of \(P\) and \(Q\) both lose the same amount, so the difference stays. Four rules follow:</p>
+    <ul>
+      <li><b>point − point = vector</b> (a displacement);</li>
+      <li><b>point + vector = point</b> (where you land after a displacement);</li>
+      <li><b>vector + vector = vector</b> (a displacement followed by a displacement);</li>
+      <li><b>point + point = meaningless</b>: the answer changes with the origin.</li>
+    </ul>
+    <p>In the figure, the cup \(P\) and the box \(Q\) are fixed on the table. Drag the <b>origin \(O\)</b> (cyan), or drag \(P\) and \(Q\). The grid is graph paper drawn from \(O\), and the side panel shows the readings of \(P\) and \(Q\) in that frame.</p>
+  </div>
+
+  <figure class="fig bleed" id="fig-points">
+    <div class="fig-head"><span class="fig-kind">FIG 4</span><span class="fig-title"><span data-lang="zh">挪动原点</span><span data-lang="en">Move the origin</span></span><span class="spacer"></span><span id="pts-seg"></span></div>
+    <div class="fig-body split">
+      <div class="canvas-wrap" id="pts-canvas"></div>
+      <div class="fig-side">
+        <div class="small muted"><span data-lang="zh">在以 O 为原点的坐标系里</span><span data-lang="en">In the frame with origin O</span></div>
+        <div class="katex-live" id="pts-tex1"></div>
+        <div class="small muted"><span data-lang="zh">位移（与原点无关）</span><span data-lang="en">Displacement (independent of the origin)</span></div>
+        <div class="katex-live" id="pts-tex2"></div>
+        <div class="small muted"><span data-lang="zh">"点 + 点"（依赖原点）</span><span data-lang="en">"Point + point" (depends on the origin)</span></div>
+        <div class="katex-live" id="pts-tex3"></div>
+      </div>
+    </div>
+    <figcaption class="fig-cap">
+      <span data-lang="zh">虚线是 \(P\)、\(Q\) 的<b>位置向量</b>（从 \(O\) 出发的箭头）：挪动 \(O\)，它们跟着变。琥珀色的 \(\mathbf d=Q-P\) 纹丝不动。红色圆环是把两个读数相加得到的"\(P+Q\)"，它会随 \(O\) 乱跑。</span>
+      <span data-lang="en">The dashed arrows are the <b>position vectors</b> of \(P\) and \(Q\) (arrows from \(O\)): they change when \(O\) moves. The amber \(\mathbf d=Q-P\) never budges. The red ring is the "\(P+Q\)" obtained by adding the two readings, and it runs around with \(O\).</span>
+    </figcaption>
+  </figure>
+  <ul class="tasks">
+    <li data-task="atP"><span><span data-lang="zh">把原点 \(O\) 拖到杯子 \(P\) 上，使 \(P\) 读作 \((0,0)\)。这时 \(Q\) 的读数等于什么？</span><span data-lang="en">Drag the origin \(O\) onto the cup \(P\) so that \(P\) reads \((0,0)\). What does \(Q\) read now?</span></span></li>
+    <li data-task="mid"><span><span data-lang="zh">找一个原点，使"\(P+Q\)"读作 \((0,0)\)。它在 \(P\) 和 \(Q\) 的什么位置？</span><span data-lang="en">Find an origin for which "\(P+Q\)" reads \((0,0)\). Where does it sit relative to \(P\) and \(Q\)?</span></span></li>
+  </ul>
+  <div class="callout key">
+    <div class="ct"><span data-lang="zh">核心洞见</span><span data-lang="en">Key insight</span></div>
+    <p data-lang="zh">机器人里的"点"（杯子位置、关节位置）和"向量"（位移、速度、力）是两类不同的东西，但它们都用数字来写，很容易混。凡是涉及<b>位置</b>，就要问一句："相对哪个原点、哪个坐标系？"这个问题在 5.1 节会变成整套机器人位姿理论的出发点。</p>
+    <p data-lang="en">In robotics, "points" (the cup's position, a joint's position) and "vectors" (displacements, velocities, forces) are two different kinds of thing, yet both are written with numbers, so they are easy to confuse. Whenever a <b>position</b> is involved, ask: "relative to which origin, in which frame?" In Lesson 5.1 this question becomes the starting point of the whole theory of robot poses.</p>
+  </div>
+</section>
+
+<!-- ============ 5. MANY COMPONENTS ============ -->
+<section class="step" id="many">
+  <h2><span class="n">5</span><span data-lang="zh">第三个视角：很多个分量</span><span data-lang="en">Third view: many components</span></h2>
+  <div data-lang="zh">
+    <p>到现在为止，向量只有两三个分量，因为我们能把它画出来。可机器人常常要处理分量很多的向量。一个六轴机械臂的<b>构型</b> (configuration)，也就是每个关节转了多少，是 6 个角度 \(\mathbf q=(q_1,\dots,q_6)\)：一个 \(\R^6\) 中的向量。</p>
+    <p>六维的箭头画不出来，但向量的本质从来不是"箭头"，而是"能相加、能数乘的一串数"。加法、数乘、长度，全都逐分量地照做，和二维时一模一样。</p>
+    <p>下图用一个平面三连杆臂代替六轴臂，它的构型是 \(\mathbf q\in\R^3\)。左边是臂，右边是 \(\mathbf q\) 的三个分量，画成三根柱子。拖动臂的关节或柱子的顶端，另一边会跟着变。再试试预设按钮，看看对 \(\mathbf q\) 做加法和数乘，臂会怎么动。</p>
+  </div>
+  <div data-lang="en">
+    <p>So far our vectors had two or three components because we could draw them. Robots often handle vectors with many components. The <b>configuration</b> of a six-axis arm, meaning how far each joint has turned, is 6 angles \(\mathbf q=(q_1,\dots,q_6)\): a vector in \(\R^6\).</p>
+    <p>We cannot draw a six-dimensional arrow, but the essence of a vector was never "an arrow". It is "a list of numbers that can be added and scaled". Addition, scaling and length all work component by component, exactly as in two dimensions.</p>
+    <p>The figure below swaps the six-axis arm for a planar three-link arm, whose configuration is \(\mathbf q\in\R^3\). On the left is the arm; on the right are the three components of \(\mathbf q\), drawn as bars. Drag a joint of the arm or the top of a bar and the other side follows. Then try the preset buttons to see what adding and scaling \(\mathbf q\) does to the arm.</p>
+  </div>
+
+  <figure class="fig bleed" id="fig-arm">
+    <div class="fig-head"><span class="fig-kind">FIG 5</span><span class="fig-title"><span data-lang="zh">关节角向量 q ∈ ℝ³</span><span data-lang="en">Joint-angle vector q ∈ ℝ³</span></span><span class="spacer"></span><span class="presets" id="arm-presets"></span></div>
+    <div class="fig-body two">
+      <div class="canvas-wrap" id="arm-canvas"><span class="overlay-label"><span data-lang="zh">机械臂</span><span data-lang="en">the arm</span></span></div>
+      <div class="canvas-wrap" id="bars-canvas"><span class="overlay-label"><span data-lang="zh">q 的三个分量</span><span data-lang="en">the 3 components of q</span></span></div>
+    </div>
+    <div class="fig-body" style="border-top:1px solid var(--border)">
+      <div class="fig-side" style="border:0">
+        <div class="katex-live" id="arm-tex"></div>
+        <div class="readout" id="arm-read"></div>
+      </div>
+    </div>
+    <figcaption class="fig-cap">
+      <span data-lang="zh">颜色对应：\(\ci{q_1}\) 是红色的第一节，\(\cj{q_2}\) 是绿色的第二节，\(\ck{q_3}\) 是蓝色的第三节。每个关节角都是相对前一节量的。紫色虚线圆环是目标。预设里的 A 和 B 是两个固定构型。</span>
+      <span data-lang="en">Color key: \(\ci{q_1}\) is the red first link, \(\cj{q_2}\) the green second, \(\ck{q_3}\) the blue third. Each joint angle is measured relative to the previous link. The dashed purple ring is the target. In the presets, A and B are two fixed configurations.</span>
+    </figcaption>
+  </figure>
+  <ul class="tasks">
+    <li data-task="reach"><span><span data-lang="zh">让手（末端）碰到紫色目标环。</span><span data-lang="en">Bring the hand (the tip) onto the purple target ring.</span></span></li>
+    <li data-task="armsum"><span><span data-lang="zh">点 <b>A + B</b>：逐分量相加之后，对比读数里"手(A) + 手(B)"和"手(A + B)"。</span><span data-lang="en">Press <b>A + B</b>: after the component-wise sum, compare "hand(A) + hand(B)" with "hand(A + B)" in the readout.</span></span></li>
+  </ul>
+  <div class="callout view">
+    <div class="ct"><span data-lang="zh">另一种看法：关节空间里的加法 vs 手的位置</span><span data-lang="en">Another way to see it: sums in joint space vs. the hand's position</span></div>
+    <p data-lang="zh">\(\mathbf q\) 本身是向量，所以 \(\mathbf A+\mathbf B\) 完全合法，它就是"逐个关节把两个角度加起来"。但手的位置不是 \(\mathbf q\) 的线性函数：手(A + B) 一般不等于手(A) + 手(B)。从关节角到手的位置那条映射是弯的，把它在一点附近拉直成矩阵，就是雅可比（3.3 节）。另外，角度每 360° 绕一圈，严格地说构型空间是环面而不是平坦的 \(\R^n\)。这里先忽略，Lynch &amp; Park 第 2 章有完整的讲法。</p>
+    <p data-lang="en">\(\mathbf q\) is a vector, so \(\mathbf A+\mathbf B\) is perfectly legal: it adds the two angles joint by joint. But the hand's position is not a linear function of \(\mathbf q\): hand(A + B) is generally not hand(A) + hand(B). The map from joint angles to hand position is curved, and straightening it into a matrix near one point gives the Jacobian (Lesson 3.3). Also, angles wrap around every 360°, so strictly speaking the configuration space is a torus, not a flat \(\R^n\). We ignore that here; Lynch &amp; Park Ch. 2 tells the full story.</p>
+  </div>
+</section>
+
+<!-- ============ 6. MATH ============ -->
+<section class="step" id="math">
+  <h2><span class="n">6</span><span data-lang="zh">再看数学</span><span data-lang="en">The math</span></h2>
+  <p class="hl-hint"><span data-lang="zh">提示：把鼠标悬停在公式中带底色的符号上，FIG 2 或 FIG 6 里对应的箭头会被加粗。</span><span data-lang="en">Tip: hover the highlighted symbols in the formulas; the matching arrow in FIG 2 or FIG 6 gets thicker.</span></p>
+
+  <h3><span data-lang="zh">记号</span><span data-lang="en">Notation</span></h3>
+  <p data-lang="zh">\(\R^n\) 是所有"n 个实数排成一列"的集合：\(\R^2\) 是平面，\(\R^3\) 是空间。本课程里向量一律写成<b>列向量</b>：</p>
+  <p data-lang="en">\(\R^n\) is the set of all "n real numbers stacked in a column": \(\R^2\) is the plane and \(\R^3\) is space. In this course vectors are always <b>column vectors</b>:</p>
+  <div class="math-card">$$ \mathbf v = \begin{bmatrix} v_1 \\ v_2 \\ \vdots \\ v_n \end{bmatrix} \in \R^n, \qquad \mathbf v\T = \begin{bmatrix} v_1 & v_2 & \cdots & v_n \end{bmatrix}. $$</div>
+  <p data-lang="zh">\(\mathbf v\T\)（转置）是同一串数写成一行。为什么需要它，1.7 节会讲。</p>
+  <p data-lang="en">\(\mathbf v\T\) (the transpose) is the same list written as a row. Why we need it comes in Lesson 1.7.</p>
+
+  <h3><span data-lang="zh">加法、减法与数乘</span><span data-lang="en">Addition, subtraction and scaling</span></h3>
+  <p data-lang="zh">三种运算都是<b>逐分量</b>的：</p>
+  <p data-lang="en">All three operations act <b>component by component</b>:</p>
+  <div class="math-card">
+  $$ \begin{aligned}
+  \hl{sum}{\mathbf a + \mathbf b} &= \begin{bmatrix} \cv{a_1} + \cw{b_1} \\ \cv{a_2} + \cw{b_2} \end{bmatrix}, &
+  \hl{diff}{\mathbf a - \mathbf b} &= \begin{bmatrix} \cv{a_1} - \cw{b_1} \\ \cv{a_2} - \cw{b_2} \end{bmatrix}, &
+  \hl{s}{s\,\mathbf a} &= \begin{bmatrix} s\,\cv{a_1} \\ s\,\cv{a_2} \end{bmatrix}.
+  \end{aligned} $$
+  </div>
+  <p data-lang="zh">几何上：加法是"首尾相接"，数乘是"沿原方向缩放（\(s<0\) 时掉头）"，减法是 \(\mathbf a + (-1)\,\mathbf b\)，也就是从 \(\mathbf b\) 的尖指向 \(\mathbf a\) 的尖。所有分量都是 0 的向量叫<b>零向量</b> \(\mathbf 0\)。</p>
+  <p data-lang="en">Geometrically: addition is "tip to tail", scaling stretches along the original direction (and turns around when \(s<0\)), and subtraction is \(\mathbf a + (-1)\,\mathbf b\), the arrow from the tip of \(\mathbf b\) to the tip of \(\mathbf a\). The vector whose components are all 0 is the <b>zero vector</b> \(\mathbf 0\).</p>
+
+  <h3><span data-lang="zh">运算法则</span><span data-lang="en">The rules</span></h3>
+  <p data-lang="zh">对任意向量 \(\mathbf a,\mathbf b,\mathbf c\) 和数 \(s,t\)：</p>
+  <p data-lang="en">For any vectors \(\mathbf a,\mathbf b,\mathbf c\) and numbers \(s,t\):</p>
+  <div class="math-card">
+  $$ \begin{array}{ll}
+  \mathbf a+\mathbf b=\mathbf b+\mathbf a & \text{(commutative)}\\
+  (\mathbf a+\mathbf b)+\mathbf c=\mathbf a+(\mathbf b+\mathbf c) & \text{(associative)}\\
+  \mathbf a+\mathbf 0=\mathbf a,\quad \mathbf a+(-\mathbf a)=\mathbf 0 & \\
+  s(\mathbf a+\mathbf b)=s\mathbf a+s\mathbf b,\quad (s+t)\mathbf a=s\mathbf a+t\mathbf a & \text{(distributive)}\\
+  (st)\,\mathbf a=s(t\,\mathbf a),\quad 1\,\mathbf a=\mathbf a &
+  \end{array} $$
+  </div>
+  <p data-lang="zh">每一条都可以逐分量验证，因为它们对普通的数成立。交换律的几何含义就是 FIG 2 里的平行四边形：两条路到同一点。结合律说的是：多段位移首尾相接，先把哪两段并起来都一样。这就是第 7 节里里程计可以"一步步累加"的原因。</p>
+  <p data-lang="en">Each rule can be checked component by component, because it holds for ordinary numbers. The geometric content of commutativity is the parallelogram in FIG 2: two routes, one destination. Associativity says that when several displacements are chained, it does not matter which two you merge first. That is why odometry in Section 7 can simply accumulate step by step.</p>
+
+  <h3><span data-lang="zh">长度（范数）</span><span data-lang="en">Length (the norm)</span></h3>
+  <p data-lang="zh">二维向量 \(\mathbf v=(x,y)\) 的长度，是以 \(x\) 和 \(y\) 为两条直角边的直角三角形的斜边，由勾股定理：</p>
+  <p data-lang="en">The length of a 2D vector \(\mathbf v=(x,y)\) is the hypotenuse of the right triangle whose legs are \(x\) and \(y\). By Pythagoras:</p>
+  <div class="math-card">$$ |\hl{norm}{\cv{\mathbf v}}| = \sqrt{\hl{nx}{\ci{x^2}} + \hl{ny}{\cj{y^2}}}. $$</div>
+
+  <figure class="fig" id="fig-norm">
+    <div class="fig-head"><span class="fig-kind">FIG 6</span><span class="fig-title"><span data-lang="zh">长度与单位向量</span><span data-lang="en">Length and the unit vector</span></span><span class="spacer"></span></div>
+    <div class="fig-body split">
+      <div class="canvas-wrap" id="norm-canvas"></div>
+      <div class="fig-side">
+        <div class="katex-live" id="norm-tex1"></div>
+        <div class="katex-live" id="norm-tex2"></div>
+        <div class="katex-live" id="norm-tex3"></div>
+        <div class="readout" id="norm-read"></div>
+      </div>
+    </div>
+    <figcaption class="fig-cap">
+      <span data-lang="zh">拖动琥珀色的 \(\mathbf v\)：接近整数格点或单位圆（青色虚线）时它会吸附。红、绿两条边是 \(x\)、\(y\) 分量；青色的 \(\hat{\mathbf u}\) 是和 \(\mathbf v\) 同方向、长度为 1 的向量。注意"两条边的长度之和"总是不小于斜边。</span>
+      <span data-lang="en">Drag the amber \(\mathbf v\): it snaps near integer lattice points and onto the unit circle (cyan, dashed). The red and green legs are the \(x\) and \(y\) components; the cyan \(\hat{\mathbf u}\) points the same way as \(\mathbf v\) with length 1. Notice that "sum of the two leg lengths" is never less than the hypotenuse.</span>
+    </figcaption>
+  </figure>
+  <ul class="tasks">
+    <li data-task="pyth"><span><span data-lang="zh">找一个<b>整数分量</b>、长度恰为 5 的向量，而且不在坐标轴上。</span><span data-lang="en">Find a vector with <b>integer components</b> and length exactly 5 that is not on an axis.</span></span></li>
+    <li data-task="unit"><span><span data-lang="zh">让 \(\mathbf v\) 成为<b>单位向量</b>，且不沿坐标轴方向。</span><span data-lang="en">Make \(\mathbf v\) a <b>unit vector</b> that does not lie along an axis.</span></span></li>
+  </ul>
+
+  <p data-lang="zh">三维时把勾股定理用<b>两次</b>：先在水平面里得到斜边 \(d=\sqrt{x^2+y^2}\)，再把 \(d\) 和竖直分量 \(z\) 当作两条直角边：\(|\mathbf v|=\sqrt{d^2+z^2}\)。例如 \(\mathbf v=(2,3,6)\)：\(d^2=2^2+3^2=13\)，\(|\mathbf v|=\sqrt{13+36}=\sqrt{49}=7\)。同理对任意维数，分量的平方和再开方：</p>
+  <p data-lang="en">In 3D, use Pythagoras <b>twice</b>: first get the hypotenuse in the horizontal plane, \(d=\sqrt{x^2+y^2}\), then treat \(d\) and the vertical component \(z\) as the two legs: \(|\mathbf v|=\sqrt{d^2+z^2}\). For \(\mathbf v=(2,3,6)\): \(d^2=2^2+3^2=13\) and \(|\mathbf v|=\sqrt{13+36}=\sqrt{49}=7\). In any dimension the rule is the same: square the components, add, take the root:</p>
+  <div class="math-card">$$ |\mathbf v| = \sqrt{v_1^2 + v_2^2 + \cdots + v_n^2}, \qquad |s\,\mathbf v| = |s|\,|\mathbf v|, \qquad |\mathbf a + \mathbf b| \le |\mathbf a| + |\mathbf b|. $$</div>
+  <p data-lang="zh">最右边是<b>三角不等式</b>：走两段位移，总位移不会比两段长度之和更长。只有当 \(\mathbf a\)、\(\mathbf b\) 同向（或其中一个为零）时才取等号。这正是 FIG 2 里第二个任务的答案。两点 \(P\)、\(Q\) 之间的<b>距离</b>就是位移的长度 \(|Q-P|\)。</p>
+  <p data-lang="en">The rightmost rule is the <b>triangle inequality</b>: two displacements in a row never carry you farther than the sum of their lengths. Equality holds only when \(\mathbf a\) and \(\mathbf b\) point the same way (or one is zero). That is the answer to the second task in FIG 2. The <b>distance</b> between points \(P\) and \(Q\) is the length of the displacement, \(|Q-P|\).</p>
+
+  <h3><span data-lang="zh">单位向量</span><span data-lang="en">Unit vectors</span></h3>
+  <p data-lang="zh">把非零向量除以自己的长度，就得到只保留方向的<b>单位向量</b> (unit vector)。反过来，任何向量都是"长度 × 方向"：</p>
+  <p data-lang="en">Divide a nonzero vector by its own length and you keep only the direction: a <b>unit vector</b>. Conversely, every vector is "length × direction":</p>
+  <div class="math-card">$$ \hl{unit}{\hat{\mathbf u}} = \frac{\cv{\mathbf v}}{|\cv{\mathbf v}|}, \qquad |\hat{\mathbf u}|=1, \qquad \cv{\mathbf v} = |\cv{\mathbf v}|\,\hat{\mathbf u}. $$</div>
+  <p data-lang="zh">零向量没有方向，所以 \(\hat{\mathbf u}\) 对 \(\mathbf v=\mathbf 0\) 无定义，代码里要先判断长度不为 0。</p>
+  <p data-lang="en">The zero vector has no direction, so \(\hat{\mathbf u}\) is undefined for \(\mathbf v=\mathbf 0\); in code, check that the length is nonzero first.</p>
+
+  <div class="callout view">
+    <div class="ct"><span data-lang="zh">点与向量的运算，用符号写一遍</span><span data-lang="en">Points and vectors, written in symbols</span></div>
+    <p data-lang="zh">第 4 节的四条规则：\(Q-P=\mathbf d\)（向量），\(P+\mathbf d=Q\)（点），\(\mathbf d_1+\mathbf d_2\)（向量），\(P+Q\)（无意义）。有一种"点加点"是允许的：权重加起来等于 1 的组合，例如中点 \(\tfrac12(P+Q)=P+\tfrac12(Q-P)\)。它其实是"从 \(P\) 出发走一半位移"，所以不依赖原点。</p>
+    <p data-lang="en">The four rules of Section 4: \(Q-P=\mathbf d\) (a vector), \(P+\mathbf d=Q\) (a point), \(\mathbf d_1+\mathbf d_2\) (a vector), \(P+Q\) (meaningless). One kind of "point plus point" is allowed: a combination whose weights add up to 1, such as the midpoint \(\tfrac12(P+Q)=P+\tfrac12(Q-P)\). It is really "start at \(P\) and walk half the displacement", so it does not depend on the origin.</p>
+  </div>
+</section>
+
+<!-- ============ 7. ROBOTICS ============ -->
+<section class="step" id="robotics">
+  <h2><span class="n">7</span><span data-lang="zh">机器人中的它：里程计与航位推算</span><span data-lang="en">In robotics: odometry and dead reckoning</span></h2>
+  <div data-lang="zh">
+    <p>一个移动机器人不知道自己在哪，但每一步都能估计"这一步走了多少"（轮子编码器的计数、IMU 的积分）。每一步是一个位移向量 \(\mathbf s_i\)。把它们首尾相接，<b>总位移就是向量之和</b>；机器人现在的位置是"起点 + 总位移"，正是第 4 节的"点 + 向量 = 点"：</p>
+  </div>
+  <div data-lang="en">
+    <p>A mobile robot does not know where it is, but at every step it can estimate how far it just moved (from wheel-encoder counts or integrated IMU data). Each step is a displacement vector \(\mathbf s_i\). Chain them tip to tail and <b>the total displacement is the vector sum</b>. The robot's current position is "start + total displacement", exactly the "point + vector = point" rule of Section 4:</p>
+  </div>
+  <div class="math-card">$$ \mathbf p_N = \mathbf p_0 + \sum_{i=1}^{N} \cv{\mathbf s_i}. $$</div>
+  <p data-lang="zh">这种只靠累加位移来估计位置的方法叫<b>航位推算</b> (dead reckoning)。琥珀色是真实的路径，紫色虚线是带噪声的估计：每一步的估计 = 真值 + 一点随机误差。拖动任意一个节点，改变那一步的位移（后面的节点会整体平移）；用滑块加噪声，看终点的误差怎么积累。</p>
+  <p data-lang="en">Estimating position purely by accumulating displacements is called <b>dead reckoning</b>. The amber path is the truth; the dashed purple path is the noisy estimate: each estimated step is the true step plus a little random error. Drag any node to change that one step (the later nodes shift along with it), and use the slider to add noise and watch the end-point error build up.</p>
+
+  <figure class="fig bleed" id="fig-dr">
+    <div class="fig-head"><span class="fig-kind">FIG 7</span><span class="fig-title"><span data-lang="zh">步子连成路径</span><span data-lang="en">Steps chained into a path</span></span><span class="spacer"></span></div>
+    <div class="fig-body split">
+      <div class="canvas-wrap" id="dr-canvas"></div>
+      <div class="fig-side">
+        <div class="katex-live" id="dr-tex"></div>
+        <div class="readout" id="dr-read"></div>
+      </div>
+    </div>
+    <div class="fig-controls" id="dr-controls"></div>
+    <figcaption class="fig-cap">
+      <span data-lang="zh">白色虚线是总位移 \(\sum\mathbf s_i\)，它连接起点和真实终点，与中间怎么走无关。红色箭头是估计终点相对真实终点的误差，它等于各步噪声之和。</span>
+      <span data-lang="en">The white dashed arrow is the total displacement \(\sum\mathbf s_i\): it joins the start to the true end and does not care how the path wandered in between. The red arrow is the estimated end relative to the true end; it equals the sum of the per-step noises.</span>
+    </figcaption>
+  </figure>
+  <ul class="tasks">
+    <li data-task="loop"><span><span data-lang="zh">拖动节点，让路径<b>回到起点</b>（总位移为零）。路径的总长度还能很长吗？</span><span data-lang="en">Drag the nodes so the path <b>returns to its start</b> (zero total displacement). Can the path still be long?</span></span></li>
+    <li data-task="drift"><span><span data-lang="zh">加大噪声，让终点误差<b>超过 1 m</b>。</span><span data-lang="en">Raise the noise until the end-point error <b>exceeds 1 m</b>.</span></span></li>
+  </ul>
+
+  <div class="callout robot">
+    <div class="ct"><span data-lang="zh">真实系统里</span><span data-lang="en">In real systems</span></div>
+    <p data-lang="zh">轮式里程计给出的步长是在机器人<b>自己的坐标系</b>里量的（"向前 0.3 米"），累加之前要先用旋转矩阵换到世界坐标系（1.10 节、5.1 节），本图为了专注向量加法，假设步长已经在世界系里。误差会随步数越积越大，所以实际系统总要用 GPS、激光匹配或卡尔曼滤波（4.8 节）不断校正。</p>
+    <p data-lang="en">Wheel odometry reports steps in the robot's <b>own frame</b> ("0.3 m forward"). Before accumulating they must be rotated into the world frame (Lessons 1.10 and 5.1); this figure assumes the steps are already in world coordinates so we can focus on vector addition. The error grows with every step, so real systems keep correcting it with GPS, lidar matching or a Kalman filter (Lesson 4.8).</p>
+  </div>
+  <div data-lang="zh">
+    <p>同一个想法还有一个更小的例子：<b>速度也是向量，可以相加</b>。一条船相对水以 3 m/s 向北开，水流以 1 m/s 向东，那么船相对地面的速度是 \((0,3)+(1,0)=(1,3)\) m/s，速率 \(\sqrt{10}\approx3.16\) m/s，航向偏离正北向东约 18.4°。无人机顶着侧风飞、传送带上的机械臂抓取，都是同样的加法。</p>
+  </div>
+  <div data-lang="en">
+    <p>A smaller example of the same idea: <b>velocities are vectors too, and they add</b>. A boat heads north at 3 m/s relative to the water while the current flows east at 1 m/s. Its velocity over the ground is \((0,3)+(1,0)=(1,3)\) m/s, a speed of \(\sqrt{10}\approx3.16\) m/s, tilted about 18.4° east of north. A drone flying in a crosswind, or an arm grasping from a moving conveyor, uses the same addition.</p>
+  </div>
+</section>
+
+<!-- ============ 8. PITFALLS ============ -->
+<section class="step" id="pitfalls">
+  <h2><span class="n">8</span><span data-lang="zh">常见误区</span><span data-lang="en">Common pitfalls</span></h2>
+  <div class="callout pitfall">
+    <div class="ct"><span data-lang="zh">误区 1：把两个位置相加</span><span data-lang="en">Pitfall 1: adding two positions</span></div>
+    <p data-lang="zh">"杯子在 (2, 1)，盒子在 (4, 3)，两者相加得 (6, 4)"，这个数没有物理含义：换一个原点它就变了（FIG 4）。要加的是<b>位移</b>，要减的才是两个位置。想求"两者的中间"，用 \(\tfrac12(P+Q)\)，因为它的权重之和是 1。</p>
+    <p data-lang="en">"The cup is at (2, 1), the box at (4, 3), so their sum is (6, 4)": that number has no physical meaning, because it changes when the origin changes (FIG 4). Add <b>displacements</b>; subtract positions. For "the point halfway between them" use \(\tfrac12(P+Q)\), whose weights add up to 1.</p>
+  </div>
+  <div class="callout pitfall">
+    <div class="ct"><span data-lang="zh">误区 2：把不同单位的量放进同一个向量再算长度</span><span data-lang="en">Pitfall 2: taking the length of a vector with mixed units</span></div>
+    <p data-lang="zh">机器人位姿常写成 \((x,y,\theta)\)，前两项是米，第三项是弧度。\(\sqrt{x^2+y^2+\theta^2}\) 这个"长度"没有意义：把 \(\theta\) 改用度，数值就完全不同（见小练习第 5 题）。要比较两个位姿的"远近"，必须先决定权重，例如乘上一个特征长度，把角度换成"弧长"。</p>
+    <p data-lang="en">Robot poses are often written \((x,y,\theta)\): the first two in metres, the third in radians. The "length" \(\sqrt{x^2+y^2+\theta^2}\) is meaningless: switch \(\theta\) to degrees and the number is completely different (see quiz question 5). To compare how far apart two poses are, you must first choose weights, for example a characteristic length that turns the angle into an arc length.</p>
+  </div>
+  <div class="callout pitfall">
+    <div class="ct"><span data-lang="zh">误区 3：长度等于分量之和</span><span data-lang="en">Pitfall 3: the length is the sum of the components</span></div>
+    <p data-lang="zh">\(|(3,4)|=5\)，不是 7。"分量之和"（7）是出租车走过的路程：先横着走 3 再竖着走 4。同样，\(|\mathbf a+\mathbf b|\) 一般<b>小于</b> \(|\mathbf a|+|\mathbf b|\)，只有同向时才相等（三角不等式）。</p>
+    <p data-lang="en">\(|(3,4)|=5\), not 7. The "sum of components" (7) is the route of a taxi that drives 3 across and then 4 up. Likewise \(|\mathbf a+\mathbf b|\) is in general <b>smaller</b> than \(|\mathbf a|+|\mathbf b|\), with equality only for the same direction (the triangle inequality).</p>
+  </div>
+  <div class="callout pitfall">
+    <div class="ct"><span data-lang="zh">误区 4：代码里的"行"与"列"</span><span data-lang="en">Pitfall 4: "row" versus "column" in code</span></div>
+    <p data-lang="zh">本课程里向量是列向量，但 NumPy 的一维数组 <code>v = np.array([1.0, 2.0, 3.0])</code> 的形状是 <code>(3,)</code>，既不是行也不是列：对它做 <code>v.T</code> 什么也不会发生。<code>a * b</code> 是逐元素相乘，不是点积（点积用 <code>a @ b</code>，1.7 节）；长度用 <code>np.linalg.norm(v)</code>，不是 <code>sum(v)</code>。需要真正的列向量时写 <code>v.reshape(3, 1)</code>。</p>
+    <p data-lang="en">In this course vectors are columns, but a NumPy 1-D array <code>v = np.array([1.0, 2.0, 3.0])</code> has shape <code>(3,)</code>: neither row nor column, so <code>v.T</code> does nothing. <code>a * b</code> multiplies element by element and is not the dot product (that is <code>a @ b</code>, Lesson 1.7); the length is <code>np.linalg.norm(v)</code>, not <code>sum(v)</code>. When you need a real column, write <code>v.reshape(3, 1)</code>.</p>
+  </div>
+</section>
+
+<!-- ============ 9. QUIZ ============ -->
+<section class="step" id="quiz">
+  <h2><span class="n">9</span><span data-lang="zh">小练习</span><span data-lang="en">Check yourself</span></h2>
+
+  <div class="quiz" data-answer="1">
+    <div class="q"><span data-lang="zh">1. 机器人在坐标系 A 里测得杯子 \(P=(3,1)\)、盒子 \(Q=(7,4)\)。现在把坐标系的原点向右平移 1（物体都没动）。下面哪个量<b>不会</b>改变？</span><span data-lang="en">1. In frame A a robot measures a cup \(P=(3,1)\) and a box \(Q=(7,4)\). Now the frame's origin is shifted 1 unit to the right (the objects did not move). Which quantity does <b>not</b> change?</span></div>
+    <div class="opts">
+      <button class="opt"><span data-lang="zh">杯子的坐标 \(P\)</span><span data-lang="en">The cup's coordinates \(P\)</span></button>
+      <button class="opt"><span data-lang="zh">从杯子到盒子的位移 \(Q-P\)</span><span data-lang="en">The displacement \(Q-P\) from cup to box</span></button>
+      <button class="opt"><span data-lang="zh">两个读数之和 \(P+Q\)</span><span data-lang="en">The sum of the readings \(P+Q\)</span></button>
+      <button class="opt"><span data-lang="zh">盒子到原点的距离 \(|Q|\)</span><span data-lang="en">The box's distance to the origin \(|Q|\)</span></button>
+    </div>
+    <div class="explain"><span data-lang="zh">新读数是 \(P=(2,1)\)、\(Q=(6,4)\)，每个坐标的 x 都减了 1。\(Q-P\) 仍是 \((4,3)\)；\(P+Q\) 从 \((10,5)\) 变成 \((8,5)\)；\(|Q|\) 从 \(\sqrt{65}\approx8.06\) 变成 \(\sqrt{52}\approx7.21\)。位移不依赖原点。</span><span data-lang="en">The new readings are \(P=(2,1)\) and \(Q=(6,4)\): every x lost 1. \(Q-P\) is still \((4,3)\); \(P+Q\) went from \((10,5)\) to \((8,5)\); \(|Q|\) went from \(\sqrt{65}\approx8.06\) to \(\sqrt{52}\approx7.21\). Displacements do not depend on the origin.</span></div>
+  </div>
+
+  <div class="quiz" data-answer="2">
+    <div class="q"><span data-lang="zh">2. 设 \(\mathbf a=(2,-1)\)，\(\mathbf b=(-3,4)\)。\(2\mathbf a-\mathbf b\) 等于？</span><span data-lang="en">2. Let \(\mathbf a=(2,-1)\) and \(\mathbf b=(-3,4)\). What is \(2\mathbf a-\mathbf b\)?</span></div>
+    <div class="opts">
+      <button class="opt">\((1,\,2)\)</button>
+      <button class="opt">\((-8,\,9)\)</button>
+      <button class="opt">\((7,\,-6)\)</button>
+      <button class="opt">\((-1,\,3)\)</button>
+    </div>
+    <div class="explain"><span data-lang="zh">\(2\mathbf a=(4,-2)\)，再减去 \(\mathbf b\)：\((4+3,\,-2-4)=(7,-6)\)。其他选项分别是 \(2\mathbf a+\mathbf b=(1,2)\)、\(2\mathbf b-\mathbf a=(-8,9)\)、\(\mathbf a+\mathbf b=(-1,3)\)，都是符号或系数弄错的结果。</span><span data-lang="en">\(2\mathbf a=(4,-2)\), then subtract \(\mathbf b\): \((4+3,\,-2-4)=(7,-6)\). The other options are \(2\mathbf a+\mathbf b=(1,2)\), \(2\mathbf b-\mathbf a=(-8,9)\) and \(\mathbf a+\mathbf b=(-1,3)\): each comes from a slipped sign or coefficient.</span></div>
+  </div>
+
+  <div class="quiz" data-answer="3">
+    <div class="q"><span data-lang="zh">3. \(\mathbf v=(3,-4)\) 方向上的单位向量是？</span><span data-lang="en">3. What is the unit vector in the direction of \(\mathbf v=(3,-4)\)?</span></div>
+    <div class="opts">
+      <button class="opt">\((3/7,\,-4/7)\)</button>
+      <button class="opt">\((0.8,\,-0.6)\)</button>
+      <button class="opt">\((3/25,\,-4/25)\)</button>
+      <button class="opt">\((0.6,\,-0.8)\)</button>
+    </div>
+    <div class="explain"><span data-lang="zh">\(|\mathbf v|=\sqrt{9+16}=5\)，所以 \(\hat{\mathbf u}=(3/5,-4/5)=(0.6,-0.8)\)。\((3/7,-4/7)\) 是除以了分量之和（长度 \(5/7\ne1\)）；\((3/25,-4/25)\) 是除以了长度的平方（长度 \(1/5\)）；\((0.8,-0.6)\) 长度虽是 1，方向却不对（它更偏向 x 轴）。</span><span data-lang="en">\(|\mathbf v|=\sqrt{9+16}=5\), so \(\hat{\mathbf u}=(3/5,-4/5)=(0.6,-0.8)\). \((3/7,-4/7)\) divides by the sum of components (its length is \(5/7\ne1\)); \((3/25,-4/25)\) divides by the squared length (its length is \(1/5\)); \((0.8,-0.6)\) has length 1 but the wrong direction (it leans more toward the x-axis).</span></div>
+  </div>
+
+  <div class="quiz" data-answer="0">
+    <div class="q"><span data-lang="zh">4. 机器人依次向东走 3 m、向北走 4 m、向西走 3 m。它的总位移是？</span><span data-lang="en">4. A robot drives 3 m east, then 4 m north, then 3 m west. What is its total displacement?</span></div>
+    <div class="opts">
+      <button class="opt"><span data-lang="zh">\((0,4)\)：在起点正北 4 m，尽管一共开了 10 m</span><span data-lang="en">\((0,4)\): 4 m due north of the start, even though it drove 10 m</span></button>
+      <button class="opt"><span data-lang="zh">长度 10 m，因为每一步都要计入</span><span data-lang="en">Length 10 m, because every step counts</span></button>
+      <button class="opt"><span data-lang="zh">\((6,4)\)</span><span data-lang="en">\((6,4)\)</span></button>
+      <button class="opt"><span data-lang="zh">\((0,0)\)：东西方向抵消，回到了起点</span><span data-lang="en">\((0,0)\): east and west cancel, back at the start</span></button>
+    </div>
+    <div class="explain"><span data-lang="zh">\((3,0)+(0,4)+(-3,0)=(0,4)\)，长度 4 m。路程（各步长度之和）是 \(3+4+3=10\) m，位移长度只有 4 m：\(|\sum\mathbf s_i|\le\sum|\mathbf s_i|\)。东西分量抵消了，但南北分量没有。</span><span data-lang="en">\((3,0)+(0,4)+(-3,0)=(0,4)\), of length 4 m. The distance driven (the sum of the step lengths) is \(3+4+3=10\) m, while the displacement is only 4 m long: \(|\sum\mathbf s_i|\le\sum|\mathbf s_i|\). The east-west components cancel; the north-south one does not.</span></div>
+  </div>
+
+  <div class="quiz" data-answer="1">
+    <div class="q"><span data-lang="zh">5. 位姿 \((x,y,\theta)=(3\text{ m},\,4\text{ m},\,0.5\text{ rad})\)。有人算它的"长度" \(\sqrt{3^2+4^2+0.5^2}\approx5.02\)。这个做法如何？</span><span data-lang="en">5. A pose is \((x,y,\theta)=(3\text{ m},\,4\text{ m},\,0.5\text{ rad})\). Someone computes its "length" \(\sqrt{3^2+4^2+0.5^2}\approx5.02\). What do you make of that?</span></div>
+    <div class="opts">
+      <button class="opt"><span data-lang="zh">没问题：向量的长度就是分量平方和再开方</span><span data-lang="en">Fine: a vector's length is the root of the sum of squares</span></button>
+      <button class="opt"><span data-lang="zh">没有意义：把 \(\theta\) 换成度（约 28.6°），"长度"就变成约 29.1</span><span data-lang="en">Meaningless: with \(\theta\) in degrees (about 28.6°) the "length" becomes about 29.1</span></button>
+      <button class="opt"><span data-lang="zh">只要 \(\theta\) 用弧度，这个数就是真实的距离</span><span data-lang="en">As long as \(\theta\) is in radians, the number is a true distance</span></button>
+    </div>
+    <div class="explain"><span data-lang="zh">公式本身没错，问题在于米和弧度不是同一种量，加起来的结果取决于你选了什么单位：用度时 \(\sqrt{9+16+28.65^2}\approx29.08\)。"弧度"只是碰巧让数值看起来合理。要衡量位姿之间的差距，需要显式地加权，例如 \(\sqrt{x^2+y^2+(\ell\theta)^2}\)，其中 \(\ell\) 是一个以米为单位的特征长度（比如机器人半径）。</span><span data-lang="en">The formula is fine; the problem is that metres and radians are different kinds of quantity, so the sum depends on the units you pick: in degrees it is \(\sqrt{9+16+28.65^2}\approx29.08\). Radians only happen to give a number that looks reasonable. To measure how far apart poses are, weight explicitly, for instance \(\sqrt{x^2+y^2+(\ell\theta)^2}\) with a characteristic length \(\ell\) in metres (say the robot's radius).</span></div>
+  </div>
+</section>
+
+<!-- ============ 10. READING ============ -->
+<section class="step" id="reading">
+  <h2><span class="n">10</span><span data-lang="zh">延伸阅读</span><span data-lang="en">Further reading</span></h2>
+  <ul class="reading">
+    <li>3Blue1Brown, <a href="https://www.3blue1brown.com/topics/linear-algebra" target="_blank" rel="noopener"><i>Essence of Linear Algebra</i></a> — <span data-lang="zh">第 1 章"向量究竟是什么？"（箭头、数字、抽象三种看法）</span><span data-lang="en">Ch. 1 "Vectors, what even are they?" (the arrow, number-list and abstract views)</span></li>
+    <li>G. Strang, <i>Introduction to Linear Algebra</i>, Ch. 1 — <span data-lang="zh">向量入门：线性组合与长度</span><span data-lang="en">Introduction to vectors: linear combinations and lengths</span></li>
+    <li>K. Lynch &amp; F. Park, <a href="https://hades.mech.northwestern.edu/index.php/Modern_Robotics" target="_blank" rel="noopener"><i>Modern Robotics</i></a>, Ch. 2 — <span data-lang="zh">构型空间：为什么机器人的状态是 \(\R^n\) 中的一个点（以及它什么时候不是平坦的）</span><span data-lang="en">Configuration space: why a robot's state is a point in \(\R^n\) (and when that space is not flat)</span></li>
+    <li>J. Ström et al., <a href="http://immersivemath.com/ila/" target="_blank" rel="noopener"><i>Immersive Linear Algebra</i></a>, Ch. 2 — <span data-lang="zh">带交互插图的向量一章</span><span data-lang="en">The interactive chapter on vectors</span></li>
+  </ul>
+</section>
+
+</article>
+</main>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/katex@0.16.22/dist/katex.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/katex@0.16.22/dist/contrib/auto-render.min.js"></script>
+<script src="../assets/syllabus.js"></script>
+<script src="../assets/math.js"></script>
+<script src="../assets/course.js"></script>
+<script src="../assets/viz2d.js"></script>
+<script>
+R101.onReady(function () {
+  const { M, ui, L } = R101;
+  // trimmed number for LaTeX: 3 -> "3", 1.50 -> "1.5", -0 -> "0"
+  const nf = (x, d = 1) => {
+    let s = (+x).toFixed(d);
+    if (s.indexOf('.') >= 0) s = s.replace(/0+$/, '').replace(/\.$/, '');
+    if (s === '-0') s = '0';
+    return s;
+  };
+  const vt = (v, d = 1) => '\\begin{bmatrix}' + v.map(x => nf(x, d)).join(' \\\\ ') + '\\end{bmatrix}';
+  const clampv = (v, r) => v.map(x => Math.max(-r, Math.min(r, x)));
+  const fm = (x, d = 2) => M.fmt(x, d);
+  const cross2 = (a, b) => a[0] * b[1] - a[1] * b[0];
+
+  /* ---------------- FIG 1: three faces ---------------- */
+  (function () {
+    let v = [3, 2], t = [-3.5, -2];
+    const t0 = t.slice();
+    const info = document.getElementById('faces-info'), texEl = document.getElementById('faces-tex');
+    const P = new R101.Plane2D('#faces-canvas', { height: 400, view: { span: 11.5 }, draw, onChange: sync });
+    function clampT(p) {
+      return [0, 1].map(i => {
+        const lo = Math.max(-5.5, -5.5 - v[i]), hi = Math.min(5.5, 5.5 - v[i]);
+        return Math.max(lo, Math.min(hi, p[i]));
+      });
+    }
+    function draw(P) {
+      P.grid({ color: 'grid', axisColor: 'grid-2' });
+      const tip = M.add(t, v);
+      // components
+      P.line([0, 0], [v[0], 0], { color: 'i', width: 2.5, dash: [6, 5], alpha: 0.85 });
+      P.line([v[0], 0], v, { color: 'j', width: 2.5, dash: [6, 5], alpha: 0.85 });
+      // slid copy
+      P.arrow(t, tip, { color: 'v', width: 3, dash: [7, 5], alpha: 0.6, head: 10, label: R101.t('副本', 'copy'), labelColor: 'text-2', labelOffset: [8, 14] });
+      P.point(t, { color: 'x', r: 4 });
+      // the arrow from the origin, and the point it lands on
+      P.arrow([0, 0], v, { color: 'v', width: 4, label: 'v' });
+      P.point(v, { color: 'v', r: 5, stroke: 'canvas' });
+      P.text('(' + nf(v[0]) + ', ' + nf(v[1]) + ')', v, { offset: [12, 16], color: 'text-2', size: 13 });
+      P.point([0, 0], { color: 'axis', r: 3.5 });
+    }
+    P.handle({ pos: () => v, color: 'v', snap: 0.5, set: p => { v = clampv(p, 5); t = clampT(t); } });
+    P.handle({ pos: () => t, color: 'x', snap: 0.5, set: p => { t = clampT(p); } });
+    function render() {
+      const len = M.norm(v), ang = Math.atan2(v[1], v[0]) * 180 / Math.PI, tip = M.add(t, v);
+      const row = (h, b) => `<div style="margin-bottom:8px"><div class="small muted">${h}</div><div>${b}</div></div>`;
+      info.innerHTML =
+        row(L('箭头', 'Arrow'), L(`长度 <b>${fm(len)}</b>，方向 <b>${fm(ang, 1)}°</b>`, `length <b>${fm(len)}</b>, direction <b>${fm(ang, 1)}°</b>`)) +
+        row(L('点（尖端的位置）', 'Point (where the tip lands)'), `(${fm(v[0], 1)}, ${fm(v[1], 1)})`) +
+        row(L('数字（分量）', 'Numbers (components)'), L('见下方公式', 'see the formula below'));
+      R101.tex(texEl, `\\begin{aligned} \\cv{\\mathbf v} &= ${vt(v)} \\\\[4pt] \\underbrace{${vt(tip)}}_{\\text{${R101.t('副本的尖', 'copy tip')}}} - \\underbrace{${vt(t)}}_{\\text{${R101.t('副本的尾', 'copy tail')}}} &= \\cv{${vt(v)}} \\end{aligned}`);
+    }
+    function sync() {
+      render();
+      if (Math.hypot(t[0] - t0[0], t[1] - t0[1]) >= 1.5) R101.done('slide');
+      if (v[0] === -2 && v[1] === 3) R101.done('setv');
+      P.invalidate();
+    }
+    R101.on('lang', render);
+    sync();
+  })();
+
+  /* ---------------- FIG 2: vector lab ---------------- */
+  (function () {
+    let a = [3, 1], b = [1, 2], s = 1.5, mode = 'sum';
+    const P = new R101.Plane2D('#lab-canvas', { height: 450, view: { span: 13 }, draw, onChange: sync });
+    function draw(P) {
+      const hl = R101.hl;
+      P.grid({ color: 'grid', axisColor: 'grid-2' });
+      const sum = M.add(a, b), dif = M.sub(a, b), sa = M.scale(a, s);
+      if (mode === 'sum' || hl === 'sum') {
+        P.poly([[0, 0], a, sum, b], { fill: 'x', fillAlpha: 0.1 });
+        P.arrow(a, sum, { color: 'w', width: 2.2, dash: [6, 5], alpha: 0.75, head: 9 });
+        P.arrow(b, sum, { color: 'v', width: 2.2, dash: [6, 5], alpha: 0.75, head: 9 });
+        P.arrow([0, 0], sum, { color: 'text', width: hl === 'sum' ? 6.5 : 4, label: 'a + b' });
+      }
+      if (mode === 'diff' || hl === 'diff') {
+        P.arrow([0, 0], dif, { color: 'text', width: 2.4, dash: [6, 5], alpha: 0.55, head: 9 });
+        P.arrow(b, a, { color: 'text', width: hl === 'diff' ? 6.5 : 4, label: 'a − b', labelOffset: [10, 18] });
+      }
+      if (mode === 'scale' || hl === 's') {
+        const u = M.normalize(a);
+        if (M.norm(a) > 0.01) P.line(M.scale(u, -12), M.scale(u, 12), { color: 'x', dash: [2, 6], alpha: 0.5, width: 1.5 });
+        P.arrow([0, 0], sa, { color: 'x', width: hl === 's' ? 6.5 : 4, label: 's·a', labelOffset: [10, 18] });
+      }
+      const faint = mode === 'scale' && hl !== 'b' && hl !== 'sum' && hl !== 'diff';
+      P.arrow([0, 0], b, { color: 'w', width: hl === 'b' ? 6.5 : 4, alpha: faint ? 0.4 : 1, label: 'b' });
+      P.arrow([0, 0], a, { color: 'v', width: hl === 'a' ? 6.5 : 4, label: 'a' });
+      P.point([0, 0], { color: 'axis', r: 3.5 });
+    }
+    P.handle({ pos: () => a, color: 'v', snap: 0.5, set: p => { a = clampv(p, 3); } });
+    P.handle({ pos: () => b, color: 'w', snap: 0.5, set: p => { b = clampv(p, 3); } });
+    const texEl = document.getElementById('lab-tex'), readEl = document.getElementById('lab-read');
+    const seg = ui.seg(document.getElementById('lab-seg'), [
+      { value: 'sum', zh: 'a + b', en: 'a + b' }, { value: 'diff', zh: 'a − b', en: 'a − b' }, { value: 'scale', zh: 's · a', en: 's · a' }
+    ], mode, v => { mode = v; sync(); });
+    const sl = ui.slider(document.getElementById('lab-controls'), { zh: '倍数 s（数乘档使用）', en: 'scale s (for the s·a switch)', min: -2, max: 2, step: 0.1, value: s, fmt: v => M.fmt(v, 1), onInput: v => { s = Math.round(v * 10) / 10; if (mode !== 'scale') { mode = 'scale'; seg.set('scale'); } sync(); } });
+    const ph = document.getElementById('lab-presets');
+    ui.button(ph, { zh: '重置', en: 'Reset', cls: 'sm', onClick: () => { a = [3, 1]; b = [1, 2]; s = 1.5; sl.set(s); sync(); } });
+    ui.button(ph, { zh: '随机', en: 'Random', cls: 'sm', onClick: () => {
+      const r = () => Math.round((Math.random() * 6 - 3) * 2) / 2;
+      do { a = [r(), r()]; b = [r(), r()]; } while (M.norm(a) < 1 || M.norm(b) < 1);
+      sync();
+    } });
+    function render() {
+      const sum = M.add(a, b), dif = M.sub(a, b), sa = M.scale(a, s);
+      const A = `\\cv{${vt(a)}}`, B = `\\cw{${vt(b)}}`;
+      let src;
+      if (mode === 'sum') src = `\\cv{\\mathbf a} + \\cw{\\mathbf b} = ${A} + ${B} = ${vt(sum)}`;
+      else if (mode === 'diff') src = `\\cv{\\mathbf a} - \\cw{\\mathbf b} = ${A} - ${B} = ${vt(dif)}`;
+      else src = `s\\,\\cv{\\mathbf a} = ${nf(s)}\\, ${A} = ${vt(sa)}`;
+      R101.tex(texEl, src);
+      const na = M.norm(a), nb = M.norm(b), ns = M.norm(sum);
+      let extra;
+      if (mode === 'sum') extra = `|a|+|b| = <b>${fm(na + nb)}</b> ${ns > na + nb - 1e-9 ? '&nbsp;=&nbsp;' : '&nbsp;&gt;&nbsp;'} |a+b|`;
+      else if (mode === 'diff') extra = `|a−b| = <b>${fm(M.norm(dif))}</b> ${L('（两个箭头尖的距离）', '(distance between the two tips)')}`;
+      else extra = `|s·a| = |s||a| = <b>${fm(Math.abs(s) * na)}</b>`;
+      readEl.innerHTML = `|a| = <b>${fm(na)}</b><br>|b| = <b>${fm(nb)}</b><br>|a+b| = <b>${fm(ns)}</b><br>${extra}`;
+    }
+    function sync() {
+      render();
+      const sum = M.add(a, b), dif = M.sub(a, b);
+      if (M.norm(sum) < 1e-6 && M.norm(a) > 0.4) R101.done('zero');
+      if (M.norm(a) > 0.9 && M.norm(b) > 0.9 && Math.abs(cross2(a, b)) < 1e-6 && M.dot(a, b) > 0) R101.done('parallel');
+      if (mode === 'diff' && Math.abs(dif[0] - 1) < 1e-6 && Math.abs(dif[1] - 2) < 1e-6) R101.done('diff');
+      if (mode === 'scale' && Math.abs(s + 0.5) < 0.01 && M.norm(a) > 0.4) R101.done('neg');
+      P.invalidate();
+    }
+    R101.on('lang', render);
+    sync();
+  })();
+
+  /* ---------------- FIG 3: reach the target ---------------- */
+  (function () {
+    const pool = [
+      [[2, 1], [-1, 2]], [[3, 1], [1, -2]], [[1, 1], [-2, 1]], [[2, 0], [1, 2]],
+      [[1, 2], [2, -1]], [[3, 0], [-1, 1]], [[2, 2], [1, -1]]
+    ];
+    let d1, d2, T, moves = [], k = [0, 0], pos = [0, 0], hits = 0, solved = false, last = -1, minMoves = 0, tag = '';
+    const MAXM = 14;
+    const ri = (lo, hi) => lo + Math.floor(Math.random() * (hi - lo + 1));
+    const P = new R101.Plane2D('#game-canvas', { height: 430, view: { span: 13 }, draw });
+    function draw(P) {
+      P.grid({ color: 'grid', axisColor: 'grid-2' });
+      for (let m = -6; m <= 6; m++) for (let n = -6; n <= 6; n++) {
+        const q = [m * d1[0] + n * d2[0], m * d1[1] + n * d2[1]];
+        if (Math.abs(q[0]) <= 6.4 && Math.abs(q[1]) <= 6.4) P.point(q, { color: 'x', r: 2.6, alpha: 0.4 });
+      }
+      P.arrow([0, 0], d1, { color: 'v', width: 2.5, dash: [5, 4], alpha: 0.6, head: 9, label: 'd₁', labelOffset: [8, 14] });
+      P.arrow([0, 0], d2, { color: 'x', width: 2.5, dash: [5, 4], alpha: 0.6, head: 9, label: 'd₂', labelOffset: [8, 14] });
+      let cur = [0, 0];
+      moves.forEach(([i, sg]) => {
+        const d = i === 0 ? d1 : d2, nxt = M.add(cur, M.scale(d, sg));
+        P.arrow(cur, nxt, { color: i === 0 ? 'v' : 'x', width: 3.2, head: 9, alpha: 0.95 });
+        cur = nxt;
+      });
+      P.circle(T, 0.4, { stroke: solved ? 'good' : 'w', width: 3 });
+      P.point(T, { color: solved ? 'good' : 'w', r: 5 });
+      P.text(R101.t('目标 T', 'target T'), T, { offset: [14, -16], color: solved ? 'good' : 'w', bold: true });
+      P.point([0, 0], { color: 'axis', r: 3.5 });
+      P.point(pos, { color: 'text', r: 7, stroke: 'canvas', strokeWidth: 2 });
+    }
+    const movesEl = document.getElementById('game-moves'), ctl = document.getElementById('game-ctl');
+    const tex = document.getElementById('game-tex'), msg = document.getElementById('game-msg'), score = document.getElementById('game-score');
+    const mkMove = (txt, i, sg, cssv) => {
+      const b = ui.button(movesEl, { zh: txt, en: txt, cls: 'sm', onClick: () => add(i, sg) });
+      b.style.color = `var(--c-${cssv})`; b.style.fontWeight = '600';
+    };
+    mkMove('+ d₁', 0, 1, 'v'); mkMove('− d₁', 0, -1, 'v'); mkMove('+ d₂', 1, 1, 'x'); mkMove('− d₂', 1, -1, 'x');
+    ui.button(ctl, { zh: '撤销', en: 'Undo', cls: 'sm', onClick: () => {
+      if (solved || !moves.length) return;
+      const [i, sg] = moves.pop(); k[i] -= sg; recompute(); show(); P.invalidate();
+    } });
+    ui.button(ctl, { zh: '重来', en: 'Reset', cls: 'sm', onClick: () => { if (solved) return; moves = []; k = [0, 0]; recompute(); show(); P.invalidate(); } });
+    ui.button(ctl, { zh: '下一题', en: 'Next', cls: 'sm primary', onClick: () => newRound() });
+    function recompute() { pos = [k[0] * d1[0] + k[1] * d2[0], k[0] * d1[1] + k[1] * d2[1]]; }
+    function add(i, sg) {
+      if (solved || moves.length >= MAXM) return;
+      moves.push([i, sg]); k[i] += sg; recompute();
+      if (pos[0] === T[0] && pos[1] === T[1]) {
+        solved = true; hits++;
+        tag = moves.length === minMoves ? 'best' : 'ok';
+        if (hits >= 3) R101.done('game3');
+      }
+      show(); P.invalidate();
+    }
+    function newRound() {
+      let idx; do { idx = ri(0, pool.length - 1); } while (idx === last);
+      last = idx;
+      d1 = pool[idx][0].slice(); d2 = pool[idx][1].slice();
+      if (Math.random() < 0.5) d1 = d1.map(x => -x);
+      if (Math.random() < 0.5) d2 = d2.map(x => -x);
+      let m, n, tries = 0;
+      do {
+        m = ri(-3, 3); n = ri(-3, 3); tries++;
+        T = [m * d1[0] + n * d2[0], m * d1[1] + n * d2[1]];
+      } while (tries < 500 && (Math.abs(m) + Math.abs(n) < 2 || Math.abs(m) + Math.abs(n) > 5 || Math.abs(T[0]) > 6 || Math.abs(T[1]) > 6));
+      minMoves = Math.abs(m) + Math.abs(n);
+      moves = []; k = [0, 0]; recompute(); solved = false; tag = '';
+      show(); P.invalidate();
+    }
+    function show() {
+      const dd = [d1, d2];
+      R101.tex(tex, `\\mathbf p = (${k[0]})\\,\\cv{${vt(dd[0], 0)}} + (${k[1]})\\,\\cx{${vt(dd[1], 0)}} = ${vt(pos, 0)}`);
+      score.innerHTML = L(`命中 ${hits}`, `hits: ${hits}`);
+      const mn = x => String(x).replace('-', '−');
+      const tgt = `<span class="cw">T = (${mn(T[0])}, ${mn(T[1])})</span>`;
+      const dstr = i => `d${i ? '₂' : '₁'} = (${mn(dd[i][0])}, ${mn(dd[i][1])})`;
+      if (solved) {
+        msg.innerHTML = `<b style="color:var(--c-good)">${L('命中！', 'Hit!')}</b> ` +
+          (tag === 'best' ? L(`用了 ${moves.length} 步，已经是最短（${minMoves} 步）。`, `${moves.length} moves, which is the shortest possible (${minMoves}).`)
+            : L(`用了 ${moves.length} 步；最短是 ${minMoves} 步。点"下一题"。`, `${moves.length} moves; the shortest is ${minMoves}. Press "Next".`));
+      } else {
+        msg.innerHTML = `${tgt}<br><span class="muted">${dstr(0)}<br>${dstr(1)}</span><br>` +
+          L(`已走 ${moves.length} 步${moves.length >= MAXM ? '（已到上限，请撤销或重来）' : ''}`, `${moves.length} moves so far${moves.length >= MAXM ? ' (limit reached: undo or reset)' : ''}`);
+      }
+    }
+    R101.on('lang', show);
+    newRound();
+  })();
+
+  /* ---------------- FIG 4: points vs vectors ---------------- */
+  (function () {
+    let O = [0, 0], Pp = [-2, 1], Q = [1, 3], showSum = true;
+    const t1 = document.getElementById('pts-tex1'), t2 = document.getElementById('pts-tex2'), t3 = document.getElementById('pts-tex3');
+    const Pl = new R101.Plane2D('#pts-canvas', { height: 430, view: { span: 12.5 }, draw, onChange: sync });
+    function draw(P) {
+      const b = P.bounds();
+      for (let x = O[0] + Math.ceil(b.xmin - O[0]); x <= b.xmax; x += 1) P.line([x, b.ymin], [x, b.ymax], { color: 'grid-2', width: 1, alpha: 0.7 });
+      for (let y = O[1] + Math.ceil(b.ymin - O[1]); y <= b.ymax; y += 1) P.line([b.xmin, y], [b.xmax, y], { color: 'grid-2', width: 1, alpha: 0.7 });
+      P.line([O[0], b.ymin], [O[0], b.ymax], { color: 'axis', width: 1.6, alpha: 0.7 });
+      P.line([b.xmin, O[1]], [b.xmax, O[1]], { color: 'axis', width: 1.6, alpha: 0.7 });
+      P.arrow(O, [O[0] + 1, O[1]], { color: 'i', width: 3.5, head: 10 });
+      P.arrow(O, [O[0], O[1] + 1], { color: 'j', width: 3.5, head: 10 });
+      // position vectors from the origin
+      P.arrow(O, Pp, { color: 'w', width: 2, dash: [5, 5], alpha: 0.6, head: 9 });
+      P.arrow(O, Q, { color: 'w', width: 2, dash: [5, 5], alpha: 0.6, head: 9 });
+      // the "point + point" ghost
+      const g = [Pp[0] + Q[0] - O[0], Pp[1] + Q[1] - O[1]];
+      if (showSum) {
+        P.arrow(O, g, { color: 'bad', width: 2, dash: [3, 5], alpha: 0.55, head: 9 });
+        P.circle(g, 0.3, { stroke: 'bad', width: 2.8 });
+        P.text('P + Q ?', g, { offset: [16, -14], color: 'bad', bold: true });
+      }
+      // displacement P -> Q
+      P.arrow(Pp, Q, { color: 'v', width: 4.5, label: R101.t('d = Q − P', 'd = Q − P'), labelOffset: [10, 18] });
+      P.point(Pp, { color: 'w', r: 7, stroke: 'canvas', strokeWidth: 2 });
+      P.point(Q, { color: 'w', r: 7, stroke: 'canvas', strokeWidth: 2 });
+      P.text(R101.t('P 杯子', 'P cup'), Pp, { offset: [-12, -16], color: 'w', bold: true, align: 'right' });
+      P.text(R101.t('Q 盒子', 'Q box'), Q, { offset: [12, -16], color: 'w', bold: true });
+      P.point(O, { color: 'x', r: 5 });
+      P.text('O', O, { offset: [-12, 14], color: 'x', bold: true, size: 15 });
+    }
+    // origin handle first so that it can be dragged away when sitting on P
+    Pl.handle({ pos: () => O, color: 'x', snap: 0.5, set: p => { O = clampv(p, 5.5); } });
+    Pl.handle({ pos: () => Pp, color: 'w', snap: 1, set: p => { Pp = clampv(p, 5); } });
+    Pl.handle({ pos: () => Q, color: 'w', snap: 1, set: p => { Q = clampv(p, 5); } });
+    ui.seg(document.getElementById('pts-seg'), [{ value: 'show', zh: '显示 P + Q', en: 'Show P + Q' }, { value: 'hide', zh: '隐藏', en: 'Hide' }], 'show', v => { showSum = v === 'show'; Pl.invalidate(); });
+    function render() {
+      const p = M.sub(Pp, O), q = M.sub(Q, O), d = M.sub(Q, Pp), s = M.add(p, q);
+      R101.tex(t1, `\\cw{P} = ${vt(p)}, \\quad \\cw{Q} = ${vt(q)}`);
+      R101.tex(t2, `\\cv{\\mathbf d} = Q - P = ${vt(q)} - ${vt(p)} = \\cv{${vt(d)}}`);
+      R101.tex(t3, `P + Q = ${vt(p)} + ${vt(q)} = ${vt(s)}`);
+    }
+    function sync() {
+      render();
+      const p = M.sub(Pp, O), q = M.sub(Q, O);
+      if (Math.abs(p[0]) < 1e-9 && Math.abs(p[1]) < 1e-9) R101.done('atP');
+      if (Math.abs(p[0] + q[0]) < 1e-9 && Math.abs(p[1] + q[1]) < 1e-9) R101.done('mid');
+      Pl.invalidate();
+    }
+    R101.on('lang', render);
+    sync();
+  })();
+
+  /* ---------------- FIG 5: joint-angle vector ---------------- */
+  (function () {
+    const D = Math.PI / 180, Ls = [1.7, 1.4, 1.0], cols = ['i', 'j', 'k'];
+    const Aq = [50, -30, 20].map(x => x * D), Bq = [-20, 70, -40].map(x => x * D);
+    let q = [40, -25, 15].map(x => x * D);
+    const tgtQ = [100, -60, -30].map(x => x * D);
+    const wrap = x => ((x + Math.PI) % (2 * Math.PI) + 2 * Math.PI) % (2 * Math.PI) - Math.PI;
+    function fk(qq) {
+      let a = 0, p = [0, 0]; const pts = [p];
+      for (let i = 0; i < 3; i++) { a += qq[i]; p = [p[0] + Ls[i] * Math.cos(a), p[1] + Ls[i] * Math.sin(a)]; pts.push(p); }
+      return pts;
+    }
+    const hand = qq => fk(qq)[3];
+    const tgt = hand(tgtQ);
+    let op = null, stopAnim = null;   // op: {name, tex}
+    const arm = new R101.Plane2D('#arm-canvas', { height: 390, view: { span: 9.8 }, draw: drawArm, onChange: touch });
+    const bars = new R101.Plane2D('#bars-canvas', { height: 390, view: { span: 8.6 }, draw: drawBars, onChange: touch });
+    function drawArm(P) {
+      P.grid({ color: 'grid', axisColor: 'grid-2' });
+      const pts = fk(q);
+      P.circle(tgt, 0.25, { stroke: 'w', width: 2.8, dash: [4, 3] });
+      P.point(tgt, { color: 'w', r: 3 });
+      P.text(R101.t('目标', 'target'), tgt, { offset: [16, -14], color: 'w', bold: true });
+      P.poly([[-0.55, -0.45], [0.55, -0.45], [0.35, 0], [-0.35, 0]], { fill: 'axis', fillAlpha: 0.25, stroke: 'axis', width: 1.5, alpha: 0.7 });
+      for (let i = 0; i < 3; i++) P.line(pts[i], pts[i + 1], { color: cols[i], width: 8, alpha: 0.9 });
+      for (let i = 0; i < 3; i++) P.point(pts[i], { color: 'canvas', r: 6, stroke: cols[i], strokeWidth: 2.5 });
+      P.point(pts[3], { color: 'v', r: 6, stroke: 'canvas', strokeWidth: 2 });
+    }
+    for (let i = 0; i < 3; i++) {
+      arm.handle({
+        pos: () => fk(q)[i + 1], color: i === 2 ? 'v' : cols[i],
+        set: p => {
+          const pts = fk(q), base = pts[i];
+          if (Math.hypot(p[0] - base[0], p[1] - base[1]) < 0.05) return;
+          let prev = 0; for (let j = 0; j < i; j++) prev += q[j];
+          q[i] = wrap(Math.atan2(p[1] - base[1], p[0] - base[0]) - prev);
+        }
+      });
+    }
+    const bx = [-1.9, 0, 1.9];
+    function drawBars(P) {
+      const b = P.bounds();
+      [-180, -90, 0, 90, 180].forEach(dg => {
+        const y = dg * D;
+        P.line([b.xmin, y], [b.xmax, y], { color: dg === 0 ? 'axis' : 'grid-2', width: dg === 0 ? 1.6 : 1, alpha: dg === 0 ? 0.8 : 1 });
+        P.text((dg > 0 ? '+' : dg < 0 ? '−' : '') + Math.abs(dg) + '°', [b.xmin, y], { offset: [6, -9], color: 'text-2', size: 11, align: 'left' });
+      });
+      for (let i = 0; i < 3; i++) {
+        const x = bx[i], h = q[i];
+        P.poly([[x - 0.45, 0], [x + 0.45, 0], [x + 0.45, h], [x - 0.45, h]], { fill: cols[i], fillAlpha: 0.35, stroke: cols[i], width: 2 });
+        P.text('q' + '₁₂₃'[i], [x, -3.75], { color: cols[i], bold: true, size: 15, align: 'center' });
+        P.text(Math.round(h / D) + '°', [x, h], { offset: [0, h >= 0 ? -18 : 18], color: cols[i], bold: true, size: 13, align: 'center' });
+      }
+    }
+    for (let i = 0; i < 3; i++) {
+      bars.handle({
+        pos: () => [bx[i], q[i]], color: cols[i],
+        set: p => { q[i] = Math.max(-Math.PI, Math.min(Math.PI, Math.round(p[1] / (5 * D)) * 5 * D)); }
+      });
+    }
+    const texEl = document.getElementById('arm-tex'), readEl = document.getElementById('arm-read');
+    const dv = (v, colored) => '\\begin{bmatrix}' + v.map((x, i) => { const s = `${Math.round(x / D)}^{\\circ}`; return colored ? `${['\\ci', '\\cj', '\\ck'][i]}{${s}}` : s; }).join(' \\\\ ') + '\\end{bmatrix}';
+    function render() {
+      R101.tex(texEl, op ? op.tex() : `\\mathbf q = ${dv(q, true)}`);
+      const h = hand(q);
+      let html = `${L('手的位置', 'hand position')} = (<b>${fm(h[0])}</b>, <b>${fm(h[1])}</b>) m`;
+      if (op && op.name === 'A+B') {
+        const ha = hand(Aq), hb = hand(Bq), hs = hand(q);
+        html += `<br>${L('手(A) + 手(B)', 'hand(A) + hand(B)')} = (${fm(ha[0] + hb[0])}, ${fm(ha[1] + hb[1])})<br>${L('手(A + B)', 'hand(A + B)')} = (${fm(hs[0])}, ${fm(hs[1])})`;
+      }
+      readEl.innerHTML = html;
+    }
+    function sync() {
+      render();
+      if (Math.hypot(hand(q)[0] - tgt[0], hand(q)[1] - tgt[1]) < 0.2) R101.done('reach');
+      arm.invalidate(); bars.invalidate();
+    }
+    function touch() { if (stopAnim) { stopAnim(); stopAnim = null; } op = null; sync(); }
+    function goTo(target, o) {
+      if (stopAnim) { stopAnim(); stopAnim = null; }
+      const from = q.slice();
+      op = o;
+      stopAnim = R101.animate(550, e => { q = from.map((x, i) => x + (target[i] - x) * e); sync(); }, () => { q = target.slice(); stopAnim = null; sync(); });
+    }
+    const ph = document.getElementById('arm-presets');
+    const sumQ = Aq.map((x, i) => x + Bq[i]), halfQ = Aq.map(x => x / 2);
+    ui.button(ph, { zh: 'A', en: 'A', cls: 'sm', onClick: () => goTo(Aq, { name: 'A', tex: () => `\\mathbf A = ${dv(Aq)}` }) });
+    ui.button(ph, { zh: 'B', en: 'B', cls: 'sm', onClick: () => goTo(Bq, { name: 'B', tex: () => `\\mathbf B = ${dv(Bq)}` }) });
+    ui.button(ph, { zh: 'A + B', en: 'A + B', cls: 'sm', onClick: () => { goTo(sumQ, { name: 'A+B', tex: () => `\\mathbf A + \\mathbf B = ${dv(Aq)} + ${dv(Bq)} = ${dv(sumQ)}` }); R101.done('armsum'); } });
+    ui.button(ph, { zh: '½ · A', en: '½ · A', cls: 'sm', onClick: () => goTo(halfQ, { name: 'half', tex: () => `\\tfrac12\\mathbf A = \\tfrac12 ${dv(Aq)} = ${dv(halfQ)}` }) });
+    ui.button(ph, { zh: '0', en: '0', cls: 'sm', onClick: () => goTo([0, 0, 0], { name: 'zero', tex: () => `\\mathbf 0 = ${dv([0, 0, 0])}` }) });
+    R101.on('lang', render);
+    sync();
+  })();
+
+  /* ---------------- FIG 6: length & unit vector ---------------- */
+  (function () {
+    let v = [3, 2];
+    const t1 = document.getElementById('norm-tex1'), t2 = document.getElementById('norm-tex2'), t3 = document.getElementById('norm-tex3'), rd = document.getElementById('norm-read');
+    const P = new R101.Plane2D('#norm-canvas', { height: 400, view: { span: 11 }, draw, onChange: sync });
+    function draw(P) {
+      const hl = R101.hl, n = M.norm(v);
+      P.grid({ color: 'grid', axisColor: 'grid-2' });
+      P.circle([0, 0], 1, { stroke: 'x', width: 1.6, dash: [4, 4], alpha: 0.7 });
+      P.arrow([0, 0], [v[0], 0], { color: 'i', width: hl === 'nx' ? 7 : 3.5, alpha: 0.9 });
+      P.arrow([v[0], 0], v, { color: 'j', width: hl === 'ny' ? 7 : 3.5, alpha: 0.9 });
+      P.text('x = ' + nf(v[0], 2), [v[0] / 2, 0], { offset: [0, v[1] >= 0 ? 17 : -17], color: 'i', bold: true, align: 'center' });
+      P.text('y = ' + nf(v[1], 2), [v[0], v[1] / 2], { offset: [v[0] >= 0 ? 14 : -14, 0], color: 'j', bold: true, align: v[0] >= 0 ? 'left' : 'right' });
+      P.arrow([0, 0], v, { color: 'v', width: hl === 'norm' ? 7 : 4, label: '|v| = ' + nf(n, 2), labelOffset: [-10, v[1] >= 0 ? -16 : 16], labelAlign: 'right' });
+      if (n > 1e-6) {
+        const u = M.scale(v, 1 / n);
+        P.arrow([0, 0], u, { color: 'x', width: hl === 'unit' ? 6 : 3.2, head: 9, label: 'û', labelOffset: [-8, 14], labelAlign: 'right' });
+      }
+    }
+    P.handle({
+      pos: () => v, color: 'v',
+      snap: w => {
+        const r = [Math.round(w[0]), Math.round(w[1])];
+        if (Math.hypot(w[0] - r[0], w[1] - r[1]) < 0.22) return r;
+        const n = M.norm(w);
+        if (n > 1e-6 && Math.abs(n - 1) < 0.12) return M.scale(w, 1 / n);
+        return w;
+      },
+      set: p => { v = clampv(p, 5.2); }
+    });
+    function render() {
+      const n = M.norm(v), x2 = v[0] * v[0], y2 = v[1] * v[1];
+      R101.tex(t1, `|\\mathbf v| = \\sqrt{\\ci{x^2} + \\cj{y^2}} = \\sqrt{\\ci{${nf(x2, 2)}} + \\cj{${nf(y2, 2)}}} = \\cv{${nf(n, 2)}}`);
+      R101.tex(t2, `|x| + |y| = ${nf(Math.abs(v[0]) + Math.abs(v[1]), 2)} \\;\\ge\\; |\\mathbf v|`);
+      if (n > 1e-6) { const u = M.scale(v, 1 / n); R101.tex(t3, `\\hat{\\mathbf u} = \\dfrac{\\mathbf v}{|\\mathbf v|} = ${vt(u, 2)}, \\quad |\\hat{\\mathbf u}| = 1`); }
+      else R101.tex(t3, `\\hat{\\mathbf u} = \\text{${R101.t('零向量没有方向', 'undefined: 0 has no direction')}}`);
+      rd.innerHTML = L('分量之和不是长度；长度是斜边。', 'The sum of components is not the length; the hypotenuse is.');
+    }
+    function sync() {
+      render();
+      const ax = Math.abs(v[0]), ay = Math.abs(v[1]), n = M.norm(v);
+      if ((ax === 3 && ay === 4) || (ax === 4 && ay === 3)) R101.done('pyth');
+      if (Math.abs(n - 1) < 1e-6 && Math.min(ax, ay) > 0.2) R101.done('unit');
+      P.invalidate();
+    }
+    R101.on('lang', render);
+    sync();
+  })();
+
+  /* ---------------- FIG 7: dead reckoning ---------------- */
+  (function () {
+    const S0 = [[2, 0], [1.5, 1], [0.5, 1.5], [-1, 1.5], [-2, 0.5], [-1.5, -1], [0, -1.5], [1, -1]];
+    const p0 = [-2, -2], N = S0.length;
+    let S = S0.map(s => s.slice()), sigma = 0.12, Z;
+    const genNoise = seed => { const r = M.rng(seed); return S0.map(() => [M.randn(r), M.randn(r)]); };
+    Z = genNoise(7);
+    const nodes = steps => { const out = [p0]; let c = p0; steps.forEach(s => { c = M.add(c, s); out.push(c); }); return out; };
+    const estSteps = () => S.map((s, i) => [s[0] + sigma * Z[i][0], s[1] + sigma * Z[i][1]]);
+    const errVec = () => { let e = [0, 0]; Z.forEach(z => { e = M.add(e, M.scale(z, sigma)); }); return e; };
+    const P = new R101.Plane2D('#dr-canvas', { height: 440, view: { span: 10.4 }, draw, onChange: sync });
+    function draw(P) {
+      P.grid({ color: 'grid', axisColor: 'grid-2' });
+      const tn = nodes(S), en = nodes(estSteps()), end = tn[N], err = errVec();
+      P.path(en, { color: 'w', width: 2.2, dash: [7, 5], alpha: 0.9 });
+      en.forEach(p => P.point(p, { color: 'w', r: 3, alpha: 0.9 }));
+      P.arrow(p0, end, { color: 'text', width: 2, dash: [4, 5], alpha: 0.6, head: 10, label: 'Σ s', labelOffset: [-8, 14], labelAlign: 'right', labelColor: 'text-2' });
+      for (let i = 0; i < N; i++) P.arrow(tn[i], tn[i + 1], { color: 'v', width: 3.5, head: 10 });
+      if (M.norm(err) > 0.05) P.arrow(end, M.add(end, err), { color: 'bad', width: 3, head: 10, label: R101.t('误差', 'error'), labelOffset: [8, -10] });
+      P.point(p0, { color: 'text', r: 6, stroke: 'canvas', strokeWidth: 2 });
+      P.text(R101.t('起点 p₀', 'start p₀'), p0, { offset: [-10, 16], color: 'text', bold: true, align: 'right' });
+    }
+    for (let i = 0; i < N; i++) {
+      P.handle({
+        pos: () => nodes(S)[i + 1], color: 'v', snap: 0.5, r: 14,
+        set: p => {
+          const prev = nodes(S)[i];
+          const cand = S.map(s => s.slice()); cand[i] = M.sub(p, prev);
+          if (nodes(cand).every(c => Math.abs(c[0]) <= 4.8 && Math.abs(c[1]) <= 4.8)) S = cand;
+        }
+      });
+    }
+    const texEl = document.getElementById('dr-tex'), readEl = document.getElementById('dr-read');
+    const ctr = document.getElementById('dr-controls');
+    const sl = ui.slider(ctr, { zh: '每步噪声 σ', en: 'per-step noise σ', min: 0, max: 0.5, step: 0.01, value: sigma, fmt: v => M.fmt(v, 2) + ' m', onInput: v => { sigma = v; sync(); } });
+    ui.button(ctr, { zh: '重新抽噪声', en: 'Re-roll noise', cls: 'sm', onClick: () => { Z = genNoise(Math.floor(Math.random() * 1e9)); sync(); } });
+    ui.button(ctr, { zh: '重置路径', en: 'Reset path', cls: 'sm', onClick: () => { S = S0.map(s => s.slice()); sync(); } });
+    function render() {
+      const tot = S.reduce((a, s) => M.add(a, s), [0, 0]), end = M.add(p0, tot), err = errVec();
+      const plen = S.reduce((a, s) => a + M.norm(s), 0);
+      R101.tex(texEl, `\\begin{aligned} \\mathbf p_{${N}} &= \\mathbf p_0 + \\sum_{i=1}^{${N}} \\cv{\\mathbf s_i} \\\\[4pt] &= ${vt(p0)} + ${vt(tot, 2)} = ${vt(end, 2)} \\end{aligned}`);
+      readEl.innerHTML = `|Σ s| = <b>${fm(M.norm(tot))}</b> m ${L('（位移）', '(displacement)')}<br>Σ |s| = <b>${fm(plen)}</b> m ${L('（路程）', '(distance driven)')}<br>${L('终点误差', 'end-point error')} = <b>${fm(M.norm(err))}</b> m`;
+    }
+    function sync() {
+      render();
+      const tot = S.reduce((a, s) => M.add(a, s), [0, 0]);
+      if (M.norm(tot) < 1e-9) R101.done('loop');
+      if (M.norm(errVec()) > 1) R101.done('drift');
+      P.invalidate();
+    }
+    R101.on('lang', render);
+    sync();
+  })();
+});
+</script>
+</body>
+</html>

@@ -1,0 +1,1127 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-theme="dark" data-lang-ui="zh">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>1.13 最小二乘与伪逆 · Robotics for Beginners</title>
+<meta name="description" content="An interactive, intuition-first lesson on least squares and the pseudo-inverse: fitting a line by minimising squared residuals, projection onto the column space, minimum-norm solutions, A⁺ via the SVD, and damped least squares for inverse kinematics near singularities.">
+<link rel="icon" href="../../favicon.svg" type="image/svg+xml">
+<script>(function(){var d=document.documentElement,t='dark',l=null;try{t=localStorage.getItem('theme')||'dark'}catch(e){}d.setAttribute('data-theme',t);try{l=new URLSearchParams(location.search).get('lang')||localStorage.getItem('lang')}catch(e){}if(l!=='zh'&&l!=='en')l=(navigator.language||'').toLowerCase().indexOf('zh')===0?'zh':'en';d.setAttribute('data-lang-ui',l);d.lang=l==='zh'?'zh-CN':'en';})();</script>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.22/dist/katex.min.css">
+<link rel="stylesheet" href="../assets/course.css">
+</head>
+<body data-page="1.13" data-root=".." data-title-zh="1.13 最小二乘与伪逆 · Robotics for Beginners" data-title-en="1.13 Least Squares &amp; the Pseudo-inverse · Robotics for Beginners">
+<div class="r101-layout">
+<aside class="r101-side" id="r101-side"></aside>
+<main class="r101-main">
+<article class="lesson">
+
+<header class="lesson-head">
+  <div class="eyebrow"><span data-lang="zh">Part I · 第 1 章 线性代数 · 1.13</span><span data-lang="en">Part I · Ch. 1 Linear Algebra · 1.13</span></div>
+  <h1><span data-lang="zh">最小二乘与伪逆</span><span data-lang="en">Least Squares &amp; the Pseudo-inverse</span></h1>
+  <p class="lede">
+    <span data-lang="zh">真实的数据总是又多又脏：方程比未知数多，谁也没法全部满足。那就换一个问题：让<b>总的平方误差最小</b>。几何上，这就是把数据向量<b>投影</b>到列空间上，找最近的那一点。反过来，如果方程不够、解有无穷多，就挑<b>最短</b>的那个。<b>伪逆</b>用同一个公式 \(A^{+} = V\Sigma^{+}U^\top\) 把这两种情形一起解决，再加一点“阻尼”，机械臂就能平稳地走过奇异位形。</span>
+    <span data-lang="en">Real data is plentiful and noisy: more equations than unknowns, and no solution satisfies them all. So ask a different question: <b>minimise the total squared error</b>. Geometrically, that means <b>projecting</b> the data vector onto the column space and taking the nearest point. In the opposite case, with too few equations and infinitely many solutions, pick the <b>shortest</b> one. The <b>pseudo-inverse</b> handles both with one formula, \(A^{+} = V\Sigma^{+}U^\top\), and with a little “damping” a robot arm can glide through a singularity.</span>
+  </p>
+  <div class="lesson-meta">
+    <span class="chip"><span data-lang="zh">约 35 分钟</span><span data-lang="en">~35 min</span></span>
+    <span class="chip"><span data-lang="zh">前置：1.6 逆、秩与零空间 · 1.9 投影 · 1.12 SVD</span><span data-lang="en">Prereqs: 1.6 Inverse, rank &amp; null space · 1.9 Projection · 1.12 SVD</span></span>
+    <span class="chip"><span data-lang="zh">5 个交互</span><span data-lang="en">5 interactives</span></span>
+  </div>
+  <ul class="toc-steps" id="step-toc"></ul>
+</header>
+
+<!-- ============ 1. WHY ============ -->
+<section class="step" id="why">
+  <h2><span class="n">1</span><span data-lang="zh">为什么机器人需要它</span><span data-lang="en">Why robots need this</span></h2>
+  <div data-lang="zh">
+    <p>机器人拿到的数据几乎从来不是“刚刚好”的。激光雷达扫过一面墙，返回两百个带噪声的点，而一条直线只有两个参数（斜率和截距）。轮子转了几千圈的里程日志，只为估计一个数：轮半径。标定陀螺仪的零偏和比例、相机内参、手眼关系，都要拿几十组测量去定几个未知数。</p>
+    <p>这时<b>方程比未知数多得多</b>，而且每个方程都带着噪声，<b>没有任何一个解能同时满足所有方程</b>。我们能做的，是找一个“最不坏”的折中。这就是<b>最小二乘</b> (least squares)。</p>
+    <p>反方向的情况同样常见：一台 7 自由度机械臂只需要满足 6 个末端约束，多出来的那个自由度让关节速度有无穷多种选择。我们得有一个规则来挑，比如“关节动得最少”。再加上第三种麻烦：靠近奇异位形时，精确的逆会把微小的误差放大成巨大的关节速度（1.12 节），需要给逆加上“阻尼”。</p>
+  </div>
+  <div data-lang="en">
+    <p>The data a robot gets is almost never “just right”. A lidar sweeps a wall and returns two hundred noisy points, while a line has only two parameters (slope and intercept). An odometry log with thousands of wheel turns exists to estimate a single number, the wheel radius. Calibrating a gyro's bias and scale, camera intrinsics or a hand–eye transform means fixing a few unknowns from dozens of measurements.</p>
+    <p>Now there are <b>far more equations than unknowns</b>, each one corrupted by noise, and <b>no solution satisfies all of them</b>. The best we can do is find the “least bad” compromise. That is <b>least squares</b>.</p>
+    <p>The opposite case is just as common: a 7-DoF arm only has to meet 6 end-effector constraints, so the extra degree of freedom leaves infinitely many joint velocities to choose from. We need a rule to pick one, for example “move the joints as little as possible”. And a third nuisance: near a singularity the exact inverse turns tiny errors into huge joint speeds (Lesson 1.12), so we must add “damping” to it.</p>
+  </div>
+  <div class="table-wrap">
+  <table class="compare">
+    <thead><tr>
+      <th><span data-lang="zh">情形</span><span data-lang="en">Situation</span></th>
+      <th><span data-lang="zh">方程数 m 与未知数 n</span><span data-lang="en">Equations m vs unknowns n</span></th>
+      <th><span data-lang="zh">怎么办</span><span data-lang="en">What we do</span></th>
+      <th><span data-lang="zh">机器人里的例子</span><span data-lang="en">Robot example</span></th>
+    </tr></thead>
+    <tbody>
+      <tr>
+        <td><span data-lang="zh"><b>超定</b> (overdetermined)</span><span data-lang="en"><b>Overdetermined</b></span></td>
+        <td>\(m &gt; n\)</td>
+        <td><span data-lang="zh">没有精确解：最小化总平方误差</span><span data-lang="en">no exact solution: minimise the total squared error</span></td>
+        <td><span data-lang="zh">拟合墙面直线，标定传感器，估计轮半径</span><span data-lang="en">fit a wall line, calibrate a sensor, estimate a wheel radius</span></td>
+      </tr>
+      <tr>
+        <td><span data-lang="zh"><b>欠定</b> (underdetermined)</span><span data-lang="en"><b>Underdetermined</b></span></td>
+        <td>\(m &lt; n\)</td>
+        <td><span data-lang="zh">无穷多解：取最短（最小范数）的一个</span><span data-lang="en">infinitely many solutions: take the shortest (minimum-norm) one</span></td>
+        <td><span data-lang="zh">冗余机械臂的速度级逆运动学</span><span data-lang="en">velocity-level inverse kinematics of a redundant arm</span></td>
+      </tr>
+      <tr>
+        <td><span data-lang="zh"><b>病态</b> (ill-conditioned)</span><span data-lang="en"><b>Ill-conditioned</b></span></td>
+        <td>\(m = n\)<span data-lang="zh">，但 \(\sigma_{\min}\approx 0\)</span><span data-lang="en">, but \(\sigma_{\min}\approx 0\)</span></td>
+        <td><span data-lang="zh">精确逆会放大噪声：加阻尼</span><span data-lang="en">the exact inverse amplifies noise: add damping</span></td>
+        <td><span data-lang="zh">手臂接近伸直时的逆运动学</span><span data-lang="en">inverse kinematics near a fully stretched arm</span></td>
+      </tr>
+    </tbody>
+  </table>
+  </div>
+  <p data-lang="zh">三种情形用的是同一件工具：<b>伪逆</b> (pseudo-inverse) \(A^{+}\)。它把本章的几位主角串了起来：列空间 (1.6 节)、投影 (1.9 节)、奇异值分解 (1.12 节)。</p>
+  <p data-lang="en">One tool serves all three: the <b>pseudo-inverse</b> \(A^{+}\). It ties together the main characters of this chapter: the column space (Lesson 1.6), projection (Lesson 1.9) and the SVD (Lesson 1.12).</p>
+</section>
+
+<!-- ============ 2. INTUITION ============ -->
+<section class="step" id="intuition">
+  <h2><span class="n">2</span><span data-lang="zh">直觉：无法全部满足，就让总的“错过”最小</span><span data-lang="en">Intuition: can't satisfy everything, so minimise the total miss</span></h2>
+  <div data-lang="zh">
+    <p>先看最小的例子。平面上有三个点 \((-1,\,1)\)、\((0,\,0)\)、\((1,\,2)\)，想找一条直线 \(y = mt + c\) 穿过它们。每个点给一个方程：</p>
+  </div>
+  <div data-lang="en">
+    <p>Start with the smallest example. Three points \((-1,\,1)\), \((0,\,0)\), \((1,\,2)\) lie in the plane, and we want a line \(y = mt + c\) through all of them. Each point gives one equation:</p>
+  </div>
+  <div class="math-card">$$ \underbrace{\begin{bmatrix} -1 & 1 \\ 0 & 1 \\ 1 & 1 \end{bmatrix}}_{A}\underbrace{\begin{bmatrix} m \\ c \end{bmatrix}}_{\mathbf x} = \underbrace{\begin{bmatrix} 1 \\ 0 \\ 2 \end{bmatrix}}_{\mathbf b} $$</div>
+  <div data-lang="zh">
+    <p>前两行说 \(c = 0\)、\(m = -1\)，第三行却要求 \(m + c = 2\)。矛盾：这三个点不共线，任何直线都会“错过”其中某些点。在 1.6 节的语言里，\(\mathbf b\) <b>不在 \(A\) 的列空间里</b>。</p>
+    <p>既然不可能全部满足，就换一个问题：让每个点的偏差，也就是<b>残差</b> (residual) \(r_i = y_i - (mt_i + c)\)，合起来尽量小。怎么把几个残差合成一个数？取<b>平方和</b>。为什么是平方？</p>
+    <ul>
+      <li><b>大偏差被重罚。</b>偏差翻倍，代价翻四倍，所以一个大错比很多小错更要紧。</li>
+      <li><b>平方是光滑的。</b>最小值可以用求导或者几何直接解出，不需要迭代。</li>
+      <li><b>它就是长度的平方。</b>残差向量的平方和是 \(\|\mathbf r\|^2\)，最小化它就是找最近的点，而最近点由垂线给出 (1.9 节)。</li>
+      <li><b>它对应高斯噪声下的最大似然</b>（4.6 节会看到）。</li>
+    </ul>
+  </div>
+  <div data-lang="en">
+    <p>The first two rows say \(c = 0\) and \(m = -1\), yet the third demands \(m + c = 2\). Contradiction: the three points are not collinear, so every line misses some of them. In the language of Lesson 1.6, \(\mathbf b\) is <b>not in the column space of \(A\)</b>.</p>
+    <p>Since we cannot satisfy everything, ask a different question: make the deviations, the <b>residuals</b> \(r_i = y_i - (mt_i + c)\), small all together. How do we turn several residuals into one number? Take the <b>sum of squares</b>. Why squares?</p>
+    <ul>
+      <li><b>Big misses are punished hard.</b> Double the miss and the cost quadruples, so one large error matters more than many small ones.</li>
+      <li><b>Squares are smooth.</b> The minimum can be found by calculus or geometry directly, with no iteration.</li>
+      <li><b>It is a squared length.</b> The sum of squared residuals is \(\|\mathbf r\|^2\), so minimising it means finding the nearest point, and the nearest point comes from a perpendicular (Lesson 1.9).</li>
+      <li><b>It is maximum likelihood under Gaussian noise</b> (we will see this in Lesson 4.6).</li>
+    </ul>
+  </div>
+  <div class="callout key">
+    <div class="ct"><span data-lang="zh">核心洞见</span><span data-lang="en">Key insight</span></div>
+    <p data-lang="zh">当 \(A\mathbf x = \mathbf b\) 无解，说明 \(\mathbf b\) 够不到 \(A\) 的列空间。最小二乘就是在列空间里找离 \(\mathbf b\) 最近的点 \(A\hat{\mathbf x}\)，也就是 \(\mathbf b\) 在列空间上的<b>投影</b>。残差 \(\mathbf b - A\hat{\mathbf x}\) 垂直于整个列空间。</p>
+    <p data-lang="en">When \(A\mathbf x = \mathbf b\) has no solution, \(\mathbf b\) lies outside the column space of \(A\). Least squares finds the point \(A\hat{\mathbf x}\) of the column space nearest to \(\mathbf b\): the <b>projection</b> of \(\mathbf b\) onto it. The residual \(\mathbf b - A\hat{\mathbf x}\) is perpendicular to the whole column space.</p>
+  </div>
+</section>
+
+<!-- ============ 3. PLAY ============ -->
+<section class="step" id="play">
+  <h2><span class="n">3</span><span data-lang="zh">动手玩：用一条线拟合带噪声的点</span><span data-lang="en">Play: fit a line to noisy points</span></h2>
+  <div data-lang="zh">
+    <p>下图里 8 个点是带噪声的测量（比如激光雷达打在一面斜墙上）。两个琥珀色手柄决定<b>你的直线</b> \(y = mt + c\)。每个点到直线的竖直线段是它的残差，以残差为边长画出的红色方块，<b>面积就是残差的平方</b>。所有方块面积之和就是 SSE (sum of squared errors)。你的任务只有一个：让红色的总面积尽量小。点也可以拖动。</p>
+  </div>
+  <div data-lang="en">
+    <p>The 8 points below are noisy measurements (say, a lidar hitting a slanted wall). The two amber handles set <b>your line</b> \(y = mt + c\). The vertical segment from each point to the line is its residual, and the red square built on it has <b>area equal to the squared residual</b>. The total red area is the SSE (sum of squared errors). Your job: make the red area as small as you can. The points can be dragged too.</p>
+  </div>
+
+  <figure class="fig bleed" id="fig-fit">
+    <div class="fig-head"><span class="fig-kind">FIG 1</span><span class="fig-title"><span data-lang="zh">最小化红色方块的总面积</span><span data-lang="en">Minimise the total red area</span></span><span class="spacer"></span><span class="readout" id="fit-msg"></span></div>
+    <div class="fig-body split">
+      <div class="canvas-wrap" id="fit-canvas"><span class="overlay-label"><span data-lang="zh">横轴 t，纵轴 y</span><span data-lang="en">horizontal t, vertical y</span></span></div>
+      <div class="fig-side">
+        <div class="readout" id="fit-read"></div>
+      </div>
+    </div>
+    <div class="fig-body" style="border-top:1px solid var(--border)">
+      <div class="fig-side" style="border:0"><div class="katex-live" id="fit-tex"></div></div>
+    </div>
+    <div class="fig-controls" id="fit-controls"></div>
+    <figcaption class="fig-cap">
+      <span data-lang="zh">琥珀色：你的直线。紫色虚线：最小二乘 (LS) 直线，用右下方的按钮显示。十字是数据的重心 \((\bar t,\bar y)\)。下方的公式是由这些点直接算出的“正规方程”，本节后面会推导它。青色虚线是 TLS 线（量垂直距离而不是竖直距离），见误区 3。</span>
+      <span data-lang="en">Amber: your line. Dashed purple: the least-squares (LS) line, shown with the toggle below. The cross is the data's centroid \((\bar t,\bar y)\). The formula underneath is the “normal equation” computed straight from these points; we derive it later in this lesson. The dashed cyan line is the TLS line (it measures perpendicular rather than vertical distance), see Pitfall 3.</span>
+    </figcaption>
+  </figure>
+
+  <div class="tasks-title"><span data-lang="zh">试一试</span><span data-lang="en">Try this</span></div>
+  <ul class="tasks">
+    <li data-task="near"><span><span data-lang="zh">只用手柄，把你的 SSE 压到<b>最优 SSE 的 105% 以内</b>。</span><span data-lang="en">Using only the handles, get your SSE within <b>105% of the optimal SSE</b>.</span></span></li>
+    <li data-task="outlier"><span><span data-lang="zh">点“加离群点”，看最小二乘线被拉偏多少（读数会显示）。一个坏点就能把整条线拖走，因为平方让大误差占了主导。第三部分会看到鲁棒方法，比如 RANSAC。</span><span data-lang="en">Press “add outlier” and see how far the LS line gets dragged (the readout tells you). One bad point can pull the whole line, because squaring lets large errors dominate. Part III covers robust methods such as RANSAC.</span></span></li>
+    <li data-task="zerosum"><span><span data-lang="zh">造一条<b>很差的线</b>，让残差之和 \(\sum r_i\) 接近 0（\(|\sum r_i| &lt; 1\)），同时 SSE 至少是最优的 2 倍。提示：直线必须经过哪个点？零和说明不了好坏，起作用的是平方。</span><span data-lang="en">Build a <b>bad line</b> whose residuals still sum to nearly zero (\(|\sum r_i| &lt; 1\)) while the SSE is at least twice the optimum. Hint: which point must the line pass through? A zero sum says nothing about quality; the squares do the work.</span></span></li>
+  </ul>
+  <div data-lang="zh">
+    <p>玩一会儿你会发现：最优线并不是让每个方块都变小，它是让<b>总面积</b>最小，有的点会为大局让步。最优线一定穿过重心 \((\bar t,\bar y)\)；而穿过重心的线残差之和都是零，所以零和只是必要条件。把 8 个点写成 8 行方程，就是 \(A\mathbf x\approx\mathbf b\)，其中 \(A\) 的每一行是 \([\,t_i\;\;1\,]\)，\(\mathbf x = (m, c)^\top\)，\(\mathbf b = (y_1,\dots,y_8)^\top\)。</p>
+  </div>
+  <div data-lang="en">
+    <p>Play for a while and you will notice that the optimal line does not shrink every square; it minimises the <b>total area</b>, and some points give way for the common good. The optimal line always passes through the centroid \((\bar t,\bar y)\), but so does every line whose residuals sum to zero, so a zero sum is only a necessary condition. Writing the 8 points as 8 equations gives \(A\mathbf x\approx\mathbf b\), where each row of \(A\) is \([\,t_i\;\;1\,]\), \(\mathbf x = (m, c)^\top\) and \(\mathbf b = (y_1,\dots,y_8)^\top\).</p>
+  </div>
+</section>
+
+<!-- ============ 4. DATA SPACE ============ -->
+<section class="step" id="space">
+  <h2><span class="n">4</span><span data-lang="zh">第二种视角：数据空间里的垂线</span><span data-lang="en">A second view: the perpendicular in data space</span></h2>
+  <div data-lang="zh">
+    <p>FIG 1 的坐标是 \((t, y)\)：每个数据点是平面上的一个点（“模型空间”）。现在换一个空间看同一个问题：把所有测量值排成一个向量 \(\mathbf b\)，每个测量占一根坐标轴。这样整组数据就是<b>一个点</b>。为了能画出来，只取三个点，固定在 \(t = -1, 0, 1\) 上，于是 \(\mathbf b = (y_1, y_2, y_3)\) 是三维空间里的一个点。</p>
+    <p>\(A\) 的两列是 \(\mathbf a_1 = (-1, 0, 1)\)（\(t\) 的取值）和 \(\mathbf a_2 = (1, 1, 1)\)（常数 1）。\(A\mathbf x = m\,\mathbf a_1 + c\,\mathbf a_2\) 是它们的线性组合，所以“能被某条直线精确解释的数据”正好是这两列张成的<b>一张平面</b>（列空间）。真实数据 \(\mathbf b\) 一般不在平面上，最近的点 \(A\hat{\mathbf x}\) 是它的<b>垂足</b>。</p>
+    <p>拖动右图里的三个点（或者说，在左图里移动 \(\mathbf b\)），再用滑块试别的 \((m, c)\)。</p>
+  </div>
+  <div data-lang="en">
+    <p>The axes of FIG 1 are \((t, y)\): each data point is a point in the plane (“model space”). Now look at the same problem in another space: stack all the measurements into one vector \(\mathbf b\), one coordinate axis per measurement. The whole data set becomes <b>a single point</b>. To be able to draw it, take just three points fixed at \(t = -1, 0, 1\); then \(\mathbf b = (y_1, y_2, y_3)\) is a point in 3D.</p>
+    <p>The two columns of \(A\) are \(\mathbf a_1 = (-1, 0, 1)\) (the values of \(t\)) and \(\mathbf a_2 = (1, 1, 1)\) (the constant 1). \(A\mathbf x = m\,\mathbf a_1 + c\,\mathbf a_2\) is a linear combination of them, so the data “that some line explains exactly” form precisely the <b>plane</b> spanned by the two columns (the column space). Real data \(\mathbf b\) is usually off the plane, and the nearest point \(A\hat{\mathbf x}\) is its <b>foot of the perpendicular</b>.</p>
+    <p>Drag the three points in the right panel (equivalently, move \(\mathbf b\) on the left), and use the sliders to try other \((m, c)\).</p>
+  </div>
+
+  <figure class="fig bleed" id="fig-space">
+    <div class="fig-head"><span class="fig-kind">FIG 2</span><span class="fig-title"><span data-lang="zh">数据空间：b、列空间与垂足</span><span data-lang="en">Data space: b, the column space and the foot</span></span><span class="spacer"></span><span class="readout" id="ds-msg"></span></div>
+    <div class="fig-body two">
+      <div class="canvas-wrap" id="ds-3d"><span class="overlay-label"><span data-lang="zh">数据空间 ℝ³（拖动旋转）</span><span data-lang="en">data space ℝ³ (drag to orbit)</span></span></div>
+      <div class="canvas-wrap" id="ds-2d"><span class="overlay-label"><span data-lang="zh">同一组数据，模型空间（拖动三个点）</span><span data-lang="en">same data, model space (drag the points)</span></span></div>
+    </div>
+    <div class="fig-body" style="border-top:1px solid var(--border)">
+      <div class="fig-side" style="border:0">
+        <div class="readout" id="ds-read"></div>
+        <div class="katex-live" id="ds-tex1"></div>
+        <div class="katex-live" id="ds-tex2"></div>
+      </div>
+    </div>
+    <div class="fig-controls" id="ds-controls"></div>
+    <figcaption class="fig-cap">
+      <span data-lang="zh">琥珀色箭头 \(\mathbf b\)；青色平面是列空间；紫色 \(A\hat{\mathbf x}\) 是垂足，它由红色 \(\hat m\,\mathbf a_1\) 和绿色 \(\hat c\,\mathbf a_2\) 两步组合而成；红色虚线是残差 \(\mathbf r\)，和平面之间有直角标记。蓝点是你用滑块选的 \(A\mathbf x\)，蓝色虚线的长度平方就是那条直线的 SSE。勾股定理：\(\|\mathbf b - A\mathbf x\|^2 = \|\mathbf r\|^2 + \|A\hat{\mathbf x} - A\mathbf x\|^2\)，所以垂足一定最近。</span>
+      <span data-lang="en">The amber arrow is \(\mathbf b\); the cyan plane is the column space; the purple \(A\hat{\mathbf x}\) is the foot, built in two steps from the red \(\hat m\,\mathbf a_1\) and the green \(\hat c\,\mathbf a_2\); the dashed red segment is the residual \(\mathbf r\), with a right-angle mark at the plane. The blue dot is the \(A\mathbf x\) you chose with the sliders, and the squared length of the dashed blue segment is that line's SSE. Pythagoras: \(\|\mathbf b - A\mathbf x\|^2 = \|\mathbf r\|^2 + \|A\hat{\mathbf x} - A\mathbf x\|^2\), so the foot must be the nearest point.</span>
+    </figcaption>
+  </figure>
+  <div class="tasks-title"><span data-lang="zh">试一试</span><span data-lang="en">Try this</span></div>
+  <ul class="tasks">
+    <li data-task="inplane"><span><span data-lang="zh">拖动三个点，让它们<b>共线</b>（\(\|\mathbf r\| &lt; 0.08\)）。这时 \(\mathbf b\) 在 3D 图里躺在哪里？残差去哪了？</span><span data-lang="en">Drag the three points until they are <b>collinear</b> (\(\|\mathbf r\| &lt; 0.08\)). Where does \(\mathbf b\) sit in the 3D view now? What happened to the residual?</span></span></li>
+    <li data-task="foot"><span><span data-lang="zh">用滑块把蓝点移到离 \(\mathbf b\) 最近的位置，也就是紫色的垂足（\(\|A\hat{\mathbf x}-A\mathbf x\| &lt; 0.12\)）。需要有一定的残差（\(\|\mathbf r\|^2 &gt; 0.3\)）才算数。</span><span data-lang="en">Use the sliders to move the blue point to the spot nearest \(\mathbf b\), the purple foot (\(\|A\hat{\mathbf x}-A\mathbf x\| &lt; 0.12\)). The data needs a real residual (\(\|\mathbf r\|^2 &gt; 0.3\)) for this to count.</span></span></li>
+  </ul>
+  <div data-lang="zh">
+    <p>垂直这件事可以写成方程。残差 \(\mathbf r = \mathbf b - A\hat{\mathbf x}\) 垂直于平面，就是同时垂直于两列：\(\mathbf a_1^\top\mathbf r = 0\)，\(\mathbf a_2^\top\mathbf r = 0\)。把两个条件叠起来就是 \(A^\top(\mathbf b - A\hat{\mathbf x}) = \mathbf 0\)，即<b>正规方程</b> (normal equations)</p>
+  </div>
+  <div data-lang="en">
+    <p>Perpendicularity can be written as an equation. The residual \(\mathbf r = \mathbf b - A\hat{\mathbf x}\) is perpendicular to the plane, which means perpendicular to both columns: \(\mathbf a_1^\top\mathbf r = 0\) and \(\mathbf a_2^\top\mathbf r = 0\). Stack the two conditions and you get \(A^\top(\mathbf b - A\hat{\mathbf x}) = \mathbf 0\), the <b>normal equations</b></p>
+  </div>
+  <div class="math-card">$$ A^\top A\,\hat{\mathbf x} = A^\top\mathbf b \quad\Longrightarrow\quad \underbrace{\begin{bmatrix} 2 & 0 \\ 0 & 3 \end{bmatrix}}_{A^\top A}\begin{bmatrix}\hat m\\ \hat c\end{bmatrix} = \underbrace{\begin{bmatrix} y_3 - y_1 \\ y_1 + y_2 + y_3 \end{bmatrix}}_{A^\top\mathbf b} $$
+$$ \Longrightarrow\quad \hat m = \frac{y_3 - y_1}{2},\qquad \hat c = \frac{y_1 + y_2 + y_3}{3}. $$</div>
+  <p data-lang="zh">这里两列恰好正交（\(\mathbf a_1\cdot\mathbf a_2 = 0\)），所以 \(A^\top A\) 是对角阵：最优斜率只看两端的点，最优截距就是三个值的平均。一般情形下 \(A^\top A\) 不是对角的，但结论一样：\(\hat{\mathbf x} = (A^\top A)^{-1}A^\top\mathbf b\)。把它乘回 \(A\)，就得到<b>投影矩阵</b>：</p>
+  <p data-lang="en">The two columns happen to be orthogonal here (\(\mathbf a_1\cdot\mathbf a_2 = 0\)), so \(A^\top A\) is diagonal: the best slope looks only at the two end points, and the best intercept is just the average of the three values. In general \(A^\top A\) is not diagonal, but the conclusion is the same: \(\hat{\mathbf x} = (A^\top A)^{-1}A^\top\mathbf b\). Multiply by \(A\) and you get the <b>projection matrix</b>:</p>
+  <div class="math-card">$$ A\hat{\mathbf x} = P\mathbf b,\qquad P = A(A^\top A)^{-1}A^\top = \frac16\begin{bmatrix} 5 & 2 & -1 \\ 2 & 2 & 2 \\ -1 & 2 & 5 \end{bmatrix}. $$</div>
+  <p data-lang="zh">它正是 1.9 节的那个 \(P\)：\(P^\top = P\)，\(P^2 = P\)，把任何数据向量压到列空间里。下面把 FIG 2 的数代进去检验：当 \(\mathbf b = (1, 0, 2)\) 时，\(P\mathbf b = (0.5, 1, 1.5)\)，也就是直线 \(y = 0.5t + 1\) 在三个位置上的取值；残差 \((0.5, -1, 0.5)\) 的平方和 1.5 就是这组数据最小的 SSE。</p>
+  <p data-lang="en">It is exactly the \(P\) of Lesson 1.9: \(P^\top = P\), \(P^2 = P\), and it squashes any data vector into the column space. Plug in the numbers of FIG 2 to check: for \(\mathbf b = (1, 0, 2)\) we get \(P\mathbf b = (0.5, 1, 1.5)\), the values of the line \(y = 0.5t + 1\) at the three positions; the residual \((0.5, -1, 0.5)\) has squared length 1.5, the smallest possible SSE for this data.</p>
+</section>
+
+<!-- ============ 5. UNDERDETERMINED ============ -->
+<section class="step" id="under">
+  <h2><span class="n">5</span><span data-lang="zh">第三种视角：方程不够，挑最短的解</span><span data-lang="en">A third view: too few equations, pick the shortest solution</span></h2>
+  <div data-lang="zh">
+    <p>现在反过来：只有<b>一个</b>方程，却有两个未知数，\(a_1x_1 + a_2x_2 = \beta\)，也就是 \(A = [\,a_1\;\;a_2\,]\)，\(b = \beta\)。在 \(x_1x_2\) 平面上，所有解排成一条直线。按 1.6 节，这条线是一个特解加上零空间：\(\mathbf x = \mathbf x_p + \mathbf n\)，\(\mathbf n\in\operatorname{null}(A)\)。</p>
+    <p>该选哪一个？一个自然的规则是选<b>离原点最近</b>的，也就是范数最小的。如果 \(x_1, x_2\) 是两个关节的速度，这就是“让关节总共动得最少”。几何上，离原点最近的点是原点向解线作垂线的垂足，所以它垂直于零空间方向，一定落在 \(A\) 的<b>行空间</b>里（行向量 \((a_1, a_2)\) 的方向）。这个点就是 \(A^{+}\mathbf b\)。</p>
+    <p>拖动青色的行向量 \((a_1, a_2)\) 的箭头尖端，用滑块改 \(\beta\)，再把琥珀色的点沿解线滑动，看看有没有比紫色点更短的解。</p>
+  </div>
+  <div data-lang="en">
+    <p>Now the reverse: just <b>one</b> equation for two unknowns, \(a_1x_1 + a_2x_2 = \beta\), i.e. \(A = [\,a_1\;\;a_2\,]\), \(b = \beta\). In the \(x_1x_2\) plane the solutions form a line. By Lesson 1.6 that line is a particular solution plus the null space: \(\mathbf x = \mathbf x_p + \mathbf n\) with \(\mathbf n\in\operatorname{null}(A)\).</p>
+    <p>Which one should we pick? A natural rule is the one <b>closest to the origin</b>, the one of minimum norm. If \(x_1, x_2\) are two joint velocities, this means “move the joints as little as possible in total”. Geometrically, the closest point is the foot of the perpendicular dropped from the origin onto the solution line, so it is perpendicular to the null-space direction and must lie in the <b>row space</b> of \(A\) (the direction of the row vector \((a_1, a_2)\)). That point is \(A^{+}\mathbf b\).</p>
+    <p>Drag the tip of the cyan row-vector arrow \((a_1, a_2)\), change \(\beta\) with the slider, and slide the amber point along the solution line to see whether any solution beats the purple one.</p>
+  </div>
+
+  <figure class="fig bleed" id="fig-under">
+    <div class="fig-head"><span class="fig-kind">FIG 3</span><span class="fig-title"><span data-lang="zh">一个方程，两个未知数：最小范数解</span><span data-lang="en">One equation, two unknowns: the minimum-norm solution</span></span><span class="spacer"></span><span class="readout" id="un-msg"></span></div>
+    <div class="fig-body split">
+      <div class="canvas-wrap" id="un-canvas"><span class="overlay-label"><span data-lang="zh">解空间 (x₁, x₂)</span><span data-lang="en">solution space (x₁, x₂)</span></span></div>
+      <div class="fig-side">
+        <div class="readout" id="un-read"></div>
+        <div class="katex-live" id="un-tex"></div>
+      </div>
+    </div>
+    <div class="fig-controls" id="un-controls"></div>
+    <figcaption class="fig-cap">
+      <span data-lang="zh">琥珀色直线是所有解 \(a_1x_1 + a_2x_2 = \beta\)；青色箭头是行向量 \((a_1, a_2)\)，青色虚线是零空间（和行向量垂直）。紫色点是 \(\mathbf x^{+} = A^{+}\mathbf b\)，紫色虚线圆以它的长度为半径，刚好与解线相切；琥珀色点 \(\mathbf q\) 是解线上任意一点，琥珀色圆更大。勾股定理：\(\|\mathbf q\|^2 = \|\mathbf x^{+}\|^2 + s^2\)，其中 \(s\) 是沿零空间走的距离。</span>
+      <span data-lang="en">The amber line holds all solutions of \(a_1x_1 + a_2x_2 = \beta\); the cyan arrow is the row vector \((a_1, a_2)\) and the dashed cyan line is the null space (perpendicular to the row). The purple point is \(\mathbf x^{+} = A^{+}\mathbf b\); the dashed purple circle has its length as radius and just touches the solution line. The amber point \(\mathbf q\) is any point on the line, with a larger amber circle. Pythagoras: \(\|\mathbf q\|^2 = \|\mathbf x^{+}\|^2 + s^2\), where \(s\) is the distance walked along the null space.</span>
+    </figcaption>
+  </figure>
+  <div class="tasks-title"><span data-lang="zh">试一试</span><span data-lang="en">Try this</span></div>
+  <ul class="tasks">
+    <li data-task="shortest"><span><span data-lang="zh">把琥珀色点沿解线拖到<b>最短</b>的位置（\(|s| &lt; 0.08\)）。它和紫色点重合时，圆会变成什么样？</span><span data-lang="en">Drag the amber point along the solution line to the <b>shortest</b> position (\(|s| &lt; 0.08\)). What do the two circles do when it meets the purple point?</span></span></li>
+    <li data-task="axis"><span><span data-lang="zh">拖动行向量，让最小范数解落在 \(x_1\) 轴上（\(|x_2^{+}| &lt; 0.06\)）。这时 \(a_2\) 是多少？为什么？</span><span data-lang="en">Drag the row vector so that the minimum-norm solution lands on the \(x_1\)-axis (\(|x_2^{+}| &lt; 0.06\)). What is \(a_2\) then, and why?</span></span></li>
+  </ul>
+
+  <h3><span data-lang="zh">统一：奇异值分解一次说清楚</span><span data-lang="en">Unifying: the SVD says it all at once</span></h3>
+  <div data-lang="zh">
+    <p>最小二乘（方程太多）和最小范数（方程太少）看上去是两个问题，SVD 能一起解决。把 \(A = U\Sigma V^\top\) 代进 \(A\mathbf x = \mathbf b\)，并换坐标：\(\mathbf y = V^\top\mathbf x\)，\(\mathbf c = U^\top\mathbf b\)。因为 \(U\)、\(V\) 是正交矩阵（不改变长度），问题就拆成了互不相干的标量方程：</p>
+    <p style="text-align:center">\(\sigma_i\,y_i = c_i,\qquad i = 1,\dots,r\)，\(\qquad 0\cdot y_i = c_i,\qquad i &gt; r\)。</p>
+    <ul>
+      <li>\(\sigma_i > 0\) 的方向：唯一合理的选择是 \(y_i = c_i/\sigma_i\)，这就是“把每个方向除以 \(\sigma_i\)”。</li>
+      <li>\(\sigma_i = 0\)（\(i > r\)）的方向，方程 \(0\cdot y_i = c_i\) 有两件事：\(c_i\) 无法被满足，这是不可避免的残差，也是 \(\mathbf b\) 垂直于列空间的那一部分（<b>最小二乘</b>：不管它）。同时 \(y_i\) 取什么都不影响残差，这是零空间方向，取 0 让范数最短（<b>最小范数</b>）。</li>
+    </ul>
+    <p>合起来就是 \(\mathbf x^{+} = V\Sigma^{+}U^\top\mathbf b\)：非零奇异值取倒数，零奇异值<b>忽略</b>。同一个公式，既处理方程太多，也处理方程太少，还包括两者混合的秩亏情形。</p>
+  </div>
+  <div data-lang="en">
+    <p>Least squares (too many equations) and minimum norm (too few) look like two problems, and the SVD solves both at once. Substitute \(A = U\Sigma V^\top\) into \(A\mathbf x = \mathbf b\) and change coordinates: \(\mathbf y = V^\top\mathbf x\), \(\mathbf c = U^\top\mathbf b\). Because \(U\) and \(V\) are orthogonal (they keep lengths), the problem falls apart into independent scalar equations:</p>
+    <p style="text-align:center">\(\sigma_i\,y_i = c_i,\qquad i = 1,\dots,r\), \(\qquad 0\cdot y_i = c_i,\qquad i &gt; r\).</p>
+    <ul>
+      <li>Directions with \(\sigma_i > 0\): the only sensible choice is \(y_i = c_i/\sigma_i\), which is “divide each direction by \(\sigma_i\)”.</li>
+      <li>Directions with \(\sigma_i = 0\) (\(i > r\)): the equation \(0\cdot y_i = c_i\) says two things. \(c_i\) cannot be satisfied, an unavoidable residual, the part of \(\mathbf b\) perpendicular to the column space (<b>least squares</b>: leave it alone). And \(y_i\) does not affect the residual at all, a null-space direction, so set it to 0 to keep the norm smallest (<b>minimum norm</b>).</li>
+    </ul>
+    <p>Together that is \(\mathbf x^{+} = V\Sigma^{+}U^\top\mathbf b\): invert the nonzero singular values and <b>ignore</b> the zero ones. One formula covers too many equations, too few, and the rank-deficient mixture of both.</p>
+  </div>
+  <div class="table-wrap">
+  <table class="compare">
+    <thead><tr>
+      <th><span data-lang="zh">\(A\) 的形状与秩</span><span data-lang="en">Shape and rank of \(A\)</span></th>
+      <th><span data-lang="zh">问题</span><span data-lang="en">Problem</span></th>
+      <th>\(A^{+}\)</th>
+    </tr></thead>
+    <tbody>
+      <tr>
+        <td><span data-lang="zh">瘦高，列满秩（\(m > n\)，\(r = n\)）</span><span data-lang="en">tall, full column rank (\(m > n\), \(r = n\))</span></td>
+        <td><span data-lang="zh">超定：唯一的最小二乘解</span><span data-lang="en">overdetermined: unique least-squares solution</span></td>
+        <td>\((A^\top A)^{-1}A^\top\)</td>
+      </tr>
+      <tr>
+        <td><span data-lang="zh">矮胖，行满秩（\(m < n\)，\(r = m\)）</span><span data-lang="en">wide, full row rank (\(m < n\), \(r = m\))</span></td>
+        <td><span data-lang="zh">欠定：最小范数解</span><span data-lang="en">underdetermined: minimum-norm solution</span></td>
+        <td>\(A^\top(AA^\top)^{-1}\)</td>
+      </tr>
+      <tr>
+        <td><span data-lang="zh">方阵，可逆（\(r = m = n\)）</span><span data-lang="en">square, invertible (\(r = m = n\))</span></td>
+        <td><span data-lang="zh">恰定：普通的逆</span><span data-lang="en">exactly determined: the ordinary inverse</span></td>
+        <td>\(A^{-1}\)</td>
+      </tr>
+      <tr>
+        <td><span data-lang="zh">秩亏（\(r < \min(m, n)\)）</span><span data-lang="en">rank-deficient (\(r < \min(m, n)\))</span></td>
+        <td><span data-lang="zh">两者混合：在所有最小二乘解里取范数最小的</span><span data-lang="en">a mixture: the minimum-norm one among all least-squares solutions</span></td>
+        <td>\(V\Sigma^{+}U^\top\)</td>
+      </tr>
+    </tbody>
+  </table>
+  </div>
+  <div class="callout view">
+    <div class="ct"><span data-lang="zh">冗余机械臂：伪逆之外还能加一项</span><span data-lang="en">Redundant arms: one more term beyond the pseudo-inverse</span></div>
+    <p data-lang="zh">对于 \(J\dot{\mathbf q} = \dot{\mathbf x}\) 里的冗余机械臂（\(m < n\)），所有解是 \(\dot{\mathbf q} = J^{+}\dot{\mathbf x} + (I - J^{+}J)\,\dot{\mathbf q}_0\)。第一项是最小范数的特解，第二项把任意速度 \(\dot{\mathbf q}_0\) 投影到 \(J\) 的零空间上，也就是不影响末端的“自运动”（1.6 节）。可以用它同时去避障、避开关节极限。\(I - J^{+}J\) 是到零空间的投影矩阵 (1.9 节)。</p>
+    <p data-lang="en">For a redundant arm in \(J\dot{\mathbf q} = \dot{\mathbf x}\) (\(m < n\)), all solutions are \(\dot{\mathbf q} = J^{+}\dot{\mathbf x} + (I - J^{+}J)\,\dot{\mathbf q}_0\). The first term is the minimum-norm particular solution; the second projects an arbitrary velocity \(\dot{\mathbf q}_0\) onto the null space of \(J\), the “self-motion” that leaves the end effector alone (Lesson 1.6). You can spend it on avoiding obstacles or joint limits at the same time. \(I - J^{+}J\) is the projection onto the null space (Lesson 1.9).</p>
+  </div>
+</section>
+
+<!-- ============ 6. MATH ============ -->
+<section class="step" id="math">
+  <h2><span class="n">6</span><span data-lang="zh">再看数学</span><span data-lang="en">The math</span></h2>
+
+  <h3><span data-lang="zh">问题</span><span data-lang="en">The problem</span></h3>
+  <p data-lang="zh">给定 \(A\in\R^{m\times n}\) 和 \(\mathbf b\in\R^m\)，求</p>
+  <p data-lang="en">Given \(A\in\R^{m\times n}\) and \(\mathbf b\in\R^m\), find</p>
+  <div class="math-card">$$ \hat{\mathbf x} = \arg\min_{\mathbf x}\ \|A\mathbf x - \mathbf b\|^2 = \arg\min_{\mathbf x}\ \sum_{i=1}^{m}\big(\mathbf a_i^\top\mathbf x - b_i\big)^2, $$</div>
+  <p data-lang="zh">其中 \(\mathbf a_i^\top\) 是 \(A\) 的第 \(i\) 行：每一行是一次测量（一个方程）。</p>
+  <p data-lang="en">where \(\mathbf a_i^\top\) is row \(i\) of \(A\): each row is one measurement (one equation).</p>
+
+  <h3><span data-lang="zh">推导一：垂直与正规方程</span><span data-lang="en">Derivation 1: perpendicularity and the normal equations</span></h3>
+  <div class="math-card">$$ \hl{r}{\mathbf r} = \hl{b}{\cv{\mathbf b}} - \hl{Axh}{\cw{A\hat{\mathbf x}}} \;\perp\; \hl{col}{\operatorname{col}(A)} \iff A^\top\big(\mathbf b - A\hat{\mathbf x}\big) = \mathbf 0 \iff \boxed{\,A^\top A\,\hat{\mathbf x} = A^\top\mathbf b\,} $$</div>
+  <p data-lang="zh">“垂直于列空间”等价于“垂直于每一列”，也就是 \(\mathbf a_j^\top\mathbf r = 0\)（\(j = 1,\dots,n\)）；把 \(n\) 个条件叠成一个矩阵就是 \(A^\top\mathbf r = \mathbf 0\)。</p>
+  <p data-lang="en">“Perpendicular to the column space” means “perpendicular to every column”, i.e. \(\mathbf a_j^\top\mathbf r = 0\) for \(j = 1,\dots,n\); stacking the \(n\) conditions into a matrix gives \(A^\top\mathbf r = \mathbf 0\).</p>
+  <p class="hl-hint"><span data-lang="zh">提示：把鼠标悬停在公式中的 \(\mathbf b\)、\(A\hat{\mathbf x}\)、\(\mathbf r\)、列空间上，FIG 2 会加粗对应的对象。</span><span data-lang="en">Tip: hover \(\mathbf b\), \(A\hat{\mathbf x}\), \(\mathbf r\) or the column space in the formula; FIG 2 thickens the matching object.</span></p>
+
+  <h3><span data-lang="zh">推导二：令梯度为零</span><span data-lang="en">Derivation 2: set the gradient to zero</span></h3>
+  <p data-lang="zh">展开目标函数：\(f(\mathbf x) = \|A\mathbf x - \mathbf b\|^2 = \mathbf x^\top A^\top A\,\mathbf x - 2\,\mathbf b^\top A\mathbf x + \mathbf b^\top\mathbf b\)。它是 \(\mathbf x\) 的二次函数，梯度为 \(\nabla f = 2A^\top A\,\mathbf x - 2A^\top\mathbf b\)。令梯度为零，得到同样的正规方程。这是第 3 章（梯度）和第 6 章（优化）的预告：最小二乘是最简单的优化问题，因为目标是凸二次函数，唯一的驻点就是最小值点。</p>
+  <p data-lang="en">Expand the objective: \(f(\mathbf x) = \|A\mathbf x - \mathbf b\|^2 = \mathbf x^\top A^\top A\,\mathbf x - 2\,\mathbf b^\top A\mathbf x + \mathbf b^\top\mathbf b\). It is quadratic in \(\mathbf x\), with gradient \(\nabla f = 2A^\top A\,\mathbf x - 2A^\top\mathbf b\). Setting the gradient to zero gives the same normal equations. This previews Chapter 3 (gradients) and Chapter 6 (optimisation): least squares is the simplest optimisation problem, because the objective is a convex quadratic and its only stationary point is the minimum.</p>
+
+  <h3><span data-lang="zh">唯一性与投影矩阵</span><span data-lang="en">Uniqueness and the projection matrix</span></h3>
+  <div data-lang="zh">
+    <p>如果 \(A\) 的列线性无关（列满秩，零空间只有 \(\mathbf 0\)），\(A^\top A\) 可逆，解<b>唯一</b>：</p>
+  </div>
+  <div data-lang="en">
+    <p>If the columns of \(A\) are linearly independent (full column rank, null space \(\{\mathbf 0\}\)), \(A^\top A\) is invertible and the solution is <b>unique</b>:</p>
+  </div>
+  <div class="math-card">$$ \hat{\mathbf x} = (A^\top A)^{-1}A^\top\mathbf b,\qquad A\hat{\mathbf x} = P\mathbf b,\quad P = A(A^\top A)^{-1}A^\top,\quad P^\top = P,\; P^2 = P. $$</div>
+  <p data-lang="zh">如果列线性相关，\(A^\top A\) 不可逆，最小二乘解不唯一：\(\hat{\mathbf x} + \mathbf n\)（\(\mathbf n\in\operatorname{null}(A)\)）都一样好。这时要再加一条规则，比如下面的最小范数。</p>
+  <p data-lang="en">If the columns are dependent, \(A^\top A\) is singular and the least-squares solution is not unique: \(\hat{\mathbf x} + \mathbf n\) (\(\mathbf n\in\operatorname{null}(A)\)) is just as good. Then we need one more rule, such as minimum norm below.</p>
+
+  <h3><span data-lang="zh">最小范数解（方程不够）</span><span data-lang="en">The minimum-norm solution (too few equations)</span></h3>
+  <div data-lang="zh">
+    <p>如果 \(A\) 的行线性无关（行满秩，\(m < n\)），\(A\mathbf x = \mathbf b\) 总有解，且有无穷多个。其中范数最小的是</p>
+  </div>
+  <div data-lang="en">
+    <p>If the rows of \(A\) are linearly independent (full row rank, \(m < n\)), \(A\mathbf x = \mathbf b\) is always solvable, with infinitely many solutions. The one of smallest norm is</p>
+  </div>
+  <div class="math-card">$$ \hl{xp}{\cw{\mathbf x^{+}}} = A^\top(AA^\top)^{-1}\mathbf b $$
+$$ \text{every solution is } \mathbf x = \mathbf x^{+} + \mathbf n,\ \ \mathbf n\in\hl{ns}{\operatorname{null}(A)},\qquad \|\mathbf x\|^2 = \|\mathbf x^{+}\|^2 + \|\mathbf n\|^2. $$</div>
+  <p data-lang="zh">理由：\(\mathbf x^{+} = A^\top\mathbf w\) 是行的线性组合，在行空间里；\(A\mathbf x^{+} = AA^\top(AA^\top)^{-1}\mathbf b = \mathbf b\)，所以它是解。行空间和零空间互相垂直（1.6 节、1.9 节），所以勾股定理成立，任何别的解都更长。这就是 FIG 3 里的直角。</p>
+  <p data-lang="en">Why: \(\mathbf x^{+} = A^\top\mathbf w\) is a combination of rows, so it lies in the row space; and \(A\mathbf x^{+} = AA^\top(AA^\top)^{-1}\mathbf b = \mathbf b\), so it is a solution. The row space and null space are perpendicular (Lessons 1.6 and 1.9), so Pythagoras applies and every other solution is longer. That is the right angle in FIG 3.</p>
+  <p class="hl-hint"><span data-lang="zh">提示：悬停 \(\mathbf x^{+}\) 或零空间，FIG 3 会加粗对应的点或直线。</span><span data-lang="en">Tip: hover \(\mathbf x^{+}\) or the null space; FIG 3 thickens the matching point or line.</span></p>
+
+  <h3><span data-lang="zh">Moore–Penrose 伪逆</span><span data-lang="en">The Moore–Penrose pseudo-inverse</span></h3>
+  <div class="math-card">$$ A = U\Sigma V^\top \;\Longrightarrow\; A^{+} = V\,\Sigma^{+}\,U^\top,\qquad \Sigma^{+} = \operatorname{diag}\!\Big(\tfrac{1}{\sigma_1},\dots,\tfrac{1}{\sigma_r},0,\dots,0\Big)^{\!\top} $$
+$$ \mathbf x^{+} = A^{+}\mathbf b = \sum_{i=1}^{r}\frac{\mathbf u_i^\top\mathbf b}{\sigma_i}\,\mathbf v_i. $$</div>
+  <div data-lang="zh">
+    <p>\(\mathbf x^{+} = A^{+}\mathbf b\) 是<b>所有使 \(\|A\mathbf x - \mathbf b\|\) 最小的 \(\mathbf x\) 里范数最小的那个</b>（推导见第 5 节的拆分）。几个常用事实：</p>
+    <ul>
+      <li>\(AA^{+}\) 是到列空间的投影，\(A^{+}A\) 是到行空间的投影。列满秩时 \(AA^{+} = P\)。</li>
+      <li>四个 Penrose 条件：\(AA^{+}A = A\)，\(A^{+}AA^{+} = A^{+}\)，\((AA^{+})^\top = AA^{+}\)，\((A^{+}A)^\top = A^{+}A\)。满足它们的 \(A^{+}\) 是唯一的。</li>
+      <li>列满秩时，\((A^\top A)^{-1}A^\top = V\Sigma^{-2}V^\top\cdot V\Sigma U^\top = V\Sigma^{-1}U^\top\)，与 SVD 公式一致。行满秩时同理。</li>
+    </ul>
+  </div>
+  <div data-lang="en">
+    <p>\(\mathbf x^{+} = A^{+}\mathbf b\) is <b>the smallest-norm vector among all \(\mathbf x\) that minimise \(\|A\mathbf x - \mathbf b\|\)</b> (the derivation is the decoupling in Section 5). A few handy facts:</p>
+    <ul>
+      <li>\(AA^{+}\) projects onto the column space and \(A^{+}A\) onto the row space. With full column rank, \(AA^{+} = P\).</li>
+      <li>The four Penrose conditions: \(AA^{+}A = A\), \(A^{+}AA^{+} = A^{+}\), \((AA^{+})^\top = AA^{+}\), \((A^{+}A)^\top = A^{+}A\). Exactly one matrix \(A^{+}\) satisfies them.</li>
+      <li>With full column rank, \((A^\top A)^{-1}A^\top = V\Sigma^{-2}V^\top\cdot V\Sigma U^\top = V\Sigma^{-1}U^\top\), matching the SVD formula. Likewise for full row rank.</li>
+    </ul>
+  </div>
+
+  <h3><span data-lang="zh">阻尼最小二乘 (DLS)</span><span data-lang="en">Damped least squares (DLS)</span></h3>
+  <div data-lang="zh">
+    <p>小奇异值是麻烦的来源：\(1/\sigma_i\) 把噪声放大。阻尼的想法是同时惩罚解的大小，让“准确”和“别太大”折中：</p>
+  </div>
+  <div data-lang="en">
+    <p>Small singular values are the source of trouble: \(1/\sigma_i\) amplifies noise. Damping penalises the size of the solution too, trading accuracy against size:</p>
+  </div>
+  <div class="math-card">$$ \min_{\mathbf x}\ \|A\mathbf x - \mathbf b\|^2 + \lambda^2\|\mathbf x\|^2 \;\Longrightarrow\; \mathbf x_\lambda = (A^\top A + \lambda^2 I)^{-1}A^\top\mathbf b = \sum_{i}\hl{dls}{\frac{\sigma_i}{\sigma_i^2 + \lambda^2}}\,(\mathbf u_i^\top\mathbf b)\,\mathbf v_i. $$</div>
+  <div data-lang="zh">
+    <p>第一个等号的推导很简洁：这等价于一个普通的最小二乘问题，只是在方程后面多叠了 \(n\) 个方程 \(\lambda\mathbf x\approx\mathbf 0\)：\(\begin{bmatrix}A\\ \lambda I\end{bmatrix}\mathbf x\approx\begin{bmatrix}\mathbf b\\ \mathbf 0\end{bmatrix}\)。对它写正规方程，立刻得到 \((A^\top A + \lambda^2 I)\mathbf x = A^\top\mathbf b\)。\(A^\top A + \lambda^2 I\) 的特征值都不小于 \(\lambda^2\)，所以永远可逆。统计里这叫岭回归 (ridge)，反问题里叫 Tikhonov 正则化。</p>
+    <p>在 SVD 坐标里，每个方向的增益从 \(1/\sigma\) 换成了 \(\sigma/(\sigma^2+\lambda^2)\)（悬停公式里的这一项）：</p>
+    <ul>
+      <li>\(\sigma\gg\lambda\)：增益 \(\approx 1/\sigma\)，几乎不受影响。</li>
+      <li>\(\sigma\ll\lambda\)：增益 \(\approx\sigma/\lambda^2\to 0\)，微弱的方向被安静地放弃，不再放大噪声。</li>
+      <li>增益最大值是 \(1/(2\lambda)\)（在 \(\sigma = \lambda\) 处），所以 \(\lambda\) 直接决定了最坏情况下的放大倍数。</li>
+    </ul>
+    <p>代价是不再精确：沿弱方向的目标只完成了一部分，残差变大。\(\lambda\) 越大，解越小、残差越大；\(\lambda\to 0\) 回到伪逆。把 \(A = J\)、\(\mathbf x = \dot{\mathbf q}\)、\(\mathbf b = \dot{\mathbf x}\) 代入，就是逆运动学里的 DLS。还有一个等价的写法 \(\dot{\mathbf q} = J^\top(JJ^\top + \lambda^2 I)^{-1}\dot{\mathbf x}\)，当任务维数 \(m\) 比关节数 \(n\) 小时，要求逆的矩阵更小。</p>
+  </div>
+  <div data-lang="en">
+    <p>The first equality has a neat derivation: it is an ordinary least-squares problem with \(n\) extra equations \(\lambda\mathbf x\approx\mathbf 0\) stacked underneath: \(\begin{bmatrix}A\\ \lambda I\end{bmatrix}\mathbf x\approx\begin{bmatrix}\mathbf b\\ \mathbf 0\end{bmatrix}\). Write its normal equations and you immediately get \((A^\top A + \lambda^2 I)\mathbf x = A^\top\mathbf b\). The eigenvalues of \(A^\top A + \lambda^2 I\) are all at least \(\lambda^2\), so it is always invertible. Statisticians call this ridge regression; in inverse problems it is Tikhonov regularisation.</p>
+    <p>In SVD coordinates the gain of each direction changes from \(1/\sigma\) to \(\sigma/(\sigma^2+\lambda^2)\) (hover that term in the formula):</p>
+    <ul>
+      <li>\(\sigma\gg\lambda\): gain \(\approx 1/\sigma\), almost untouched.</li>
+      <li>\(\sigma\ll\lambda\): gain \(\approx\sigma/\lambda^2\to 0\); weak directions are quietly given up instead of amplifying noise.</li>
+      <li>The largest gain is \(1/(2\lambda)\) (at \(\sigma = \lambda\)), so \(\lambda\) directly caps the worst-case amplification.</li>
+    </ul>
+    <p>The price is exactness: the goal along weak directions is only partly achieved and the residual grows. The larger \(\lambda\), the smaller the solution and the larger the residual; \(\lambda\to 0\) gives back the pseudo-inverse. Put \(A = J\), \(\mathbf x = \dot{\mathbf q}\), \(\mathbf b = \dot{\mathbf x}\) and you have DLS for inverse kinematics. An equivalent form is \(\dot{\mathbf q} = J^\top(JJ^\top + \lambda^2 I)^{-1}\dot{\mathbf x}\), where the matrix to invert is smaller when the task dimension \(m\) is below the number of joints \(n\).</p>
+  </div>
+
+  <figure class="fig bleed" id="fig-dls">
+    <div class="fig-head"><span class="fig-kind">FIG 4</span><span class="fig-title"><span data-lang="zh">阻尼：增益曲线与准确度–大小折中</span><span data-lang="en">Damping: gain curves and the accuracy–size trade-off</span></span><span class="spacer"></span><span class="readout" id="dl-msg"></span></div>
+    <div class="fig-body two">
+      <div class="canvas-wrap" id="dl-gain"></div>
+      <div class="canvas-wrap" id="dl-trade"></div>
+    </div>
+    <div class="fig-body" style="border-top:1px solid var(--border)">
+      <div class="fig-side" style="border:0"><div class="readout" id="dl-read"></div></div>
+    </div>
+    <div class="fig-controls" id="dl-controls"></div>
+    <figcaption class="fig-cap">
+      <span data-lang="zh">设 \(J = U\,\mathrm{diag}(\sigma_1,\sigma_2)\,V^\top\)，\(\sigma_1 = 1\)，\(\sigma_2\) 是可调的“弱方向”，目标末端速度 \(\dot{\mathbf x}\) 在 \(\mathbf u_1,\mathbf u_2\) 上的分量是 \((0.8,\,0.6)\)。左图：每个方向的增益。红色虚线是 \(1/\sigma\)，紫色是 \(\sigma/(\sigma^2+\lambda^2)\)；竖线标出两个奇异值，圆点是它们此刻的增益。右图：随着 \(\lambda\) 从 0 增大，关节速度 \(\|\dot{\mathbf q}\|\)（纵轴）和跟踪误差 \(\|J\dot{\mathbf q}-\dot{\mathbf x}\|\)（横轴）怎么变化；绿色方框是“速度 ≤ 4 且误差 ≤ 0.5”的可接受区。</span>
+      <span data-lang="en">Let \(J = U\,\mathrm{diag}(\sigma_1,\sigma_2)\,V^\top\) with \(\sigma_1 = 1\) and an adjustable “weak direction” \(\sigma_2\); the desired end-effector velocity \(\dot{\mathbf x}\) has components \((0.8,\,0.6)\) along \(\mathbf u_1,\mathbf u_2\). Left: the gain of each direction. The dashed red curve is \(1/\sigma\), the purple one is \(\sigma/(\sigma^2+\lambda^2)\); vertical lines mark the two singular values and the dots show their gains right now. Right: as \(\lambda\) grows from 0, how the joint speed \(\|\dot{\mathbf q}\|\) (vertical) and the tracking error \(\|J\dot{\mathbf q}-\dot{\mathbf x}\|\) (horizontal) change; the green box is the acceptable zone “speed ≤ 4 and error ≤ 0.5”.</span>
+    </figcaption>
+  </figure>
+  <div class="tasks-title"><span data-lang="zh">试一试</span><span data-lang="en">Try this</span></div>
+  <ul class="tasks">
+    <li data-task="tune"><span><span data-lang="zh">保持 \(\sigma_2\) 在 0.04 到 0.08 之间，调 \(\lambda\)，让关节速度 \(\|\dot{\mathbf q}\|\le 4\) 同时跟踪误差 \(\le 0.5\)。\(\lambda = 0\) 时关节速度是多少？</span><span data-lang="en">Keep \(\sigma_2\) between 0.04 and 0.08 and tune \(\lambda\) so that the joint speed \(\|\dot{\mathbf q}\|\le 4\) while the tracking error is \(\le 0.5\). What is the joint speed at \(\lambda = 0\)?</span></span></li>
+  </ul>
+
+  <h3><span data-lang="zh">加权最小二乘</span><span data-lang="en">Weighted least squares</span></h3>
+  <div data-lang="zh">
+    <p>前面默认每个测量一样可靠。如果第 \(i\) 个测量的噪声标准差是 \(s_i\)，就该让可靠的测量说话更响：最小化 \((A\mathbf x - \mathbf b)^\top W(A\mathbf x - \mathbf b)\)，\(W = \operatorname{diag}(1/s_i^2)\)，解为</p>
+  </div>
+  <div data-lang="en">
+    <p>So far every measurement was trusted equally. If measurement \(i\) has noise standard deviation \(s_i\), reliable measurements should speak louder: minimise \((A\mathbf x - \mathbf b)^\top W(A\mathbf x - \mathbf b)\) with \(W = \operatorname{diag}(1/s_i^2)\), which gives</p>
+  </div>
+  <div class="math-card">$$ \hat{\mathbf x} = (A^\top W A)^{-1}A^\top W\,\mathbf b. $$</div>
+  <p data-lang="zh">做法等价于先把每一行和每个 \(b_i\) 除以 \(s_i\)（“白化”），再解普通的最小二乘。更一般地，\(W\) 取噪声协方差的逆，这正是 4.6 节的最大似然和 4.8 节卡尔曼滤波里反复出现的形式。</p>
+  <p data-lang="en">This is the same as dividing each row and each \(b_i\) by \(s_i\) (“whitening”) and then solving ordinary least squares. More generally \(W\) is the inverse noise covariance, the form that keeps returning in maximum likelihood (Lesson 4.6) and the Kalman filter (Lesson 4.8).</p>
+</section>
+
+<!-- ============ 7. ROBOTICS ============ -->
+<section class="step" id="robotics">
+  <h2><span class="n">7</span><span data-lang="zh">机器人中的它：穿过奇异位形的速度级逆运动学</span><span data-lang="en">In robotics: velocity-level IK through a singularity</span></h2>
+  <div data-lang="zh">
+    <p>让平面两连杆机械臂（和 1.12 节的同一台，\(\ell_1 = 1.2\)，\(\ell_2 \approx 0.85\)）的末端去追一个目标点。每一帧：</p>
+    <ol>
+      <li>想要的末端速度 \(\dot{\mathbf x} = K(\mathbf x_{\text{target}} - \mathbf x)\)（朝目标走，限制最大速度）。</li>
+      <li>解 \(J(\mathbf q)\,\dot{\mathbf q} = \dot{\mathbf x}\)，得到关节速度 \(\dot{\mathbf q}\)。解法有三种：<b>逆</b> \(J^{-1}\)；<b>伪逆</b>，把 \(\sigma_i<0.08\) 的方向直接丢弃；<b>阻尼</b> DLS，增益 \(\sigma/(\sigma^2+\lambda^2)\)。</li>
+      <li>真实电机有速度上限，所以每个关节速度被截到 \(\pm 6\) rad/s，然后更新 \(\mathbf q \leftarrow \mathbf q + \dot{\mathbf q}\,\Delta t\)。</li>
+    </ol>
+    <p>拖动紫色目标点。用快捷按钮把目标放到工作空间的边缘之外，或者放进靠近底座的“洞”里（外圈和内圈都是奇异位形，1.12 节），换着三种解法看。右侧的条形图是<b>解法要求</b>的关节速度（截断之前），虚线是电机上限；下方曲线是过去 4 秒里的最大需求。</p>
+  </div>
+  <div data-lang="en">
+    <p>Let the end effector of a planar two-link arm (the same one as in Lesson 1.12, \(\ell_1 = 1.2\), \(\ell_2 \approx 0.85\)) chase a target point. Each frame:</p>
+    <ol>
+      <li>The desired end-effector velocity is \(\dot{\mathbf x} = K(\mathbf x_{\text{target}} - \mathbf x)\) (head for the target, with a speed cap).</li>
+      <li>Solve \(J(\mathbf q)\,\dot{\mathbf q} = \dot{\mathbf x}\) for the joint velocity \(\dot{\mathbf q}\), in one of three ways: the <b>inverse</b> \(J^{-1}\); the <b>pseudo-inverse</b>, which simply drops directions with \(\sigma_i<0.08\); or <b>damped</b> DLS with gain \(\sigma/(\sigma^2+\lambda^2)\).</li>
+      <li>Real motors have a speed limit, so each joint speed is clipped to \(\pm 6\) rad/s before the update \(\mathbf q \leftarrow \mathbf q + \dot{\mathbf q}\,\Delta t\).</li>
+    </ol>
+    <p>Drag the purple target. Use the shortcut buttons to put it just outside the workspace edge, or into the “hole” near the base (both the outer and inner rings are singular, Lesson 1.12), and switch between the three solvers. The bars at the right show the joint speeds the solver <b>demands</b> (before clipping), the dashed line is the motor limit, and the strip below plots the largest demand over the last 4 seconds.</p>
+  </div>
+
+  <figure class="fig bleed" id="fig-ik">
+    <div class="fig-head"><span class="fig-kind">FIG 5</span><span class="fig-title"><span data-lang="zh">追目标：逆、伪逆还是阻尼？</span><span data-lang="en">Chasing a target: inverse, pseudo-inverse or damped?</span></span><span class="spacer"></span><span id="ik-seg"></span></div>
+    <div class="fig-body split">
+      <div class="canvas-wrap" id="ik-canvas"></div>
+      <div class="fig-side">
+        <div class="katex-live" id="ik-tex"></div>
+        <div class="canvas-wrap" id="ik-bars" style="border-radius:8px"></div>
+        <div class="readout" id="ik-read"></div>
+      </div>
+    </div>
+    <div class="fig-body" style="border-top:1px solid var(--border)">
+      <div class="canvas-wrap" id="ik-hist"><span class="overlay-label"><span data-lang="zh">要求的最大关节速度（rad/s），过去 4 秒</span><span data-lang="en">largest demanded joint speed (rad/s), last 4 s</span></span></div>
+    </div>
+    <div class="fig-controls" id="ik-controls"></div>
+    <figcaption class="fig-cap">
+      <span data-lang="zh">琥珀色椭圆是当前姿态的可操作度椭圆（1.12 节）。末端的紫色短箭头是想要的速度 \(\dot{\mathbf x}\)，青色短箭头是截断之后实际得到的速度 \(J\dot{\mathbf q}\)：两者方向不同，说明关节速度被截断后“跑偏”了。靠近奇异位形时 \(\sigma_2\to 0\)，\(J^{-1}\) 要求的速度趋于无穷，截断后手臂左右抖动；伪逆在 \(\sigma_2\) 低于阈值的瞬间把增益从 \(1/0.08\) 直接砍到 0，手臂提前停下；阻尼解法的增益连续变化，手臂平滑地伸向极限。</span>
+      <span data-lang="en">The amber ellipse is the manipulability ellipse of the current pose (Lesson 1.12). The short purple arrow at the hand is the desired velocity \(\dot{\mathbf x}\); the short cyan one is the velocity \(J\dot{\mathbf q}\) actually obtained after clipping: when they point in different directions, clipping has thrown the motion off course. Near a singularity \(\sigma_2\to 0\) and \(J^{-1}\) demands unbounded speeds, so after clipping the arm jitters; the pseudo-inverse cuts the gain from \(1/0.08\) straight to 0 the moment \(\sigma_2\) falls under the threshold, so the arm stops early; the damped gain changes continuously and the arm glides toward the limit.</span>
+    </figcaption>
+  </figure>
+  <div class="tasks-title"><span data-lang="zh">试一试</span><span data-lang="en">Try this</span></div>
+  <ul class="tasks">
+    <li data-task="dlsedge"><span><span data-lang="zh">选<b>阻尼</b>解法，把目标拖到外圈附近，让手臂<b>平滑地</b>伸到几乎伸直（末端到底座的距离 \(\ge 1.97\)），过去 4 秒内要求的关节速度没有超过 6 rad/s（看下方曲线）。</span><span data-lang="en">Pick the <b>damped</b> solver and drag the target to the outer ring so that the arm reaches almost full stretch <b>smoothly</b> (hand-to-base distance \(\ge 1.97\)), with the demanded joint speed never exceeding 6 rad/s during the last 4 seconds.</span></span></li>
+    <li data-task="spike"><span><span data-lang="zh">选<b>逆</b>解法，把目标放到工作空间之外，看要求的关节速度飙到 \(\ge 30\) rad/s（超过电机上限 5 倍）。再换成阻尼，对比有多平静。</span><span data-lang="en">Pick the plain <b>inverse</b> and put the target outside the workspace; watch the demanded joint speed spike to \(\ge 30\) rad/s (5 times the motor limit). Then switch to damped and compare how calm it is.</span></span></li>
+  </ul>
+  <div data-lang="zh">
+    <p>注意一个细节：对<b>可达</b>的目标，逆在边缘附近也能工作，因为越靠近目标，想要的速度越小，\(\dot{\mathbf x}/\sigma_2\) 才没有爆炸。真正出问题的是目标在可达范围之外，或者目标本身在高速掠过奇异方向：此时需要的是“沿弱方向走一大步”，而弱方向的增益正是 \(1/\sigma_2\)。阻尼解法对两种情形都有效，代价是在奇异方向上反应变慢（滞后）。</p>
+  </div>
+  <div data-lang="en">
+    <p>One subtlety: for a <b>reachable</b> target the plain inverse can still work near the edge, because the desired speed shrinks as the hand nears the target, so \(\dot{\mathbf x}/\sigma_2\) does not explode. Trouble starts when the target is out of reach, or when it sweeps quickly along the singular direction: then the demand is “a big step along the weak direction”, and the gain of that direction is exactly \(1/\sigma_2\). The damped solver copes with both, at the price of reacting more slowly along the singular direction (lag).</p>
+  </div>
+
+  <div class="callout robot">
+    <div class="ct"><span data-lang="zh">真实系统里：标定就是一个大最小二乘</span><span data-lang="en">In real systems: calibration is one big least-squares problem</span></div>
+    <p data-lang="zh"><b>传感器的比例和零偏</b>：测量 \(z_k = s\,u_k + o\)，每次测量一行 \([\,u_k\;\;1\,]\,(s, o)^\top = z_k\)。这就是 FIG 1 的直线拟合。<b>轮半径</b>：每段日志有 \(d_k = r\,\varphi_k\)（位移 = 半径 × 转角），一个未知数，\(\hat r = \sum\varphi_k d_k / \sum\varphi_k^2\)。<b>手眼标定</b> \(AX = XB\)：旋转部分 \(R_{A_i}R_X = R_XR_{B_i}\) 可以化成两组旋转轴之间的对齐问题，用 SVD 求解；平移部分 \((R_{A_i} - I)\,\mathbf t_X = R_X\mathbf t_{B_i} - \mathbf t_{A_i}\) 对 \(\mathbf t_X\) 是线性的，把每次运动的 3 行叠起来，得到一个 \(3N\times 3\) 的最小二乘问题。必须有至少两次旋转轴不平行的运动，否则叠出来的矩阵秩亏（用 1.12 节的奇异值检查）。</p>
+    <p data-lang="en"><b>Sensor scale and offset</b>: a measurement \(z_k = s\,u_k + o\) gives one row \([\,u_k\;\;1\,]\,(s, o)^\top = z_k\) per sample. That is exactly the line fit of FIG 1. <b>Wheel radius</b>: each log segment gives \(d_k = r\,\varphi_k\) (distance = radius × angle), a single unknown with \(\hat r = \sum\varphi_k d_k / \sum\varphi_k^2\). <b>Hand–eye calibration</b> \(AX = XB\): the rotation part \(R_{A_i}R_X = R_XR_{B_i}\) reduces to aligning two sets of rotation axes, solved with an SVD; the translation part \((R_{A_i} - I)\,\mathbf t_X = R_X\mathbf t_{B_i} - \mathbf t_{A_i}\) is linear in \(\mathbf t_X\), so stacking 3 rows per motion gives a \(3N\times 3\) least-squares problem. You need at least two motions with non-parallel rotation axes, otherwise the stacked matrix is rank-deficient (check the singular values from Lesson 1.12).</p>
+  </div>
+  <div class="callout robot">
+    <div class="ct"><span data-lang="zh">真实系统里：怎么选 λ</span><span data-lang="en">In real systems: choosing λ</span></div>
+    <p data-lang="zh">固定的 \(\lambda\) 在远离奇异位形时也在白白降低精度。常见做法是让 \(\lambda\) 随 \(\sigma_{\min}\) 变化：\(\sigma_{\min}\) 大于阈值 \(\epsilon\) 时 \(\lambda = 0\)，小于 \(\epsilon\) 时取 \(\lambda^2 = \lambda_{\max}^2\,(1 - \sigma_{\min}^2/\epsilon^2)\)（Nakamura 和 Hanafusa 的方案）。数值逆运动学库里常带有类似的阻尼项，例如 KDL 的加权阻尼最小二乘速度求解器。</p>
+    <p data-lang="en">A fixed \(\lambda\) needlessly costs accuracy even far from a singularity. A common remedy lets \(\lambda\) depend on \(\sigma_{\min}\): \(\lambda = 0\) when \(\sigma_{\min}\) exceeds a threshold \(\epsilon\), and \(\lambda^2 = \lambda_{\max}^2\,(1 - \sigma_{\min}^2/\epsilon^2)\) below it (the scheme of Nakamura and Hanafusa). Numerical IK libraries often carry a similar damping term, for example KDL's weighted damped least-squares velocity solver.</p>
+  </div>
+</section>
+
+<!-- ============ 8. PITFALLS ============ -->
+<section class="step" id="pitfalls">
+  <h2><span class="n">8</span><span data-lang="zh">常见误区</span><span data-lang="en">Common pitfalls</span></h2>
+  <div class="callout pitfall">
+    <div class="ct"><span data-lang="zh">误区 1：直接解正规方程就行</span><span data-lang="en">Pitfall 1: just solve the normal equations</span></div>
+    <p data-lang="zh">教材里的 \((A^\top A)^{-1}A^\top\mathbf b\) 适合推导，不适合写代码。构造 \(A^\top A\) 会把<b>条件数平方</b>：\(\kappa(A^\top A) = \kappa(A)^2\)。比如用时间戳 \(t = 1000, 1002,\dots,1010\) 拟合 \(y = mt + c\)，\(\kappa(A)\approx 3\times10^{5}\)，\(\kappa(A^\top A)\approx 9\times10^{10}\)，双精度的 16 位有效数字丢掉约 11 位。实际用 QR 分解或 SVD（<code>np.linalg.lstsq</code>、Eigen 的 <code>BDCSVD</code>、<code>colPivHouseholderQr</code>），它们直接对 \(A\) 操作，1.12 节的“实际怎么算”说的是同一个道理。</p>
+    <p data-lang="en">The textbook \((A^\top A)^{-1}A^\top\mathbf b\) is for derivations, not for code. Forming \(A^\top A\) <b>squares the condition number</b>: \(\kappa(A^\top A) = \kappa(A)^2\). For example, fitting \(y = mt + c\) with timestamps \(t = 1000, 1002,\dots,1010\) gives \(\kappa(A)\approx 3\times10^{5}\) and \(\kappa(A^\top A)\approx 9\times10^{10}\), eating about 11 of double precision's 16 digits. Use QR or the SVD instead (<code>np.linalg.lstsq</code>, Eigen's <code>BDCSVD</code> or <code>colPivHouseholderQr</code>); they work on \(A\) directly. The callout in Lesson 1.12 makes the same point.</p>
+  </div>
+  <div class="callout pitfall">
+    <div class="ct"><span data-lang="zh">误区 2：最小二乘对坏数据很宽容</span><span data-lang="en">Pitfall 2: least squares is forgiving about bad data</span></div>
+    <p data-lang="zh">恰恰相反。残差被平方，一个离群点的影响和它偏差的平方成正比，FIG 1 里加一个离群点就能把整条线拖偏。激光里的反射错误、特征匹配的误匹配都是离群点。对策是鲁棒损失（Huber、Cauchy）或者先用 RANSAC 挑出内点再拟合，第三部分会详细讲。</p>
+    <p data-lang="en">Quite the opposite. Residuals are squared, so an outlier's influence grows with the square of its deviation; in FIG 1 a single outlier drags the whole line. Reflection errors in lidar and wrong feature matches are outliers. The remedies are robust losses (Huber, Cauchy) or RANSAC to pick the inliers first and fit afterwards; Part III covers them in detail.</p>
+  </div>
+  <div class="callout pitfall">
+    <div class="ct"><span data-lang="zh">误区 3：它最小化的是点到线的距离</span><span data-lang="en">Pitfall 3: it minimises point-to-line distance</span></div>
+    <p data-lang="zh">普通最小二乘最小化的是<b>竖直</b>距离 \(y_i - (mt_i + c)\)，默认 \(t\) 是准确的，只有 \(y\) 带噪声。如果 \(t\) 和 \(y\) 都有噪声，比如两个坐标都来自激光点，就该最小化<b>垂直</b>距离，这叫总体最小二乘 (total least squares, TLS)，解是点云的主方向，用 1.12 节的 PCA 即可。FIG 1 里打开 TLS 线，把点拉成近乎竖直的一列，两条线差得很远；对竖直的墙，普通最小二乘还会得到斜率无穷大。</p>
+    <p data-lang="en">Ordinary least squares minimises the <b>vertical</b> distance \(y_i - (mt_i + c)\), assuming \(t\) is exact and only \(y\) is noisy. If both \(t\) and \(y\) are noisy, say both coordinates come from lidar points, you should minimise the <b>perpendicular</b> distance instead. That is total least squares (TLS), whose solution is the cloud's principal direction, obtained by PCA as in Lesson 1.12. Switch on the TLS line in FIG 1 and stretch the points into a nearly vertical column: the two lines differ a lot, and for a vertical wall ordinary least squares even demands an infinite slope.</p>
+  </div>
+  <div class="callout pitfall">
+    <div class="ct"><span data-lang="zh">误区 4：列的尺度无所谓</span><span data-lang="en">Pitfall 4: column scales do not matter</span></div>
+    <p data-lang="zh">如果 \(A\) 的一列以米为单位、另一列以毫米为单位（差 1000 倍），\(\kappa(A)\) 就多出来 1000 倍：上面的 \([\,t\;\;1\,]\)，\(t\in[0,1]\) 时 \(\kappa\approx 3.7\)，换成毫米后 \(\kappa\approx 1100\)。手眼标定里旋转（无量纲）和平移（米或毫米）经常混在一个系统里，也是同样的问题。对策：把每一列除以它的范数（列归一化）、把数据减去均值再拟合，求完解再换回原来的单位。</p>
+    <p data-lang="en">If one column of \(A\) is in metres and another in millimetres (a factor of 1000 apart), \(\kappa(A)\) grows about 1000-fold: for the \([\,t\;\;1\,]\) above, \(\kappa\approx 3.7\) when \(t\in[0,1]\) but \(\kappa\approx 1100\) once \(t\) is in the thousands. Hand–eye calibration mixes rotations (unitless) and translations (metres or millimetres) in one system, with the same issue. The remedy: divide each column by its norm (column normalisation), subtract the mean before fitting, and convert the solution back to the original units afterwards.</p>
+  </div>
+  <div class="callout pitfall">
+    <div class="ct"><span data-lang="zh">误区 5：阻尼系数越大越安全</span><span data-lang="en">Pitfall 5: a larger damping factor is always safer</span></div>
+    <p data-lang="zh">\(\lambda\) 太小，奇异位形附近的增益峰值 \(1/(2\lambda)\) 还是很高，关节速度抖动。\(\lambda\) 太大，所有方向的增益都被压低，末端跟不上目标，手臂变得迟钝，甚至在远离奇异的地方也停滞。FIG 4 右图就是这个折中。折中点取决于电机速度上限和你能容忍的跟踪误差，常需要实验调参，或者用上面“随 \(\sigma_{\min}\) 变化”的自适应方案。</p>
+    <p data-lang="en">With \(\lambda\) too small, the gain peak \(1/(2\lambda)\) near a singularity is still large and the joints jitter. With \(\lambda\) too large, the gain of every direction is pushed down, the hand cannot keep up with the target, and the arm turns sluggish even far from singularities. The right panel of FIG 4 shows this trade-off. The sweet spot depends on the motor speed limit and the tracking error you can live with; it often takes experiments, or the adaptive scheme above that varies \(\lambda\) with \(\sigma_{\min}\).</p>
+  </div>
+</section>
+
+<!-- ============ 9. QUIZ ============ -->
+<section class="step" id="quiz">
+  <h2><span class="n">9</span><span data-lang="zh">小练习</span><span data-lang="en">Check yourself</span></h2>
+
+  <div class="quiz" data-answer="1">
+    <div class="q"><span data-lang="zh">1. 三个点 \((-1,\,1)\)、\((0,\,1)\)、\((1,\,4)\) 的最小二乘直线 \(y = mt + c\) 是？</span><span data-lang="en">1. What is the least-squares line \(y = mt + c\) for the points \((-1,\,1)\), \((0,\,1)\), \((1,\,4)\)?</span></div>
+    <div class="opts">
+      <button class="opt"><span data-lang="zh">\(y = 1.5t + 2.5\)（过两端的点）</span><span data-lang="en">\(y = 1.5t + 2.5\) (through the two end points)</span></button>
+      <button class="opt"><span data-lang="zh">\(y = 1.5t + 2\)</span><span data-lang="en">\(y = 1.5t + 2\)</span></button>
+      <button class="opt"><span data-lang="zh">\(y = 2\)（平均值）</span><span data-lang="en">\(y = 2\) (the mean)</span></button>
+      <button class="opt"><span data-lang="zh">\(y = 1.5t + 1\)（过中间的点）</span><span data-lang="en">\(y = 1.5t + 1\) (through the middle point)</span></button>
+    </div>
+    <div class="explain"><span data-lang="zh">这三个点的 \(t\) 值是 \(-1, 0, 1\)，和 FIG 2 一样两列正交：\(\hat m = (y_3 - y_1)/2 = 1.5\)，\(\hat c = (y_1 + y_2 + y_3)/3 = 2\)。残差是 \((0.5, -1, 0.5)\)，SSE = 1.5。过两端的点那条线 SSE = 2.25，\(y = 2\) 是 6，\(y = 1.5t + 1\) 是 4.5，都更大。</span><span data-lang="en">The \(t\) values are \(-1, 0, 1\), so as in FIG 2 the columns are orthogonal: \(\hat m = (y_3 - y_1)/2 = 1.5\), \(\hat c = (y_1 + y_2 + y_3)/3 = 2\). The residuals are \((0.5, -1, 0.5)\) and SSE = 1.5. The line through the end points has SSE = 2.25, \(y = 2\) has 6, and \(y = 1.5t + 1\) has 4.5, all larger.</span></div>
+  </div>
+
+  <div class="quiz" data-answer="2">
+    <div class="q"><span data-lang="zh">2. 一个方程 \(x_1 + 2x_2 = 5\)，两个关节速度未知。最小范数解是？</span><span data-lang="en">2. One equation \(x_1 + 2x_2 = 5\) and two unknown joint velocities. What is the minimum-norm solution?</span></div>
+    <div class="opts">
+      <button class="opt"><span data-lang="zh">\((5,\,0)\)</span><span data-lang="en">\((5,\,0)\)</span></button>
+      <button class="opt"><span data-lang="zh">\((3,\,1)\)</span><span data-lang="en">\((3,\,1)\)</span></button>
+      <button class="opt"><span data-lang="zh">\((1,\,2)\)</span><span data-lang="en">\((1,\,2)\)</span></button>
+      <button class="opt"><span data-lang="zh">\((0,\,2.5)\)</span><span data-lang="en">\((0,\,2.5)\)</span></button>
+    </div>
+    <div class="explain"><span data-lang="zh">四个选项都满足方程，区别在长度：\(\mathbf x^{+} = A^\top(AA^\top)^{-1}b = (1,2)\cdot 5/5 = (1,2)\)，\(\|\mathbf x\|^2 = 5\)。其余三个的 \(\|\mathbf x\|^2\) 分别是 25、10、6.25。最小范数解沿着行向量 \((1,2)\) 的方向，垂直于零空间 \((2,-1)\)。</span><span data-lang="en">All four satisfy the equation; they differ in length: \(\mathbf x^{+} = A^\top(AA^\top)^{-1}b = (1,2)\cdot 5/5 = (1,2)\) with \(\|\mathbf x\|^2 = 5\). The other three have \(\|\mathbf x\|^2\) equal to 25, 10 and 6.25. The minimum-norm solution points along the row vector \((1,2)\), perpendicular to the null space \((2,-1)\).</span></div>
+  </div>
+
+  <div class="quiz" data-answer="3">
+    <div class="q"><span data-lang="zh">3. 在最小二乘解 \(\hat{\mathbf x}\) 处，残差 \(\mathbf r = \mathbf b - A\hat{\mathbf x}\) 一定满足哪一条？</span><span data-lang="en">3. At the least-squares solution \(\hat{\mathbf x}\), which statement about the residual \(\mathbf r = \mathbf b - A\hat{\mathbf x}\) is always true?</span></div>
+    <div class="opts">
+      <button class="opt"><span data-lang="zh">\(\mathbf r = \mathbf 0\)</span><span data-lang="en">\(\mathbf r = \mathbf 0\)</span></button>
+      <button class="opt"><span data-lang="zh">\(\mathbf r\) 与 \(\mathbf b\) 平行</span><span data-lang="en">\(\mathbf r\) is parallel to \(\mathbf b\)</span></button>
+      <button class="opt"><span data-lang="zh">\(\mathbf r\) 的各分量之和为 0</span><span data-lang="en">The entries of \(\mathbf r\) sum to zero</span></button>
+      <button class="opt"><span data-lang="zh">\(\mathbf r\) 与 \(A\) 的每一列都垂直</span><span data-lang="en">\(\mathbf r\) is orthogonal to every column of \(A\)</span></button>
+    </div>
+    <div class="explain"><span data-lang="zh">这就是正规方程 \(A^\top\mathbf r = \mathbf 0\)。\(\mathbf r = \mathbf 0\) 只在 \(\mathbf b\) 恰好在列空间里时成立。“和为 0”只是特例：当 \(A\) 有一列全是 1（直线拟合里的截距）时，\(\mathbf 1^\top\mathbf r = 0\)；没有这一列，和不必为 0。FIG 1 里零和的坏线说明这个条件远不够。</span><span data-lang="en">That is the normal equations \(A^\top\mathbf r = \mathbf 0\). \(\mathbf r = \mathbf 0\) holds only when \(\mathbf b\) happens to lie in the column space. “Sums to zero” is a special case: when \(A\) has a column of ones (the intercept in a line fit), \(\mathbf 1^\top\mathbf r = 0\); without that column the sum need not vanish. The bad zero-sum lines of FIG 1 show it is far from sufficient.</span></div>
+  </div>
+
+  <div class="quiz" data-answer="0">
+    <div class="q"><span data-lang="zh">4. 某个姿态下 \(J\) 的奇异值是 \(\sigma_1 = 1.5\)，\(\sigma_2 = 0.01\)，阻尼 \(\lambda = 0.1\)。DLS 在弱方向上的增益 \(\sigma_2/(\sigma_2^2 + \lambda^2)\) 约是多少（不阻尼时是 \(1/\sigma_2 = 100\)）？强方向的增益呢？</span><span data-lang="en">4. At some pose \(J\) has singular values \(\sigma_1 = 1.5\), \(\sigma_2 = 0.01\), and the damping is \(\lambda = 0.1\). What is the DLS gain \(\sigma_2/(\sigma_2^2 + \lambda^2)\) along the weak direction (undamped it would be \(1/\sigma_2 = 100\)), and what happens along the strong one?</span></div>
+    <div class="opts">
+      <button class="opt"><span data-lang="zh">约 0.99；强方向约 0.66，几乎不变</span><span data-lang="en">About 0.99; about 0.66 along the strong direction, almost unchanged</span></button>
+      <button class="opt"><span data-lang="zh">仍约 100，阻尼只作用在强方向</span><span data-lang="en">Still about 100; damping only acts on the strong direction</span></button>
+      <button class="opt"><span data-lang="zh">约 0.1；强方向被压成 0.07</span><span data-lang="en">About 0.1; the strong direction is squashed to 0.07</span></button>
+      <button class="opt"><span data-lang="zh">约 10；强方向约 0.66</span><span data-lang="en">About 10; about 0.66 along the strong direction</span></button>
+    </div>
+    <div class="explain"><span data-lang="zh">弱方向：\(0.01/(0.0001 + 0.01) = 0.99\)，从 100 降到约 1。强方向：\(1.5/(2.25 + 0.01) = 0.664\)，而不阻尼时是 \(1/1.5 = 0.667\)。阻尼几乎只改变弱方向，这正是想要的效果。代价：沿弱方向的目标只完成了约 \(\sigma_2\cdot 0.99 = 1\%\)。</span><span data-lang="en">Weak direction: \(0.01/(0.0001 + 0.01) = 0.99\), down from 100 to about 1. Strong direction: \(1.5/(2.25 + 0.01) = 0.664\), versus \(1/1.5 = 0.667\) undamped. Damping changes almost only the weak direction, which is the point. The price: only about \(\sigma_2\cdot 0.99 = 1\%\) of the goal along the weak direction gets achieved.</span></div>
+  </div>
+
+  <div class="quiz" data-answer="2">
+    <div class="q"><span data-lang="zh">5. \(\kappa(A) = 10^{5}\)，用双精度（约 16 位有效数字）。先算 \(A^\top A\) 再解正规方程，大约会丢掉多少位有效数字？</span><span data-lang="en">5. \(\kappa(A) = 10^{5}\) in double precision (about 16 significant digits). Forming \(A^\top A\) and solving the normal equations loses roughly how many digits?</span></div>
+    <div class="opts">
+      <button class="opt"><span data-lang="zh">约 5 位</span><span data-lang="en">About 5</span></button>
+      <button class="opt"><span data-lang="zh">不丢，正规方程是精确的</span><span data-lang="en">None, the normal equations are exact</span></button>
+      <button class="opt"><span data-lang="zh">约 10 位</span><span data-lang="en">About 10</span></button>
+      <button class="opt"><span data-lang="zh">16 位全丢</span><span data-lang="en">All 16</span></button>
+    </div>
+    <div class="explain"><span data-lang="zh">\(\kappa(A^\top A) = \kappa(A)^2 = 10^{10}\)，相对误差约 \(10^{10}\times10^{-16} = 10^{-6}\)，只剩约 6 位，丢掉约 10 位。直接对 \(A\) 做 QR 或 SVD，误差只有约 \(\kappa\epsilon = 10^{-11}\)，只丢约 5 位。</span><span data-lang="en">\(\kappa(A^\top A) = \kappa(A)^2 = 10^{10}\), so the relative error is about \(10^{10}\times10^{-16} = 10^{-6}\): only about 6 digits survive, 10 are lost. QR or the SVD applied to \(A\) itself has error about \(\kappa\epsilon = 10^{-11}\), losing only about 5 digits.</span></div>
+  </div>
+</section>
+
+<!-- ============ 10. READING ============ -->
+<section class="step" id="reading">
+  <h2><span class="n">10</span><span data-lang="zh">延伸阅读</span><span data-lang="en">Further reading</span></h2>
+  <ul class="reading">
+    <li>G. Strang, <i>Introduction to Linear Algebra</i>, §4.3 — <span data-lang="zh">最小二乘近似（正规方程与投影）</span><span data-lang="en">Least squares approximations (normal equations and projections)</span></li>
+    <li>G. Strang, <i>Introduction to Linear Algebra</i>, Ch. 7 — <span data-lang="zh">SVD 与伪逆</span><span data-lang="en">The SVD and the pseudoinverse</span></li>
+    <li>G. Strang, <a href="https://ocw.mit.edu/courses/18-06-linear-algebra-spring-2010/" target="_blank" rel="noopener"><i>MIT 18.06 Linear Algebra</i></a> (OCW) — <span data-lang="zh">第 16 讲：投影矩阵与最小二乘</span><span data-lang="en">Lecture 16: Projection matrices and least squares</span></li>
+    <li>K. Lynch &amp; F. Park, <a href="https://hades.mech.northwestern.edu/index.php/Modern_Robotics" target="_blank" rel="noopener"><i>Modern Robotics</i></a>, §6.2 — <span data-lang="zh">数值逆运动学（伪逆迭代）</span><span data-lang="en">Numerical inverse kinematics (pseudo-inverse iteration)</span></li>
+    <li>S. R. Buss, “Introduction to Inverse Kinematics with Jacobian Transpose, Pseudoinverse and Damped Least Squares Methods”, 2004 — <span data-lang="zh">三种雅可比方法的清晰对比，含奇异位形处的实验</span><span data-lang="en">A clear comparison of the three Jacobian methods, with experiments at singularities</span></li>
+    <li>Y. Nakamura &amp; H. Hanafusa, <i>J. Dynamic Systems, Measurement, and Control</i> 108(3), 1986; C. W. Wampler, <i>IEEE Trans. Systems, Man, and Cybernetics</i> 16(1), 1986 — <span data-lang="zh">阻尼最小二乘用于逆运动学的原始论文</span><span data-lang="en">The original papers on damped least squares for inverse kinematics</span></li>
+  </ul>
+</section>
+
+</article>
+</main>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/katex@0.16.22/dist/katex.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/katex@0.16.22/dist/contrib/auto-render.min.js"></script>
+<script src="../assets/syllabus.js"></script>
+<script src="../assets/math.js"></script>
+<script src="../assets/course.js"></script>
+<script src="../assets/viz2d.js"></script>
+<script src="../assets/viz3d.js"></script>
+<script>
+R101.onReady(function () {
+  const { M, ui, L } = R101;
+  const D2R = Math.PI / 180;
+  const clamp = M.clamp;
+  const wrapPi = a => { a = (a + Math.PI) % (2 * Math.PI); if (a < 0) a += 2 * Math.PI; return a - Math.PI; };
+  const sgn = (x, d = 2) => (x < 0 ? '−' : '+') + ' ' + M.fmt(Math.abs(x), d);
+
+  // pixel-space drawing helpers on a Plane2D canvas (for plots)
+  function pxPath(P, pts, o = {}) {
+    if (pts.length < 2) return;
+    const c = P.ctx; c.save();
+    c.globalAlpha = o.alpha != null ? o.alpha : 1;
+    c.beginPath(); pts.forEach((p, i) => (i ? c.lineTo(p[0], p[1]) : c.moveTo(p[0], p[1])));
+    if (o.fill) { c.closePath(); c.fillStyle = P.col(o.fill); c.globalAlpha = o.fillAlpha != null ? o.fillAlpha : 0.2; c.fill(); }
+    if (o.color) { c.globalAlpha = o.alpha != null ? o.alpha : 1; c.strokeStyle = P.col(o.color); c.lineWidth = o.width || 1.5; if (o.dash) c.setLineDash(o.dash); c.stroke(); }
+    c.restore();
+  }
+  function pxRect(P, x, y, w, h, color, alpha) {
+    const c = P.ctx; c.save(); c.globalAlpha = alpha != null ? alpha : 1; c.fillStyle = P.col(color); c.fillRect(x, y, w, h); c.restore();
+  }
+  // a curve y = f(x) drawn with gaps where it leaves the plot range
+  function curve(P, f, xs, fx, fy, yTop, o) {
+    let seg = [];
+    xs.forEach(x => {
+      const y = f(x);
+      if (isFinite(y) && y <= yTop) seg.push([fx(x), fy(y)]);
+      else { pxPath(P, seg, o); seg = []; }
+    });
+    pxPath(P, seg, o);
+  }
+  const fmtB = v => (v >= 999 ? '>999' : M.fmt(v, v < 10 ? 2 : 1));
+
+  /* ---------------- FIG 1: fit a line, see the squares ---------------- */
+  (function () {
+    const NMAX = 14, TL = -4, TR = 4, YLIM = 5.3;
+    let seed = 3;
+    const rr = M.rng(4242);
+    const gen = n => {
+      const r = M.rng(seed), a = [];
+      for (let i = 0; i < n; i++) { const t = -4 + 8 * i / (n - 1) + (r() - 0.5) * 0.6; a.push({ t, y: 0.6 + 0.45 * t + 0.85 * M.randn(r), out: false }); }
+      return a;
+    };
+    let pts = gen(8), y1 = -1.1, y2 = 1.3, showLS = false, showTLS = false, lineMoved = false, fit = null, shiftMsg = null;
+    const line = () => ({ m: (y2 - y1) / (TR - TL), c: (y1 + y2) / 2 });
+    const sse = (m, c) => pts.reduce((s, p) => s + (p.y - m * p.t - c) ** 2, 0);
+    function lsq() {
+      const n = pts.length; let st = 0, sy = 0, st2 = 0, sty = 0;
+      pts.forEach(p => { st += p.t; sy += p.y; st2 += p.t * p.t; sty += p.t * p.y; });
+      const mt = st / n, my = sy / n; let stt = 0, sxy = 0, syy = 0;
+      pts.forEach(p => { const a = p.t - mt, b = p.y - my; stt += a * a; sxy += a * b; syy += b * b; });
+      const m = stt > 1e-9 ? sxy / stt : 0, c = my - m * mt;
+      return { n, m, c, mt, my, stt, sxy, syy, st, sy, st2, sty, e: sse(m, c) };
+    }
+    const P = new R101.Plane2D('#fit-canvas', { height: 440, view: { span: 10.4, cx: 0, cy: 0 }, draw, onChange: sync });
+
+    function draw(P) {
+      const t = R101.t, ln = line(), f = fit;
+      P.grid({ color: 'grid', axisColor: 'grid-2' });
+      P.textPx('t', P.W - 12, P.Y(0) - 11, { color: 'text-2', size: 12.5, align: 'center' });
+      P.textPx('y', P.X(0) + 11, 12, { color: 'text-2', size: 12.5, align: 'center' });
+      // squared residuals: the square on each residual segment has area r²
+      pts.forEach(p => {
+        const yh = ln.m * p.t + ln.c, s = Math.abs(p.y - yh);
+        P.poly([[p.t, p.y], [p.t + s, p.y], [p.t + s, yh], [p.t, yh]], { fill: 'bad', fillAlpha: 0.14, stroke: 'bad', width: 1.1, alpha: 0.6 });
+      });
+      pts.forEach(p => P.line([p.t, p.y], [p.t, ln.m * p.t + ln.c], { color: 'bad', width: 2 }));
+      // centroid
+      P.line([f.mt - 0.18, f.my], [f.mt + 0.18, f.my], { color: 'text-2', width: 1.6, alpha: 0.8 });
+      P.line([f.mt, f.my - 0.18], [f.mt, f.my + 0.18], { color: 'text-2', width: 1.6, alpha: 0.8 });
+      const lx = P.world(P.W - 40, 0)[0];
+      if (showTLS) {
+        const e = M.eigSym2([[f.stt, f.sxy], [f.sxy, f.syy]]), v = e.v1;
+        P.line([f.mt - 14 * v[0], f.my - 14 * v[1]], [f.mt + 14 * v[0], f.my + 14 * v[1]], { color: 'x', width: 2.4, dash: [4, 5], alpha: 0.95 });
+        if (Math.abs(v[0]) > 1e-3) { const ty = f.my + (lx - f.mt) * v[1] / v[0]; if (Math.abs(ty) < 5.4) P.text('TLS', [lx, ty], { color: 'x', bold: true, size: 12, offset: [0, -13] }); }
+      }
+      if (showLS) {
+        P.line([-14, f.m * -14 + f.c], [14, f.m * 14 + f.c], { color: 'w', width: 3.2, dash: [9, 6], alpha: 0.95 });
+        const ty = f.m * lx + f.c; if (Math.abs(ty) < 5.4) P.text('LS', [lx, ty], { color: 'w', bold: true, size: 13, offset: [0, 14] });
+      }
+      P.line([-14, ln.m * -14 + ln.c], [14, ln.m * 14 + ln.c], { color: 'v', width: 3.2 });
+      pts.forEach(p => {
+        P.point([p.t, p.y], { color: p.out ? 'bad' : 'text', r: 5, stroke: 'canvas', strokeWidth: 1.6 });
+        if (p.out) P.circle([p.t, p.y], 0.24, { color: 'bad', width: 2 });
+      });
+      P.point([TL, y1], { color: 'v', r: 4.5 }); P.point([TR, y2], { color: 'v', r: 4.5 });
+    }
+    // handles: data points, then the two ends of the user's line (vertical motion only)
+    for (let i = 0; i < NMAX; i++) {
+      P.handle({ pos: () => [pts[i].t, pts[i].y], visible: () => i < pts.length, color: 'text', r: 14,
+        set: p => { pts[i].t = clamp(p[0], -5, 5); pts[i].y = clamp(p[1], -YLIM, YLIM); } });
+    }
+    P.handle({ pos: () => [TL, y1], color: 'v', r: 17, set: p => { y1 = clamp(p[1], -YLIM, YLIM); lineMoved = true; } });
+    P.handle({ pos: () => [TR, y2], color: 'v', r: 17, set: p => { y2 = clamp(p[1], -YLIM, YLIM); lineMoved = true; } });
+
+    const ctr = document.getElementById('fit-controls');
+    ui.button(ctr, { zh: '+ 加一个点', en: '+ add point', cls: 'sm', onClick: () => {
+      if (pts.length >= NMAX) return;
+      const f = lsq(), t = -4.5 + 9 * rr();
+      pts.push({ t, y: clamp(f.m * t + f.c + 0.85 * M.randn(rr), -YLIM + 0.3, YLIM - 0.3), out: false }); shiftMsg = null; sync();
+    } });
+    ui.button(ctr, { zh: '− 删一个点', en: '− remove point', cls: 'sm', onClick: () => { if (pts.length > 3) { pts.pop(); shiftMsg = null; sync(); } } });
+    ui.button(ctr, { zh: '加离群点', en: 'add outlier', cls: 'sm', onClick: () => {
+      if (pts.length >= NMAX) return;
+      const b = lsq(), t = 2.4 + 1.8 * rr(), base = b.m * t + b.c;
+      pts.push({ t, y: clamp(base + (base > 0 ? -5.4 : 5.4), -YLIM, YLIM), out: true });
+      const a = lsq(), shift = Math.max(Math.abs((a.m - b.m) * TL + a.c - b.c), Math.abs((a.m - b.m) * TR + a.c - b.c));
+      shiftMsg = shift; if (shift >= 0.5) R101.done('outlier');
+      sync();
+    } });
+    ui.button(ctr, { zh: '重新生成', en: 'reshuffle', cls: 'sm', onClick: () => { seed++; pts = gen(8); shiftMsg = null; sync(); } });
+    ui.button(ctr, { zh: '→ 吸附到 LS', en: '→ snap to LS', cls: 'sm', onClick: () => {
+      const f = lsq(), a0 = y1, b0 = y2, a1 = clamp(f.m * TL + f.c, -YLIM, YLIM), b1 = clamp(f.m * TR + f.c, -YLIM, YLIM);
+      R101.animate(500, e => { y1 = a0 + (a1 - a0) * e; y2 = b0 + (b1 - b0) * e; sync(); });
+    } });
+    const bLS = ui.button(ctr, { zh: '显示 LS 线', en: 'show LS fit', cls: 'sm', onClick: () => { showLS = !showLS; bLS.classList.toggle('primary', showLS); P.invalidate(); } });
+    const bTLS = ui.button(ctr, { zh: '显示 TLS 线', en: 'show TLS line', cls: 'sm', onClick: () => { showTLS = !showTLS; bTLS.classList.toggle('primary', showTLS); P.invalidate(); } });
+
+    const readEl = document.getElementById('fit-read'), texEl = document.getElementById('fit-tex'), msgEl = document.getElementById('fit-msg');
+    function sync() {
+      fit = lsq();
+      const ln = line(), eU = sse(ln.m, ln.c), sr = pts.reduce((s, p) => s + (p.y - ln.m * p.t - ln.c), 0), ratio = eU / Math.max(fit.e, 1e-9);
+      const zc = Math.abs(sr) < 1 ? 'good' : 'v', rc = ratio <= 1.05 ? 'good' : 'v';
+      readEl.innerHTML =
+        `<div><b style="color:var(--c-v)">${L('你的直线', 'your line')}</b><br>y = ${M.fmt(ln.m, 2)} t ${sgn(ln.c)}</div>` +
+        `<div>SSE = <b>${M.fmt(eU, 2)}</b></div>` +
+        `<div>Σr = <b style="color:var(--c-${zc})">${M.fmt(sr, 2)}</b></div>` +
+        `<div style="margin-top:8px"><b style="color:var(--c-w)">${L('最小二乘 LS', 'least squares')}</b><br>y = ${M.fmt(fit.m, 2)} t ${sgn(fit.c)}</div>` +
+        `<div>SSE* = <b>${M.fmt(fit.e, 2)}</b></div>` +
+        `<div style="margin-top:8px">${L('你 / 最优', 'yours / optimal')} = <b style="color:var(--c-${rc})">${M.fmt(ratio * 100, 0)}%</b></div>` +
+        (showTLS ? `<div style="margin-top:8px"><b style="color:var(--c-x)">TLS</b> ${L('不同于 LS', 'differs from LS')}</div>` : '');
+      msgEl.innerHTML = shiftMsg != null ? `${L('离群点把 LS 线拖动了', 'the outlier moved the LS line by')} <b>${M.fmt(shiftMsg, 2)}</b>` : '';
+      const T = x => M.tex(x, 2);
+      R101.tex(texEl,
+        `\\underbrace{\\begin{bmatrix}${T(fit.st2)} & ${T(fit.st)} \\\\ ${T(fit.st)} & ${fit.n}\\end{bmatrix}}_{A^\\top A}\\begin{bmatrix} m \\\\ c \\end{bmatrix} = \\underbrace{\\begin{bmatrix}${T(fit.sty)} \\\\ ${T(fit.sy)}\\end{bmatrix}}_{A^\\top\\mathbf b}` +
+        `\\;\\Longrightarrow\\; \\begin{bmatrix} \\hat m \\\\ \\hat c \\end{bmatrix} = \\cw{\\begin{bmatrix}${T(fit.m)} \\\\ ${T(fit.c)}\\end{bmatrix}}`);
+      if (lineMoved) {
+        lineMoved = false;
+        if (eU <= 1.05 * fit.e) R101.done('near');
+        if (Math.abs(sr) < 1 && eU >= 2 * fit.e) R101.done('zerosum');
+      }
+      P.invalidate();
+    }
+    sync();
+  })();
+
+  /* ---------------- FIG 2: data space (3D) + model space (2D) ---------------- */
+  (function () {
+    const a1 = [-1, 0, 1], a2 = [1, 1, 1], TT = [-1, 0, 1], YR = 3;
+    let y = [1, 0, 2], cm = 1.0, cc = 0.5, dragged = false, slid = false;
+    const xhat = () => [(y[2] - y[0]) / 2, (y[0] + y[1] + y[2]) / 3];
+    const comb = (m, c) => a1.map((v, i) => m * v + c * a2[i]);
+    const V = new R101.View3D('#ds-3d', { height: 400, dist: 10.5, yaw: 2.0, pitch: 0.6, target: [0.4, 0.4, 0.9], draw: draw3 });
+    const P = new R101.Plane2D('#ds-2d', { height: 400, view: { span: 7.2, cx: 0, cy: 0.3 }, draw: draw2, onChange: () => { sync(); } });
+
+    function draw3(V) {
+      const hl = R101.hl, xh = xhat(), pr = comb(xh[0], xh[1]), rs = M.sub(y, pr), q = comb(cm, cc), O = [0, 0, 0];
+      // axes of data space
+      [[[1, 0, 0], 'y₁'], [[0, 1, 0], 'y₂'], [[0, 0, 1], 'y₃']].forEach(([d, nm]) => {
+        V.line(M.scale(d, -3.2), M.scale(d, 3.6), { color: 'axis', width: 1.2, alpha: 0.6, layer: 'bg' });
+        V.text(nm, M.scale(d, 3.9), { color: 'text-2', size: 13 });
+      });
+      // column space: the plane spanned by a1 and a2
+      const S = 2.0, T = 1.8, cp = (s, t) => comb(s, t);
+      V.poly([cp(-S, -T), cp(S, -T), cp(S, T), cp(-S, T)], { fill: 'x', fillAlpha: hl === 'col' ? 0.3 : 0.13, stroke: 'x', alpha: hl === 'col' ? 1 : 0.6, width: hl === 'col' ? 3 : 1.3, layer: 'bg' });
+      for (let k = -2; k <= 2; k++) {
+        V.line(cp(k, -T), cp(k, T), { color: 'x', width: 1, alpha: 0.28, layer: 'bg' });
+        V.line(cp(-S, k), cp(S, k), { color: 'x', width: 1, alpha: 0.28, layer: 'bg' });
+      }
+      V.text(R101.t('列空间 col(A)', 'col(A)'), cp(0, -T), { color: 'x', size: 12, dy: 13, align: 'center' });
+      // the two columns
+      V.arrow(O, a1, { color: 'i', width: 2.2, alpha: 0.85, label: 'a₁', labelSize: 13 });
+      V.arrow(O, a2, { color: 'j', width: 2.2, alpha: 0.85, label: 'a₂', labelSize: 13 });
+      // Ax̂ as m̂ a₁ + ĉ a₂
+      const m1 = M.scale(a1, xh[0]);
+      V.line(O, m1, { color: 'i', width: 3.4, dash: [2, 4] });
+      V.line(m1, pr, { color: 'j', width: 3.4, dash: [2, 4] });
+      // residual and the right-angle mark
+      const rn = M.norm(rs);
+      V.line(pr, y, { color: 'bad', width: hl === 'r' ? 5.5 : 3, dash: [7, 4] });
+      if (rn > 0.12) {
+        const e1 = M.scale(rs, 0.28 / rn), pn = M.norm(pr), e2 = pn > 0.1 ? M.scale(pr, -0.28 / pn) : M.scale(a1, 0.28 / M.norm(a1));
+        V.polyline([M.add(pr, e2), M.add(M.add(pr, e1), e2), M.add(pr, e1)], { color: 'bad', width: 1.5 });
+        V.text('r', M.add(pr, M.scale(rs, 0.5)), { color: 'bad', size: 14, dx: 9 });
+      }
+      // candidate point Ax
+      V.line(q, y, { color: 'k', width: 1.8, dash: [3, 4], alpha: 0.9 });
+      V.line(q, pr, { color: 'k', width: 1.4, dash: [3, 4], alpha: 0.6 });
+      V.point(q, { color: 'k', r: 5.5, stroke: 'canvas', label: 'Ax', labelSize: 13 });
+      // Ax̂ and b
+      V.arrow(O, pr, { color: 'w', width: hl === 'Axh' ? 6 : 3.4, label: 'Ax̂', labelSize: 14 });
+      V.point(pr, { color: 'w', r: 5.5, stroke: 'canvas', bias: 0.1 });
+      V.arrow(O, y, { color: 'v', width: hl === 'b' ? 6 : 3.6, label: 'b', labelSize: 15 });
+    }
+    function draw2(P) {
+      const hl = R101.hl, xh = xhat(), r = R101.t;
+      P.grid({ color: 'grid', axisColor: 'grid-2' });
+      P.textPx('t', P.W - 12, P.Y(0) - 11, { color: 'text-2', size: 12.5, align: 'center' });
+      TT.forEach(t => P.line([t, -YR - 1], [t, YR + 1], { color: 'grid-2', width: 1, dash: [2, 5], alpha: 0.8 }));
+      P.line([-9, -9 * cm + cc], [9, 9 * cm + cc], { color: 'k', width: 2.2, dash: [3, 4] });
+      P.line([-9, -9 * xh[0] + xh[1]], [9, 9 * xh[0] + xh[1]], { color: 'w', width: 3 });
+      TT.forEach((t, i) => {
+        const yh = xh[0] * t + xh[1];
+        P.line([t, y[i]], [t, yh], { color: 'bad', width: hl === 'r' ? 4.5 : 2.4 });
+        P.point([t, yh], { color: 'w', r: 4 });
+        P.point([t, y[i]], { color: 'v', r: 5.5, stroke: 'canvas' });
+        P.text('y' + '₁₂₃'[i], [t, y[i]], { color: 'v', bold: true, offset: [i === 2 ? -16 : 15, y[i] > yh ? -13 : 13], size: 12.5 });
+      });
+      P.text(r('最小二乘线', 'LS line'), [P.world(P.W - 70, 0)[0], xh[0] * P.world(P.W - 70, 0)[0] + xh[1]], { color: 'w', bold: true, size: 12, offset: [0, -14] });
+    }
+    TT.forEach((t, i) => P.handle({ pos: () => [t, y[i]], color: 'v', r: 20, set: p => { y[i] = clamp(p[1], -YR, YR); dragged = true; } }));
+
+    const ctr = document.getElementById('ds-controls');
+    ui.slider(ctr, { zh: '斜率 m（蓝）', en: 'slope m (blue)', min: -2, max: 2, step: 0.01, value: cm, fmt: v => M.fmt(v, 2), onInput: v => { cm = v; slid = true; sync(); } });
+    ui.slider(ctr, { zh: '截距 c（蓝）', en: 'intercept c (blue)', min: -3, max: 3, step: 0.01, value: cc, fmt: v => M.fmt(v, 2), onInput: v => { cc = v; slid = true; sync(); } });
+    const readEl = document.getElementById('ds-read'), tex1 = document.getElementById('ds-tex1'), tex2 = document.getElementById('ds-tex2'), msg = document.getElementById('ds-msg');
+    function sync() {
+      const xh = xhat(), pr = comb(xh[0], xh[1]), rs = M.sub(y, pr), q = comb(cm, cc);
+      const r2 = M.dot(rs, rs), E = M.dot(M.sub(y, q), M.sub(y, q)), d2 = M.dot(M.sub(q, pr), M.sub(q, pr));
+      readEl.innerHTML =
+        `b = (${y.map(v => M.fmt(v, 2)).join(', ')}) · x̂ = (m̂, ĉ) = (<b style="color:var(--c-w)">${M.fmt(xh[0], 2)}</b>, <b style="color:var(--c-w)">${M.fmt(xh[1], 2)}</b>)<br>` +
+        `‖r‖² = <b style="color:var(--c-bad)">${M.fmt(r2, 3)}</b> (${L('最小的 SSE', 'the minimum SSE')}) · ` +
+        `${L('你的蓝线', 'your blue line')}: ‖b − Ax‖² = <b style="color:var(--c-k)">${M.fmt(E, 3)}</b> = ${M.fmt(r2, 3)} + ${M.fmt(d2, 3)}`;
+      msg.innerHTML = r2 < 0.0064 ? `<b style="color:var(--c-good)">${L('b 在平面上：残差为 0', 'b is in the plane: zero residual')}</b>` : '';
+      const T = x => M.tex(x, 2);
+      R101.tex(tex1, `\\cw{A\\hat{\\mathbf x}} = P\\,\\cv{\\mathbf b} = \\tfrac16\\begin{bmatrix}5&2&-1\\\\2&2&2\\\\-1&2&5\\end{bmatrix}\\cv{\\begin{bmatrix}${T(y[0])}\\\\${T(y[1])}\\\\${T(y[2])}\\end{bmatrix}} = \\cw{\\begin{bmatrix}${T(pr[0])}\\\\${T(pr[1])}\\\\${T(pr[2])}\\end{bmatrix}}`);
+      R101.tex(tex2, `A^\\top\\mathbf r = \\begin{bmatrix}\\mathbf a_1\\cdot\\mathbf r\\\\ \\mathbf a_2\\cdot\\mathbf r\\end{bmatrix} = \\begin{bmatrix}${M.tex(M.dot(a1, rs), 3)}\\\\${M.tex(M.dot(a2, rs), 3)}\\end{bmatrix} = \\mathbf 0\\ \\checkmark`);
+      if (dragged) { dragged = false; if (Math.sqrt(r2) < 0.08 && M.norm(y) > 0.5) R101.done('inplane'); }
+      if (slid) { slid = false; if (r2 > 0.3 && Math.sqrt(d2) < 0.12) R101.done('foot'); }
+      V.invalidate(); P.invalidate();
+    }
+    sync();
+  })();
+
+  /* ---------------- FIG 3: underdetermined, minimum norm ---------------- */
+  (function () {
+    let a = [1, 2], beta = 2.5, s = 1.4, movedQ = false, movedA = false;
+    const geom = () => {
+      const n2 = Math.max(M.dot(a, a), 1e-9), ps = M.scale(a, beta / n2), u = M.normalize([-a[1], a[0]]);
+      return { n2, ps, u, q: M.add(ps, M.scale(u, s)) };
+    };
+    const P = new R101.Plane2D('#un-canvas', { height: 440, view: { span: 6.2, cx: 0.2, cy: 0.5 }, draw, onChange: sync });
+    function draw(P) {
+      const hl = R101.hl, g = geom(), t = R101.t, pn = M.norm(g.ps), qn = M.norm(g.q);
+      P.grid({ color: 'grid', axisColor: 'grid-2' });
+      P.textPx('x₁', P.W - 14, P.Y(0) - 11, { color: 'text-2', size: 12.5, align: 'center' });
+      P.textPx('x₂', P.X(0) + 14, 12, { color: 'text-2', size: 12.5, align: 'center' });
+      // null space of A (through the origin) and the solution line
+      const nu = M.normalize(g.u);
+      P.line(M.scale(nu, -14), M.scale(nu, 14), { color: 'x', width: hl === 'ns' ? 4.5 : 1.8, dash: [6, 5], alpha: hl === 'ns' ? 1 : 0.7 });
+      P.line(M.sub(g.ps, M.scale(g.u, 14)), M.add(g.ps, M.scale(g.u, 14)), { color: 'v', width: 3.4 });
+      // circles through x⁺ and through q
+      P.circle([0, 0], qn, { color: 'v', width: 1.4, dash: [3, 5], alpha: 0.8 });
+      P.circle([0, 0], pn, { color: 'w', width: hl === 'xp' ? 3.4 : 2, dash: [6, 4] });
+      // row vector
+      P.arrow([0, 0], a, { color: 'x', width: 2.8, alpha: 0.95, label: R101.t('行 (a₁, a₂)', 'row (a₁, a₂)'), labelSize: 12.5, labelOffset: [10, -6] });
+      // x⁺ and the right angle
+      if (pn > 0.05) {
+        P.arrow([0, 0], g.ps, { color: 'w', width: hl === 'xp' ? 5.5 : 3.4 });
+        if (pn > 0.3) {
+          const e1 = M.scale(g.u, 0.2), e2 = M.scale(g.ps, -0.2 / pn);
+          P.path([M.add(g.ps, e2), M.add(M.add(g.ps, e1), e2), M.add(g.ps, e1)], { color: 'w', width: 1.4 });
+        }
+      }
+      P.point(g.ps, { color: 'w', r: hl === 'xp' ? 8.5 : 6, stroke: 'canvas', strokeWidth: 2 });
+      P.text('x⁺', g.ps, { color: 'w', bold: true, size: 14, offset: [14, 16] });
+      // walk from x⁺ to q along the null space
+      P.arrow(g.ps, g.q, { color: 'v', width: 2.4, alpha: 0.85, head: 8 });
+      P.point(g.q, { color: 'v', r: 5.5, stroke: 'canvas', strokeWidth: 2 });
+      P.text('q', g.q, { color: 'v', bold: true, size: 14, offset: [12, -12] });
+      P.text(R101.t('零空间', 'null(A)'), M.scale(nu, 3.1), { color: 'x', size: 12, offset: [10, 0] });
+      P.text('Ax = b', M.add(g.ps, M.scale(g.u, -3.2)), { color: 'v', bold: true, size: 12.5, offset: [-4, -14] });
+    }
+    // handles: the row vector's tip, and q on the solution line
+    P.handle({ pos: () => a, color: 'x', r: 18, set: p => { const n = M.norm(p); a = n < 0.45 ? (n < 1e-6 ? [0.45, 0] : M.scale(p, 0.45 / n)) : (n > 3 ? M.scale(p, 3 / n) : p.slice()); movedA = true; } });
+    P.handle({ pos: () => geom().q, color: 'v', r: 18, set: p => { const g = geom(); s = clamp(M.dot(M.sub(p, g.ps), g.u), -6, 6); movedQ = true; } });
+    const ctr = document.getElementById('un-controls');
+    ui.slider(ctr, { zh: '右端 β', en: 'right-hand side β', min: -3, max: 3, step: 0.05, value: beta, fmt: v => M.fmt(v, 2), onInput: v => { beta = v; movedA = true; sync(); } });
+    const readEl = document.getElementById('un-read'), texEl = document.getElementById('un-tex'), msg = document.getElementById('un-msg');
+    function sync() {
+      const g = geom(), pn = M.norm(g.ps), qn = M.norm(g.q);
+      readEl.innerHTML =
+        `<div><b style="color:var(--c-w)">‖x⁺‖</b> = <b>${M.fmt(pn, 2)}</b></div>` +
+        `<div><b style="color:var(--c-v)">‖q‖</b> = <b>${M.fmt(qn, 2)}</b></div>` +
+        `<div>s = <b>${M.fmt(s, 2)}</b></div>` +
+        `<div style="margin-top:6px">‖q‖² = ‖x⁺‖² + s²<br>${M.fmt(qn * qn, 2)} = ${M.fmt(pn * pn, 2)} + ${M.fmt(s * s, 2)}</div>`;
+      msg.innerHTML = Math.abs(s) < 0.08 ? `<b style="color:var(--c-good)">${L('最短！q = x⁺', 'shortest! q = x⁺')}</b>` : '';
+      const T = x => M.tex(x, 2);
+      R101.tex(texEl, `A = \\begin{bmatrix}${T(a[0])} & ${T(a[1])}\\end{bmatrix},\\; b = ${T(beta)}\\\\[4pt] A^{+} = \\frac{A^\\top}{AA^\\top} = \\begin{bmatrix}${T(a[0] / g.n2)}\\\\${T(a[1] / g.n2)}\\end{bmatrix}\\\\[4pt] \\cw{\\mathbf x^{+}} = A^{+}b = \\cw{\\begin{bmatrix}${T(g.ps[0])}\\\\${T(g.ps[1])}\\end{bmatrix}}`);
+      if (movedQ) { movedQ = false; if (Math.abs(s) < 0.08) R101.done('shortest'); }
+      if (movedA) { movedA = false; if (Math.abs(g.ps[1]) < 0.06 && pn > 0.4) R101.done('axis'); }
+      P.invalidate();
+    }
+    sync();
+  })();
+
+  /* ---------------- FIG 4: damping gain curves and the trade-off ---------------- */
+  (function () {
+    const S1 = 1, C = [0.8, 0.6], GT = 30, QT = 14, ET = 1.0, FQ = 4, FE = 0.5;
+    let lam = 0.02, s2 = 0.05, moved = false;
+    const gain = (s, l) => (l > 0 ? s / (s * s + l * l) : (s > 1e-9 ? 1 / s : Infinity));
+    const res = l => {
+      const S = [S1, s2]; let q2 = 0, e2 = 0;
+      for (let i = 0; i < 2; i++) { const g = gain(S[i], l); q2 += (g * C[i]) ** 2; e2 += (C[i] - S[i] * g * C[i]) ** 2; }
+      return { q: Math.sqrt(q2), e: Math.sqrt(e2) };
+    };
+    const PG = new R101.Plane2D('#dl-gain', { height: 360, draw: drawG });
+    const PT = new R101.Plane2D('#dl-trade', { height: 360, draw: drawT });
+    const pad = { l: 44, r: 14, t: 26, b: 40 };
+    function frame(P, xr, yr, xl, yl, xTick, yTick) {
+      const fx = x => pad.l + (x / xr) * (P.W - pad.l - pad.r), fy = y => P.H - pad.b - (y / yr) * (P.H - pad.t - pad.b);
+      for (let g = 0; g <= yr + 1e-9; g += yTick) { pxPath(P, [[pad.l, fy(g)], [P.W - pad.r, fy(g)]], { color: g === 0 ? 'axis' : 'grid-2', width: 1 }); P.textPx(M.fmt(g, 0), pad.l - 6, fy(g), { color: 'text-2', size: 10.5, align: 'right', mono: true }); }
+      for (let g = 0; g <= xr + 1e-9; g += xTick) { pxPath(P, [[fx(g), pad.t], [fx(g), P.H - pad.b]], { color: g === 0 ? 'axis' : 'grid-2', width: 1 }); P.textPx(M.fmt(g, xTick < 1 ? 1 : 0), fx(g), P.H - pad.b + 12, { color: 'text-2', size: 10.5, align: 'center', mono: true }); }
+      P.textPx(xl, (pad.l + P.W - pad.r) / 2, P.H - 9, { color: 'text-2', size: 12, align: 'center' });
+      P.textPx(yl, pad.l, 11, { color: 'text-2', size: 12, align: 'left' });
+      return { fx, fy };
+    }
+    function drawG(P) {
+      const hl = R101.hl, t = R101.t, X0 = 0.01, X1 = 2, lw = Math.log10(X1 / X0);
+      const fx = x => pad.l + (Math.log10(Math.max(x, 1e-6) / X0) / lw) * (P.W - pad.l - pad.r), fy = y => P.H - pad.b - (y / GT) * (P.H - pad.t - pad.b);
+      for (let g = 0; g <= GT + 1e-9; g += 10) { pxPath(P, [[pad.l, fy(g)], [P.W - pad.r, fy(g)]], { color: g === 0 ? 'axis' : 'grid-2', width: 1 }); P.textPx(String(g), pad.l - 6, fy(g), { color: 'text-2', size: 10.5, align: 'right', mono: true }); }
+      [0.01, 0.03, 0.1, 0.3, 1].forEach((g, k) => { pxPath(P, [[fx(g), pad.t], [fx(g), P.H - pad.b]], { color: 'grid-2', width: 1, alpha: k % 2 ? 0.45 : 1 }); if (k % 2 === 0) P.textPx(String(g), fx(g), P.H - pad.b + 12, { color: 'text-2', size: 10.5, align: 'center', mono: true }); });
+      P.textPx(t('奇异值 σ（对数坐标）', 'singular value σ (log scale)'), (pad.l + P.W - pad.r) / 2, P.H - 9, { color: 'text-2', size: 12, align: 'center' });
+      P.textPx(t('增益', 'gain'), pad.l, 11, { color: 'text-2', size: 12, align: 'left' });
+      const xs = []; for (let k = 0; k <= 240; k++) xs.push(X0 * Math.pow(X1 / X0, k / 240));
+      curve(P, s => 1 / s, xs, fx, fy, GT, { color: 'bad', width: hl === 'inv' ? 3.4 : 2, dash: [6, 4], alpha: 0.95 });
+      curve(P, s => gain(s, lam), xs, fx, fy, GT, { color: 'w', width: hl === 'dls' ? 4.6 : 3 });
+      P.textPx('1/σ', fx(0.04), fy(GT) + 12, { color: 'bad', size: 12.5, bold: true, align: 'left' });
+      [[S1, 'v', 'σ₁'], [s2, 'w', 'σ₂']].forEach(([s, col, nm], k) => {
+        pxPath(P, [[fx(s), pad.t], [fx(s), P.H - pad.b]], { color: col, width: 1.3, dash: [3, 4], alpha: 0.8 });
+        const g = gain(s, lam), inr = isFinite(g) && g <= GT;
+        if (inr) { P.ctx.save(); P.ctx.beginPath(); P.ctx.arc(fx(s), fy(g), 5.5, 0, 6.2832); P.ctx.fillStyle = P.col(col); P.ctx.fill(); P.ctx.lineWidth = 1.5; P.ctx.strokeStyle = P.col('canvas'); P.ctx.stroke(); P.ctx.restore(); }
+        P.textPx(nm, fx(s) + (k ? 5 : -5), P.H - pad.b - 9, { color: col, size: 13, bold: true, align: k ? 'left' : 'right' });
+        P.textPx('= ' + M.fmt(isFinite(g) ? g : Infinity, g < 10 ? 2 : 1), fx(s) + (k ? 9 : -9), inr ? Math.max(fy(g) - 12, pad.t + 24) : pad.t + 24, { color: col, size: 12, mono: true, bold: true, align: k ? 'left' : 'right' });
+      });
+      if (lam > 0) P.textPx(`max 1/2λ = ${M.fmt(1 / (2 * lam), 1)}`, P.W - pad.r - 4, pad.t + 12, { color: 'w', size: 11.5, mono: true, align: 'right' });
+    }
+    function drawT(P) {
+      const t = R101.t, { fx, fy } = frame(P, ET, QT, t('跟踪误差 ‖Jq̇ − ẋ‖', 'tracking error ‖Jq̇ − ẋ‖'), t('关节速度 ‖q̇‖', 'joint speed ‖q̇‖'), 0.25, 2);
+      // acceptable zone
+      pxPath(P, [[fx(0), fy(0)], [fx(FE), fy(0)], [fx(FE), fy(FQ)], [fx(0), fy(FQ)]], { fill: 'good', fillAlpha: 0.14, color: 'good', width: 1.2, dash: [4, 3], alpha: 0.8 });
+      P.textPx(t('可接受', 'acceptable'), fx(0) + 6, fy(0) - 10, { color: 'good', size: 11.5, align: 'left', bold: true });
+      const pts = [];
+      for (let k = 0; k <= 200; k++) { const l = 1.4 * (k / 200) ** 2, r = res(l); if (r.q <= QT) pts.push([fx(r.e), fy(r.q)]); }
+      pxPath(P, pts, { color: 'w', width: 2.6 });
+      const r = res(lam), e = Math.min(r.e, ET);
+      P.ctx.save(); P.ctx.beginPath(); P.ctx.arc(fx(e), fy(Math.min(r.q, QT)), 6.5, 0, 6.2832); P.ctx.fillStyle = P.col('v'); P.ctx.fill(); P.ctx.lineWidth = 2; P.ctx.strokeStyle = P.col('canvas'); P.ctx.stroke(); P.ctx.restore();
+      P.textPx(`λ = ${M.fmt(lam, 3)}`, fx(e) + 10, fy(Math.min(r.q, QT)) - 4, { color: 'v', size: 12, mono: true, bold: true });
+      P.textPx('λ → 0', fx(0) + 6, pad.t + 2 + 14, { color: 'text-2', size: 11, align: 'left' });
+      P.textPx('λ → ∞', fx(ET) - 4, fy(0) - 12, { color: 'text-2', size: 11, align: 'right' });
+    }
+    const ctr = document.getElementById('dl-controls');
+    ui.slider(ctr, { zh: '阻尼 λ', en: 'damping λ', min: 0, max: 0.6, step: 0.005, value: lam, fmt: v => M.fmt(v, 3), onInput: v => { lam = v; moved = true; sync(); } });
+    ui.slider(ctr, { zh: '弱方向 σ₂', en: 'weak direction σ₂', min: 0.01, max: 0.6, step: 0.01, value: s2, fmt: v => M.fmt(v, 2), onInput: v => { s2 = v; moved = true; sync(); } });
+    const readEl = document.getElementById('dl-read'), msg = document.getElementById('dl-msg');
+    function sync() {
+      const r = res(lam), r0 = res(0), ok = r.q <= FQ && r.e <= FE;
+      readEl.innerHTML =
+        `λ = <b>${M.fmt(lam, 3)}</b> · σ₂ = <b>${M.fmt(s2, 2)}</b> · κ = σ₁/σ₂ = <b>${M.fmt(S1 / s2, 0)}</b><br>` +
+        `${L('关节速度', 'joint speed')} ‖q̇‖ = <b style="color:var(--c-${r.q <= FQ ? 'good' : 'bad'})">${M.fmt(r.q, 2)}</b> · ${L('跟踪误差', 'tracking error')} = <b style="color:var(--c-${r.e <= FE ? 'good' : 'bad'})">${M.fmt(r.e, 2)}</b><br>` +
+        `${L('λ = 0（纯伪逆）时', 'at λ = 0 (pure pseudo-inverse)')}: ‖q̇‖ = <b>${M.fmt(r0.q, 1)}</b>, ${L('误差', 'error')} = <b>${M.fmt(r0.e, 2)}</b>`;
+      msg.innerHTML = ok ? `<b style="color:var(--c-good)">${L('在可接受区内', 'inside the acceptable zone')}</b>` : '';
+      if (moved) { moved = false; if (ok && s2 >= 0.04 - 1e-9 && s2 <= 0.08 + 1e-9) R101.done('tune'); }
+      PG.invalidate(); PT.invalidate();
+    }
+    sync();
+  })();
+
+  /* ---------------- FIG 5: resolved-rate IK with three solvers ---------------- */
+  (function () {
+    const l1 = 1.2, l2 = 1.2 / Math.SQRT2, RMAX = l1 + l2, RMIN = l1 - l2, KS = 0.5;
+    const QMAX = 6, KP = 10, VMAX = 3, TOL = 0.08, DT_MAX = 1 / 30, HIST_T = 4, IDLE_MAX = 12;
+    let mode = 'dls', lam = 0.2, tgt = [0.3, 1.6];
+    const ik = p => {
+      const r = clamp(M.norm(p), RMIN + 1e-3, RMAX - 1e-3), c2 = clamp((r * r - l1 * l1 - l2 * l2) / (2 * l1 * l2), -1, 1), t2 = Math.acos(c2);
+      return [Math.atan2(p[1], p[0]) - Math.atan2(l2 * Math.sin(t2), l1 + l2 * Math.cos(t2)), t2];
+    };
+    let q = ik([1.2, 1.0]), dem = [0, 0], qd = [0, 0], xd = [0, 0], xa = [0, 0], err = 0, simT = 0, hist = [], idle = 0, still = 0, running = false, raf = 0, last = 0, visible = true;
+    const elbow = () => [l1 * Math.cos(q[0]), l1 * Math.sin(q[0])];
+    const hand = () => [l1 * Math.cos(q[0]) + l2 * Math.cos(q[0] + q[1]), l1 * Math.sin(q[0]) + l2 * Math.sin(q[0] + q[1])];
+    const jac = () => {
+      const s1 = Math.sin(q[0]), c1 = Math.cos(q[0]), s12 = Math.sin(q[0] + q[1]), c12 = Math.cos(q[0] + q[1]);
+      return [[-l1 * s1 - l2 * s12, -l2 * s12], [l1 * c1 + l2 * c12, l2 * c12]];
+    };
+    function solve(J, x) {
+      const sv = M.svd2(J); let out = [0, 0];
+      for (let i = 0; i < 2; i++) {
+        const s = sv.S[i], u = [sv.U[0][i], sv.U[1][i]], v = [sv.V[0][i], sv.V[1][i]];
+        const g = mode === 'inv' ? 1 / Math.max(s, 1e-6) : mode === 'pinv' ? (s > TOL ? 1 / s : 0) : s / (s * s + lam * lam);
+        const c = M.dot(u, x) * g;
+        out = [out[0] + c * v[0], out[1] + c * v[1]];
+      }
+      return { qd: out, S: sv.S };
+    }
+    const P = new R101.Plane2D('#ik-canvas', { height: 440, view: { span: 5.6, cx: 0.35, cy: 0.4 }, draw, onChange: () => wake() });
+    const Pb = new R101.Plane2D('#ik-bars', { height: 120, draw: drawBars });
+    const Ph = new R101.Plane2D('#ik-hist', { height: 130, draw: drawHist });
+
+    function draw(P) {
+      const t = R101.t, J = jac(), e = hand(), el = elbow(), sv = M.svd2(J);
+      P.grid({ color: 'grid', axisColor: 'grid-2' });
+      P.circle([0, 0], RMAX, { color: 'x', alpha: 0.5, dash: [3, 5], width: 1.4 });
+      P.circle([0, 0], RMIN, { color: 'x', alpha: 0.5, dash: [3, 5], width: 1.4 });
+      P.text(t('外圈 (伸直)', 'outer ring (straight)'), [-RMAX * 0.72, -RMAX * 0.72], { color: 'x', size: 11.5, offset: [-4, 0] });
+      const Js = M.mscale(J, KS);
+      P.ellipse(e, Js, { fill: 'v', fillAlpha: 0.14 }); P.ellipse(e, Js, { color: 'v', width: 2.2 });
+      // target and error
+      P.line(e, tgt, { color: 'w', width: 1.4, dash: [4, 4], alpha: 0.8 });
+      P.line([tgt[0] - 0.12, tgt[1]], [tgt[0] + 0.12, tgt[1]], { color: 'w', width: 2.2 });
+      P.line([tgt[0], tgt[1] - 0.12], [tgt[0], tgt[1] + 0.12], { color: 'w', width: 2.2 });
+      const rt = M.norm(tgt);
+      if (rt > RMAX + 0.02 || rt < RMIN - 0.02) P.text(t('目标在工作空间之外', 'target out of reach'), tgt, { color: 'w', size: 12, bold: true, offset: [0, 22] });
+      // links
+      P.line([0, 0], el, { color: 'text-2', width: 9, alpha: 0.85 });
+      P.line(el, e, { color: 'text-2', width: 7, alpha: 0.85 });
+      P.point([0, 0], { color: 'canvas', r: 8, stroke: 'text', strokeWidth: 2.5 });
+      P.point(el, { color: 'canvas', r: 6.5, stroke: 'text', strokeWidth: 2.2 });
+      P.point(e, { color: 'v', r: 5, stroke: 'canvas' });
+      // desired vs achieved hand velocity
+      const AS = 0.28;
+      P.arrow(e, M.add(e, M.scale(xd, AS)), { color: 'w', width: 3, head: 9, alpha: 0.95 });
+      P.arrow(e, M.add(e, M.scale(xa, AS)), { color: 'x', width: 3, head: 9, alpha: 0.95 });
+      P.point(tgt, { color: 'w', r: 4.5 });
+      if (sv.S[1] / sv.S[0] < 0.05) P.text(t('接近奇异！', 'near singular!'), e, { color: 'bad', bold: true, offset: [14, 24] });
+    }
+    function drawBars(P) {
+      const W = P.W, H = P.H, padL = 40, padR = 46, top = 2 * QMAX, fx = v => padL + (Math.min(v, top) / top) * (W - padL - padR);
+      const rows = [[dem[0], 'q̇₁', H * 0.3], [dem[1], 'q̇₂', H * 0.68]];
+      pxPath(P, [[padL, 8], [padL, H - 8]], { color: 'axis', width: 1 });
+      rows.forEach(([v, nm, y]) => {
+        const over = v > QMAX;
+        P.textPx(nm, padL - 6, y, { color: 'text-2', size: 13, align: 'right', bold: true });
+        pxRect(P, padL, y - 9, Math.max(1.5, fx(v) - padL), 18, over ? 'bad' : 'v', 0.85);
+        P.textPx(fmtB(v), Math.min(fx(v) + 6, W - padR + 4), y, { color: over ? 'bad' : 'text', size: 11.5, mono: true, bold: true });
+      });
+      pxPath(P, [[fx(QMAX), 6], [fx(QMAX), H - 6]], { color: 'bad', width: 1.3, dash: [4, 3], alpha: 0.9 });
+      P.textPx(R101.t('上限 6', 'limit 6'), fx(QMAX) + 4, H - 8, { color: 'bad', size: 10.5, align: 'left' });
+    }
+    function drawHist(P) {
+      const W = P.W, H = P.H, pl = 40, pr = 14, pt = 34, pb = 22, YT = 3 * QMAX;
+      const fx = tt => pl + ((tt - (simT - HIST_T)) / HIST_T) * (W - pl - pr), fy = v => H - pb - (Math.min(v, YT) / YT) * (H - pt - pb);
+      [0, QMAX, YT].forEach(g => { pxPath(P, [[pl, fy(g)], [W - pr, fy(g)]], { color: g === 0 ? 'axis' : 'grid-2', width: 1 }); P.textPx(String(g), pl - 6, fy(g), { color: 'text-2', size: 10.5, align: 'right', mono: true }); });
+      pxPath(P, [[pl, fy(QMAX)], [W - pr, fy(QMAX)]], { color: 'bad', width: 1.2, dash: [4, 3], alpha: 0.9 });
+      P.textPx(R101.t('电机上限', 'motor limit'), W - pr - 2, fy(QMAX) - 8, { color: 'bad', size: 10.5, align: 'right' });
+      P.textPx(R101.t('−4 s', '−4 s'), pl, H - 8, { color: 'text-2', size: 10.5, align: 'left', mono: true });
+      P.textPx(R101.t('现在', 'now'), W - pr, H - 8, { color: 'text-2', size: 10.5, align: 'right' });
+      const pts = hist.map(h => [fx(h[0]), fy(h[1])]);
+      pxPath(P, pts, { color: mode === 'dls' ? 'w' : mode === 'pinv' ? 'v' : 'bad', width: 2 });
+      const mx = hist.reduce((m, h) => Math.max(m, h[1]), 0);
+      if (mx > YT) P.textPx(`▲ ${fmtB(mx)}`, W - pr, pt + 2, { color: 'bad', size: 11.5, align: 'right', mono: true, bold: true });
+    }
+    // target handle
+    P.handle({ pos: () => tgt, color: 'w', r: 20, set: p => { const n = M.norm(p); tgt = n > 2.75 ? M.scale(p, 2.75 / n) : p.slice(); } });
+
+    function step(dt) {
+      const p = hand(), e = M.sub(tgt, p); err = M.norm(e);
+      xd = M.scale(e, KP); const xn = M.norm(xd); if (xn > VMAX) xd = M.scale(xd, VMAX / xn);
+      const J = jac(), r = solve(J, xd); let d = r.qd;
+      if (!isFinite(d[0]) || !isFinite(d[1])) d = [1e6, 1e6];
+      dem = [Math.abs(d[0]), Math.abs(d[1])];
+      qd = d.map(x => clamp(x, -QMAX, QMAX));
+      q = [wrapPi(q[0] + qd[0] * dt), wrapPi(q[1] + qd[1] * dt)];
+      xa = M.mv(J, qd);
+      simT += dt; hist.push([simT, Math.max(dem[0], dem[1])]);
+      while (hist.length && hist[0][0] < simT - HIST_T) hist.shift();
+      const mx = hist.reduce((m, h) => Math.max(m, h[1]), 0), rh = M.norm(hand());
+      if (mode === 'inv' && mx >= 30) R101.done('spike');
+      if (mode === 'dls' && rh >= 1.97 && M.norm(tgt) <= RMAX + 0.3 && mx <= QMAX && Math.max(dem[0], dem[1]) < 1.5) R101.done('dlsedge');
+      still = M.norm(qd) < 0.02 ? still + dt : 0;
+    }
+    function frame(now) {
+      raf = 0;
+      if (!visible) { running = false; return; }
+      const dt = Math.min(DT_MAX, Math.max(0.001, (now - last) / 1000)); last = now;
+      step(dt); idle += dt;
+      refresh();
+      if (err > 0.002 && idle < IDLE_MAX && still < 0.6) raf = requestAnimationFrame(frame);
+      else { running = false; refresh(); }
+    }
+    function wake() {
+      idle = 0; still = 0;
+      if (!running) { running = true; last = performance.now(); raf = requestAnimationFrame(frame); }
+    }
+    new IntersectionObserver(es => { visible = es[0].isIntersecting; if (visible) wake(); }).observe(document.getElementById('fig-ik'));
+
+    const seg = ui.seg(document.getElementById('ik-seg'), [{ value: 'inv', zh: '逆 J⁻¹', en: 'Inverse J⁻¹' }, { value: 'pinv', zh: '伪逆（截断）', en: 'Pseudo-inverse' }, { value: 'dls', zh: '阻尼 DLS', en: 'Damped DLS' }], mode, v => { mode = v; hist = []; wake(); refresh(); });
+    const ctr = document.getElementById('ik-controls');
+    ui.slider(ctr, { zh: '阻尼 λ', en: 'damping λ', min: 0.01, max: 0.6, step: 0.01, value: lam, fmt: v => M.fmt(v, 2), onInput: v => { lam = v; hist = []; wake(); refresh(); } });
+    const box = ui.el('div', 'presets'); ctr.appendChild(box);
+    const setT = p => () => { tgt = p.slice(); hist = []; wake(); };
+    ui.button(box, { zh: '目标 → 边缘外 (2.1)', en: 'target → just beyond (2.1)', cls: 'sm', onClick: setT([2.1, 0.4]) });
+    ui.button(box, { zh: '目标 → 远处 (2.4)', en: 'target → far out (2.4)', cls: 'sm', onClick: setT([2.4, 0.3]) });
+    ui.button(box, { zh: '目标 → 底座附近', en: 'target → near the base', cls: 'sm', onClick: setT([0.3, 0.05]) });
+    ui.button(box, { zh: '复位', en: 'reset', cls: 'sm', onClick: () => { tgt = [0.3, 1.6]; q = ik([1.2, 1.0]); dem = [0, 0]; qd = [0, 0]; xd = [0, 0]; xa = [0, 0]; hist = []; wake(); refresh(); } });
+
+    const texEl = document.getElementById('ik-tex'), read = document.getElementById('ik-read');
+    function refresh() {
+      const sv = M.svd2(jac()), [s1, s2] = sv.S, k = s2 > 1e-9 ? s1 / s2 : Infinity, dm = Math.max(dem[0], dem[1]);
+      const f = {
+        inv: '\\dot{\\mathbf q} = J^{-1}\\dot{\\mathbf x} = \\sum_i \\frac{1}{\\sigma_i}(\\mathbf u_i^\\top\\dot{\\mathbf x})\\,\\mathbf v_i',
+        pinv: `\\dot{\\mathbf q} = J^{+}\\dot{\\mathbf x}:\\ \\tfrac{1}{\\sigma_i}\\text{ if }\\sigma_i>0.08,\\ \\text{else } 0`,
+        dls: `\\dot{\\mathbf q} = \\sum_i \\frac{\\sigma_i}{\\sigma_i^2+\\lambda^2}(\\mathbf u_i^\\top\\dot{\\mathbf x})\\,\\mathbf v_i,\\ \\lambda = ${M.tex(lam, 2)}`
+      }[mode];
+      R101.tex(texEl, f);
+      read.innerHTML =
+        `σ₁ = <b>${M.fmt(s1, 2)}</b> · σ₂ = <b style="color:var(--c-${s2 / s1 < 0.1 ? 'bad' : 'text'})">${M.fmt(s2, 3)}</b> · κ = <b>${k < 1e4 ? M.fmt(k, k < 100 ? 1 : 0) : '∞'}</b><br>` +
+        `${L('误差', 'error')} ‖e‖ = <b>${M.fmt(err, 3)}</b> · ${L('要求', 'demand')} max|q̇| = <b style="color:var(--c-${dm > QMAX ? 'bad' : 'good'})">${fmtB(dm)}</b> rad/s` +
+        (mode === 'inv' && s2 < 0.1 ? `<br><b style="color:var(--c-bad)">⚠ ${L('J⁻¹ 增益 1/σ₂ = ', 'J⁻¹ gain 1/σ₂ = ')}${s2 < 1e-4 ? '∞' : M.fmt(1 / s2, 1)}</b>` : '') +
+        (!running && err > 0.02 ? `<br><span class="muted">${L('（已暂停，移动目标可继续）', '(paused; move the target to resume)')}</span>` : '');
+      Pb.invalidate(); Ph.invalidate(); P.invalidate();
+    }
+    R101.on('lang', refresh);
+    refresh();
+  })();
+});
+</script>
+</body>
+</html>

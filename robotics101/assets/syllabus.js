@@ -11,19 +11,19 @@ window.R101_SYLLABUS = {
       subEn: 'Linear algebra, calculus, probability, Lie groups and optimization: the shared language of robotics',
       chapters: [
         { n: 1, zh: '线性代数', en: 'Linear Algebra', pages: [
-          { n: '1.1', slug: 'vectors', zh: '向量', en: 'Vectors' },
-          { n: '1.2', slug: 'span-basis', zh: '线性组合、张成与基', en: 'Linear Combinations, Span & Basis' },
+          { n: '1.1', slug: 'vectors', zh: '向量', en: 'Vectors', ready: true },
+          { n: '1.2', slug: 'span-basis', zh: '线性组合、张成与基', en: 'Linear Combinations, Span & Basis', ready: true },
           { n: '1.3', slug: 'matrix-as-transformation', zh: '矩阵即变换', en: 'Matrices as Transformations', ready: true, star: true },
-          { n: '1.4', slug: 'matrix-multiplication', zh: '矩阵乘法即复合', en: 'Matrix Multiplication as Composition' },
-          { n: '1.5', slug: 'determinant', zh: '行列式', en: 'The Determinant' },
-          { n: '1.6', slug: 'inverse-rank-nullspace', zh: '逆、秩与零空间', en: 'Inverse, Rank & Null Space' },
-          { n: '1.7', slug: 'dot-product', zh: '点积', en: 'The Dot Product' },
-          { n: '1.8', slug: 'cross-product', zh: '叉积', en: 'The Cross Product' },
-          { n: '1.9', slug: 'projection', zh: '投影与正交分解', en: 'Projection & Orthogonal Decomposition' },
-          { n: '1.10', slug: 'orthogonal-rotation', zh: '正交矩阵与旋转', en: 'Orthogonal Matrices & Rotations' },
-          { n: '1.11', slug: 'eigen', zh: '特征值与特征向量', en: 'Eigenvalues & Eigenvectors' },
+          { n: '1.4', slug: 'matrix-multiplication', zh: '矩阵乘法即复合', en: 'Matrix Multiplication as Composition', ready: true },
+          { n: '1.5', slug: 'determinant', zh: '行列式', en: 'The Determinant', ready: true },
+          { n: '1.6', slug: 'inverse-rank-nullspace', zh: '逆、秩与零空间', en: 'Inverse, Rank & Null Space', ready: true },
+          { n: '1.7', slug: 'dot-product', zh: '点积', en: 'The Dot Product', ready: true },
+          { n: '1.8', slug: 'cross-product', zh: '叉积', en: 'The Cross Product', ready: true },
+          { n: '1.9', slug: 'projection', zh: '投影与正交分解', en: 'Projection & Orthogonal Decomposition', ready: true },
+          { n: '1.10', slug: 'orthogonal-rotation', zh: '正交矩阵与旋转', en: 'Orthogonal Matrices & Rotations', ready: true },
+          { n: '1.11', slug: 'eigen', zh: '特征值与特征向量', en: 'Eigenvalues & Eigenvectors', ready: true },
           { n: '1.12', slug: 'svd', zh: '奇异值分解 SVD', en: 'Singular Value Decomposition', ready: true, star: true },
-          { n: '1.13', slug: 'least-squares', zh: '最小二乘与伪逆', en: 'Least Squares & the Pseudo-inverse' }
+          { n: '1.13', slug: 'least-squares', zh: '最小二乘与伪逆', en: 'Least Squares & the Pseudo-inverse', ready: true }
         ]},
         { n: 2, zh: '微积分', en: 'Calculus', pages: [
           { n: '2.1', slug: 'derivative', zh: '导数：局部线性近似', en: 'Derivatives as Local Linear Approximation' },

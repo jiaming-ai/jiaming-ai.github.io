@@ -1,0 +1,1088 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-theme="dark" data-lang-ui="zh">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>1.6 逆、秩与零空间 · Robotics for Beginners</title>
+<meta name="description" content="An interactive, intuition-first lesson on undoing a linear map: inverses, column space, rank, null space and the solution sets of Ax = b, ending with a redundant robot arm that swings its elbow while the hand stays still.">
+<link rel="icon" href="../../favicon.svg" type="image/svg+xml">
+<script>(function(){var d=document.documentElement,t='dark',l=null;try{t=localStorage.getItem('theme')||'dark'}catch(e){}d.setAttribute('data-theme',t);try{l=new URLSearchParams(location.search).get('lang')||localStorage.getItem('lang')}catch(e){}if(l!=='zh'&&l!=='en')l=(navigator.language||'').toLowerCase().indexOf('zh')===0?'zh':'en';d.setAttribute('data-lang-ui',l);d.lang=l==='zh'?'zh-CN':'en';})();</script>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.22/dist/katex.min.css">
+<link rel="stylesheet" href="../assets/course.css">
+</head>
+<body data-page="1.6" data-root=".." data-title-zh="1.6 逆、秩与零空间 · Robotics for Beginners" data-title-en="1.6 Inverse, Rank &amp; Null Space · Robotics for Beginners">
+<div class="r101-layout">
+<aside class="r101-side" id="r101-side"></aside>
+<main class="r101-main">
+<article class="lesson">
+
+<header class="lesson-head">
+  <div class="eyebrow"><span data-lang="zh">Part I · 第 1 章 线性代数 · 1.6</span><span data-lang="en">Part I · Ch. 1 Linear Algebra · 1.6</span></div>
+  <h1><span data-lang="zh">逆、秩与零空间</span><span data-lang="en">Inverse, Rank &amp; Null Space</span></h1>
+  <p class="lede">
+    <span data-lang="zh">矩阵把空间变了形，我们能不能把这部电影倒着放？信息没丢的时候可以，这就是<b>逆</b>。平面被压成一条线时就不行了：有些输入被压到同一点（被压掉的方向叫<b>零空间</b>），有些输出再也够不到（够得到的部分叫<b>列空间</b>）。冗余机械臂正是靠这份“多余的自由”，在手纹丝不动的同时把手肘摆来摆去。</span>
+    <span data-lang="en">A matrix reshapes space. Can we play the movie backwards? Yes, as long as no information was lost: that is the <b>inverse</b>. When the plane gets squashed onto a line, rewinding fails: some inputs land on the same point (the crushed directions form the <b>null space</b>) and some outputs can never be reached (the reachable ones form the <b>column space</b>). A redundant robot arm uses exactly this spare freedom to swing its elbow while the hand stays perfectly still.</span>
+  </p>
+  <div class="lesson-meta">
+    <span class="chip"><span data-lang="zh">约 30 分钟</span><span data-lang="en">~30 min</span></span>
+    <span class="chip"><span data-lang="zh">前置：1.3 · 1.4 · 1.5</span><span data-lang="en">Prereqs: 1.3 · 1.4 · 1.5</span></span>
+    <span class="chip"><span data-lang="zh">6 个交互</span><span data-lang="en">6 interactives</span></span>
+  </div>
+  <ul class="toc-steps" id="step-toc"></ul>
+</header>
+
+<!-- ============ 1. WHY ============ -->
+<section class="step" id="why">
+  <h2><span class="n">1</span><span data-lang="zh">为什么机器人需要它</span><span data-lang="en">Why robots need this</span></h2>
+  <div data-lang="zh">
+    <p>机器人每天都在解“反问题”。我想让手以 0.1 m/s 向前走，每个关节该转多快？写成方程就是 \(J\,\dot{\mathbf q} = \dot{\mathbf x}\)：矩阵 \(J\)（雅可比，3.3 节）和想要的手速 \(\dot{\mathbf x}\) 已知，要求关节速度 \(\dot{\mathbf q}\)。又比如：激光雷达看到了这些点，到底是哪个位姿产生了这些测量？</p>
+    <p>这类问题的答案有三种可能：<b>恰好一个</b>，<b>一个也没有</b>，或者<b>无穷多个</b>。六关节机械臂在一般姿态下，每个手速恰好对应一组关节速度。手想去的方向被关节锁死时，没有答案。而七关节机械臂有个有趣的现象：手可以纹丝不动，手肘却还能绕着转，于是有无穷多组关节速度给出同一个手速。这份多出来的自由叫<b>零空间</b>，机器人用它躲障碍、避开关节限位。</p>
+    <p>这一节回答三个问题：什么时候能“倒放”（逆）？不能倒放时，到底丢了什么（列空间与零空间）？答案有多少个（解集）？</p>
+  </div>
+  <div data-lang="en">
+    <p>Robots solve "inverse problems" all day. I want the hand to move forward at 0.1 m/s: how fast should each joint turn? As an equation, \(J\,\dot{\mathbf q} = \dot{\mathbf x}\): the matrix \(J\) (the Jacobian, Lesson 3.3) and the wanted hand velocity \(\dot{\mathbf x}\) are known, and we need the joint velocities \(\dot{\mathbf q}\). Or: a lidar sees these points, so which pose produced these measurements?</p>
+    <p>Such problems have three possible kinds of answer: <b>exactly one</b>, <b>none at all</b>, or <b>infinitely many</b>. A six-joint arm in a generic pose has exactly one set of joint velocities for each hand velocity. If the wanted direction is locked by the joints, there is none. And a seven-joint arm shows something curious: the hand can stay perfectly still while the elbow keeps swinging, so infinitely many joint velocities give the same hand velocity. That spare freedom is the <b>null space</b>, and robots use it to dodge obstacles and stay away from joint limits.</p>
+    <p>This lesson answers three questions: when can we "rewind" (the inverse)? When we cannot, what exactly got lost (column space and null space)? And how many answers are there (the solution set)?</p>
+  </div>
+</section>
+
+<!-- ============ 2. INTUITION ============ -->
+<section class="step" id="intuition">
+  <h2><span class="n">2</span><span data-lang="zh">直觉：倒放电影</span><span data-lang="en">Intuition: play the movie backwards</span></h2>
+  <div data-lang="zh">
+    <p>把矩阵 \(A\) 想成一部电影：每个点从原位置出发，滑到新位置。<b>逆</b> \(A^{-1}\) 就是倒放这部电影，让每个点滑回去。要能倒放，有一个条件：<b>不能有信息丢失</b>。只要每个终点都能唯一地告诉你“我是从哪里来的”，倒放就成立。</p>
+    <p>剪切、旋转、拉伸都满足这个条件。但如果电影把整个平面压到一条线上（行列式 \(=0\)，1.5 节），不同的起点就会挤到同一个终点，倒放时你根本不知道该把它送回哪里。下面选一种变换，把滑块拖到 1 看正放，再拖到 2 看倒放。</p>
+  </div>
+  <div data-lang="en">
+    <p>Think of a matrix \(A\) as a movie: every point slides from its old position to a new one. The <b>inverse</b> \(A^{-1}\) plays that movie backwards and slides every point home. Rewinding works under one condition: <b>no information may be lost</b>. As long as every end point can tell you uniquely where it came from, you can send it back.</p>
+    <p>Shears, rotations and stretches all qualify. But if the movie squashes the whole plane onto a line (determinant \(=0\), Lesson 1.5), different start points pile up on the same end point, and when you rewind there is no way to know where to send it. Pick a transformation below, drag the slider to 1 to see it play forward, then on to 2 to rewind.</p>
+  </div>
+
+  <figure class="fig" id="fig-rewind">
+    <div class="fig-head"><span class="fig-kind">FIG 1</span><span class="fig-title"><span data-lang="zh">能倒放吗？</span><span data-lang="en">Can we rewind?</span></span><span class="spacer"></span><span id="rw-seg"></span></div>
+    <div class="fig-body split">
+      <div class="canvas-wrap" id="rw-canvas"></div>
+      <div class="fig-side">
+        <div class="katex-live" id="rw-tex"></div>
+        <div class="readout" id="rw-read"></div>
+        <div id="rw-verdict" class="small"></div>
+      </div>
+    </div>
+    <div class="fig-controls" id="rw-controls"></div>
+    <figcaption class="fig-cap">
+      <span data-lang="zh">九个彩色圆点代表平面上的九个起点，空心圆圈标出它们的原位置。滑块 0 到 1 是用 \(A\) 正放，1 到 2 是用 \(A^{-1}\) 倒放。试试“压扁”：倒放无从下手，因为有几个点已经叠在一起了（图上的 ×2 就是两点重合）。再试试“几乎压扁”：能倒放，但 \(A^{-1}\) 要把几乎被压没的方向大幅拉回来。</span>
+      <span data-lang="en">The nine coloured dots are nine start points on the plane; hollow rings mark their original positions. Slider 0 to 1 plays forward with \(A\); 1 to 2 rewinds with \(A^{-1}\). Try "Squash": rewinding has nothing to hold on to, because some dots have already landed on top of each other (the ×2 marks two coinciding dots). Then try "Nearly flat": rewinding works, but \(A^{-1}\) must stretch the almost-crushed direction back out enormously.</span>
+    </figcaption>
+  </figure>
+
+  <div class="callout key">
+    <div class="ct"><span data-lang="zh">核心洞见</span><span data-lang="en">Key insight</span></div>
+    <p data-lang="zh">能不能求逆，问的是<b>有没有信息被丢掉</b>。丢掉的那部分有两个名字：被压成零的输入方向叫<b>零空间</b>；输出里真正够得到的那部分叫<b>列空间</b>，够不到的输出就是“信息缺口”。没有方向被压掉、所有输出都够得到，\(A\) 才可逆。</p>
+    <p data-lang="en">Whether an inverse exists asks: <b>was any information thrown away?</b> The lost part has two names. The input directions crushed to zero form the <b>null space</b>; the outputs that can be reached at all form the <b>column space</b>. A is invertible exactly when nothing is crushed and everything is reachable.</p>
+  </div>
+</section>
+
+<!-- ============ 3. PLAY ============ -->
+<section class="step" id="play">
+  <h2><span class="n">3</span><span data-lang="zh">动手玩：逆与压扁</span><span data-lang="en">Play: inverses and squashing</span></h2>
+  <p data-lang="zh">这是 1.3 节矩阵实验室的升级版。拖动红绿箭头尖（或直接改矩阵里的数）。白色箭头是输入 \(\mathbf x\)，黄色箭头是输出 \(A\mathbf x\)。右侧实时给出 \(A^{-1}\)，以及它的元素有多大。点“▶”看 \(A\) 把网格拉变形，再由 \(A^{-1}\) 拉回来。把矩阵压成秩 1，看看会发生什么：青色线是<b>列空间</b>，紫色线是<b>零空间</b>，紫色虚线上的所有输入会落在同一个输出点上。</p>
+  <p data-lang="en">This is an upgrade of the matrix lab from Lesson 1.3. Drag the red and green arrow tips (or edit the entries). The white arrow is the input \(\mathbf x\), the amber arrow the output \(A\mathbf x\). The side panel shows \(A^{-1}\) live, and how large its entries are. Press "▶" to watch \(A\) deform the grid and \(A^{-1}\) pull it back. Then squash the matrix to rank 1 and see what happens: the cyan line is the <b>column space</b>, the purple line is the <b>null space</b>, and every input on a dashed purple line lands on the same output point.</p>
+
+  <figure class="fig bleed" id="fig-lab">
+    <div class="fig-head"><span class="fig-kind">FIG 2</span><span class="fig-title"><span data-lang="zh">逆与零空间实验室</span><span data-lang="en">Inverse and null-space lab</span></span><span class="spacer"></span><button class="btn sm" id="lab-play">▶ <span data-lang="zh">先施加 A，再用 A⁻¹ 撤销</span><span data-lang="en">Apply A, then undo with A⁻¹</span></button></div>
+    <div class="fig-body split">
+      <div class="canvas-wrap" id="lab-canvas"></div>
+      <div class="fig-side">
+        <div><div class="small muted"><span data-lang="zh">矩阵 A（拖动或输入）</span><span data-lang="en">Matrix A (drag or type)</span></div><div id="lab-mat"></div></div>
+        <div class="katex-live" id="lab-tex"></div>
+        <div class="readout" id="lab-read"></div>
+        <div><div class="small muted" style="margin-bottom:6px"><span data-lang="zh">预设</span><span data-lang="en">Presets</span></div><div class="presets" id="lab-presets"></div></div>
+      </div>
+    </div>
+    <figcaption class="fig-cap">
+      <span data-lang="zh">淡色网格是原坐标，青色网格是 \(A\) 变换后的网格。秩为 1 时，青色粗线是列空间，紫色粗线是零空间，细的紫色虚线是“输出相同”的输入集合，每条虚线对应青线上的一个小圆点。白色手柄靠近零空间时会吸附上去。</span>
+      <span data-lang="en">The faint grid is the original coordinates; the cyan grid is the grid after \(A\). At rank 1 the thick cyan line is the column space, the thick purple line the null space, and the thin dashed purple lines are sets of inputs with the same output, one per small dot on the cyan line. The white handle snaps onto the null space when it gets close.</span>
+    </figcaption>
+  </figure>
+
+  <div class="tasks-title"><span data-lang="zh">试一试</span><span data-lang="en">Try this</span></div>
+  <ul class="tasks">
+    <li data-task="nearsing"><span><span data-lang="zh">让 \(A\) 仍然可逆，但 \(A^{-1}\) 里某个元素的绝对值<b>超过 10</b>（右侧的“逆有多大”条会变红）。</span><span data-lang="en">Keep \(A\) invertible, but make some entry of \(A^{-1}\) <b>exceed 10 in absolute value</b> (the "how big is the inverse" bar turns red).</span></span></li>
+    <li data-task="ydiag"><span><span data-lang="zh">做一个<b>秩为 1</b> 的矩阵，使零空间正好是直线 y = x。提示：输入 (1, 1) 要被压成 0，这对两列意味着什么？</span><span data-lang="en">Build a <b>rank-1</b> matrix whose null space is exactly the line y = x. Hint: the input (1, 1) must be crushed to 0; what does that say about the two columns?</span></span></li>
+    <li data-task="nullvec"><span><span data-lang="zh">在一个秩为 1 的矩阵上，把白色输入 \(\mathbf x\) 拖到一个<b>非零</b>位置，使 \(A\mathbf x = \mathbf 0\)。</span><span data-lang="en">On a rank-1 matrix, drag the white input \(\mathbf x\) to a <b>non-zero</b> spot where \(A\mathbf x = \mathbf 0\).</span></span></li>
+  </ul>
+
+  <h3><span data-lang="zh">小游戏：把它撤销掉</span><span data-lang="en">Mini-game: undo it</span></h3>
+  <p data-lang="zh">紫色网格是某个矩阵 \(A\) 作用后的样子。你的任务是找出它的逆 \(B\)：拖动红绿箭头（\(B\) 的两列，也就是 \(B\hat\imath\) 和 \(B\hat\jmath\)），使 \(B\) 作用在紫色网格上之后，青色网格正好回到标准网格。读法提示：\(BA = I\) 的意思是 \(B\) 要把 \(A\hat\imath\) 送回 \(\hat\imath\)，把 \(A\hat\jmath\) 送回 \(\hat\jmath\)。</p>
+  <p data-lang="en">The purple grid is what some matrix \(A\) did to the plane. Your job is to find its inverse \(B\): drag the red and green arrows (the two columns of \(B\), that is \(B\hat\imath\) and \(B\hat\jmath\)) so that after \(B\) acts on the purple grid, the cyan grid lands back on the standard grid. Reading hint: \(BA = I\) means \(B\) must send \(A\hat\imath\) back to \(\hat\imath\) and \(A\hat\jmath\) back to \(\hat\jmath\).</p>
+  <figure class="fig" id="fig-undo">
+    <div class="fig-head"><span class="fig-kind">FIG 3</span><span class="fig-title"><span data-lang="zh">找出逆矩阵</span><span data-lang="en">Find the inverse</span></span><span class="spacer"></span><span class="readout" id="undo-score"></span></div>
+    <div class="fig-body split">
+      <div class="canvas-wrap" id="undo-canvas"></div>
+      <div class="fig-side">
+        <div class="katex-live" id="undo-tex"></div>
+        <div id="undo-msg" class="small"></div>
+        <div class="presets"><button class="btn sm" id="undo-reveal"><span data-lang="zh">显示答案</span><span data-lang="en">Reveal</span></button><button class="btn sm primary" id="undo-next"><span data-lang="zh">下一题</span><span data-lang="en">Next</span></button></div>
+      </div>
+    </div>
+    <figcaption class="fig-cap">
+      <span data-lang="zh">紫色实线箭头是 \(A\) 的两列；青色细箭头是 \(B\) 作用在它们上面的结果 \(BA\hat\imath\)、\(BA\hat\jmath\)。两根青箭头同时压在 \(\hat\imath\)、\(\hat\jmath\) 上，就成功了。</span>
+      <span data-lang="en">The solid purple arrows are the columns of \(A\); the thin cyan arrows are what \(B\) does to them, \(BA\hat\imath\) and \(BA\hat\jmath\). When both cyan arrows sit exactly on \(\hat\imath\) and \(\hat\jmath\), you have it.</span>
+    </figcaption>
+  </figure>
+  <ul class="tasks"><li data-task="undo3"><span><span data-lang="zh">不看答案，连续撤销 3 个矩阵。</span><span data-lang="en">Undo 3 matrices without revealing the answer.</span></span></li></ul>
+</section>
+
+<!-- ============ 4. SOLVING Ax = b ============ -->
+<section class="step" id="solve">
+  <h2><span class="n">4</span><span data-lang="zh">第二个视角：解方程 Ax = b 的几何</span><span data-lang="en">Second view: the geometry of solving Ax = b</span></h2>
+  <div data-lang="zh">
+    <p>“倒放”换一种说法，就是解方程：给定想要的输出 \(\mathbf b\)，哪个输入 \(\mathbf x\) 会产生它？两个面板对应两个空间：左边是<b>输入空间</b>（\(\mathbf x\) 住在这里），右边是<b>输出空间</b>（\(\mathbf b\) 住在这里）。拖动右边的黄色目标 \(\mathbf b\)，左边会显示解的集合；也可以拖动左边的白色 \(\mathbf x\)，右边会显示 \(A\mathbf x\)。</p>
+    <p>先用“可逆”预设：每个 \(\mathbf b\) 都有且只有一个 \(\mathbf x\)。再切到“秩 1”：输出被压在青色的列空间上。\(\mathbf b\) 在线上，解有一整条线；\(\mathbf b\) 离开了线，则一个解也没有。</p>
+  </div>
+  <div data-lang="en">
+    <p>"Rewinding" can be said another way: solving an equation. Given the output \(\mathbf b\) you want, which input \(\mathbf x\) produces it? The two panels are the two spaces: on the left the <b>input space</b> (where \(\mathbf x\) lives), on the right the <b>output space</b> (where \(\mathbf b\) lives). Drag the amber target \(\mathbf b\) on the right and the left panel shows the solution set; or drag the white \(\mathbf x\) on the left and the right panel shows \(A\mathbf x\).</p>
+    <p>Start with the "Invertible" preset: every \(\mathbf b\) has one and only one \(\mathbf x\). Then switch to "Rank 1": the outputs are squashed onto the cyan column space. If \(\mathbf b\) is on the line, the solutions fill a whole line; if \(\mathbf b\) leaves the line, there is no solution at all.</p>
+  </div>
+
+  <figure class="fig bleed" id="fig-solve">
+    <div class="fig-head"><span class="fig-kind">FIG 4</span><span class="fig-title"><span data-lang="zh">解 Ax = b：输入空间与输出空间</span><span data-lang="en">Solving Ax = b: input space and output space</span></span></div>
+    <div class="fig-body two">
+      <div class="canvas-wrap" id="sv-in"><span class="overlay-label"><span data-lang="zh">输入空间：x</span><span data-lang="en">INPUT space · x</span></span></div>
+      <div class="canvas-wrap" id="sv-out"><span class="overlay-label"><span data-lang="zh">输出空间：b</span><span data-lang="en">OUTPUT space · b</span></span></div>
+    </div>
+    <div class="fig-body" style="border-top:1px solid var(--border)">
+      <div class="fig-side" style="border:0"><div class="katex-live" id="sv-tex"></div><div class="readout" id="sv-read"></div></div>
+    </div>
+    <div class="fig-controls" id="sv-controls"></div>
+    <figcaption class="fig-cap">
+      <span data-lang="zh">黄色是“答案”：右边的目标 \(\mathbf b\)，左边的解（一个点，或一整条线）。紫色是零空间，青色是列空间。秩 1 时，左边黄线永远平行于紫线：解集 = 一个特解 + 零空间。\(\mathbf b\) 离开青线时变红，虚线是它到列空间的差距（“最接近的解”是 1.13 节的内容）。</span>
+      <span data-lang="en">Amber is the "answer": the target \(\mathbf b\) on the right, the solution on the left (a point, or a whole line). Purple is the null space, cyan the column space. At rank 1 the amber line on the left is always parallel to the purple one: solution set = one particular solution + the null space. When \(\mathbf b\) leaves the cyan line it turns red, and the dashed segment is its gap to the column space ("closest solution" is Lesson 1.13).</span>
+    </figcaption>
+  </figure>
+
+  <div class="tasks-title"><span data-lang="zh">试一试</span><span data-lang="en">Try this</span></div>
+  <ul class="tasks">
+    <li data-task="solline"><span><span data-lang="zh">选“秩 1”预设，让 \(\mathbf b\) 落在青色列空间上（且 \(\mathbf b \ne \mathbf 0\)），看解变成一整条线。拖动白色 \(\mathbf x\) 沿黄线滑动：\(\mathbf b\) 不动。</span><span data-lang="en">Pick the "Rank 1" preset and put \(\mathbf b\) on the cyan column space (with \(\mathbf b \ne \mathbf 0\)): the solution becomes a whole line. Slide the white \(\mathbf x\) along the amber line: \(\mathbf b\) does not move.</span></span></li>
+    <li data-task="nosol"><span><span data-lang="zh">在秩 1 的矩阵上，找一个<b>没有解</b>的 \(\mathbf b\)。</span><span data-lang="en">On a rank-1 matrix, find a \(\mathbf b\) with <b>no solution</b>.</span></span></li>
+  </ul>
+</section>
+
+<!-- ============ 5. THREE D ============ -->
+<section class="step" id="three-d">
+  <h2><span class="n">5</span><span data-lang="zh">第三个视角：三维里的秩与零空间</span><span data-lang="en">Third view: rank and null space in 3D</span></h2>
+  <div data-lang="zh">
+    <p>在三维里，一个 \(3\times3\) 矩阵把单位立方体变成平行六面体。如果有信息丢失，六面体会塌掉：秩 3 是实心的，秩 2 压成一片平行四边形，秩 1 压成一根线，秩 0 压成一个点。<b>能到达的地方</b>（列空间）有多大，取决于秩；<b>被压掉的方向</b>（零空间）有多大，取决于“还剩多少自由”。两者的维数之和永远等于 3：</p>
+  </div>
+  <div data-lang="en">
+    <p>In 3D, a \(3\times3\) matrix turns the unit cube into a parallelepiped. If information is lost, that solid collapses: rank 3 stays solid, rank 2 flattens into a parallelogram, rank 1 into a line segment, rank 0 into a point. How much space is <b>reachable</b> (the column space) depends on the rank; how much is <b>crushed</b> (the null space) depends on how much freedom is left over. Their dimensions always add up to 3:</p>
+  </div>
+  <div class="math-card">$$ \underbrace{\dim C(A)}_{\text{rank}} \;+\; \underbrace{\dim N(A)}_{\text{nullity}} \;=\; 3. $$</div>
+  <p data-lang="zh">转动视角，点预设，或者直接编辑矩阵。立方体的红、绿、蓝三类边是 \(A\) 的第 1、2、3 列。</p>
+  <p data-lang="en">Orbit the view, click presets, or edit the matrix. The red, green and blue edges of the cube are columns 1, 2 and 3 of \(A\).</p>
+
+  <figure class="fig bleed" id="fig-cube">
+    <div class="fig-head"><span class="fig-kind">FIG 5</span><span class="fig-title"><span data-lang="zh">立方体的塌缩：列空间与零空间</span><span data-lang="en">Collapsing the cube: column space and null space</span></span><span class="spacer"></span><span class="readout" id="cube-rank"></span></div>
+    <div class="fig-body split">
+      <div class="canvas-wrap" id="cube-canvas"></div>
+      <div class="fig-side">
+        <div><div class="small muted"><span data-lang="zh">矩阵 A（3×3）</span><span data-lang="en">Matrix A (3×3)</span></div><div id="cube-mat"></div></div>
+        <div class="readout" id="cube-read"></div>
+        <div><div class="small muted" style="margin-bottom:6px"><span data-lang="zh">预设</span><span data-lang="en">Presets</span></div><div class="presets" id="cube-presets"></div></div>
+      </div>
+    </div>
+    <figcaption class="fig-cap">
+      <span data-lang="zh">灰色细线是原来的单位立方体，彩色是它的像。青色的片或线是列空间，紫色的线或片是零空间（被 \(A\) 压成零的方向）。拖动画面转动视角。</span>
+      <span data-lang="en">The thin grey cube is the original unit cube, the coloured shape its image. The cyan sheet or line is the column space; the purple line or sheet is the null space (the directions \(A\) crushes to zero). Drag the view to orbit.</span>
+    </figcaption>
+  </figure>
+
+  <div class="tasks-title"><span data-lang="zh">试一试</span><span data-lang="en">Try this</span></div>
+  <ul class="tasks">
+    <li data-task="flatten"><span><span data-lang="zh">不用预设，只改矩阵里的数，让立方体<b>压成一片</b>（秩 2）。提示：把第 3 行全部改成 0。</span><span data-lang="en">Without using a preset, edit the entries so the cube <b>flattens into a sheet</b> (rank 2). Hint: set the whole third row to 0.</span></span></li>
+    <li data-task="needle"><span><span data-lang="zh">让立方体<b>压成一根线</b>（秩 1），然后数一数：零空间的维数是几？</span><span data-lang="en">Make the cube <b>collapse onto a line</b> (rank 1), then count: what is the dimension of the null space?</span></span></li>
+  </ul>
+</section>
+
+<!-- ============ 6. MATH ============ -->
+<section class="step" id="math">
+  <h2><span class="n">6</span><span data-lang="zh">再看数学</span><span data-lang="en">The math</span></h2>
+  <p class="hl-hint"><span data-lang="zh">提示：把鼠标悬停在公式中带底色的符号上，FIG 2 和 FIG 4 里对应的元素会被加粗。</span><span data-lang="en">Tip: hover the highlighted symbols in the formulas; the matching elements in FIG 2 and FIG 4 get thicker.</span></p>
+
+  <h3><span data-lang="zh">逆</span><span data-lang="en">The inverse</span></h3>
+  <p data-lang="zh">如果存在矩阵 \(A^{-1}\)，使得</p>
+  <p data-lang="en">If there is a matrix \(A^{-1}\) such that</p>
+  <div class="math-card">$$ A^{-1}A = A A^{-1} = I, $$</div>
+  <p data-lang="zh">就说 \(A\) <b>可逆</b>，\(A^{-1}\) 是它的<b>逆</b>。\(A^{-1}A = I\) 的意思是：先做 \(A\)，再做 \(A^{-1}\)，等于什么都没做（回忆 1.4 节：右边的先作用）。对 \(2\times2\) 矩阵，逆有一个封闭公式：</p>
+  <p data-lang="en">we say \(A\) is <b>invertible</b> and \(A^{-1}\) is its <b>inverse</b>. \(A^{-1}A = I\) says: do \(A\), then \(A^{-1}\), and nothing has happened (recall Lesson 1.4: the right-hand factor acts first). For a \(2\times2\) matrix the inverse has a closed form:</p>
+  <div class="math-card">$$ A = \begin{bmatrix} a & b \\ c & d \end{bmatrix} \;\Longrightarrow\; A^{-1} = \frac{1}{ad - bc}\begin{bmatrix} d & -b \\ -c & a \end{bmatrix}. $$</div>
+  <p data-lang="zh">不必死记，验证一下就会了。把两个矩阵乘起来：</p>
+  <p data-lang="en">No need to memorise it: check it. Multiply the two matrices:</p>
+  <div class="math-card">$$ \begin{bmatrix} a & b \\ c & d \end{bmatrix}\begin{bmatrix} d & -b \\ -c & a \end{bmatrix} = \begin{bmatrix} ad - bc & -ab + ba \\ cd - dc & -cb + da \end{bmatrix} = (ad - bc)\, I. $$</div>
+  <p data-lang="zh">除以 \(ad - bc\)（就是行列式）后得到 \(I\)。例如 \(A = \begin{bmatrix}2&1\\4&3\end{bmatrix}\)，\(\det A = 6 - 4 = 2\)，所以 \(A^{-1} = \tfrac12\begin{bmatrix}3&-1\\-4&2\end{bmatrix} = \begin{bmatrix}1.5&-0.5\\-2&1\end{bmatrix}\)。把两者相乘，确实得到 \(I\)。</p>
+  <p data-lang="en">Dividing by \(ad - bc\) (the determinant) gives \(I\). For example \(A = \begin{bmatrix}2&1\\4&3\end{bmatrix}\) has \(\det A = 6 - 4 = 2\), so \(A^{-1} = \tfrac12\begin{bmatrix}3&-1\\-4&2\end{bmatrix} = \begin{bmatrix}1.5&-0.5\\-2&1\end{bmatrix}\). Multiply the two and you do get \(I\).</p>
+  <div class="callout view">
+    <div class="ct"><span data-lang="zh">这个公式怎么读</span><span data-lang="en">How to read the formula</span></div>
+    <p data-lang="zh">除以行列式，是在抵消 \(A\) 对面积的缩放（1.5 节）。\(\det A \to 0\) 时分母趋于零，\(A^{-1}\) 的元素爆炸：这正是 FIG 2 里“逆有多大”条变红的原因。\(\det A = 0\) 时没有逆。</p>
+    <p data-lang="en">Dividing by the determinant cancels \(A\)'s scaling of area (Lesson 1.5). As \(\det A \to 0\) the denominator vanishes and the entries of \(A^{-1}\) blow up: that is why the "how big is the inverse" bar in FIG 2 turns red. At \(\det A = 0\) there is no inverse.</p>
+  </div>
+
+  <h3><span data-lang="zh">乘积的逆：先穿袜子，后穿鞋</span><span data-lang="en">The inverse of a product: socks and shoes</span></h3>
+  <p data-lang="zh">\(AB\) 的意思是“先 \(B\) 后 \(A\)”（1.4 节）。撤销一串动作，要<b>倒着撤</b>：先脱鞋（撤销 \(A\)），再脱袜子（撤销 \(B\)）：</p>
+  <p data-lang="en">\(AB\) means "\(B\) first, then \(A\)" (Lesson 1.4). To undo a sequence you must undo it <b>in reverse order</b>: shoes off first (undo \(A\)), then socks (undo \(B\)):</p>
+  <div class="math-card">$$ (AB)^{-1} = B^{-1}A^{-1}. $$</div>
+  <p data-lang="zh">验证：\((AB)(B^{-1}A^{-1}) = A(BB^{-1})A^{-1} = AA^{-1} = I\)。数值例子：\(A = \begin{bmatrix}1&1\\0&1\end{bmatrix}\)，\(B = \begin{bmatrix}2&0\\0&1\end{bmatrix}\)，则 \(AB = \begin{bmatrix}2&1\\0&1\end{bmatrix}\)，\((AB)^{-1} = \begin{bmatrix}0.5&-0.5\\0&1\end{bmatrix}\)，恰好等于 \(B^{-1}A^{-1}\)，而 \(A^{-1}B^{-1} = \begin{bmatrix}0.5&-1\\0&1\end{bmatrix}\) 不对。</p>
+  <p data-lang="en">Check: \((AB)(B^{-1}A^{-1}) = A(BB^{-1})A^{-1} = AA^{-1} = I\). A numeric example: \(A = \begin{bmatrix}1&1\\0&1\end{bmatrix}\), \(B = \begin{bmatrix}2&0\\0&1\end{bmatrix}\), so \(AB = \begin{bmatrix}2&1\\0&1\end{bmatrix}\) and \((AB)^{-1} = \begin{bmatrix}0.5&-0.5\\0&1\end{bmatrix}\), which equals \(B^{-1}A^{-1}\), while \(A^{-1}B^{-1} = \begin{bmatrix}0.5&-1\\0&1\end{bmatrix}\) is wrong.</p>
+
+  <h3><span data-lang="zh">列空间与秩</span><span data-lang="en">Column space and rank</span></h3>
+  <p data-lang="zh">\(A\mathbf x\) 是 \(A\) 各列的线性组合，系数是 \(\mathbf x\) 的各个分量（1.3 节的列视角）。所以所有能够作为输出的向量，恰好是各列的张成（1.2 节）。这个集合叫 \(A\) 的<b>列空间</b>：</p>
+  <p data-lang="en">\(A\mathbf x\) is a combination of the columns of \(A\), weighted by the entries of \(\mathbf x\) (the column view from Lesson 1.3). So the set of all possible outputs is exactly the span of the columns (Lesson 1.2). It is called the <b>column space</b>:</p>
+  <div class="math-card">$$ \hl{col}{C(A)} = \{\, A\mathbf x : \mathbf x \in \R^n \,\} = \operatorname{span}\{\text{columns of } A\}. $$</div>
+  <p data-lang="zh">它的维数叫<b>秩</b>（rank）：\(\operatorname{rank}A = \dim C(A)\)，也就是线性无关的列的个数。一个 \(2\times2\) 矩阵的秩是 2（列空间是整个平面）、1（一条线）或 0（只有原点）。同一个矩阵，线性无关的行也同样多（这是个定理，证明见 Strang）。</p>
+  <p data-lang="en">Its dimension is the <b>rank</b>: \(\operatorname{rank}A = \dim C(A)\), the number of linearly independent columns. A \(2\times2\) matrix has rank 2 (the column space is the whole plane), 1 (a line) or 0 (just the origin). The same matrix also has exactly that many independent rows (a theorem; see Strang for the proof).</p>
+
+  <h3><span data-lang="zh">零空间与秩–零化度定理</span><span data-lang="en">Null space and the rank–nullity theorem</span></h3>
+  <p data-lang="zh">被 \(A\) 压成零向量的所有输入，叫 \(A\) 的<b>零空间</b>：</p>
+  <p data-lang="en">The inputs that \(A\) crushes to the zero vector form its <b>null space</b>:</p>
+  <div class="math-card">$$ \hl{null}{N(A)} = \{\, \mathbf x : A\mathbf x = \mathbf 0 \,\}. $$</div>
+  <p data-lang="zh">它总是包含 \(\mathbf 0\)，而且是子空间：若 \(A\mathbf u = A\mathbf w = \mathbf 0\)，则 \(A(\mathbf u + s\mathbf w) = \mathbf 0\)。它的维数叫<b>零化度</b>（nullity）。例如 \(A = \begin{bmatrix}1&2\\2&4\end{bmatrix}\)：第二列是第一列的 2 倍，列空间是 \((1,2)\) 方向的直线；\(A\mathbf x = \mathbf 0\) 等价于 \(x + 2y = 0\)，零空间是 \((-2, 1)\) 方向的直线。</p>
+  <p data-lang="en">It always contains \(\mathbf 0\), and it is a subspace: if \(A\mathbf u = A\mathbf w = \mathbf 0\) then \(A(\mathbf u + s\mathbf w) = \mathbf 0\). Its dimension is the <b>nullity</b>. Example: \(A = \begin{bmatrix}1&2\\2&4\end{bmatrix}\). The second column is twice the first, so the column space is the line along \((1,2)\); \(A\mathbf x = \mathbf 0\) means \(x + 2y = 0\), so the null space is the line along \((-2, 1)\).</p>
+  <p data-lang="zh">每个输入方向，要么“活下来”（贡献一维列空间），要么“被压掉”（贡献一维零空间），没有第三种命运。这就是<b>秩–零化度定理</b>：对有 \(n\) 列的矩阵，</p>
+  <p data-lang="en">Every input direction either "survives" (and contributes one dimension of column space) or "is crushed" (and contributes one dimension of null space); there is no third fate. This is the <b>rank–nullity theorem</b>: for a matrix with \(n\) columns,</p>
+  <div class="math-card">$$ \operatorname{rank} A \;+\; \operatorname{nullity} A \;=\; n. $$</div>
+  <p data-lang="zh">FIG 5 里 \(n = 3\)：秩 3 → 零化度 0；秩 2 → 1；秩 1 → 2；秩 0 → 3。</p>
+  <p data-lang="en">In FIG 5, \(n = 3\): rank 3 gives nullity 0; rank 2 gives 1; rank 1 gives 2; rank 0 gives 3.</p>
+
+  <h3><span data-lang="zh">\(A\mathbf x = \mathbf b\) 的解集</span><span data-lang="en">The solution set of \(A\mathbf x = \mathbf b\)</span></h3>
+  <div class="math-card">$$ A\,\hl{x}{\mathbf x} = \hl{b}{\mathbf b} \quad\Longrightarrow\quad \text{solutions} = \hl{xp}{\mathbf x_p} + \hl{null}{N(A)}. $$</div>
+  <p data-lang="zh"><b>有没有解</b>：当且仅当 \(\mathbf b \in C(A)\)。<b>有几个解</b>：只要有一个特解 \(\mathbf x_p\)（\(A\mathbf x_p = \mathbf b\)），再加上零空间里任意向量 \(\mathbf n\)，\(A(\mathbf x_p + \mathbf n) = \mathbf b + \mathbf 0 = \mathbf b\) 仍然成立。反过来，两个解的差 \(\mathbf x - \mathbf x_p\) 被 \(A\) 送到 \(\mathbf 0\)，所以落在零空间里。因此解集就是零空间平移到 \(\mathbf x_p\)，维数等于零化度：零空间只有 \(\{\mathbf 0\}\) 时解唯一，否则无穷多。例：\(A = \begin{bmatrix}1&2\\2&4\end{bmatrix}\)，\(\mathbf b = (3, 6)\)。\(\mathbf x_p = (3, 0)\) 是一个特解，通解是 \((3,0) + t(-2, 1)\)；取 \(t = 1\) 得 \((1,1)\)，确有 \(A(1,1) = (3,6)\)。而 \(\mathbf b = (3,5)\) 不是 \((1,2)\) 的倍数，无解。</p>
+  <p data-lang="en"><b>Is there a solution?</b> If and only if \(\mathbf b \in C(A)\). <b>How many?</b> Once you have one particular solution \(\mathbf x_p\) (\(A\mathbf x_p = \mathbf b\)), adding any \(\mathbf n\) from the null space still works: \(A(\mathbf x_p + \mathbf n) = \mathbf b + \mathbf 0 = \mathbf b\). Conversely, two solutions differ by a vector \(\mathbf x - \mathbf x_p\) that \(A\) sends to \(\mathbf 0\), so the difference lies in the null space. The solution set is therefore the null space shifted to \(\mathbf x_p\), with dimension equal to the nullity: if the null space is just \(\{\mathbf 0\}\) the solution is unique, otherwise there are infinitely many. Example: \(A = \begin{bmatrix}1&2\\2&4\end{bmatrix}\), \(\mathbf b = (3, 6)\). One particular solution is \(\mathbf x_p = (3, 0)\) and the general solution is \((3,0) + t(-2, 1)\); with \(t = 1\) we get \((1,1)\), and indeed \(A(1,1) = (3,6)\). But \(\mathbf b = (3,5)\) is not a multiple of \((1,2)\), so there is no solution.</p>
+
+  <h3><span data-lang="zh">方阵：五句话说的是同一件事</span><span data-lang="en">Square matrices: five statements, one fact</span></h3>
+  <p data-lang="zh">对 \(n\times n\) 方阵 \(A\)，下面几条互相等价：</p>
+  <p data-lang="en">For an \(n\times n\) matrix \(A\), the following are equivalent:</p>
+  <div class="math-card">$$ A \text{ invertible} \;\Leftrightarrow\; \det A \ne 0 \;\Leftrightarrow\; \operatorname{rank}A = n \;\Leftrightarrow\; N(A) = \{\mathbf 0\} \;\Leftrightarrow\; C(A) = \R^n. $$</div>
+  <p data-lang="zh">几何读法：没有方向被压掉（零空间只有 \(\mathbf 0\)），所以也没有输出够不到（列空间是全空间），所以每个 \(\mathbf b\) 恰好有一个解 \(\mathbf x = A^{-1}\mathbf b\)。“压扁”这件事在 \(\det A = 0\) 时发生，它同时意味着零空间变大、列空间变小。对非方阵（\(m \ne n\)）没有逆，\(m < n\) 时必有非零的零空间，\(m > n\) 时一般有够不到的 \(\mathbf b\)，处理办法见 1.13 节。</p>
+  <p data-lang="en">Geometric reading: no direction is crushed (the null space is just \(\mathbf 0\)), hence no output is unreachable (the column space is everything), hence every \(\mathbf b\) has exactly one solution \(\mathbf x = A^{-1}\mathbf b\). "Squashing" happens exactly when \(\det A = 0\), and it makes the null space bigger and the column space smaller at the same time. Non-square matrices (\(m \ne n\)) have no inverse: if \(m < n\) there is always a non-zero null space, and if \(m > n\) some \(\mathbf b\) are generally unreachable. Lesson 1.13 shows how to deal with that.</p>
+
+  <div class="callout view">
+    <div class="ct"><span data-lang="zh">实际怎么算</span><span data-lang="en">How it is computed in practice</span></div>
+    <p data-lang="zh">教科书里 \(\mathbf x = A^{-1}\mathbf b\) 很漂亮，代码里很少这么写。库函数（<code>np.linalg.solve</code>、Eigen 的 <code>A.lu().solve(b)</code>）先把 \(A\) 做 LU 分解（高斯消元的矩阵形式），再回代，既快又准。秩也不是靠行列式判断的：<code>np.linalg.matrix_rank</code> 会计算奇异值（1.12 节），把小于阈值的当作零。</p>
+    <p data-lang="en">\(\mathbf x = A^{-1}\mathbf b\) is lovely on paper and rarely written in code. Library routines (<code>np.linalg.solve</code>, Eigen's <code>A.lu().solve(b)</code>) factor \(A\) with an LU decomposition (the matrix form of Gaussian elimination) and back-substitute, which is both faster and more accurate. Rank is not found from the determinant either: <code>np.linalg.matrix_rank</code> computes the singular values (Lesson 1.12) and counts those above a threshold.</p>
+  </div>
+</section>
+
+<!-- ============ 7. ROBOTICS ============ -->
+<section class="step" id="robotics">
+  <h2><span class="n">7</span><span data-lang="zh">机器人中的它：手不动，肘在动</span><span data-lang="en">In robotics: the hand stays, the elbow moves</span></h2>
+  <div data-lang="zh">
+    <p>考虑一个平面三连杆机械臂：3 个关节 \(\mathbf q = (q_1,q_2,q_3)\)，而手的位置只有 2 个坐标 \(\mathbf x = (x, y)\)。手速和关节速度之间是一个 \(2\times3\) 的雅可比矩阵：\(\dot{\mathbf x} = J(\mathbf q)\,\dot{\mathbf q}\)（3.3 节）。第 \(i\) 列是“只转第 \(i\) 个关节时手怎么动”：手相对于关节 \(i\) 的位置向量逆时针转 90°，即 \((-(y_h - y_i),\, x_h - x_i)\)。</p>
+    <p>\(J\) 有 3 列、2 行，秩至多是 2。由秩–零化度定理，零空间至少是 \(3 - 2 = 1\) 维：存在一个关节速度方向 \(\mathbf n\)，使 \(J\mathbf n = \mathbf 0\)。沿着它转动关节，手一动也不动，但手肘和手腕都在动。这个方向可以直接算出来：\(J\) 的两行都是 \(\mathbb R^3\) 里的向量，\(\mathbf n\) 与两行都垂直，所以 \(\mathbf n\) 平行于两行的叉积（1.8 节）。</p>
+    <p>下面是这个想法的完整演示。<b>拖动黄色的手</b>，机械臂用阻尼伪逆迭代自己找关节角（伪逆见 1.13 节，这里是页内自带的简单实现）。<b>拖动白色的手肘</b>或下方的“自运动”滑块，关节沿着零空间方向 \(\mathbf n(\mathbf q)\) 积分：\(\dot{\mathbf q} = \alpha\,\mathbf n(\mathbf q)\)。注意积分只在一阶意义上保持手不动，所以每一步都要小步前进、重新归一化，再用牛顿修正把手拉回原位。紫色小箭头是 \(\mathbf n\) 引起的各关节点的速度：手上的那个是零。</p>
+  </div>
+  <div data-lang="en">
+    <p>Consider a planar three-link arm: three joints \(\mathbf q = (q_1,q_2,q_3)\), but the hand position has only two coordinates \(\mathbf x = (x, y)\). The hand velocity and the joint velocities are related by a \(2\times3\) Jacobian: \(\dot{\mathbf x} = J(\mathbf q)\,\dot{\mathbf q}\) (Lesson 3.3). Column \(i\) says "how the hand moves when only joint \(i\) turns": the hand's position relative to joint \(i\), rotated 90° counter-clockwise, \((-(y_h - y_i),\, x_h - x_i)\).</p>
+    <p>\(J\) has 3 columns and 2 rows, so its rank is at most 2. By the rank–nullity theorem the null space is at least \(3 - 2 = 1\) dimensional: there is a joint-velocity direction \(\mathbf n\) with \(J\mathbf n = \mathbf 0\). Turn the joints along it and the hand does not move at all, yet the elbow and wrist do. We can even compute it directly: the two rows of \(J\) are vectors in \(\mathbb R^3\), and \(\mathbf n\) is perpendicular to both, so \(\mathbf n\) is parallel to their cross product (Lesson 1.8).</p>
+    <p>Here is the whole idea in action. <b>Drag the amber hand</b> and the arm finds joint angles itself with damped pseudo-inverse iterations (the pseudo-inverse is Lesson 1.13; this page uses a small local implementation). <b>Drag the white elbow</b> or the "self-motion" slider below and the joints integrate along the null direction \(\mathbf n(\mathbf q)\): \(\dot{\mathbf q} = \alpha\,\mathbf n(\mathbf q)\). The integration keeps the hand still only to first order, so every step is small, renormalised, and followed by a Newton correction that pulls the hand back to its place. The small purple arrows are the velocities of the joints under \(\mathbf n\): the one on the hand is zero.</p>
+  </div>
+
+  <figure class="fig bleed" id="fig-arm">
+    <div class="fig-head"><span class="fig-kind">FIG 6</span><span class="fig-title"><span data-lang="zh">三连杆机械臂的自运动</span><span data-lang="en">Self-motion of a three-link arm</span></span><span class="spacer"></span><button class="btn sm" id="arm-reset"><span data-lang="zh">重置</span><span data-lang="en">Reset</span></button></div>
+    <div class="fig-body split">
+      <div class="canvas-wrap" id="arm-canvas"></div>
+      <div class="fig-side">
+        <div class="katex-live" id="arm-tex1"></div>
+        <div class="katex-live" id="arm-tex2"></div>
+        <div class="readout" id="arm-read"></div>
+        <div><div class="small muted"><span data-lang="zh">零空间方向 n（单位向量）</span><span data-lang="en">Null direction n (unit vector)</span></div><div class="canvas-wrap" id="arm-bars" style="border:1px solid var(--border);border-radius:8px;margin-top:6px"></div></div>
+      </div>
+    </div>
+    <div class="fig-controls" id="arm-controls"></div>
+    <figcaption class="fig-cap">
+      <span data-lang="zh">深色粗线是机械臂，淡色的“鬼影”是自运动经过的姿态，青色虚线是手肘和手腕走过的轨迹。紫色圆环是任务点，红色圆盘是障碍物。条形图是 \(\mathbf n\) 的三个分量：三个关节怎样配合，才能让手不动。</span>
+      <span data-lang="en">The thick dark lines are the arm, the faint "ghosts" are poses visited by the self-motion, and the cyan dashed curves are the paths of the elbow and wrist. The purple ring is the task point and the red disc an obstacle. The bars are the three components of \(\mathbf n\): how the three joints must cooperate so that the hand does not move.</span>
+    </figcaption>
+  </figure>
+  <ul class="tasks">
+    <li data-task="dodge"><span><span data-lang="zh"><b>挑战：</b>手保持在紫色任务点上，把手肘摆到连线的另一侧，整个过程<b>不碰</b>红色障碍物。提示：自运动有两个方向，其中一个会撞上去。一旦碰到，点“重置”重来。</span><span data-lang="en"><b>Challenge:</b> keep the hand on the purple task point and swing the elbow to the other side of the base-to-hand line, <b>without touching</b> the red obstacle on the way. Hint: self-motion has two directions and one of them runs into the obstacle. If you touch it, press "Reset" and retry.</span></span></li>
+  </ul>
+
+  <div class="callout robot">
+    <div class="ct"><span data-lang="zh">真实系统里</span><span data-lang="en">In real systems</span></div>
+    <p data-lang="zh">Franka Panda、KUKA iiwa 这类 7 关节机械臂，手的位姿是 6 维（3 个位置加 3 个姿态），\(J\) 是 \(6\times7\)，一般姿态下秩为 6，零空间正好 1 维：手肘可以绕着“肩–腕连线”转一圈，手完全不动。控制器常写成 \(\dot{\mathbf q} = J^{+}\dot{\mathbf x} + (I - J^{+}J)\,\mathbf z\)：第一项完成手的任务，第二项把任意想要的关节运动 \(\mathbf z\)（离关节限位远一点、离障碍物远一点）投影进零空间，保证不影响手。伪逆 \(J^{+}\) 在 1.13 节展开。</p>
+    <p data-lang="en">For 7-joint arms such as the Franka Panda or KUKA iiwa, the hand pose is 6-dimensional (3 position plus 3 orientation), so \(J\) is \(6\times7\) with rank 6 in a generic pose and a null space of exactly 1 dimension: the elbow can circle around the shoulder-to-wrist line while the hand stays put. Controllers often write \(\dot{\mathbf q} = J^{+}\dot{\mathbf x} + (I - J^{+}J)\,\mathbf z\): the first term does the hand's job, and the second projects any wanted joint motion \(\mathbf z\) (stay away from joint limits, stay away from obstacles) into the null space so that the hand is unaffected. The pseudo-inverse \(J^{+}\) is the subject of Lesson 1.13.</p>
+  </div>
+</section>
+
+<!-- ============ 8. PITFALLS ============ -->
+<section class="step" id="pitfalls">
+  <h2><span class="n">8</span><span data-lang="zh">常见误区</span><span data-lang="en">Common pitfalls</span></h2>
+  <div class="callout pitfall">
+    <div class="ct"><span data-lang="zh">误区 1：用 inv(A) @ b 来解 Ax = b</span><span data-lang="en">Pitfall 1: computing inv(A) @ b to solve Ax = b</span></div>
+    <p data-lang="zh">先显式求逆再乘，比直接解方程慢，数值上也更不准，还会白白算出你根本不需要的整个矩阵。写 <code>np.linalg.solve(A, b)</code>。只有当你真的需要 \(A^{-1}\) 本身（比如要它的元素）时才去求逆。</p>
+    <p data-lang="en">Forming the inverse and multiplying is slower than solving directly, less accurate numerically, and computes a whole matrix you never needed. Write <code>np.linalg.solve(A, b)</code>. Invert only when you truly need \(A^{-1}\) itself (its entries, say).</p>
+  </div>
+  <div class="callout pitfall">
+    <div class="ct"><span data-lang="zh">误区 2：“只要 det ≠ 0 就没问题”</span><span data-lang="en">Pitfall 2: "as long as det ≠ 0 we are fine"</span></div>
+    <p data-lang="zh">几乎奇异的矩阵会把噪声放大，放大倍数约和 \(1/|\det|\) 同量级。取 \(A = \begin{bmatrix}1&2\\0.5&1.1\end{bmatrix}\)，\(\det A = 0.1\)，\(A^{-1} = \begin{bmatrix}11&-20\\-5&10\end{bmatrix}\)。若 \(\mathbf b = (3, 1.6)\)，解是 \((1, 1)\)；传感器只让 \(b_2\) 变了 0.01，变成 \(\mathbf b = (3, 1.61)\)，解就变成 \((0.8, 1.1)\)。输入误差 0.01，输出误差 0.22：约 20 倍。矩阵越接近奇异，这个倍数越大（1.12 节的条件数）。</p>
+    <p data-lang="en">A nearly singular matrix amplifies noise, by a factor of roughly \(1/|\det|\). Take \(A = \begin{bmatrix}1&2\\0.5&1.1\end{bmatrix}\), \(\det A = 0.1\), \(A^{-1} = \begin{bmatrix}11&-20\\-5&10\end{bmatrix}\). For \(\mathbf b = (3, 1.6)\) the solution is \((1, 1)\). If the sensor shifts only \(b_2\) by 0.01, giving \(\mathbf b = (3, 1.61)\), the solution jumps to \((0.8, 1.1)\). An input error of 0.01 became an output error of 0.22: about 20 times. The closer to singular, the bigger the factor (the condition number of Lesson 1.12).</p>
+  </div>
+  <div class="callout pitfall">
+    <div class="ct"><span data-lang="zh">误区 3：给非方阵求逆</span><span data-lang="en">Pitfall 3: inverting a non-square matrix</span></div>
+    <p data-lang="zh">\(2\times3\) 的雅可比没有逆：列比行多，必有零空间，不可能“一一对应”。需要的是<b>伪逆</b>（最小范数解或最小二乘解），见 1.13 节。</p>
+    <p data-lang="en">A \(2\times3\) Jacobian has no inverse: with more columns than rows there is always a null space, so no one-to-one correspondence. What you need is the <b>pseudo-inverse</b> (the minimum-norm or least-squares solution); see Lesson 1.13.</p>
+  </div>
+  <div class="callout pitfall">
+    <div class="ct"><span data-lang="zh">误区 4：\((AB)^{-1} = A^{-1}B^{-1}\)</span><span data-lang="en">Pitfall 4: \((AB)^{-1} = A^{-1}B^{-1}\)</span></div>
+    <p data-lang="zh">错，顺序要反过来：\((AB)^{-1} = B^{-1}A^{-1}\)。穿袜子再穿鞋，脱的时候必须先脱鞋。上一节的数值例子里，\(A^{-1}B^{-1}\) 和正确答案差一个元素。机器人里常见的情形：\(({}^{A}T_{B}\,{}^{B}T_{C})^{-1} = ({}^{B}T_{C})^{-1}({}^{A}T_{B})^{-1}\)。</p>
+    <p data-lang="en">Wrong: the order reverses, \((AB)^{-1} = B^{-1}A^{-1}\). Socks, then shoes; off comes the shoe first. In the numeric example above, \(A^{-1}B^{-1}\) differs from the right answer in one entry. A frequent robotics instance: \(({}^{A}T_{B}\,{}^{B}T_{C})^{-1} = ({}^{B}T_{C})^{-1}({}^{A}T_{B})^{-1}\).</p>
+  </div>
+  <div class="callout pitfall">
+    <div class="ct"><span data-lang="zh">误区 5：浮点数里“秩”是个阈值问题</span><span data-lang="en">Pitfall 5: in floating point, rank is a question of thresholds</span></div>
+    <p data-lang="zh">数学上秩 1 的矩阵，经过浮点运算常常变成“秩 2，但第二个奇异值是 \(10^{-17}\)”。比如 <code>0.1*3 - 0.3</code> 的结果是 \(5.55\times10^{-17}\)，不是 0。所以“\(\det = 0\)”这种判断在代码里几乎永远不成立；要看奇异值（1.12 节），并和一个相对阈值比较。</p>
+    <p data-lang="en">A matrix of rank 1 in exact arithmetic often turns into "rank 2, but the second singular value is \(10^{-17}\)" after floating-point operations. For instance <code>0.1*3 - 0.3</code> evaluates to \(5.55\times10^{-17}\), not 0. A test like "\(\det = 0\)" therefore almost never fires in code; look at the singular values (Lesson 1.12) and compare them with a relative threshold.</p>
+  </div>
+</section>
+
+<!-- ============ 9. QUIZ ============ -->
+<section class="step" id="quiz">
+  <h2><span class="n">9</span><span data-lang="zh">小练习</span><span data-lang="en">Check yourself</span></h2>
+
+  <div class="quiz" data-answer="2">
+    <div class="q"><span data-lang="zh">1. 矩阵 \(A = \begin{bmatrix}1&2\\2&4\end{bmatrix}\)，下面哪个向量在它的零空间里？</span><span data-lang="en">1. For \(A = \begin{bmatrix}1&2\\2&4\end{bmatrix}\), which vector lies in its null space?</span></div>
+    <div class="opts">
+      <button class="opt">\((1, 2)\)</button>
+      <button class="opt">\((2, 1)\)</button>
+      <button class="opt">\((2, -1)\)</button>
+      <button class="opt">\((1, -2)\)</button>
+    </div>
+    <div class="explain"><span data-lang="zh">\(A(2,-1) = (2-2,\ 4-4) = (0,0)\)。其余三个：\(A(1,2) = (5,10)\)，\(A(2,1) = (4,8)\)，\(A(1,-2) = (-3,-6)\)，都不是零。零空间就是方程 \(x + 2y = 0\) 的解，即 \((-2,1)\) 方向的直线。</span><span data-lang="en">\(A(2,-1) = (2-2,\ 4-4) = (0,0)\). The others: \(A(1,2) = (5,10)\), \(A(2,1) = (4,8)\), \(A(1,-2) = (-3,-6)\), none zero. The null space is the solution set of \(x + 2y = 0\), the line along \((-2,1)\).</span></div>
+  </div>
+
+  <div class="quiz" data-answer="3">
+    <div class="q"><span data-lang="zh">2. 一个 7 关节机械臂要跟踪 6 维的手部位姿，雅可比 \(J\) 是 \(6\times7\)，在某个姿态下秩为 6。它的零空间有几维？</span><span data-lang="en">2. A 7-joint arm tracks a 6-D hand pose; its Jacobian \(J\) is \(6\times7\) and has rank 6 in some pose. How many dimensions does its null space have?</span></div>
+    <div class="opts">
+      <button class="opt">6</button>
+      <button class="opt">7</button>
+      <button class="opt">0</button>
+      <button class="opt">1</button>
+    </div>
+    <div class="explain"><span data-lang="zh">秩–零化度：\(\operatorname{rank} + \operatorname{nullity} = n = 7\)（列数，也就是关节数），所以零化度 \(= 7 - 6 = 1\)。这 1 维自由就是“手不动，肘在动”的自运动。</span><span data-lang="en">Rank–nullity: \(\operatorname{rank} + \operatorname{nullity} = n = 7\) (the number of columns, i.e. joints), so nullity \(= 7 - 6 = 1\). That one dimension of freedom is the self-motion: hand fixed, elbow moving.</span></div>
+  </div>
+
+  <div class="quiz" data-answer="0">
+    <div class="q"><span data-lang="zh">3. 你对点云先做 \(B\)（缩放），再做 \(A\)（剪切）。要把点云恢复原状，应该用哪个矩阵？</span><span data-lang="en">3. You apply \(B\) (a scaling) to a point cloud and then \(A\) (a shear). Which matrix restores the original cloud?</span></div>
+    <div class="opts">
+      <button class="opt">\(B^{-1}A^{-1}\)</button>
+      <button class="opt">\(A^{-1}B^{-1}\)</button>
+      <button class="opt">\(A^{-1} + B^{-1}\)</button>
+    </div>
+    <div class="explain"><span data-lang="zh">做过的是 \(AB\)（右边的先作用）。要撤销，先撤销最后做的 \(A\)，再撤销 \(B\)：\(B^{-1}\) 在 \(A^{-1}\) 的左边，\(B^{-1}A^{-1}\)。检验：\(B^{-1}A^{-1}AB = B^{-1}B = I\)。</span><span data-lang="en">What you applied is \(AB\) (the right-hand factor acts first). To undo it, undo the last step \(A\) first and then \(B\): \(B^{-1}\) goes to the left of \(A^{-1}\), giving \(B^{-1}A^{-1}\). Check: \(B^{-1}A^{-1}AB = B^{-1}B = I\).</span></div>
+  </div>
+
+  <div class="quiz" data-answer="1">
+    <div class="q"><span data-lang="zh">4. 还是 \(A = \begin{bmatrix}1&2\\2&4\end{bmatrix}\)，方程 \(A\mathbf x = (3, 5)\) 有几个解？</span><span data-lang="en">4. With the same \(A = \begin{bmatrix}1&2\\2&4\end{bmatrix}\), how many solutions does \(A\mathbf x = (3, 5)\) have?</span></div>
+    <div class="opts">
+      <button class="opt"><span data-lang="zh">恰好一个</span><span data-lang="en">Exactly one</span></button>
+      <button class="opt"><span data-lang="zh">没有解</span><span data-lang="en">None</span></button>
+      <button class="opt"><span data-lang="zh">无穷多个，构成一条直线</span><span data-lang="en">Infinitely many, forming a line</span></button>
+      <button class="opt"><span data-lang="zh">无穷多个，构成整个平面</span><span data-lang="en">Infinitely many, filling the plane</span></button>
+    </div>
+    <div class="explain"><span data-lang="zh">列空间是 \((1,2)\) 方向的直线，输出只能是 \((t, 2t)\)。\((3,5)\) 不在这条线上（\(3\) 的两倍是 \(6\) 而不是 \(5\)），所以无解。如果换成 \(\mathbf b = (3,6)\)，则有一整条直线的解，见上一节的例子。</span><span data-lang="en">The column space is the line along \((1,2)\), so every output has the form \((t, 2t)\). \((3,5)\) is not on it (twice 3 is 6, not 5), so there is no solution. With \(\mathbf b = (3,6)\) instead, the solutions would fill a whole line, as in the example in the math section.</span></div>
+  </div>
+
+  <div class="quiz" data-answer="2">
+    <div class="q"><span data-lang="zh">5. 你要在代码里反复解 \(A\mathbf x = \mathbf b\)，\(A\) 是一个 \(50\times50\) 的良态方阵。最合适的做法是？</span><span data-lang="en">5. In code you must solve \(A\mathbf x = \mathbf b\) for a well-conditioned \(50\times50\) matrix \(A\). What is the best approach?</span></div>
+    <div class="opts">
+      <button class="opt"><span data-lang="zh">先算 inv(A)，再 inv(A) @ b</span><span data-lang="en">Compute inv(A), then inv(A) @ b</span></button>
+      <button class="opt"><span data-lang="zh">用 \(2\times2\) 的 \(1/\det\) 公式推广到 50 维</span><span data-lang="en">Extend the \(2\times2\) \(1/\det\) formula to 50 dimensions</span></button>
+      <button class="opt"><span data-lang="zh">solve(A, b)，内部做 LU 分解（反复解时可以复用分解）</span><span data-lang="en">solve(A, b), which uses an LU factorization internally (you can reuse the factorization when solving repeatedly)</span></button>
+    </div>
+    <div class="explain"><span data-lang="zh">直接分解后回代，更快也更准；1/det 公式在高维里运算量爆炸，且数值上很差。显式求逆只有在真的需要 \(A^{-1}\) 的元素时才值得。</span><span data-lang="en">Factorizing and back-substituting is faster and more accurate; the \(1/\det\) formula explodes in cost in high dimensions and is numerically poor. Explicit inversion is worth it only when you actually need the entries of \(A^{-1}\).</span></div>
+  </div>
+</section>
+
+<!-- ============ 10. READING ============ -->
+<section class="step" id="reading">
+  <h2><span class="n">10</span><span data-lang="zh">延伸阅读</span><span data-lang="en">Further reading</span></h2>
+  <ul class="reading">
+    <li>3Blue1Brown, <a href="https://www.3blue1brown.com/topics/linear-algebra" target="_blank" rel="noopener"><i>Essence of Linear Algebra</i></a> — <span data-lang="zh">第 7 章（逆矩阵、列空间与零空间）</span><span data-lang="en">Ch. 7 (Inverse matrices, column space and null space)</span></li>
+    <li>G. Strang, <a href="https://ocw.mit.edu/courses/18-06-linear-algebra-spring-2010/" target="_blank" rel="noopener"><i>Introduction to Linear Algebra</i></a>, Ch. 3 — <span data-lang="zh">向量空间与子空间（列空间、零空间、秩与解 Ax = b）；逆矩阵见 §2.5</span><span data-lang="en">Vector spaces and subspaces (column space, null space, rank, solving Ax = b); inverses are in §2.5</span></li>
+    <li>K. Lynch &amp; F. Park, <a href="https://hades.mech.northwestern.edu/index.php/Modern_Robotics" target="_blank" rel="noopener"><i>Modern Robotics</i></a>, §6.2–6.3 — <span data-lang="zh">数值逆运动学与冗余机械臂的速度求解</span><span data-lang="en">Numerical inverse kinematics and inverse velocity kinematics for redundant arms</span></li>
+    <li>B. Siciliano, L. Sciavicco, L. Villani, G. Oriolo, <i>Robotics: Modelling, Planning and Control</i>, Ch. 3 — <span data-lang="zh">微分运动学，其中讲冗余分析与零空间投影（约 §3.4–3.5）</span><span data-lang="en">Differential kinematics, including redundancy analysis and null-space projection (around §3.4–3.5)</span></li>
+  </ul>
+</section>
+
+</article>
+</main>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/katex@0.16.22/dist/katex.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/katex@0.16.22/dist/contrib/auto-render.min.js"></script>
+<script src="../assets/syllabus.js"></script>
+<script src="../assets/math.js"></script>
+<script src="../assets/course.js"></script>
+<script src="../assets/viz2d.js"></script>
+<script src="../assets/viz3d.js"></script>
+<script>
+R101.onReady(function () {
+  const { M, ui, L } = R101;
+  const cols = B => [[B[0][0], B[1][0]], [B[0][1], B[1][1]]];
+  const I2 = [[1, 0], [0, 1]];
+  const near = (A, B, tol) => A.every((r, i) => r.every((x, j) => Math.abs(x - B[i][j]) < tol));
+  const EPS = 1e-6;                       // singular threshold for the hand-made matrices on this page
+  const sm = t => t * t * (3 - 2 * t);    // smoothstep
+  const copy = A => A.map(r => r.slice());
+  const maxAbs = A => Math.max(...A.map(r => Math.max(...r.map(Math.abs))));
+
+  // rank (0, 1, 2) of a 2×2 matrix, and its subspaces when rank is 1
+  function rank2(A) {
+    if (Math.abs(M.det2(A)) > EPS) return 2;
+    return maxAbs(A) > 1e-6 ? 1 : 0;
+  }
+  function spaces2(A) {
+    const r = rank2(A);
+    if (r !== 1) return { r };
+    const [a1, a2] = cols(A);
+    const col = M.normalize(M.norm(a1) >= M.norm(a2) ? a1 : a2);
+    const row = M.normalize(M.norm(A[0]) >= M.norm(A[1]) ? A[0] : A[1]);
+    return { r, col, row, nul: [-row[1], row[0]] };
+  }
+  // a very long line through the origin along u
+  const longLine = (P, u, o) => P.line(M.scale(u, -14), M.scale(u, 14), o);
+
+  /* ---------------- FIG 1: can we rewind? ---------------- */
+  (function () {
+    const maps = {
+      shear: { zh: '剪切', en: 'Shear', A: [[1, 1], [0, 1]] },
+      rot: { zh: '旋转 + 拉伸', en: 'Rotate + stretch', A: [[1.2, -0.8], [0.8, 1.2]] },
+      near: { zh: '几乎压扁', en: 'Nearly flat', A: [[1, 2], [0.5, 1.1]] },
+      flat: { zh: '压扁', en: 'Squash', A: [[1, 2], [0.5, 1]] }
+    };
+    let key = 'shear', t = 0, anim = null;
+    const dots = [];
+    [1, 0, -1].forEach(j => [-1, 0, 1].forEach(i => dots.push([i, j])));
+    const dc = ['i', 'v', 'j', 'x', 'k', 'w', 'good', 'bad', 'text-2'];
+    const Am = () => maps[key].A;
+    const invertible = () => rank2(Am()) === 2;
+    // matrix of the movie at time t: 0..1 plays A, 1..2 rewinds with A^{-1} (equals lerp(A, I) because (I + s(A^{-1} - I))A = A + s(I - A))
+    function Nt(tt) {
+      const A = Am();
+      if (tt <= 1) return M.lerpM(I2, A, tt);
+      return invertible() ? M.lerpM(A, I2, tt - 1) : A;
+    }
+    const P = new R101.Plane2D('#rw-canvas', { height: 400, view: { span: 7.2, cy: 0.3 }, draw });
+    function groups(tt) {
+      const N = Nt(tt), g = {};
+      dots.forEach((p, k) => { const q = M.mv(N, p), id = Math.round(q[0] * 1e4) + ',' + Math.round(q[1] * 1e4); (g[id] = g[id] || { q, n: 0 }).n++; });
+      return Object.values(g);
+    }
+    function draw(P) {
+      const N = Nt(t);
+      P.grid({ color: 'grid', axisColor: 'grid-2' });
+      P.grid({ A: N, color: 'x', alpha: 0.28, width: 1, axisColor: 'x', axisWidth: 1.6 });
+      dots.forEach(p => P.circle(p, 0.09, { color: 'axis', width: 1.2, alpha: 0.6 }));
+      dots.forEach((p, k) => P.point(M.mv(N, p), { color: dc[k], r: 6.5, stroke: 'canvas', strokeWidth: 1.5 }));
+      groups(t).forEach(g => { if (g.n > 1) P.text('×' + g.n, g.q, { offset: [12, -14], color: 'bad', bold: true, size: 14 }); });
+      const label = t <= 1 ? R101.t('施加 A', 'apply A') : invertible() ? R101.t('用 A⁻¹ 撤销', 'undo with A⁻¹') : R101.t('没有 A⁻¹，无法撤销', 'no A⁻¹: cannot undo');
+      P.textPx(label, 12, 18, { color: t > 1 && !invertible() ? 'bad' : 'text-2', bold: true, size: 13 });
+    }
+    const side = { tex: document.getElementById('rw-tex'), read: document.getElementById('rw-read'), verdict: document.getElementById('rw-verdict') };
+    function renderSide() {
+      const A = Am(), d = M.det2(A), Ai = invertible() ? M.inv2(A) : null;
+      R101.tex(side.tex, `A = ${M.texMat(A)}`);
+      side.read.innerHTML = `det A = <b>${M.fmt(d, 2)}</b><br>${Ai ? `max |A⁻¹| = <b>${M.fmt(maxAbs(Ai), 1)}</b>` : L('A⁻¹ 不存在', 'A⁻¹ does not exist')}`;
+      const spots = groups(1).length;
+      side.verdict.innerHTML = Ai
+        ? `<b style="color:var(--c-good)">${L('✓ 可以倒放', '✓ Rewindable')}</b><br>${maxAbs(Ai) > 10 ? L('但 A⁻¹ 的元素很大：倒放时，输出里的一点点误差都会被放大很多倍。', 'But A⁻¹ has huge entries: when rewinding, even a tiny error in the output gets amplified a lot.') : L('每个终点都只来自一个起点。', 'Every end point came from exactly one start point.')}`
+        : `<b style="color:var(--c-bad)">${L('✗ 不能倒放', '✗ Cannot rewind')}</b><br>${L(`9 个点只剩 ${spots} 个落点：被压到同一点的点分不开了。`, `9 dots are now only ${spots} spots: dots that landed together cannot be told apart.`)}`;
+    }
+    const ctr = document.getElementById('rw-controls');
+    const segHost = document.getElementById('rw-seg');
+    const sl = ui.slider(ctr, {
+      zh: '时间', en: 'time', min: 0, max: 2, step: 0.01, value: 0,
+      fmt: v => (v <= 1 ? R101.t('施加 ', 'apply ') + Math.round(v * 100) + '%' : R101.t('撤销 ', 'undo ') + Math.round((v - 1) * 100) + '%'),
+      onInput: v => { stop(); t = v; P.invalidate(); }
+    });
+    function stop() { if (anim) { anim(); anim = null; } }
+    ui.seg(segHost, Object.keys(maps).map(k => ({ value: k, zh: maps[k].zh, en: maps[k].en })), key, v => { stop(); key = v; t = 0; sl.set(0); renderSide(); P.invalidate(); });
+    ui.button(ctr, { zh: '▶ 播放', en: '▶ Play', cls: 'sm primary', onClick: () => {
+      stop(); t = 0; sl.set(0);
+      anim = R101.animate(3600, (e, raw) => { t = 2 * raw; sl.set(t); P.invalidate(); }, () => { anim = null; });
+    } });
+    R101.on('lang', () => { sl.set(sl.get()); renderSide(); });
+    renderSide();
+  })();
+
+  /* ---------------- FIG 2: inverse & null-space lab ---------------- */
+  (function () {
+    let A = [[1.2, 0.4], [-0.3, 0.9]];
+    let shown = copy(A);
+    let x = [1.5, 1];
+    let anim = null, note = null, stage = null;
+    const P = new R101.Plane2D('#lab-canvas', { height: 470, view: { span: 6.5 }, draw, onChange: sync });
+
+    function draw(P) {
+      const B = shown, [a1, a2] = cols(B), d = M.det2(B), S = spaces2(A), hl = R101.hl;
+      P.grid({ color: 'grid', axisColor: 'grid-2' });
+      P.grid({ A: B, color: 'x', alpha: 0.34, width: 1.1, axisColor: 'x', axisWidth: 1.8 });
+      P.poly([[0, 0], a1, M.add(a1, a2), a2], { fill: d >= 0 ? 'x' : 'j', fillAlpha: d >= 0 ? 0.13 : 0.2, stroke: d >= 0 ? 'x' : 'j', alpha: 0.5, width: 1 });
+      if (S.r === 1 && !anim) {
+        // fibres: inputs on one dashed line land on the same output point
+        const sp = M.clamp(0.9 / Math.max(M.norm(A[0].concat(A[1])), 1e-6), 0.3, 1.2);   // rank 1: |A·row| = ‖A‖_F
+        for (let k = -12; k <= 12; k++) {
+          const xk = M.scale(S.row, k * sp);
+          if (M.norm(xk) > 4.2) continue;
+          P.line(M.add(xk, M.scale(S.nul, -14)), M.add(xk, M.scale(S.nul, 14)), { color: 'w', width: 1, dash: [4, 5], alpha: 0.35 });
+          const o = M.mv(A, xk);
+          if (M.norm(o) < 4.8) P.point(o, { color: 'x', r: 3.2, alpha: 0.9 });
+        }
+        longLine(P, S.col, { color: 'x', width: hl === 'col' ? 9 : 6, alpha: 0.9 });
+        longLine(P, S.nul, { color: 'w', width: hl === 'null' ? 6 : 3, alpha: 0.95 });
+        // the fibre through the current input
+        const f = M.add(x, M.scale(S.nul, -14)), g = M.add(x, M.scale(S.nul, 14));
+        P.line(f, g, { color: 'w', width: 2.2, dash: [7, 5], alpha: 0.95 });
+        P.text('C(A)', M.scale(S.col, 2.9), { color: 'x', bold: true, offset: [10, -12], size: 14 });
+        P.text('N(A)', M.scale(S.nul, 2.7), { color: 'w', bold: true, offset: [10, 12], size: 14 });
+      }
+      const w = M.mv(B, x);
+      P.arrow([0, 0], x, { color: 'text', width: hl === 'x' ? 5 : 3, alpha: 0.9, label: 'x', labelColor: 'text' });
+      P.arrow([0, 0], w, { color: 'v', width: hl === 'b' ? 6 : 4, label: 'Ax' });
+      P.arrow([0, 0], a1, { color: 'i', width: 3, alpha: 0.8, label: 'Aî' });
+      P.arrow([0, 0], a2, { color: 'j', width: 3, alpha: 0.8, label: 'Aĵ' });
+      if (stage) P.textPx(stage, 12, 18, { color: 'text-2', bold: true, size: 13 });
+      if (note) P.textPx(note, 12, 38, { color: 'bad', bold: true, size: 13 });
+    }
+    P.handle({ pos: () => cols(A)[0], set: p => { A[0][0] = p[0]; A[1][0] = p[1]; }, color: 'i', snap: 0.1 });
+    P.handle({ pos: () => cols(A)[1], set: p => { A[0][1] = p[0]; A[1][1] = p[1]; }, color: 'j', snap: 0.1 });
+    P.handle({
+      pos: () => x, color: 'text', snap: 0.05,
+      set: p => {
+        const S = spaces2(A);
+        if (S.r === 1) { const dd = M.dot(p, S.row); if (Math.abs(dd) < 0.12) p = M.sub(p, M.scale(S.row, dd)); }
+        x = p;
+      }
+    });
+
+    const ed = ui.matrixEditor(document.getElementById('lab-mat'), { value: A, step: 0.1, onInput: B => { stopAnim(); A = B; sync(); } });
+    const texEl = document.getElementById('lab-tex'), readEl = document.getElementById('lab-read');
+    function stopAnim() { if (anim) { anim(); anim = null; } stage = null; }
+    function sync(fromAnim) {
+      if (!fromAnim) { stopAnim(); shown = copy(A); note = null; }
+      ed.set(A);
+      const d = M.det2(A), S = spaces2(A), Ai = S.r === 2 ? M.inv2(A) : null, mx = Ai ? maxAbs(Ai) : 0;
+      if (Ai) R101.tex(texEl, `A^{-1} = ${M.texMat(Ai)}`);
+      else R101.tex(texEl, `A^{-1}\\;\\text{${R101.t('不存在', 'does not exist')}}`);
+      let h = `det A = <b>${M.fmt(d, 3)}</b> · ${L('秩', 'rank')} = <b>${S.r}</b> · ${L('零化度', 'nullity')} = <b>${2 - S.r}</b>`;
+      if (Ai) {
+        const pct = M.clamp(Math.log10(Math.max(mx, 1)) / 2, 0, 1) * 100;
+        h += `<br>${L('逆有多大', 'how big is the inverse')}: max|A⁻¹| = <b style="color:var(--c-${mx > 10 ? 'bad' : 'good'})">${M.fmt(mx, 1)}</b>` +
+          `<div style="height:8px;margin:5px 0 3px;background:var(--bg-3);border:1px solid var(--border);border-radius:4px;overflow:hidden"><div style="width:${pct}%;height:100%;background:var(--c-${mx > 10 ? 'bad' : 'good'})"></div></div>` +
+          (mx > 10 ? `<span style="color:var(--c-bad)">${L('接近奇异：输出里的小误差会被放大', 'Nearly singular: small output errors get amplified')}</span>` : '');
+      } else if (S.r === 1) {
+        h += `<br>${L('零空间方向', 'null direction')} n = <b>(${M.fmt(S.nul[0], 2)}, ${M.fmt(S.nul[1], 2)})</b><br><span style="color:var(--c-bad)">${L('没有逆：同一条紫色虚线上的输入无法区分', 'No inverse: inputs on one dashed line cannot be told apart')}</span>`;
+      } else {
+        h += `<br><span style="color:var(--c-bad)">${L('零矩阵：一切都被压成原点', 'Zero matrix: everything is crushed to the origin')}</span>`;
+      }
+      readEl.innerHTML = h;
+      // tasks
+      const [a1, a2] = cols(A);
+      if (Ai && mx > 10) R101.done('nearsing');
+      if (S.r === 1 && M.norm(M.add(a1, a2)) < 0.06 && Math.max(M.norm(a1), M.norm(a2)) > 0.3) R101.done('ydiag');
+      if (S.r === 1 && M.norm(x) > 0.4 && M.norm(M.mv(A, x)) < 0.03) R101.done('nullvec');
+      P.invalidate();
+    }
+    function animateTo(target, from) {
+      stopAnim();
+      A = copy(target); note = null;
+      sync(true);
+      const start = copy(from || shown);
+      anim = R101.animate(900, e => { shown = M.lerpM(start, target, e); P.invalidate(); }, () => { anim = null; shown = copy(A); P.invalidate(); });
+    }
+    function playUndo() {
+      stopAnim(); note = null;
+      const target = copy(A), invertible = rank2(target) === 2;
+      sync(true);
+      if (!invertible) {
+        stage = R101.t('第 1 步：施加 A', 'Step 1: apply A');
+        anim = R101.animate(1300, (e, raw) => { shown = M.lerpM(I2, target, sm(raw)); P.invalidate(); }, () => {
+          anim = null; shown = copy(target); stage = null;
+          note = R101.t('没有 A⁻¹：压扁的方向无法恢复', 'No A⁻¹: the crushed direction cannot be restored');
+          P.invalidate();
+        });
+        return;
+      }
+      anim = R101.animate(3400, (e, raw) => {
+        if (raw < 0.5) { shown = M.lerpM(I2, target, sm(raw * 2)); stage = R101.t('第 1 步：施加 A', 'Step 1: apply A'); }
+        else { shown = M.lerpM(target, I2, sm((raw - 0.5) * 2)); stage = R101.t('第 2 步：用 A⁻¹ 撤销', 'Step 2: undo with A⁻¹'); }
+        P.invalidate();
+      }, () => { anim = null; shown = copy(target); stage = null; P.invalidate(); });
+    }
+    const c30 = Math.cos(Math.PI / 6), s30 = Math.sin(Math.PI / 6);
+    const presets = [
+      ['单位', 'Identity', [[1, 0], [0, 1]]],
+      ['旋转 30°', 'Rotate 30°', [[c30, -s30], [s30, c30]]],
+      ['剪切', 'Shear', [[1, 1], [0, 1]]],
+      ['拉伸', 'Stretch', [[2, 0], [0, 0.5]]],
+      ['几乎压扁', 'Nearly flat', [[1, 2], [0.5, 1.1]]],
+      ['秩 1', 'Rank 1', [[1, 2], [0.5, 1]]]
+    ];
+    const ph = document.getElementById('lab-presets');
+    presets.forEach(([zh, en, B]) => ui.button(ph, { zh, en, cls: 'sm', onClick: () => animateTo(B) }));
+    document.getElementById('lab-play').onclick = playUndo;
+    R101.on('lang', () => sync(!!anim));
+    sync();
+  })();
+
+  /* ---------------- FIG 3: find the inverse ---------------- */
+  (function () {
+    const pool = [
+      [[1, 1], [0, 1]], [[1, 0], [-1, 1]], [[2, 0], [0, 0.5]], [[0, -1], [1, 0]], [[1, 1], [-1, 1]],
+      [[2, 1], [1, 1]], [[1, 2], [0, 1]], [[2, 0], [1, 1]]
+    ];
+    let A, B = copy(I2), hits = 0, solved = false, revealed = false, last = -1, anim = null;
+    const P = new R101.Plane2D('#undo-canvas', { height: 400, view: { span: 7 }, draw, onChange: check });
+    function draw(P) {
+      const BA = M.mul(B, A), [p1, p2] = cols(A), [c1, c2] = cols(BA);
+      P.grid({ color: 'grid', axisColor: 'grid-2' });
+      P.grid({ A, color: 'w', alpha: 0.4, width: 1.2, axisColor: 'w', axisWidth: 2, dash: [7, 5] });
+      P.grid({ A: BA, color: 'x', alpha: solved ? 0.55 : 0.5, width: 1.1, axisColor: 'x', axisWidth: 2 });
+      P.arrow([0, 0], p1, { color: 'w', width: 3, label: 'Aî', alpha: 0.9 });
+      P.arrow([0, 0], p2, { color: 'w', width: 3, label: 'Aĵ', alpha: 0.9 });
+      P.arrow([0, 0], c1, { color: 'x', width: 2, alpha: 0.9, head: 8 });
+      P.arrow([0, 0], c2, { color: 'x', width: 2, alpha: 0.9, head: 8 });
+      const [b1, b2] = cols(B);
+      P.arrow([0, 0], b1, { color: 'i', width: 4, label: 'Bî' });
+      P.arrow([0, 0], b2, { color: 'j', width: 4, label: 'Bĵ' });
+    }
+    P.handle({ pos: () => cols(B)[0], set: p => { B[0][0] = p[0]; B[1][0] = p[1]; }, color: 'i', snap: 0.05 });
+    P.handle({ pos: () => cols(B)[1], set: p => { B[0][1] = p[0]; B[1][1] = p[1]; }, color: 'j', snap: 0.05 });
+    const tex = document.getElementById('undo-tex'), msg = document.getElementById('undo-msg'), score = document.getElementById('undo-score');
+    function show() {
+      const BA = M.mul(B, A);
+      R101.tex(tex, `\\begin{aligned} A &= ${M.texMat(A)} \\\\ BA &= ${M.texMat(BA)}${solved || revealed ? '\\;\\checkmark' : ''} \\end{aligned}`);
+      score.innerHTML = L(`已撤销 ${hits}`, `undone: ${hits}`);
+      msg.innerHTML = solved
+        ? `<b style="color:var(--c-good)">${revealed ? L('这是答案 B = A⁻¹，点“下一题”继续。', 'That was the answer, B = A⁻¹. Hit "Next".') : L('撤销成功！BA = I。', 'Undone! BA = I.')}</b>`
+        : L('提示：B 要把紫色箭头 Aî 送回 (1,0)，把 Aĵ 送回 (0,1)。', 'Hint: B must send the purple arrow Aî back to (1,0) and Aĵ back to (0,1).');
+    }
+    function check() {
+      if (!solved && near(M.mul(B, A), I2, 0.1)) {
+        solved = true;
+        if (!revealed) { hits++; if (hits >= 3) R101.done('undo3'); }
+      }
+      show(); P.invalidate();
+    }
+    function next() {
+      if (anim) { anim(); anim = null; }
+      let k; do { k = Math.floor(Math.random() * pool.length); } while (k === last);
+      last = k; A = copy(pool[k]); B = copy(I2); solved = false; revealed = false;
+      show(); P.invalidate();
+    }
+    document.getElementById('undo-next').onclick = next;
+    document.getElementById('undo-reveal').onclick = () => {
+      if (solved) return;
+      revealed = true;
+      const from = copy(B), to = M.inv2(A);
+      anim = R101.animate(700, e => { B = M.lerpM(from, to, e); P.invalidate(); }, () => { anim = null; B = copy(to); solved = true; show(); P.invalidate(); });
+    };
+    R101.on('lang', show);
+    next();
+  })();
+
+  /* ---------------- FIG 4: solving Ax = b ---------------- */
+  (function () {
+    let A = [[2, 1], [1, 1.5]];
+    let x = [1, 0.5], b = M.mv(A, x), ok = true;
+    const opts = { height: 400, view: { span: 9 } };
+    const PI = new R101.Plane2D('#sv-in', Object.assign({}, opts, { draw: drawIn, onChange: sync }));
+    const PO = new R101.Plane2D('#sv-out', Object.assign({}, opts, { draw: drawOut, onChange: sync }));
+    const label = (P, str, p, o) => P.text(str, p, Object.assign({ bold: true, size: 14, offset: [10, -12] }, o));
+
+    function setB(p) {
+      const S = spaces2(A);
+      b = p.slice();
+      if (S.r === 2) { x = M.mv(M.inv2(A), b); ok = true; }
+      else if (S.r === 1) {
+        const pr = M.scale(S.col, M.dot(b, S.col));
+        if (M.norm(M.sub(b, pr)) < 0.15) {
+          b = pr; ok = true;
+          const f2 = A.reduce((s, r) => s + r[0] * r[0] + r[1] * r[1], 0);
+          const xp = M.scale(M.mv(M.T(A), b), 1 / f2);   // for rank 1: A⁺ = Aᵀ / ‖A‖²_F
+          x = M.add(xp, M.scale(S.nul, M.dot(S.nul, x)));
+        } else ok = false;
+      } else { ok = M.norm(b) < 0.15; if (ok) b = [0, 0]; }
+    }
+    function setX(p) { x = p.slice(); b = M.mv(A, x); ok = true; }
+    // after the matrix changes: keep b = A x, scaled so that b stays inside the output panel
+    function refit() {
+      ok = true; b = M.mv(A, x);
+      const m = Math.max(Math.abs(b[0]), Math.abs(b[1]));
+      if (m > 4) { x = M.scale(x, 4 / m); b = M.mv(A, x); }
+    }
+
+    function drawIn(P) {
+      const S = spaces2(A), hl = R101.hl;
+      P.grid({ color: 'grid', axisColor: 'grid-2' });
+      if (S.r === 0) {
+        P.poly([[-20, -20], [20, -20], [20, 20], [-20, 20]], { fill: 'w', fillAlpha: 0.1 });
+        label(P, R101.t('N(A) = 整个平面', 'N(A) = the whole plane'), [-3.4, -3.3], { color: 'w', offset: [0, 0] });
+      }
+      if (S.r === 1) longLine(P, S.nul, { color: 'w', width: hl === 'null' ? 6 : 3, dash: [8, 6], alpha: 0.95 });
+      if (S.r === 1) label(P, 'N(A)', M.scale(S.nul, 2.6), { color: 'w', offset: [10, 12] });
+      if (!ok) { P.textPx(R101.t('没有解：b 不在列空间里', 'No solution: b is not in the column space'), 12, 40, { color: 'bad', bold: true, size: 14 }); return; }
+      if (S.r === 1) {
+        const xp = M.sub(x, M.scale(S.nul, M.dot(S.nul, x)));
+        longLine2(P, xp, S.nul, { color: 'v', width: hl === 'sol' || hl === 'xp' ? 6 : 3.5, alpha: 0.95 });
+        P.arrow([0, 0], xp, { color: 'v', width: hl === 'xp' ? 5 : 2.5, alpha: 0.85, head: 9 });
+        P.point(xp, { color: 'v', r: 5, stroke: 'canvas' });
+        label(P, 'x_p', xp, { color: 'v', offset: [-14, 14] });
+        P.textPx(R101.t('解集 = x_p + N(A)', 'solutions = x_p + N(A)'), 12, 40, { color: 'v', bold: true, size: 14 });
+      } else if (S.r === 2) {
+        P.arrow([0, 0], x, { color: 'v', width: hl === 'x' ? 6 : 4, label: R101.t('x = A⁻¹b（唯一解）', 'x = A⁻¹b (unique)') });
+      }
+    }
+    function longLine2(P, p, u, o) { P.line(M.add(p, M.scale(u, -14)), M.add(p, M.scale(u, 14)), o); }
+    function drawOut(P) {
+      const S = spaces2(A), hl = R101.hl;
+      P.grid({ color: 'grid', axisColor: 'grid-2' });
+      if (S.r === 1) { longLine(P, S.col, { color: 'x', width: hl === 'col' ? 7 : 4.5, alpha: 0.95 }); label(P, 'C(A)', M.scale(S.col, 3.2), { color: 'x', offset: [10, -14] }); }
+      else if (S.r === 2) label(P, R101.t('C(A) = 整个平面', 'C(A) = the whole plane'), [-3.4, -3.3], { color: 'x', offset: [0, 0] });
+      else label(P, R101.t('C(A) = 只有原点', 'C(A) = just the origin'), [-3.4, -3.3], { color: 'x', offset: [0, 0] });
+      if (!ok && S.r === 1) {
+        const pr = M.scale(S.col, M.dot(b, S.col));
+        P.line(b, pr, { color: 'bad', width: 2.4, dash: [5, 4] });
+        P.point(pr, { color: 'x', r: 4 });
+        label(P, R101.t('差距', 'gap'), M.scale(M.add(b, pr), 0.5), { color: 'bad', offset: [10, 0] });
+      }
+      P.arrow([0, 0], b, { color: ok ? 'v' : 'bad', width: hl === 'b' ? 6 : 4, label: 'b' });
+    }
+    PI.handle({ pos: () => x, color: 'text', visible: () => ok, snap: 0.05, set: setX });
+    PO.handle({ pos: () => b, color: 'v', snap: 0.05, set: setB });
+
+    const ctr = document.getElementById('sv-controls');
+    const lab = document.createElement('span'); lab.className = 'small muted'; lab.innerHTML = L('矩阵 A', 'Matrix A'); ctr.appendChild(lab);
+    const ed = ui.matrixEditor(ctr, { value: A, step: 0.1, onInput: B => { A = B; refit(); sync(); } });
+    const ph = document.createElement('span'); ph.className = 'presets'; ctr.appendChild(ph);
+    [
+      ['可逆', 'Invertible', [[2, 1], [1, 1.5]]],
+      ['秩 1', 'Rank 1', [[1, 2], [2, 4]]],
+      ['秩 1（另一个）', 'Rank 1 (another)', [[1, -1], [-1, 1]]]
+    ].forEach(([zh, en, B]) => ui.button(ph, { zh, en, cls: 'sm', onClick: () => { A = copy(B); x = [1, 0.5]; refit(); sync(); } }));
+
+    const tex = document.getElementById('sv-tex'), read = document.getElementById('sv-read');
+    function sync() {
+      ed.set(A);
+      const S = spaces2(A);
+      if (ok) R101.tex(tex, `${M.texMat(A)}\\,\\cv{${M.texVec(x)}} = \\cv{${M.texVec(M.mv(A, x))}}`);
+      else R101.tex(tex, `A\\mathbf x = \\cv{${M.texVec(b)}}\\;\\text{${R101.t('无解', 'has no solution')}}`);
+      let h;
+      if (S.r === 2) h = `<b style="color:var(--c-good)">${L('A 可逆：每个 b 恰好一个解。', 'A is invertible: every b has exactly one solution.')}</b>`;
+      else if (S.r === 1 && ok) h = `<b>${L('b 在列空间里：无穷多个解', 'b is in the column space: infinitely many solutions')}</b><br>x = x_p + t·n, n = (${M.fmt(S.nul[0], 2)}, ${M.fmt(S.nul[1], 2)})`;
+      else if (S.r === 1) h = `<b style="color:var(--c-bad)">${L('b 不在列空间里：没有解', 'b is outside the column space: no solution')}</b><br>${L('到列空间的距离', 'distance to column space')} = ${M.fmt(M.norm(M.sub(b, M.scale(S.col, M.dot(b, S.col)))), 2)}`;
+      else h = ok ? `<b>${L('零矩阵：b = 0 时任意 x 都是解', 'Zero matrix: for b = 0 every x is a solution')}</b>` : `<b style="color:var(--c-bad)">${L('零矩阵：b ≠ 0 无解', 'Zero matrix: no solution unless b = 0')}</b>`;
+      read.innerHTML = h;
+      if (S.r === 1 && ok && M.norm(b) > 0.3) R101.done('solline');
+      if (S.r === 1 && !ok) R101.done('nosol');
+      PI.invalidate(); PO.invalidate();
+    }
+    R101.on('lang', sync);
+    sync();
+  })();
+
+  /* ---------------- FIG 5: collapsing the cube (3D) ---------------- */
+  (function () {
+    let A = [[1, 0.5, 0], [0, 1, 0.5], [0, 0, 1]];
+    let shown = copy(A), anim = null, viaEditor = false;
+    const col3 = (B, j) => [B[0][j], B[1][j], B[2][j]];
+    const norm3 = v => Math.hypot(v[0], v[1], v[2]);
+    // rank and subspaces of a 3×3 matrix
+    function spaces3(B) {
+      if (Math.abs(M.det3(B)) > EPS) return { r: 3 };
+      const c = [0, 1, 2].map(j => col3(B, j));
+      let best = null, bn = 1e-6;
+      [[0, 1], [0, 2], [1, 2]].forEach(([i, j]) => { const n = M.cross(c[i], c[j]), l = norm3(n); if (l > bn) { bn = l; best = { n, i, j }; } });
+      if (best) {
+        const colN = M.normalize(best.n), u = M.normalize(c[best.i]), w = M.cross(colN, u);
+        let br = null, rn = 1e-6;
+        [[0, 1], [0, 2], [1, 2]].forEach(([i, j]) => { const n = M.cross(B[i], B[j]), l = norm3(n); if (l > rn) { rn = l; br = n; } });
+        return { r: 2, colN, colU: u, colW: w, nul: M.normalize(br) };
+      }
+      let k = 0;
+      c.forEach((v, j) => { if (norm3(v) > norm3(c[k])) k = j; });
+      if (norm3(c[k]) < 1e-6) return { r: 0 };
+      let m = 0;
+      B.forEach((r, i) => { if (norm3(r) > norm3(B[m])) m = i; });
+      const rowh = M.normalize(B[m]);
+      const helper = Math.abs(rowh[0]) < 0.8 ? [1, 0, 0] : [0, 1, 0];
+      const nu = M.normalize(M.cross(rowh, helper)), nw = M.cross(rowh, nu);
+      return { r: 1, col: M.normalize(c[k]), nu, nw };
+    }
+    let sp = spaces3(A);
+    const V = new R101.View3D('#cube-canvas', { height: 440, dist: 6.6, yaw: -0.8, pitch: 0.4, target: [0.5, 0.5, 0.4], draw });
+    const verts = [];
+    for (let i = 0; i < 8; i++) verts.push([i & 1, (i >> 1) & 1, (i >> 2) & 1]);
+    const edges = [];
+    for (let i = 0; i < 8; i++) for (let b = 0; b < 3; b++) if (!(i & (1 << b))) edges.push([i, i | (1 << b), b]);
+    const faces = [[0, 1, 3, 2], [4, 5, 7, 6], [0, 1, 5, 4], [2, 3, 7, 6], [0, 2, 6, 4], [1, 3, 7, 5]];
+    const colTok = ['i', 'j', 'k'];
+    const patch = (V, o, u, w, s, color, a) => V.poly([0, 1, 2, 3].map(q => { const su = q === 0 || q === 3 ? s : -s, sw = q < 2 ? s : -s; return [o[0] + u[0] * su + w[0] * sw, o[1] + u[1] * su + w[1] * sw, o[2] + u[2] * su + w[2] * sw]; }), { fill: color, fillAlpha: a, stroke: color, alpha: 0.6, width: 1.2, bias: 0.5 });
+
+    function draw(V) {
+      V.grid({ extent: 3 });
+      // original cube (faint)
+      edges.forEach(([a, b]) => V.line(verts[a], verts[b], { color: 'axis', width: 1, alpha: 0.35 }));
+      // image of the cube
+      const img = verts.map(v => M.mv(shown, v));
+      faces.forEach(f => V.poly(f.map(i => img[i]), { fill: 'x', fillAlpha: 0.07 }));
+      edges.forEach(([a, b, k]) => V.line(img[a], img[b], { color: colTok[k], width: 2.4, alpha: 0.95 }));
+      V.point([0, 0, 0], { color: 'text', r: 3.5 });
+      // subspaces
+      if (sp.r === 2) {
+        patch(V, [0, 0, 0], sp.colU, sp.colW, 2.4, 'x', 0.1);
+        V.text('C(A)', M.add(M.scale(sp.colU, 2.4), M.scale(sp.colW, 2.4)), { color: 'x', size: 14 });
+        V.line(M.scale(sp.nul, -2.8), M.scale(sp.nul, 2.8), { color: 'w', width: 3.5, alpha: 0.95 });
+        V.text('N(A)', M.scale(sp.nul, 2.9), { color: 'w', size: 14 });
+      } else if (sp.r === 1) {
+        V.line(M.scale(sp.col, -3.2), M.scale(sp.col, 3.2), { color: 'x', width: 4, alpha: 0.95 });
+        V.text('C(A)', M.scale(sp.col, 3.3), { color: 'x', size: 14 });
+        patch(V, [0, 0, 0], sp.nu, sp.nw, 2.4, 'w', 0.12);
+        V.text('N(A)', M.add(M.scale(sp.nu, 2.4), M.scale(sp.nw, 2.4)), { color: 'w', size: 14 });
+      } else if (sp.r === 0) {
+        V.text(R101.t('N(A) = 整个空间，C(A) = {0}', 'N(A) = all of space, C(A) = {0}'), [0, 0, 1.6], { color: 'w', size: 14 });
+      } else {
+        V.text(R101.t('C(A) = 整个空间，N(A) = {0}', 'C(A) = all of space, N(A) = {0}'), [0, 0, 2.2], { color: 'text-2', size: 13 });
+      }
+    }
+    const ed = ui.matrixEditor(document.getElementById('cube-mat'), { value: A, step: 0.1, onInput: B => { stopAnim(); viaEditor = true; A = B; shown = copy(A); sync(); } });
+    const readEl = document.getElementById('cube-read'), rankEl = document.getElementById('cube-rank');
+    function stopAnim() { if (anim) { anim(); anim = null; } }
+    function sync() {
+      sp = spaces3(A); ed.set(A);
+      const r = sp.r, names = [['点', 'a point'], ['线段', 'a segment'], ['平行四边形（一片）', 'a flat parallelogram'], ['平行六面体（实心）', 'a solid parallelepiped']];
+      rankEl.innerHTML = `${L('秩', 'rank')} <b>${r}</b> + ${L('零化度', 'nullity')} <b>${3 - r}</b> = 3`;
+      readEl.innerHTML = `${L('立方体变成', 'the cube becomes')}: <b>${L(names[r][0], names[r][1])}</b><br>det A = <b>${M.fmt(M.det3(A), 3)}</b><br>dim C(A) = <b style="color:var(--c-x)">${r}</b><br>dim N(A) = <b style="color:var(--c-w)">${3 - r}</b>`;
+      if (viaEditor && r === 2) R101.done('flatten');
+      if (r === 1) R101.done('needle');
+      V.invalidate();
+    }
+    function animateTo(T) {
+      stopAnim(); viaEditor = false;
+      A = copy(T); sp = spaces3(A); sync();
+      const from = copy(shown);
+      anim = R101.animate(1000, e => { shown = M.lerpM(from, T, e); V.invalidate(); }, () => { anim = null; shown = copy(T); V.invalidate(); });
+    }
+    const presets = [
+      ['秩 3', 'Rank 3', [[1, 0.5, 0], [0, 1, 0.5], [0, 0, 1]]],
+      ['秩 2', 'Rank 2', [[1, 0, 1], [0, 1, 1], [0.5, 0.5, 1]]],
+      ['秩 1', 'Rank 1', [[1, 0.5, -1], [0.5, 0.25, -0.5], [1, 0.5, -1]]],
+      ['秩 0', 'Rank 0', [[0, 0, 0], [0, 0, 0], [0, 0, 0]]]
+    ];
+    const ph = document.getElementById('cube-presets');
+    presets.forEach(([zh, en, T]) => ui.button(ph, { zh, en, cls: 'sm', onClick: () => animateTo(T) }));
+    R101.on('lang', sync);
+    sync();
+  })();
+
+  /* ---------------- FIG 6: self-motion of a three-link arm ---------------- */
+  (function () {
+    const Ls = [1.1, 1.0, 0.8], H0 = [1.9, 0.9], OB = { c: [1.5, 1.75], r: 0.32 }, RMAX = 2.88, SLIM = 7;
+    const fk = q => {
+      let a = 0, x = 0, y = 0;
+      const pts = [[0, 0]];
+      for (let i = 0; i < 3; i++) { a += q[i]; x += Ls[i] * Math.cos(a); y += Ls[i] * Math.sin(a); pts.push([x, y]); }
+      return pts;
+    };
+    const hand = q => fk(q)[3];
+    // 2×3 Jacobian: column i = the hand relative to joint i, rotated by +90°
+    const jac = q => {
+      const p = fk(q), J = [[0, 0, 0], [0, 0, 0]];
+      for (let i = 0; i < 3; i++) { J[0][i] = -(p[3][1] - p[i][1]); J[1][i] = p[3][0] - p[i][0]; }
+      return J;
+    };
+    // damped least squares step: Jᵀ (J Jᵀ + λ² I)⁻¹ e
+    const dls = (J, e, lam2) => {
+      const a = M.dot(J[0], J[0]) + lam2, b = M.dot(J[0], J[1]), d = M.dot(J[1], J[1]) + lam2, det = a * d - b * b;
+      const y0 = (d * e[0] - b * e[1]) / det, y1 = (-b * e[0] + a * e[1]) / det;
+      return [0, 1, 2].map(i => J[0][i] * y0 + J[1][i] * y1);
+    };
+    function ik(q, p, iters) {
+      for (let k = 0; k < iters; k++) {
+        const h = hand(q), e = [p[0] - h[0], p[1] - h[1]];
+        if (Math.hypot(e[0], e[1]) < 1e-6) break;
+        let dq = dls(jac(q), e, 1e-4);
+        const nm = M.norm(dq);
+        if (nm > 0.4) dq = M.scale(dq, 0.4 / nm);
+        q = q.map((v, i) => v + dq[i]);
+      }
+      return q;
+    }
+    // unit null vector of J (cross product of its two rows), sign aligned with `prev`
+    function nullDir(q, prev) {
+      const J = jac(q), a = J[0], b = J[1];
+      let n = M.cross(a, b);
+      const l = M.norm(n);
+      if (l < 1e-9) return prev ? prev.slice() : [1, 0, 0];
+      n = M.scale(n, 1 / l);
+      if (prev && M.dot(n, prev) < 0) n = M.scale(n, -1);
+      return n;
+    }
+    const segDist = (p, a, b) => {
+      const ab = M.sub(b, a), ap = M.sub(p, a);
+      const t = M.clamp(M.dot(ab, ap) / Math.max(M.dot(ab, ab), 1e-12), 0, 1);
+      return M.norm(M.sub(p, M.add(a, M.scale(ab, t))));
+    };
+    const collides = q => { const p = fk(q); return [0, 1, 2].some(i => segDist(OB.c, p[i], p[i + 1]) < OB.r); };
+
+    const q0 = ik([0.9, -0.7, -0.4], H0, 200);
+    let q = q0.slice(), tgt = hand(q), s = 0, touched = false, ghosts = [], traceE1 = [], traceE2 = [], lastGhost = 0;
+    let ref = nullDir(q, null);
+    if (ref[0] > 0) ref = M.scale(ref, -1);          // positive slider = the elbow swings clockwise (this way hits the obstacle)
+
+    function clearTrail() { ghosts = []; traceE1 = []; traceE2 = []; lastGhost = s; }
+    function stepNull(ds) {
+      const n1 = nullDir(q, ref);
+      const qm = q.map((v, i) => v + 0.5 * ds * n1[i]);
+      const n2 = nullDir(qm, n1);
+      q = q.map((v, i) => v + ds * n2[i]);
+      for (let k = 0; k < 2; k++) {                  // Newton correction: pull the hand back to the held position
+        const h = hand(q), e = [tgt[0] - h[0], tgt[1] - h[1]];
+        const dq = dls(jac(q), e, 1e-8);
+        q = q.map((v, i) => v + dq[i]);
+      }
+      ref = nullDir(q, n2);
+      s += ds;
+      if (collides(q)) touched = true;
+      const p = fk(q);
+      traceE1.push(p[1]); traceE2.push(p[2]);
+      if (traceE1.length > 1500) { traceE1.shift(); traceE2.shift(); }
+      if (Math.abs(s - lastGhost) >= 0.45) { ghosts.push(q.slice()); lastGhost = s; if (ghosts.length > 40) ghosts.shift(); }
+    }
+    function moveTo(st) {
+      const d = st - s, n = Math.ceil(Math.abs(d) / 0.02);
+      for (let i = 0; i < n; i++) stepNull(d / n);
+    }
+    function reset() {
+      q = q0.slice(); tgt = hand(q); s = 0; touched = false;
+      ref = nullDir(q, null); if (ref[0] > 0) ref = M.scale(ref, -1);
+      clearTrail(); sl.set(0); sync();
+    }
+
+    const P = new R101.Plane2D('#arm-canvas', { height: 470, view: { span: 5.4, cx: 0.9, cy: 0.5 }, draw, onChange: sync });
+    const Bc = new R101.Plane2D('#arm-bars', { height: 120, draw: drawBars });
+
+    function draw(P) {
+      const pts = fk(q), n = nullDir(q, ref);
+      P.grid({ color: 'grid', axisColor: 'grid-2' });
+      // obstacle
+      P.circle(OB.c, OB.r, { fill: 'bad', fillAlpha: 0.22 });
+      P.circle(OB.c, OB.r, { color: 'bad', width: 2 });
+      P.text(R101.t('障碍物', 'obstacle'), OB.c, { offset: [0, -OB.r * P.scale - 12], color: 'bad', bold: true, align: 'center' });
+      // task point
+      P.circle(H0, 0.1, { color: 'w', width: 2.4 });
+      P.line([H0[0] - 0.16, H0[1]], [H0[0] + 0.16, H0[1]], { color: 'w', width: 1.5 });
+      P.line([H0[0], H0[1] - 0.16], [H0[0], H0[1] + 0.16], { color: 'w', width: 1.5 });
+      P.text(R101.t('任务点', 'task point'), H0, { offset: [18, 24], color: 'w', bold: true });
+      // base-to-task line
+      P.line([0, 0], M.scale(H0, 1.5), { color: 'axis', width: 1, dash: [2, 5], alpha: 0.5 });
+      // history
+      ghosts.forEach(g => P.path(fk(g), { color: 'text-2', width: 4, alpha: 0.16 }));
+      P.path(traceE1, { color: 'x', width: 1.8, dash: [4, 4], alpha: 0.8 });
+      P.path(traceE2, { color: 'x', width: 1.4, dash: [2, 5], alpha: 0.55 });
+      // arm
+      const hit = collides(q);
+      const lc = hit ? 'bad' : 'text-2';
+      [[0, 1, 9], [1, 2, 7], [2, 3, 5]].forEach(([a, b, w]) => P.line(pts[a], pts[b], { color: lc, width: w, alpha: 0.9 }));
+      P.point(pts[0], { color: 'canvas', r: 8, stroke: 'text', strokeWidth: 2.5 });
+      P.point(pts[1], { color: 'canvas', r: 6.5, stroke: 'text', strokeWidth: 2.2 });
+      P.point(pts[2], { color: 'canvas', r: 5.5, stroke: 'text', strokeWidth: 2 });
+      P.point(pts[3], { color: 'v', r: 6, stroke: 'canvas' });
+      // joint velocities under n (the hand's is zero)
+      for (let k = 1; k <= 3; k++) {
+        let v = [0, 0];
+        for (let i = 0; i < k; i++) { const dd = M.sub(pts[k], pts[i]); v = M.add(v, M.scale([-dd[1], dd[0]], n[i])); }
+        if (M.norm(v) > 0.03) P.arrow(pts[k], M.add(pts[k], M.scale(v, 0.7)), { color: 'w', width: 2.6, head: 9, alpha: 0.95 });
+        else if (k === 3) P.text('J n = 0', pts[k], { color: 'w', bold: true, size: 12, offset: [4, -20], align: 'center' });
+      }
+      P.text('q₁', pts[0], { offset: [-16, 14], color: 'text-2', size: 12 });
+      P.text('q₂', pts[1], { offset: [-14, 16], color: 'text-2', size: 12 });
+      P.text('q₃', pts[2], { offset: [-14, 16], color: 'text-2', size: 12 });
+      if (hit) P.textPx(R101.t('碰到障碍物了！点“重置”重来', 'Touching the obstacle! Press "Reset"'), 12, 18, { color: 'bad', bold: true, size: 14 });
+      else if (touched) P.textPx(R101.t('这一路碰到过障碍物：点“重置”重来', 'You touched the obstacle on the way: press "Reset"'), 12, 18, { color: 'bad', bold: true, size: 13 });
+    }
+    function drawBars(P) {
+      const n = nullDir(q, ref), c = P.ctx, W = P.W, H = P.H, base = H * 0.43, sc = H * 0.28;
+      c.save();
+      c.strokeStyle = P.col('axis'); c.globalAlpha = 0.6; c.lineWidth = 1;
+      c.beginPath(); c.moveTo(8, base); c.lineTo(W - 8, base); c.stroke();
+      c.globalAlpha = 1;
+      n.forEach((v, i) => {
+        const cx = W * (i + 0.5) / 3, bw = Math.min(40, W / 6);
+        c.fillStyle = P.col('w'); c.globalAlpha = 0.85;
+        c.fillRect(cx - bw / 2, v >= 0 ? base - v * sc : base, bw, Math.max(1, Math.abs(v) * sc));
+        c.globalAlpha = 1;
+        P.textPx(M.fmt(v, 2), cx, v >= 0 ? base - v * sc - 9 : base - v * sc + 9, { align: 'center', size: 12, mono: true, color: 'text' });
+        P.textPx('q̇' + '₁₂₃'[i], cx, H - 10, { align: 'center', size: 13, color: 'text-2', bold: true });
+      });
+      c.restore();
+    }
+
+    // hand: damped pseudo-inverse IK
+    P.handle({
+      pos: () => hand(q), color: 'v',
+      set: p => {
+        const r = M.norm(p);
+        if (r > RMAX) p = M.scale(p, RMAX / r);
+        q = ik(q, p, 40);
+        tgt = hand(q); s = 0;
+        ref = nullDir(q, ref);
+        clearTrail(); sl.set(0);
+        if (collides(q)) touched = true;
+      }
+    });
+    // elbow: slide along the self-motion curve toward the pointer (the hand stays put)
+    P.handle({
+      pos: () => fk(q)[1], color: 'text', r: 18,
+      set: p => {
+        for (let k = 0; k < 24; k++) {
+          const e1 = fk(q)[1], n = nullDir(q, ref), t = [-e1[1], e1[0]], t2 = Math.max(M.dot(t, t), 1e-6);
+          const dlt = M.sub(p, e1);
+          const ds = M.clamp(0.5 * n[0] * M.dot(dlt, t) / t2, -0.04, 0.04);
+          if (Math.abs(ds) < 1e-5) break;
+          stepNull(ds);
+        }
+        sl.set(M.clamp(s, -SLIM, SLIM));
+      }
+    });
+
+    const ctr = document.getElementById('arm-controls');
+    const sl = ui.slider(ctr, {
+      zh: '自运动 s', en: 'self-motion s', min: -SLIM, max: SLIM, step: 0.01, value: 0,
+      fmt: v => (v >= 0 ? '+' : '−') + Math.abs(v).toFixed(2),
+      onInput: v => { moveTo(v); sync(); }
+    });
+    document.getElementById('arm-reset').onclick = reset;
+
+    const t1 = document.getElementById('arm-tex1'), t2 = document.getElementById('arm-tex2'), read = document.getElementById('arm-read');
+    function sync() {
+      const J = jac(q), n = nullDir(q, ref), Jn = M.mv(J, n), h = hand(q), p = fk(q);
+      R101.tex(t1, `J = ${M.texMat(J)}`);
+      R101.tex(t2, `J\\,\\cw{\\mathbf n} = ${M.texVec(Jn)}`);
+      const drift = M.norm(M.sub(h, tgt)) * 100, off = M.norm(M.sub(h, H0)) * 100;
+      const crossE = H0[0] * p[1][1] - H0[1] * p[1][0];
+      const hit = collides(q);
+      read.innerHTML =
+        `${L('手的漂移', 'hand drift')}: <b style="color:var(--c-${drift < 1 ? 'good' : 'bad'})">${M.fmt(drift, 2)} cm</b><br>` +
+        `${L('离任务点', 'from task point')}: <b>${M.fmt(off, 1)} cm</b><br>` +
+        `${L('手肘', 'elbow')}: <b>${crossE >= 0 ? L('在连线上方', 'above the line') : L('在连线下方', 'below the line')}</b><br>` +
+        `${L('障碍物', 'obstacle')}: <b style="color:var(--c-${hit || touched ? 'bad' : 'good'})">${hit ? L('碰到了', 'touching') : touched ? L('曾碰到', 'touched earlier') : L('没碰到', 'clear')}</b>`;
+      if (!touched && crossE < -0.3 && off < 1) R101.done('dodge');
+      P.invalidate(); Bc.invalidate();
+    }
+    R101.on('lang', () => { sl.set(sl.get()); sync(); });
+    sync();
+  })();
+});
+</script>
+</body>
+</html>

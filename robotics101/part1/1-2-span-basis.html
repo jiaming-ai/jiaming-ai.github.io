@@ -1,0 +1,948 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-theme="dark" data-lang-ui="zh">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>1.2 线性组合、张成与基 · Robotics for Beginners</title>
+<meta name="description" content="An interactive, intuition-first lesson on linear combinations, span, linear independence and basis, with a CoreXY gantry, differential-drive and omni-wheel robots as running examples.">
+<link rel="icon" href="../../favicon.svg" type="image/svg+xml">
+<script>(function(){var d=document.documentElement,t='dark',l=null;try{t=localStorage.getItem('theme')||'dark'}catch(e){}d.setAttribute('data-theme',t);try{l=new URLSearchParams(location.search).get('lang')||localStorage.getItem('lang')}catch(e){}if(l!=='zh'&&l!=='en')l=(navigator.language||'').toLowerCase().indexOf('zh')===0?'zh':'en';d.setAttribute('data-lang-ui',l);d.lang=l==='zh'?'zh-CN':'en';})();</script>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.22/dist/katex.min.css">
+<link rel="stylesheet" href="../assets/course.css">
+</head>
+<body data-page="1.2" data-root=".." data-title-zh="1.2 线性组合、张成与基 · Robotics for Beginners" data-title-en="1.2 Linear Combinations, Span &amp; Basis · Robotics for Beginners">
+<div class="r101-layout">
+<aside class="r101-side" id="r101-side"></aside>
+<main class="r101-main">
+<article class="lesson">
+
+<header class="lesson-head">
+  <div class="eyebrow"><span data-lang="zh">Part I · 第 1 章 线性代数 · 1.2</span><span data-lang="en">Part I · Ch. 1 Linear Algebra · 1.2</span></div>
+  <h1><span data-lang="zh">线性组合、张成与基</span><span data-lang="en">Linear Combinations, Span &amp; Basis</span></h1>
+  <p class="lede">
+    <span data-lang="zh">机器人只有几个执行器，每个只会沿固定方向用力。它们<b>配合</b>起来，能去哪些地方？答案是：所有"各取几份再相加"能拼出来的位置，叫<b>张成</b>。方向够多、够"不重复"的一组向量叫<b>基</b>，它是给空间写坐标的尺子。</span>
+    <span data-lang="en">A robot has only a few actuators, and each one pushes along a fixed direction. Working <b>together</b>, where can they take it? Everywhere that "a few parts of this plus a few parts of that" can reach: the <b>span</b>. A set of directions that is rich enough and non-redundant is a <b>basis</b>, the ruler we use to write coordinates.</span>
+  </p>
+  <div class="lesson-meta">
+    <span class="chip"><span data-lang="zh">约 25 分钟</span><span data-lang="en">~25 min</span></span>
+    <span class="chip"><span data-lang="zh">前置：1.1 向量</span><span data-lang="en">Prereqs: 1.1 Vectors</span></span>
+    <span class="chip"><span data-lang="zh">7 个交互</span><span data-lang="en">7 interactives</span></span>
+  </div>
+  <ul class="toc-steps" id="step-toc"></ul>
+</header>
+
+<!-- ============ 1. WHY ============ -->
+<section class="step" id="why">
+  <h2><span class="n">1</span><span data-lang="zh">为什么机器人需要它</span><span data-lang="en">Why robots need this</span></h2>
+  <div data-lang="zh">
+    <p>3D 打印机、绘图仪和很多取放机器人用的是 <b>CoreXY / H-bot 龙门架</b>：两个固定的电机通过皮带拉动打印头。转电机 A，打印头沿对角线 \((1,1)\) 方向走；转电机 B，打印头沿另一条对角线 \((1,-1)\) 方向走。可你想要的是"去 \((3,1)\) 这个点"，一个朝向和这两条对角线都不一致的位置。两个电机怎么配合，才能把打印头送到平面上<em>任意</em>一点？</p>
+    <p>答案就是本节的主角：<b>线性组合</b>。每个电机转一定的量，各自推出一个向量，打印头的位置是这些向量之和。所有能这样拼出来的位置，合起来叫这两个向量的<b>张成</b>（span）。如果其中一个电机卡死，张成立刻缩成一条线，机器就再也到不了平面上大部分地方。</p>
+    <p>反例同样重要。差速驱动的小车只会前进和原地转，不能横着滑：它的"执行器方向"凑不满所有方向（第 7 节）。同一套语言还在别处出现：一台俯视桌面的相机（先不管透视和畸变），它的像素坐标 \((u,v)\) 是沿"像素行、像素列"两个方向数格子得到的，这是另一套<b>基</b>下的坐标，朝向和刻度都和世界坐标轴不同。</p>
+  </div>
+  <div data-lang="en">
+    <p>3D printers, plotters and many pick-and-place machines use a <b>CoreXY / H-bot gantry</b>: two fixed motors pull the tool head with belts. Turn motor A and the head moves along the diagonal \((1,1)\); turn motor B and it moves along the other diagonal \((1,-1)\). But what you want is "go to the point \((3,1)\)", a place that lines up with neither diagonal. How must the two motors cooperate to put the head at <em>any</em> point of the plane?</p>
+    <p>The answer is the star of this lesson: a <b>linear combination</b>. Each motor turns by some amount and pushes out a vector; the head's position is the sum of those vectors. Every position you can build this way, taken together, is the <b>span</b> of the two vectors. If one motor jams, the span collapses to a line at once, and the machine can no longer reach most of the plane.</p>
+    <p>The counter-example matters just as much. A differential-drive cart can drive forward and spin, but it cannot slide sideways: its "actuator directions" do not fill all directions (Section 7). The same language shows up elsewhere. A camera looking straight down at a table (ignoring perspective and lens distortion) reports pixel coordinates \((u,v)\) by counting steps along the pixel row and pixel column. That is a coordinate system in another <b>basis</b>, with a different orientation and scale from the world axes.</p>
+  </div>
+</section>
+
+<!-- ============ 2. INTUITION ============ -->
+<section class="step" id="intuition">
+  <h2><span class="n">2</span><span data-lang="zh">直觉：原料、配方与"能做的菜"</span><span data-lang="en">Intuition: ingredients, recipes and "every dish you can cook"</span></h2>
+  <div data-lang="zh">
+    <p>想象你在厨房里，只有两种原料：向量 \(\mathbf v_1\) 和 \(\mathbf v_2\)。一份<b>配方</b>是两个数 \((c_1, c_2)\)：第一种放 \(c_1\) 份，第二种放 \(c_2\) 份。做出来的菜是</p>
+  </div>
+  <div data-lang="en">
+    <p>Imagine a kitchen with just two ingredients: the vectors \(\mathbf v_1\) and \(\mathbf v_2\). A <b>recipe</b> is two numbers \((c_1, c_2)\): put in \(c_1\) parts of the first and \(c_2\) parts of the second. The dish you get is</p>
+  </div>
+  <div class="math-card">$$ \cv{\mathbf p} = c_1\,\ci{\mathbf v_1} + c_2\,\cj{\mathbf v_2}, $$</div>
+  <div data-lang="zh">
+    <p>这叫 \(\mathbf v_1,\mathbf v_2\) 的<b>线性组合</b>（linear combination）。份数可以是小数，也可以是<b>负数</b>（反方向走）。几何上，它就是"先沿 \(\mathbf v_1\) 走 \(c_1\) 步，再沿 \(\mathbf v_2\) 走 \(c_2\) 步"的首尾相接。你能做出的<b>所有</b>菜合在一起，叫两种原料的<b>张成</b>（span）。</p>
+    <p>关键问题是：这张"菜单"有多大？试试下面三种情况。拖动 \(\mathbf v_1\) 的箭头尖，再拖动紫色的 \(\mathbf w\)：它在菜单上吗？</p>
+  </div>
+  <div data-lang="en">
+    <p>This is called a <b>linear combination</b> of \(\mathbf v_1,\mathbf v_2\). The amounts may be fractions, and they may be <b>negative</b> (walk backwards). Geometrically it is just "walk \(c_1\) steps along \(\mathbf v_1\), then \(c_2\) steps along \(\mathbf v_2\)", tip to tail. The set of <b>all</b> dishes you can make is the <b>span</b> of the two ingredients.</p>
+    <p>The key question is: how big is that menu? Try the three cases below. Drag the tip of \(\mathbf v_1\), then drag the purple \(\mathbf w\): is it on the menu?</p>
+  </div>
+
+  <figure class="fig" id="fig-reach">
+    <div class="fig-head"><span class="fig-kind">FIG 1</span><span class="fig-title"><span data-lang="zh">这道菜做得出来吗？</span><span data-lang="en">Can you cook this dish?</span></span><span class="spacer"></span><span id="reach-seg"></span></div>
+    <div class="fig-body split">
+      <div class="canvas-wrap" id="reach-canvas"></div>
+      <div class="fig-side" id="reach-side"></div>
+    </div>
+    <figcaption class="fig-cap">
+      <span data-lang="zh">淡青色区域或线条是<b>张成</b>。两个方向不同的原料能铺满整个平面；只有一种原料，或者两种原料同方向（绿色箭头是红色的 \(-0.5\) 倍），菜单就缩成一条线，线外的 \(\mathbf w\) 怎么配都做不出来（红色虚线是差距）。</span>
+      <span data-lang="en">The pale cyan region or line is the <b>span</b>. Two ingredients in different directions fill the whole plane. With one ingredient, or two pointing the same way (the green arrow is \(-0.5\) times the red one), the menu shrinks to a line, and a \(\mathbf w\) off that line cannot be made however you mix (the red dashed segment is the miss).</span>
+    </figcaption>
+  </figure>
+  <ul class="tasks"><li data-task="reach"><span><span data-lang="zh">找一个 \(\mathbf w\)：在"一个向量"或"同一方向"下<b>做不出来</b>，再切到"方向不同"，它就做得出来了。</span><span data-lang="en">Find a \(\mathbf w\) that is <b>impossible</b> to make with "one vector" or "same direction", then switch to "different directions" and watch it become possible.</span></span></li></ul>
+
+  <div class="callout key">
+    <div class="ct"><span data-lang="zh">核心洞见</span><span data-lang="en">Key insight</span></div>
+    <p data-lang="zh">张成的大小取决于原料有没有"新方向"。第二个向量如果已经在第一个向量的张成里（同一条线上），它就<b>多余</b>，加进来也没有扩大菜单。这种"多余"叫<b>线性相关</b>；没有任何一个向量多余，就叫<b>线性无关</b>。</p>
+    <p data-lang="en">The size of the span depends on whether each ingredient brings a "new direction". If the second vector is already inside the span of the first (on the same line), it is <b>redundant</b>: adding it does not enlarge the menu. That redundancy is called <b>linear dependence</b>; if no vector is redundant, the set is <b>linearly independent</b>.</p>
+  </div>
+</section>
+
+<!-- ============ 3. PLAY ============ -->
+<section class="step" id="play">
+  <h2><span class="n">3</span><span data-lang="zh">动手玩：配方实验室</span><span data-lang="en">Play: the recipe lab</span></h2>
+  <p data-lang="zh">拖动红色 \(\mathbf v_1\) 和绿色 \(\mathbf v_2\) 的箭头尖；用滑块调配方 \(c_1, c_2\)，或者直接拖动黄色的结果 \(\mathbf p\)（滑块会跟着变）。打开"画出张成"，把所有整数配方 \((c_1,c_2)\) 对应的点都画出来，再把 \(\mathbf v_1, \mathbf v_2\) 拖到同一条直线上看看。</p>
+  <p data-lang="en">Drag the tips of the red \(\mathbf v_1\) and green \(\mathbf v_2\); set the recipe \(c_1, c_2\) with the sliders, or drag the amber result \(\mathbf p\) directly (the sliders follow). Turn on "paint the span" to plot every integer recipe \((c_1,c_2)\), then drag \(\mathbf v_1, \mathbf v_2\) onto one line and see what happens.</p>
+
+  <figure class="fig bleed" id="fig-lab">
+    <div class="fig-head"><span class="fig-kind">FIG 2</span><span class="fig-title"><span data-lang="zh">配方实验室</span><span data-lang="en">Recipe lab</span></span><span class="spacer"></span><span id="lab-seg"></span></div>
+    <div class="fig-body split">
+      <div class="canvas-wrap" id="lab-canvas"></div>
+      <div class="fig-side">
+        <div class="katex-live" id="lab-tex"></div>
+        <div class="readout" id="lab-read"></div>
+        <div><div class="small muted" style="margin-bottom:6px"><span data-lang="zh">预设原料</span><span data-lang="en">Preset ingredients</span></div><div class="presets" id="lab-presets"></div></div>
+      </div>
+    </div>
+    <div class="fig-controls" id="lab-controls"></div>
+    <figcaption class="fig-cap">
+      <span data-lang="zh">虚线是配方的两步：先沿 \(\mathbf v_1\) 走 \(c_1\) 份（红），再沿 \(\mathbf v_2\) 走 \(c_2\) 份（绿），终点就是黄色的 \(\mathbf p\)。青色斜网格是 \(\mathbf v_1,\mathbf v_2\) 生成的网格，圆点是整数配方。紫色圆圈是目标 \((3,1)\)。</span>
+      <span data-lang="en">The dashed path is the recipe in two steps: \(c_1\) parts along \(\mathbf v_1\) (red), then \(c_2\) parts along \(\mathbf v_2\) (green); the endpoint is the amber \(\mathbf p\). The cyan skewed grid is generated by \(\mathbf v_1,\mathbf v_2\), and the dots are the integer recipes. The purple ring is the target \((3,1)\).</span>
+    </figcaption>
+  </figure>
+
+  <div class="tasks-title"><span data-lang="zh">试一试</span><span data-lang="en">Try this</span></div>
+  <ul class="tasks">
+    <li data-task="line"><span><span data-lang="zh">让张成<b>塌成一条直线</b>：把 \(\mathbf v_1\)、\(\mathbf v_2\) 拖到同一条过原点的直线上。圆点和网格发生了什么？</span><span data-lang="en">Make the span <b>collapse to a line</b>: put \(\mathbf v_1\) and \(\mathbf v_2\) on one line through the origin. What happens to the dots and the grid?</span></span></li>
+    <li data-task="point"><span><span data-lang="zh">让张成<b>变成一个点</b>：两个向量都拖到原点。</span><span data-lang="en">Make the span <b>a single point</b>: drag both vectors onto the origin.</span></span></li>
+    <li data-task="target"><span><span data-lang="zh">取 \(\mathbf v_1=(1,1)\)，\(\mathbf v_2=(1,-1)\)（可以用预设"CoreXY"，再用滑块），配出紫色目标 \((3,1)\)。配方是什么？</span><span data-lang="en">Take \(\mathbf v_1=(1,1)\), \(\mathbf v_2=(1,-1)\) (use the "CoreXY" preset, then the sliders) and hit the purple target \((3,1)\). What is the recipe?</span></span></li>
+    <li data-task="neg"><span><span data-lang="zh">还是配出 \((3,1)\)，但这次<b>必须有一个负的份数</b>。提示：换一组原料，让目标落在两个原料"夹角之外"。</span><span data-lang="en">Hit \((3,1)\) again, but this time with a <b>negative coefficient</b>. Hint: change the ingredients so the target lies outside the "wedge" between them.</span></span></li>
+  </ul>
+
+  <h3><span data-lang="zh">小游戏：找配方</span><span data-lang="en">Mini-game: find the recipe</span></h3>
+  <p data-lang="zh">每一题给你一组随机的原料 \(\mathbf v_1, \mathbf v_2\) 和一个紫色目标 \(\mathbf t\)。拖动黄色结果，或者调滑块，使 \(\mathbf p = \mathbf t\)。数一数斜网格：从原点沿 \(\mathbf v_1\) 走几格，再沿 \(\mathbf v_2\) 走几格？</p>
+  <p data-lang="en">Each round gives you random ingredients \(\mathbf v_1, \mathbf v_2\) and a purple target \(\mathbf t\). Drag the amber result, or use the sliders, until \(\mathbf p = \mathbf t\). Count cells on the skewed grid: how many cells along \(\mathbf v_1\), then how many along \(\mathbf v_2\)?</p>
+  <figure class="fig" id="fig-game">
+    <div class="fig-head"><span class="fig-kind">FIG 3</span><span class="fig-title"><span data-lang="zh">找配方</span><span data-lang="en">Find the recipe</span></span><span class="spacer"></span><span class="readout" id="game-score"></span></div>
+    <div class="fig-body split">
+      <div class="canvas-wrap" id="game-canvas"></div>
+      <div class="fig-side">
+        <div class="katex-live" id="game-tex"></div>
+        <div id="game-msg" class="small"></div>
+        <div class="presets"><button class="btn sm" id="game-reveal"><span data-lang="zh">显示配方</span><span data-lang="en">Reveal</span></button><button class="btn sm primary" id="game-next"><span data-lang="zh">下一题</span><span data-lang="en">Next</span></button></div>
+      </div>
+    </div>
+    <div class="fig-controls" id="game-controls"></div>
+  </figure>
+  <ul class="tasks"><li data-task="game3"><span><span data-lang="zh">不用"显示配方"，连续答对 3 题。</span><span data-lang="en">Get 3 rounds right without using "Reveal".</span></span></li></ul>
+</section>
+
+<!-- ============ 4. COORDINATES ============ -->
+<section class="step" id="coords">
+  <h2><span class="n">4</span><span data-lang="zh">第二个视角：坐标取决于你选的基</span><span data-lang="en">Second view: coordinates depend on the basis</span></h2>
+  <div data-lang="zh">
+    <p>当两个原料无关时，平面上每个点都恰好有<b>一份</b>配方。这份配方就是这个点在这套原料下的<b>坐标</b>，这套原料就叫一组<b>基</b>（basis）。</p>
+    <p>注意：<b>同一个点，换一套基，坐标就变</b>。在标准基 \(\{\ihat,\jhat\}\) 下，点 \(\mathbf p\) 的坐标是 \((3,1)\)：向右 3 格、向上 1 格。换成 CoreXY 的基 \(\mathbf b_1=(1,1)\)、\(\mathbf b_2=(1,-1)\)，同一个点的坐标是 \((2,1)\)：沿 \(\mathbf b_1\) 走 2 份，再沿 \(\mathbf b_2\) 走 1 份，\(2(1,1)+1(1,-1)=(3,1)\)。点没有动，变的是尺子。</p>
+    <p>这正是 1.3 节"被动视角"的预告：把基向量并排写成矩阵 \(B=[\,\mathbf b_1\;\mathbf b_2\,]\)，它把<b>新坐标翻译成标准坐标</b>：\(\mathbf p = B\mathbf c\)（详见 1.3 节）。下面两张图画的是同一个平面、同一个点，左边用方格数，右边用斜格数。</p>
+  </div>
+  <div data-lang="en">
+    <p>When the two ingredients are independent, every point of the plane has exactly <b>one</b> recipe. That recipe is the point's <b>coordinates</b> in this set of ingredients, and the set is called a <b>basis</b>.</p>
+    <p>Note: <b>the same point gets different coordinates in a different basis</b>. In the standard basis \(\{\ihat,\jhat\}\) the point \(\mathbf p\) has coordinates \((3,1)\): 3 cells right, 1 cell up. In the CoreXY basis \(\mathbf b_1=(1,1)\), \(\mathbf b_2=(1,-1)\) the same point has coordinates \((2,1)\): 2 parts of \(\mathbf b_1\), then 1 part of \(\mathbf b_2\), since \(2(1,1)+1(1,-1)=(3,1)\). The point did not move; the ruler changed.</p>
+    <p>This sets up the "passive view" of Lesson 1.3: write the basis vectors side by side as the matrix \(B=[\,\mathbf b_1\;\mathbf b_2\,]\), and it <b>translates new coordinates into standard coordinates</b>: \(\mathbf p = B\mathbf c\) (see Lesson 1.3). The two panels below show the same plane and the same point, counted with square cells on the left and slanted cells on the right.</p>
+  </div>
+
+  <figure class="fig bleed" id="fig-basis">
+    <div class="fig-head"><span class="fig-kind">FIG 4</span><span class="fig-title"><span data-lang="zh">同一个点，两套坐标</span><span data-lang="en">One point, two sets of coordinates</span></span><span class="spacer"></span><span id="basis-seg"></span></div>
+    <div class="fig-body two">
+      <div class="canvas-wrap" id="basis-std"><span class="overlay-label"><span data-lang="zh">标准基 {î, ĵ}</span><span data-lang="en">standard basis {î, ĵ}</span></span></div>
+      <div class="canvas-wrap" id="basis-new"><span class="overlay-label"><span data-lang="zh">新基 {b₁, b₂}</span><span data-lang="en">new basis {b₁, b₂}</span></span></div>
+    </div>
+    <div class="fig-body two" style="border-top:1px solid var(--border)">
+      <div class="fig-side" style="border:0"><div class="katex-live" id="basis-tex-s"></div></div>
+      <div class="fig-side" style="border-left:1px solid var(--border)"><div class="katex-live" id="basis-tex-n"></div></div>
+    </div>
+    <figcaption class="fig-cap">
+      <span data-lang="zh">拖动任意一个黄点，两边同步。顶部切换基：<b>黄点不动，但右边的读数在变</b>。"旋转 30°"这组基互相垂直、长度为 1，它就是机器人坐标系常见的样子（1.10 节）。</span>
+      <span data-lang="en">Drag either amber dot; both panels stay in sync. Switch the basis at the top: <b>the amber dot stays put, but the reading on the right changes</b>. The "rotate 30°" basis is perpendicular with unit-length vectors, the usual shape of a robot frame (Lesson 1.10).</span>
+    </figcaption>
+  </figure>
+  <ul class="tasks">
+    <li data-task="basis21"><span><span data-lang="zh">选 CoreXY 基，拖动黄点，让右边的坐标读数为 \((2,1)\)。左边读到的是什么？</span><span data-lang="en">With the CoreXY basis, drag the dot until the right-hand reading is \((2,1)\). What does the left-hand panel show?</span></span></li>
+    <li data-task="basisneg"><span><span data-lang="zh">还是 CoreXY 基：找一个<b>标准坐标 x、y 都为正</b>、但在新基下<b>有一个坐标为负</b>的点。</span><span data-lang="en">Still the CoreXY basis: find a point whose <b>standard x and y are both positive</b> but which has a <b>negative coordinate</b> in the new basis.</span></span></li>
+  </ul>
+</section>
+
+<!-- ============ 5. THREE D ============ -->
+<section class="step" id="three-d">
+  <h2><span class="n">5</span><span data-lang="zh">第三个视角：三维里的"多一个方向"</span><span data-lang="en">Third view: one more direction in 3D</span></h2>
+  <div data-lang="zh">
+    <p>到了三维，故事多了一层。两个无关的向量张成一个<b>过原点的平面</b>。再加第三个向量 \(\mathbf v_3\)，只有两种可能：</p>
+    <ul>
+      <li>\(\mathbf v_3\) 躺在这个平面里：它是前两个的组合，<b>线性相关</b>，张成还是这个平面（2 维）；</li>
+      <li>\(\mathbf v_3\) 伸出平面：<b>线性无关</b>，三个向量一起张成整个 \(\R^3\)（3 维），成为 \(\R^3\) 的一组基。</li>
+    </ul>
+    <p>拖动滑块，把第三个向量（蓝色）从平面里一点点拉出来。拖动画面可以转动视角。</p>
+  </div>
+  <div data-lang="en">
+    <p>In 3D the story gains a layer. Two independent vectors span a <b>plane through the origin</b>. Add a third vector \(\mathbf v_3\) and there are only two possibilities:</p>
+    <ul>
+      <li>\(\mathbf v_3\) lies in that plane: it is a combination of the first two, so the set is <b>dependent</b> and the span is still that plane (2-dimensional);</li>
+      <li>\(\mathbf v_3\) sticks out of the plane: the set is <b>independent</b> and the three vectors together span all of \(\R^3\) (3-dimensional), forming a basis of \(\R^3\).</li>
+    </ul>
+    <p>Move the sliders and pull the third vector (blue) out of the plane bit by bit. Drag the view to orbit.</p>
+  </div>
+
+  <figure class="fig bleed" id="fig-span3">
+    <div class="fig-head"><span class="fig-kind">FIG 5</span><span class="fig-title"><span data-lang="zh">平面与第三个向量</span><span data-lang="en">The plane and the third vector</span></span><span class="spacer"></span><span id="span3-btns" class="presets"></span></div>
+    <div class="fig-body split">
+      <div class="canvas-wrap" id="span3-canvas"></div>
+      <div class="fig-side">
+        <div class="katex-live" id="span3-tex"></div>
+        <div class="readout" id="span3-read"></div>
+      </div>
+    </div>
+    <div class="fig-controls" id="span3-controls"></div>
+    <figcaption class="fig-cap">
+      <span data-lang="zh">半透明的平面是 \(\mathrm{span}\{\mathbf v_1,\mathbf v_2\}\)，其中 \(\mathbf v_1=(2,0,1)\)，\(\mathbf v_2=(0,2,1)\)。\(\mathbf v_3\) 被拆成"平面内的部分 \(a\mathbf v_1+b\mathbf v_2\)"和"垂直于平面的部分 \(h\hat{\mathbf n}\)"；黄色虚线的长度就是 \(\mathbf v_3\) 到平面的距离 \(|h|\)。三个向量围成的平行六面体体积是 \(|\det|\)，\(h=0\) 时它被压扁成 0（1.5 节）。</span>
+      <span data-lang="en">The translucent plane is \(\mathrm{span}\{\mathbf v_1,\mathbf v_2\}\), with \(\mathbf v_1=(2,0,1)\), \(\mathbf v_2=(0,2,1)\). \(\mathbf v_3\) is split into an "in-plane part \(a\mathbf v_1+b\mathbf v_2\)" and a "part perpendicular to the plane, \(h\hat{\mathbf n}\)"; the amber dashed segment has length \(|h|\), the distance from \(\mathbf v_3\) to the plane. The box spanned by the three vectors has volume \(|\det|\), which is squashed to 0 when \(h=0\) (Lesson 1.5).</span>
+    </figcaption>
+  </figure>
+  <ul class="tasks">
+    <li data-task="flat3d"><span><span data-lang="zh">让 \(\mathbf v_3\) <b>恰好落进平面</b>（\(h=0\)）。状态栏变成什么？</span><span data-lang="en">Put \(\mathbf v_3\) <b>exactly into the plane</b> (\(h=0\)). What does the status line say?</span></span></li>
+    <li data-task="orbit"><span><span data-lang="zh">转动视角，从侧面看平面（它几乎变成一条线）。</span><span data-lang="en">Orbit the view and look at the plane edge-on (it almost becomes a line).</span></span></li>
+  </ul>
+</section>
+
+<!-- ============ 6. MATH ============ -->
+<section class="step" id="math">
+  <h2><span class="n">6</span><span data-lang="zh">再看数学</span><span data-lang="en">The math</span></h2>
+  <p class="hl-hint"><span data-lang="zh">提示：把鼠标悬停在公式中带底色的符号上，FIG 2 中对应的元素会被高亮。</span><span data-lang="en">Tip: hover the highlighted symbols in the formulas; the matching element in FIG 2 lights up.</span></p>
+
+  <h3><span data-lang="zh">线性组合与张成</span><span data-lang="en">Linear combinations and span</span></h3>
+  <p data-lang="zh">给定向量 \(\mathbf v_1,\dots,\mathbf v_k\) 和实数 \(c_1,\dots,c_k\)，向量 \(c_1\mathbf v_1+\dots+c_k\mathbf v_k\) 叫它们的<b>线性组合</b>，\(c_i\) 是<b>系数</b>。所有线性组合构成的集合叫<b>张成</b>：</p>
+  <p data-lang="en">Given vectors \(\mathbf v_1,\dots,\mathbf v_k\) and real numbers \(c_1,\dots,c_k\), the vector \(c_1\mathbf v_1+\dots+c_k\mathbf v_k\) is a <b>linear combination</b> of them, and the \(c_i\) are the <b>coefficients</b>. The set of all linear combinations is the <b>span</b>:</p>
+  <div class="math-card">
+  $$ \hl{p}{\cv{\mathbf p}} = \hl{c1}{c_1}\,\hl{v1}{\ci{\mathbf v_1}} + \hl{c2}{c_2}\,\hl{v2}{\cj{\mathbf v_2}}, \qquad \hl{span}{\operatorname{span}}\{\mathbf v_1,\mathbf v_2\} = \{\, c_1\mathbf v_1 + c_2\mathbf v_2 \;:\; c_1,c_2\in\R \,\}. $$
+  </div>
+  <p data-lang="zh">在 \(\R^2\) 里，两个向量的张成只有三种可能：整个平面、一条过原点的直线、或者只有原点。张成永远包含原点（所有系数取 0）。</p>
+  <p data-lang="en">In \(\R^2\), the span of two vectors can only be the whole plane, a line through the origin, or just the origin. A span always contains the origin (take all coefficients 0).</p>
+
+  <h3><span data-lang="zh">线性无关</span><span data-lang="en">Linear independence</span></h3>
+  <p data-lang="zh">向量组 \(\mathbf v_1,\dots,\mathbf v_k\) <b>线性无关</b>，是指"只有平凡组合才能得到零向量"：</p>
+  <p data-lang="en">The vectors \(\mathbf v_1,\dots,\mathbf v_k\) are <b>linearly independent</b> when "only the trivial combination gives the zero vector":</p>
+  <div class="math-card">$$ c_1\mathbf v_1 + \dots + c_k\mathbf v_k = \mathbf 0 \;\Longrightarrow\; c_1 = \dots = c_k = 0. $$</div>
+  <p data-lang="zh">等价的说法：没有任何一个向量是其余向量的线性组合（没有"多余"的向量）。如果存在不全为 0 的系数使上式成立，就是<b>线性相关</b>。对平面上的两个向量，无关就是"都不为零，且不共线"。</p>
+  <p data-lang="en">Equivalent statement: no vector is a linear combination of the others (nobody is redundant). If some coefficients, not all zero, make the sum vanish, the set is <b>linearly dependent</b>. For two vectors in the plane, independent just means "both nonzero and not on one line".</p>
+
+  <h3><span data-lang="zh">基与维数</span><span data-lang="en">Basis and dimension</span></h3>
+  <p data-lang="zh"><b>基</b>是同时满足两个条件的向量组：<b>线性无关</b>（没有浪费）和<b>张成整个空间</b>（够用）。\(\R^n\) 的任何一组基都恰好有 \(n\) 个向量，这个数 \(n\) 叫空间的<b>维数</b>（dimension）。所以平面里至多 2 个向量无关，空间里至多 3 个；\(\R^2\) 里的 3 个向量一定相关。</p>
+  <p data-lang="en">A <b>basis</b> is a set of vectors with both properties: <b>linearly independent</b> (no waste) and <b>spanning the whole space</b> (enough). Every basis of \(\R^n\) has exactly \(n\) vectors, and that number \(n\) is the <b>dimension</b>. So at most 2 vectors in the plane can be independent, at most 3 in space; three vectors in \(\R^2\) are always dependent.</p>
+
+  <h3><span data-lang="zh">坐标是唯一的</span><span data-lang="en">Coordinates are unique</span></h3>
+  <p data-lang="zh">设 \(\mathbf b_1,\dots,\mathbf b_n\) 是一组基。若同一个向量有两份配方 \(\mathbf p = \sum c_i\mathbf b_i = \sum d_i\mathbf b_i\)，两式相减得 \(\sum (c_i-d_i)\mathbf b_i = \mathbf 0\)。这是一个组合等于零，由线性无关，所有 \(c_i - d_i = 0\)，即 \(c_i = d_i\)。所以每个向量在一组基下的坐标 \([\mathbf p]_B = (c_1,\dots,c_n)\) 是<b>唯一</b>的。反过来，如果原料相关，配方就不唯一（见误区 1 和第 7 节的全向轮）。</p>
+  <p data-lang="en">Let \(\mathbf b_1,\dots,\mathbf b_n\) be a basis. If one vector has two recipes, \(\mathbf p = \sum c_i\mathbf b_i = \sum d_i\mathbf b_i\), subtract them: \(\sum (c_i-d_i)\mathbf b_i = \mathbf 0\). That is a combination equal to zero, so independence forces every \(c_i - d_i = 0\), i.e. \(c_i = d_i\). Hence the coordinates \([\mathbf p]_B = (c_1,\dots,c_n)\) of a vector in a basis are <b>unique</b>. Conversely, if the ingredients are dependent, recipes are not unique (see Pitfall 1 and the omni wheels in Section 7).</p>
+
+  <h3><span data-lang="zh">在二维里求坐标</span><span data-lang="en">Finding coordinates in 2D</span></h3>
+  <p data-lang="zh">设 \(\mathbf b_1=(b_{11},b_{21})\)，\(\mathbf b_2=(b_{12},b_{22})\)，要解 \(\mathbf p = c_1\mathbf b_1 + c_2\mathbf b_2\)。这就是两个方程、两个未知数：</p>
+  <p data-lang="en">Let \(\mathbf b_1=(b_{11},b_{21})\), \(\mathbf b_2=(b_{12},b_{22})\) and solve \(\mathbf p = c_1\mathbf b_1 + c_2\mathbf b_2\). This is two equations in two unknowns:</p>
+  <div class="math-card">
+  $$ \begin{aligned} b_{11}c_1 + b_{12}c_2 &= p_1 \\ b_{21}c_1 + b_{22}c_2 &= p_2 \end{aligned} \quad\Longrightarrow\quad c_1 = \frac{p_1 b_{22} - p_2 b_{12}}{\Delta},\;\; c_2 = \frac{b_{11}p_2 - b_{21}p_1}{\Delta},\;\; \Delta = b_{11}b_{22} - b_{12}b_{21}. $$
+  </div>
+  <p data-lang="zh">\(\Delta \ne 0\) 恰好等价于 \(\mathbf b_1,\mathbf b_2\) 无关；\(\Delta = 0\) 时两列共线，方程要么无解、要么有无穷多解。这个数就是 1.5 节的<b>行列式</b>。例：CoreXY 的基，\(\Delta = 1\cdot(-1) - 1\cdot 1 = -2\)；对 \(\mathbf p = (3,1)\)，\(c_1 = (3\cdot(-1) - 1\cdot 1)/(-2) = 2\)，\(c_2 = (1\cdot 1 - 1\cdot 3)/(-2) = 1\)，和 FIG 4 一致。</p>
+  <p data-lang="en">\(\Delta \ne 0\) is exactly the statement that \(\mathbf b_1,\mathbf b_2\) are independent; if \(\Delta = 0\) the columns are collinear and the equations have either no solution or infinitely many. This number is the <b>determinant</b> of Lesson 1.5. Example: for the CoreXY basis, \(\Delta = 1\cdot(-1) - 1\cdot 1 = -2\); for \(\mathbf p = (3,1)\), \(c_1 = (3\cdot(-1) - 1\cdot 1)/(-2) = 2\) and \(c_2 = (1\cdot 1 - 1\cdot 3)/(-2) = 1\), matching FIG 4.</p>
+  <div class="callout view">
+    <div class="ct"><span data-lang="zh">矩阵写法</span><span data-lang="en">The matrix form</span></div>
+    <p data-lang="zh">把基向量作为列，\(B=[\,\mathbf b_1\;\mathbf b_2\,]\)，上面的方程就是 \(B\mathbf c = \mathbf p\)，解是 \(\mathbf c = B^{-1}\mathbf p\)。CoreXY 的 \(B = \begin{bmatrix}1&1\\1&-1\end{bmatrix}\)，\(B^{-1} = \tfrac12\begin{bmatrix}1&1\\1&-1\end{bmatrix}\)，也就是 \(c_1 = (x+y)/2\)，\(c_2 = (x-y)/2\)（电机指令和打印头位置之间的换算公式）。\(B\) 是什么、什么时候有逆，是 1.3 节和 1.6 节的内容。</p>
+    <p data-lang="en">Put the basis vectors in as columns, \(B=[\,\mathbf b_1\;\mathbf b_2\,]\); the equations are \(B\mathbf c = \mathbf p\) with solution \(\mathbf c = B^{-1}\mathbf p\). For CoreXY, \(B = \begin{bmatrix}1&1\\1&-1\end{bmatrix}\) and \(B^{-1} = \tfrac12\begin{bmatrix}1&1\\1&-1\end{bmatrix}\), i.e. \(c_1 = (x+y)/2\), \(c_2 = (x-y)/2\): the conversion between head position and motor commands. What \(B\) is and when it has an inverse are the topics of Lessons 1.3 and 1.6.</p>
+  </div>
+</section>
+
+<!-- ============ 7. ROBOTICS ============ -->
+<section class="step" id="robotics">
+  <h2><span class="n">7</span><span data-lang="zh">机器人中的它：龙门架、差速车与全向轮</span><span data-lang="en">In robotics: gantries, differential drive and omni wheels</span></h2>
+
+  <h3><span data-lang="zh">CoreXY 龙门架</span><span data-lang="en">The CoreXY gantry</span></h3>
+  <div data-lang="zh">
+    <p>取单位：电机 A 每转 1 个单位，打印头移动 \((1,1)\)；电机 B 每转 1 个单位，移动 \((1,-1)\)（实际机器差一个常数倍，不影响结论）。电机指令 \((\alpha,\beta)\) 对应的打印头位置是</p>
+  </div>
+  <div data-lang="en">
+    <p>Choose units so that one unit of motor A moves the head by \((1,1)\) and one unit of motor B by \((1,-1)\) (real machines differ by a constant factor, which changes nothing). Motor commands \((\alpha,\beta)\) put the head at</p>
+  </div>
+  <div class="math-card">$$ \cv{\mathbf p} = \alpha\,\ci{\begin{bmatrix}1\\1\end{bmatrix}} + \beta\,\cj{\begin{bmatrix}1\\-1\end{bmatrix}} = \begin{bmatrix}\alpha+\beta\\ \alpha-\beta\end{bmatrix}, \qquad \alpha = \tfrac{x+y}{2},\;\; \beta = \tfrac{x-y}{2}. $$</div>
+  <div data-lang="zh">
+    <p>拖动打印头（黄），或者用滑块分别转两个电机。然后试试"故障"：卡死一个电机，它的指令就被冻结，打印头只能沿另一个电机的对角线滑动，可达集合从一块区域塌成一条线段。</p>
+  </div>
+  <div data-lang="en">
+    <p>Drag the head (amber), or turn the two motors with the sliders. Then try a "fault": jam one motor, its command is frozen, and the head can only slide along the other motor's diagonal. The reachable set collapses from a region to a line segment.</p>
+  </div>
+
+  <figure class="fig bleed" id="fig-corexy">
+    <div class="fig-head"><span class="fig-kind">FIG 6</span><span class="fig-title"><span data-lang="zh">CoreXY：两个电机，两个方向</span><span data-lang="en">CoreXY: two motors, two directions</span></span><span class="spacer"></span><span id="cxy-seg"></span></div>
+    <div class="fig-body split">
+      <div class="canvas-wrap" id="cxy-canvas"></div>
+      <div class="fig-side">
+        <div class="katex-live" id="cxy-tex"></div>
+        <div class="readout" id="cxy-read"></div>
+      </div>
+    </div>
+    <div class="fig-controls" id="cxy-controls"></div>
+    <figcaption class="fig-cap">
+      <span data-lang="zh">红色虚线是电机 A 的贡献 \(\alpha(1,1)\)，绿色虚线是电机 B 的贡献 \(\beta(1,-1)\)，首尾相接到打印头。淡色斜线是两个电机各自的方向。菱形是电机行程（\(|\alpha|,|\beta|\le 3\)）限制下的可达范围。紫色圆圈是目标 \((3,1)\)。</span>
+      <span data-lang="en">The red dashed arrow is motor A's contribution \(\alpha(1,1)\), the green one is motor B's \(\beta(1,-1)\), joined tip to tail up to the head. The faint diagonals are each motor's own direction. The diamond is the reachable range under the motor travel limit (\(|\alpha|,|\beta|\le 3\)). The purple ring is the target \((3,1)\).</span>
+    </figcaption>
+  </figure>
+  <ul class="tasks">
+    <li data-task="xy_target"><span><span data-lang="zh">两个电机都正常，把打印头开到目标 \((3,1)\)。电机指令是多少？</span><span data-lang="en">With both motors healthy, drive the head to the target \((3,1)\). What are the motor commands?</span></span></li>
+    <li data-task="xy_jam"><span><span data-lang="zh">卡死一个电机，使目标<b>永远够不着</b>（读数里"最近距离"大于 0.5）。</span><span data-lang="en">Jam a motor so that the target becomes <b>unreachable</b> (the "closest approach" in the readout exceeds 0.5).</span></span></li>
+    <li data-task="xy_lucky"><span><span data-lang="zh">有没有一种卡死位置，<b>目标依然够得着</b>？先把电机开到合适的位置，再卡死它，再用另一个电机去够目标。</span><span data-lang="en">Is there a jam position where the target is <b>still reachable</b>? Park a motor at a suitable value first, jam it, then reach the target with the other motor.</span></span></li>
+  </ul>
+
+  <h3><span data-lang="zh">差速车：三个方向只凑得出两个</span><span data-lang="en">Differential drive: only two of three directions</span></h3>
+  <div data-lang="zh">
+    <p>平面移动机器人的瞬时运动有三个自由度：前后 \(v_x\)、左右 \(v_y\)、转动 \(\omega\)，可以写成 \(\R^3\) 里的一个向量 \((v_x,v_y,\omega)\)。差速车只有两个"执行器方向"：前进 \((1,0,0)\) 和原地转 \((0,0,1)\)，它们只张成 \(\R^3\) 里的一个<b>平面</b>。含 \(v_y\) 的方向都在张成之外：它<b>不能横着滑</b>。全向轮底盘三个方向俱全，张成整个 \(\R^3\)。</p>
+  </div>
+  <div data-lang="en">
+    <p>The instantaneous motion of a planar mobile robot has three degrees of freedom: forward \(v_x\), sideways \(v_y\) and turning \(\omega\), which form a vector \((v_x,v_y,\omega)\) in \(\R^3\). A differential-drive cart has only two "actuator directions": forward \((1,0,0)\) and spin in place \((0,0,1)\). They span just a <b>plane</b> in \(\R^3\). Any direction with \(v_y\) lies outside that span: the cart <b>cannot slide sideways</b>. An omni-wheel base has all three directions and spans all of \(\R^3\).</p>
+  </div>
+
+  <figure class="fig" id="fig-drive">
+    <div class="fig-head"><span class="fig-kind">FIG 7</span><span class="fig-title"><span data-lang="zh">想去的速度 vs 做得到的速度</span><span data-lang="en">Desired velocity vs achievable velocity</span></span><span class="spacer"></span><span id="dd-seg"></span></div>
+    <div class="fig-body split">
+      <div class="canvas-wrap" id="dd-canvas"></div>
+      <div class="fig-side">
+        <div class="katex-live" id="dd-tex"></div>
+        <div class="readout" id="dd-read"></div>
+      </div>
+    </div>
+    <div class="fig-controls" id="dd-controls"></div>
+    <figcaption class="fig-cap">
+      <span data-lang="zh">机器人朝右（红色 \(x_r\) 为前，绿色 \(y_r\) 为左）。拖动紫色手柄设定想要的平移速度；黄色箭头是机器人此刻实际做得到的速度。蓝色圆弧是转动 \(\omega\)。差速模式下，左右分量被"吃掉"了。</span>
+      <span data-lang="en">The robot faces right (red \(x_r\) forward, green \(y_r\) left). Drag the purple handle to set the translational velocity you want; the amber arrow is what the robot can actually do right now. The blue arc is the spin \(\omega\). In differential mode, the sideways component is simply lost.</span>
+    </figcaption>
+  </figure>
+  <ul class="tasks">
+    <li data-task="diffside"><span><span data-lang="zh">差速模式下，把想要的速度拖成<b>几乎纯横向</b>（\(|v_y|>1.5\)，\(|v_x|<0.3\)）。实际速度是多少？</span><span data-lang="en">In differential mode, drag the desired velocity to <b>almost pure sideways</b> (\(|v_y|>1.5\), \(|v_x|<0.3\)). What velocity is actually produced?</span></span></li>
+    <li data-task="omniside"><span><span data-lang="zh">切到全向模式，再做一次同样的事。</span><span data-lang="en">Switch to omni mode and do the same thing again.</span></span></li>
+  </ul>
+
+  <div class="callout robot">
+    <div class="ct"><span data-lang="zh">真实系统里</span><span data-lang="en">In real systems</span></div>
+    <p data-lang="zh"><b>固件里的基变换。</b>Klipper、Marlin 等 3D 打印机固件在 CoreXY 模式下，每一步都在做 FIG 6 里的换算：把想要的 \((x,y)\) 变成两个电机的位置（相差一个常数倍）。电机相关或卡死，换算就失效。</p>
+    <p data-lang="zh"><b>差速车并非到不了。</b>它不能<em>瞬时</em>横移，但通过"转一下、前进、再转回来"（像侧方停车）可以到达平面上任何位姿。瞬时能走的方向不足，换来的是需要规划的运动，这类约束叫<b>非完整约束</b>（nonholonomic），第 II 部分会专门讲。</p>
+    <p data-lang="zh"><b>冗余也是一种相关。</b>4 个麦克纳姆轮的全向底盘，只有 3 个自由度：4 个轮子的"贡献向量"住在 \(\R^3\) 里，4 个向量一定相关，所以同一个车体速度可以由很多种轮速组合产生。这给了你"多出来的自由"（可以用来分配负载、避开打滑），也意味着配方不再唯一，需要 1.6 节和 1.13 节的工具来选一个。</p>
+    <p data-lang="zh"><b>机械臂。</b>6 自由度机械臂的雅可比（3.4 节）的 6 列，是 6 个关节各自产生的末端运动向量。它们无关，末端才能朝任意方向运动；两列撞到同一条线上就是<b>奇异位形</b>：和 FIG 6 里电机卡死如出一辙。</p>
+    <p data-lang="en"><b>A basis change in firmware.</b> In CoreXY mode, printer firmware such as Klipper and Marlin performs the conversion of FIG 6 on every step: it turns the wanted \((x,y)\) into two motor positions (up to a constant factor). If the motors become dependent or one is jammed, the conversion breaks down.</p>
+    <p data-lang="en"><b>A differential cart is not stuck.</b> It cannot move sideways <em>instantaneously</em>, but "turn, drive, turn back" (like parallel parking) takes it to any pose in the plane. Too few instantaneous directions is paid for with maneuvers that must be planned. Such constraints are called <b>nonholonomic</b>, and Part II covers them.</p>
+    <p data-lang="en"><b>Redundancy is dependence, too.</b> An omni base with 4 mecanum wheels has only 3 degrees of freedom: the four wheels' "contribution vectors" live in \(\R^3\), and four vectors there must be dependent. So the same body velocity can come from many different wheel-speed combinations. That is extra freedom (to share load, to avoid slip) but also means recipes are no longer unique, and picking one takes the tools of Lessons 1.6 and 1.13.</p>
+    <p data-lang="en"><b>Robot arms.</b> The six columns of a 6-DoF arm's Jacobian (Lesson 3.4) are the end-effector motions produced by the six joints. Only if they are independent can the end effector move in any direction; when two columns land on one line you are at a <b>singularity</b>, just like the jammed motor in FIG 6.</p>
+  </div>
+</section>
+
+<!-- ============ 8. PITFALLS ============ -->
+<section class="step" id="pitfalls">
+  <h2><span class="n">8</span><span data-lang="zh">常见误区</span><span data-lang="en">Common pitfalls</span></h2>
+  <div class="callout pitfall">
+    <div class="ct"><span data-lang="zh">误区 1：向量越多，张成越大</span><span data-lang="en">Pitfall 1: more vectors always means a bigger span</span></div>
+    <p data-lang="zh">不是。平面里的 3 个向量一定相关，至多有 2 个"有用"。例如 \((1,0),(0,1),(1,1)\)：张成还是整个平面，第三个是多余的，而且配方不再唯一：\((1,1)\) 既是 \(1\cdot(1,1)\)，也是 \(1\cdot(1,0)+1\cdot(0,1)\)。增加向量能不能扩大张成，要看它是不是<em>新方向</em>，不看个数。</p>
+    <p data-lang="en">No. Three vectors in the plane are always dependent, and at most 2 of them do real work. Take \((1,0),(0,1),(1,1)\): the span is still the whole plane, the third one is redundant, and recipes stop being unique: \((1,1)\) equals both \(1\cdot(1,1)\) and \(1\cdot(1,0)+1\cdot(0,1)\). Whether adding a vector enlarges the span depends on whether it is a <em>new direction</em>, not on the count.</p>
+  </div>
+  <div class="callout pitfall">
+    <div class="ct"><span data-lang="zh">误区 2：无关就是垂直</span><span data-lang="en">Pitfall 2: independent means perpendicular</span></div>
+    <p data-lang="zh">无关只要求"不共线"。\((1,0)\) 和 \((1,1)\) 夹角 45°，照样是平面的一组基（FIG 4 里的 CoreXY 基倒是垂直的，但"斜"那一档不是）。垂直（<b>正交</b>）是更强、更好用的性质：坐标可以直接用点积读出来（1.7 节、1.9 节）。</p>
+    <p data-lang="en">Independence only asks for "not on one line". \((1,0)\) and \((1,1)\) make a 45° angle and are still a basis of the plane (the CoreXY basis of FIG 4 happens to be perpendicular, but the "skew" one is not). Perpendicular (<b>orthogonal</b>) is a stronger and handier property: coordinates can be read off with dot products (Lessons 1.7 and 1.9).</p>
+  </div>
+  <div class="callout pitfall">
+    <div class="ct"><span data-lang="zh">误区 3：含有零向量也可以无关</span><span data-lang="en">Pitfall 3: a set with the zero vector can be independent</span></div>
+    <p data-lang="zh">不可能。只要含 \(\mathbf 0\)，取 \(1\cdot\mathbf 0 + 0\cdot\mathbf v_2 = \mathbf 0\)，这是一个<em>非平凡</em>的组合得到零，所以一定相关。对机器人来说：一个卡死的电机、一个被锁住的关节，贡献的就是零向量，对张成没有任何帮助。</p>
+    <p data-lang="en">Impossible. As soon as the set contains \(\mathbf 0\), take \(1\cdot\mathbf 0 + 0\cdot\mathbf v_2 = \mathbf 0\): a <em>non-trivial</em> combination giving zero, so the set is dependent. For a robot: a jammed motor or a locked joint contributes the zero vector and adds nothing to the span.</p>
+  </div>
+  <div class="callout pitfall">
+    <div class="ct"><span data-lang="zh">误区 4：基是唯一的，所以坐标自己就有意义</span><span data-lang="en">Pitfall 4: the basis is unique, so coordinates mean something by themselves</span></div>
+    <p data-lang="zh">同一个空间有无穷多组基，所以一组数 \((2,1)\) 脱离了"哪组基"就没有意义：在标准基下它是点 \((2,1)\)，在 CoreXY 基下它是点 \((3,1)\)。机器人代码里永远要标明坐标系：<code>p_world</code>、<code>p_cam</code>、<code>p_base</code>，矩阵写成 <code>R_world_cam</code>。很多看似玄学的 bug，只是把一组坐标当成了另一个坐标系里的。</p>
+    <p data-lang="en">A space has infinitely many bases, so a pair of numbers \((2,1)\) means nothing until you say which one: in the standard basis it is the point \((2,1)\); in the CoreXY basis it is the point \((3,1)\). In robot code always label the frame: <code>p_world</code>, <code>p_cam</code>, <code>p_base</code>, and name matrices like <code>R_world_cam</code>. Many mysterious bugs are just coordinates from one frame read as if they were in another.</p>
+  </div>
+</section>
+
+<!-- ============ 9. QUIZ ============ -->
+<section class="step" id="quiz">
+  <h2><span class="n">9</span><span data-lang="zh">小练习</span><span data-lang="en">Check yourself</span></h2>
+
+  <div class="quiz" data-answer="1">
+    <div class="q"><span data-lang="zh">1. \(\mathbf v_1=(1,2)\)，\(\mathbf v_2=(2,4)\)。它们的张成是什么？</span><span data-lang="en">1. \(\mathbf v_1=(1,2)\), \(\mathbf v_2=(2,4)\). What is their span?</span></div>
+    <div class="opts">
+      <button class="opt"><span data-lang="zh">整个平面 \(\R^2\)</span><span data-lang="en">The whole plane \(\R^2\)</span></button>
+      <button class="opt"><span data-lang="zh">直线 \(y=2x\)</span><span data-lang="en">The line \(y=2x\)</span></button>
+      <button class="opt"><span data-lang="zh">直线 \(y=x/2\)</span><span data-lang="en">The line \(y=x/2\)</span></button>
+      <button class="opt"><span data-lang="zh">只有原点</span><span data-lang="en">Only the origin</span></button>
+    </div>
+    <div class="explain"><span data-lang="zh">\(\mathbf v_2 = 2\mathbf v_1\)，两个向量共线，所以相关，张成就是 \(\mathbf v_1\) 所在的直线：斜率 \(2/1 = 2\)，即 \(y=2x\)。</span><span data-lang="en">\(\mathbf v_2 = 2\mathbf v_1\): the two are collinear, hence dependent, and the span is the line through \(\mathbf v_1\), with slope \(2/1 = 2\), i.e. \(y=2x\).</span></div>
+  </div>
+
+  <div class="quiz" data-answer="2">
+    <div class="q"><span data-lang="zh">2. 在基 \(\{(2,1),(1,-1)\}\) 下，点 \(\mathbf p=(4,-1)\)（标准坐标）的坐标是？</span><span data-lang="en">2. In the basis \(\{(2,1),(1,-1)\}\), what are the coordinates of the point \(\mathbf p=(4,-1)\) (standard coordinates)?</span></div>
+    <div class="opts">
+      <button class="opt">\((2,1)\)</button>
+      <button class="opt">\((4,-1)\)</button>
+      <button class="opt">\((1,2)\)</button>
+      <button class="opt">\((3,-3)\)</button>
+    </div>
+    <div class="explain"><span data-lang="zh">解 \(2c_1+c_2=4\)，\(c_1-c_2=-1\)：相加得 \(3c_1=3\)，\(c_1=1\)，\(c_2=2\)。检验：\(1\cdot(2,1)+2\cdot(1,-1)=(4,-1)\)。\((4,-1)\) 本身是标准坐标，不是新坐标；\((2,1)\) 是把两个系数弄反了。</span><span data-lang="en">Solve \(2c_1+c_2=4\), \(c_1-c_2=-1\): adding gives \(3c_1=3\), so \(c_1=1\), \(c_2=2\). Check: \(1\cdot(2,1)+2\cdot(1,-1)=(4,-1)\). \((4,-1)\) itself is the standard coordinates, not the new ones; \((2,1)\) swaps the two coefficients.</span></div>
+  </div>
+
+  <div class="quiz" data-answer="3">
+    <div class="q"><span data-lang="zh">3. 平面里的三个向量 \((1,0),(0,1),(2,3)\)，下面哪句话对？</span><span data-lang="en">3. About the three vectors \((1,0),(0,1),(2,3)\) in the plane, which statement is true?</span></div>
+    <div class="opts">
+      <button class="opt"><span data-lang="zh">线性无关，因为三个向量互不相同</span><span data-lang="en">Independent, because all three are different</span></button>
+      <button class="opt"><span data-lang="zh">它们不能张成 \(\R^2\)</span><span data-lang="en">They do not span \(\R^2\)</span></button>
+      <button class="opt"><span data-lang="zh">它们是 \(\R^2\) 的一组基</span><span data-lang="en">They form a basis of \(\R^2\)</span></button>
+      <button class="opt"><span data-lang="zh">它们张成 \(\R^2\)，但线性相关</span><span data-lang="en">They span \(\R^2\), but are dependent</span></button>
+    </div>
+    <div class="explain"><span data-lang="zh">前两个已经张成 \(\R^2\)。第三个 \((2,3) = 2(1,0)+3(0,1)\)，是前两个的组合，所以三者相关：\(2(1,0)+3(0,1)-1\cdot(2,3)=\mathbf 0\)，系数不全为 0。基必须无关，所以不是基。</span><span data-lang="en">The first two already span \(\R^2\). The third, \((2,3) = 2(1,0)+3(0,1)\), is a combination of them, so the three are dependent: \(2(1,0)+3(0,1)-1\cdot(2,3)=\mathbf 0\) with coefficients not all zero. A basis must be independent, so this is not one.</span></div>
+  </div>
+
+  <div class="quiz" data-answer="0">
+    <div class="q"><span data-lang="zh">4. CoreXY 龙门架，电机 A 卡死在 \(\alpha=0\)，电机 B 还能转（\(\beta\) 任意）。打印头能去哪里？</span><span data-lang="en">4. A CoreXY gantry has motor A jammed at \(\alpha=0\), while motor B can still turn (any \(\beta\)). Where can the head go?</span></div>
+    <div class="opts">
+      <button class="opt"><span data-lang="zh">只能在直线 \(y=-x\) 上</span><span data-lang="en">Only on the line \(y=-x\)</span></button>
+      <button class="opt"><span data-lang="zh">只能在直线 \(y=x\) 上</span><span data-lang="en">Only on the line \(y=x\)</span></button>
+      <button class="opt"><span data-lang="zh">整个平面，只是慢一点</span><span data-lang="en">The whole plane, just more slowly</span></button>
+      <button class="opt"><span data-lang="zh">只能在原点</span><span data-lang="en">Only at the origin</span></button>
+    </div>
+    <div class="explain"><span data-lang="zh">\(\mathbf p = 0\cdot(1,1) + \beta(1,-1) = (\beta,-\beta)\)，满足 \(y=-x\)。只剩一个原料，张成缩成一条线。</span><span data-lang="en">\(\mathbf p = 0\cdot(1,1) + \beta(1,-1) = (\beta,-\beta)\), which satisfies \(y=-x\). With one ingredient left, the span shrinks to a line.</span></div>
+  </div>
+
+  <div class="quiz" data-answer="2">
+    <div class="q"><span data-lang="zh">5. 一个四轮全向底盘只有 3 个自由度 \((v_x,v_y,\omega)\)。四个轮子各自的"贡献向量"是 \(\R^3\) 里的 4 个向量。这说明？</span><span data-lang="en">5. A four-wheel omni base has only 3 degrees of freedom \((v_x,v_y,\omega)\). The four wheels' "contribution vectors" are 4 vectors in \(\R^3\). What does this tell you?</span></div>
+    <div class="opts">
+      <button class="opt"><span data-lang="zh">它们张成 4 维空间</span><span data-lang="en">They span a 4-dimensional space</span></button>
+      <button class="opt"><span data-lang="zh">其中一个轮子永远没有用</span><span data-lang="en">One wheel is always useless</span></button>
+      <button class="opt"><span data-lang="zh">它们一定线性相关，同一个车体速度可由多种轮速产生</span><span data-lang="en">They must be dependent, so one body velocity can come from many wheel-speed combinations</span></button>
+      <button class="opt"><span data-lang="zh">车体速度的配方是唯一的</span><span data-lang="en">The recipe for a body velocity is unique</span></button>
+    </div>
+    <div class="explain"><span data-lang="zh">\(\R^3\) 里至多 3 个向量无关，所以 4 个必相关。相关意味着配方不唯一，多出来的是冗余自由度。但并不是"某一个轮子永远没用"：任何一个都可以被其余三个的组合替代，这是对称的关系。</span><span data-lang="en">At most 3 vectors in \(\R^3\) are independent, so 4 must be dependent. Dependence means recipes are not unique; the extra is redundant freedom. It is not that "one particular wheel is useless": any one of them can be replaced by a combination of the other three, a symmetric relationship.</span></div>
+  </div>
+</section>
+
+<!-- ============ 10. READING ============ -->
+<section class="step" id="reading">
+  <h2><span class="n">10</span><span data-lang="zh">延伸阅读</span><span data-lang="en">Further reading</span></h2>
+  <ul class="reading">
+    <li>3Blue1Brown, <a href="https://www.3blue1brown.com/topics/linear-algebra" target="_blank" rel="noopener"><i>Essence of Linear Algebra</i></a> — <span data-lang="zh">第 2 章“线性组合、张成与基向量”（Linear combinations, span, and basis vectors）</span><span data-lang="en">Ch. 2, “Linear combinations, span, and basis vectors”</span></li>
+    <li>G. Strang, <i>Introduction to Linear Algebra</i> — <span data-lang="zh">第 1 章（线性组合）与“线性无关、基和维数”一节（章节编号因版本而异）</span><span data-lang="en">Ch. 1 (linear combinations) and the section “Independence, Basis and Dimension” (numbering varies by edition)</span></li>
+    <li>G. Strang, <a href="https://ocw.mit.edu/courses/18-06-linear-algebra-spring-2010/" target="_blank" rel="noopener"><i>MIT 18.06 Linear Algebra</i></a> (OCW) — <span data-lang="zh">第 9 讲：线性无关、基和维数</span><span data-lang="en">Lecture 9: Independence, basis, and dimension</span></li>
+    <li>J. Ström et al., <a href="http://immersivemath.com/ila/" target="_blank" rel="noopener"><i>Immersive Linear Algebra</i></a> — <span data-lang="zh">第 2 章“向量”（含线性组合与线性无关的交互插图）</span><span data-lang="en">Ch. 2, “Vectors” (interactive figures on linear combinations and independence)</span></li>
+  </ul>
+</section>
+
+</article>
+</main>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/katex@0.16.22/dist/katex.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/katex@0.16.22/dist/contrib/auto-render.min.js"></script>
+<script src="../assets/syllabus.js"></script>
+<script src="../assets/math.js"></script>
+<script src="../assets/course.js"></script>
+<script src="../assets/viz2d.js"></script>
+<script src="../assets/viz3d.js"></script>
+<script>
+R101.onReady(function () {
+  const { M, ui, L } = R101;
+
+  /* ---------------- shared 2D helpers ---------------- */
+  const cross2 = (a, b) => a[0] * b[1] - a[1] * b[0];
+  const colsM = (a, b) => [[a[0], b[0]], [a[1], b[1]]];
+  const sinAng = (a, b) => { const n = M.norm(a) * M.norm(b); return n < 1e-9 ? 0 : Math.abs(cross2(a, b)) / n; };
+  // solve c1 a + c2 b = p (Cramer); null if a, b dependent
+  const solve2 = (a, b, p) => { const d = cross2(a, b); if (Math.abs(d) < 1e-9) return null; return [cross2(p, b) / d, cross2(a, p) / d]; };
+  // 'plane' | 'line' | 'point': what span{a, b} is
+  const spanKind = (a, b) => {
+    const na = M.norm(a), nb = M.norm(b);
+    if (na < 0.08 && nb < 0.08) return 'point';
+    if (na < 0.08 || nb < 0.08 || sinAng(a, b) < 0.03) return 'line';
+    return 'plane';
+  };
+  const lv = (a, b, t) => a.map((x, i) => M.lerp(x, b[i], t));
+  const clampV = (p, r) => [M.clamp(p[0], -r, r), M.clamp(p[1], -r, r)];
+  const tv = v => M.texVec(v, 2);
+  const pair = (v, d = 1) => `(${M.fmt(v[0], d)}, ${M.fmt(v[1], d)})`;
+  const signed = (x, d = 1) => (x < 0 ? ` - ${M.tex(-x, d)}` : ` + ${M.tex(x, d)}`);
+  const hlw = (k, a, b) => (R101.hl === k ? a : b);
+
+  /* ---------------- FIG 1: can you cook this dish? ---------------- */
+  (function () {
+    let mode = 'two', v1 = [2, 1], v2 = [-1, 1.5], w = [1.5, 3], missed = false;
+    const ing = () => (mode === 'one' ? [v1, [0, 0]] : mode === 'same' ? [v1, M.scale(v1, -0.5)] : [v1, v2]);
+    const P = new R101.Plane2D('#reach-canvas', { height: 380, view: { span: 9 }, draw, onChange: sync });
+    function analyze() {
+      const [a, b] = ing(), kind = spanKind(a, b);
+      if (kind === 'plane') return { kind, ok: true, c: solve2(a, b, w), miss: 0, foot: w };
+      if (kind === 'point') { const m = M.norm(w); return { kind, ok: m < 0.12, miss: m, foot: [0, 0] }; }
+      const d = M.norm(a) >= M.norm(b) ? a : b, u = M.normalize(d), t = M.dot(w, u), foot = M.scale(u, t);
+      const miss = M.norm(M.sub(w, foot));
+      return { kind, ok: miss < 0.12, miss, foot, u, d, s: t / M.norm(d) };
+    }
+    function draw(P) {
+      P.grid({ color: 'grid', axisColor: 'grid-2' });
+      const [a, b] = ing(), A = analyze();
+      if (A.kind === 'plane') {
+        const bd = P.bounds();
+        P.poly([[bd.xmin, bd.ymin], [bd.xmax, bd.ymin], [bd.xmax, bd.ymax], [bd.xmin, bd.ymax]], { fill: 'x', fillAlpha: 0.1 });
+        P.textPx(R101.t('张成 = 整个平面', 'span = the whole plane'), 12, 18, { color: 'x', bold: true });
+      } else if (A.kind === 'line') {
+        P.line(M.scale(A.u, -30), M.scale(A.u, 30), { color: 'x', width: 3, alpha: 0.7 });
+        P.textPx(R101.t('张成 = 一条直线', 'span = a line'), 12, 18, { color: 'x', bold: true });
+      } else {
+        P.point([0, 0], { color: 'x', r: 6 });
+        P.textPx(R101.t('张成 = 一个点', 'span = a point'), 12, 18, { color: 'x', bold: true });
+      }
+      if (!A.ok) {
+        P.line(w, A.foot, { color: 'bad', width: 2, dash: [5, 4] });
+        P.text(R101.t('差 ', 'miss ') + M.fmt(A.miss, 2), M.scale(M.add(w, A.foot), 0.5), { color: 'bad', bold: true, offset: [10, 0] });
+      } else if (A.kind === 'plane' && A.c) {
+        const s = M.scale(a, A.c[0]);
+        P.arrow([0, 0], s, { color: 'i', width: 2, dash: [6, 5], alpha: 0.7, head: 9 });
+        P.arrow(s, w, { color: 'j', width: 2, dash: [6, 5], alpha: 0.7, head: 9 });
+      } else if (A.kind === 'line') {
+        P.arrow([0, 0], A.foot, { color: 'v', width: 2, dash: [6, 5], alpha: 0.8, head: 9 });
+      }
+      P.arrow([0, 0], v1, { color: 'i', width: 4, label: 'v₁' });
+      if (mode !== 'one') P.arrow([0, 0], b, { color: 'j', width: 4, label: 'v₂' });
+      P.point(w, { color: 'w', r: 7, stroke: 'canvas' });
+      P.text('w', w, { offset: [12, -12], color: 'w', bold: true });
+    }
+    P.handle({ pos: () => v1, set: p => { v1 = clampV(p, 4.3); }, color: 'i', snap: 0.25 });
+    P.handle({ pos: () => v2, set: p => { v2 = clampV(p, 4.3); }, color: 'j', snap: 0.25, visible: () => mode === 'two' });
+    P.handle({ pos: () => w, set: p => { w = clampV(p, 4.3); }, color: 'w', snap: 0.1 });
+    const side = document.getElementById('reach-side');
+    ui.seg(document.getElementById('reach-seg'), [
+      { value: 'one', zh: '1 个向量', en: 'One vector' },
+      { value: 'two', zh: '2 个，方向不同', en: 'Two, different directions' },
+      { value: 'same', zh: '2 个，同一方向', en: 'Two, same direction' }
+    ], mode, v => { mode = v; sync(); });
+    function sync() {
+      const A = analyze(), [a, b] = ing();
+      const kindTxt = A.kind === 'plane' ? L('张成 = 整个平面', 'span = the whole plane') : A.kind === 'line' ? L('张成 = 一条直线', 'span = a line through the origin') : L('张成 = 一个点（原点）', 'span = a single point (the origin)');
+      let msg;
+      if (!A.ok) msg = `<b style="color:var(--c-bad)">✗ ${L('做不出来', 'Cannot be made')}</b><br>${L('w 离张成的距离', 'distance from w to the span')} = ${M.fmt(A.miss, 2)}`;
+      else if (A.kind === 'plane') msg = `<b style="color:var(--c-good)">✓ ${L('做得出来', 'Can be made')}</b><br>${L('唯一的配方', 'the only recipe')}: c₁ = ${M.fmt(A.c[0], 2)}, c₂ = ${M.fmt(A.c[1], 2)}`;
+      else if (A.kind === 'line' && M.norm(a) > 0.08 && M.norm(b) > 0.08) msg = `<b style="color:var(--c-good)">✓ ${L('做得出来，但配方有无穷多种', 'Can be made, with infinitely many recipes')}</b><br>${L('两个原料相关：多出来的那个是冗余', 'the ingredients are dependent: one is redundant')}`;
+      else msg = `<b style="color:var(--c-good)">✓ ${L('做得出来', 'Can be made')}</b>${A.kind === 'line' ? `<br>c₁ = ${M.fmt(A.s * (M.norm(a) >= M.norm(b) ? 1 : 0), 2)}` : ''}`;
+      side.innerHTML = `<div><b>${kindTxt}</b></div><div style="margin-top:8px">${msg}</div>` +
+        `<div class="small muted" style="margin-top:10px">${L('原料独立吗？', 'independent?')} ${A.kind === 'plane' ? L('是', 'yes') : L('否', 'no')}</div>`;
+      if (A.kind !== 'plane' && !A.ok && A.miss > 0.5) missed = true;
+      if (A.kind === 'plane' && missed) R101.done('reach');
+      P.invalidate();
+    }
+    R101.on('lang', sync);
+    sync();
+  })();
+
+  /* ---------------- FIG 2: recipe lab ---------------- */
+  (function () {
+    let v1 = [2, 1], v2 = [-1, 1.5], c = [1, 1];
+    let paintOn = true, paintT = 1, anim = null, paintAnim = null;
+    const T = [3, 1];
+    const pts = [];
+    for (let r = 0; r <= 6; r++) for (let i = -r; i <= r; i++) for (let j = -r; j <= r; j++) if (Math.max(Math.abs(i), Math.abs(j)) === r) pts.push([i, j]);
+    const stopAnim = () => { if (anim) { anim(); anim = null; } };
+    const P = new R101.Plane2D('#lab-canvas', { height: 470, view: { span: 9 }, draw, onChange: sync });
+    const result = () => M.add(M.scale(v1, c[0]), M.scale(v2, c[1]));
+
+    function draw(P) {
+      const hl = R101.hl, kind = spanKind(v1, v2);
+      P.grid({ color: 'grid', axisColor: 'grid-2' });
+      if ((paintOn || hl === 'span') && kind !== 'point') {
+        const ns = [v1, v2].map(M.norm).filter(n => n > 0.08), m = Math.min.apply(null, ns);
+        const E = Math.min(40, Math.ceil(10 / Math.max(0.25, m)));
+        P.grid({ A: colsM(v1, v2), extent: E, color: 'x', alpha: hl === 'span' ? 0.6 : 0.3, width: 1, axisColor: 'x', axisWidth: 1.6 });
+      }
+      if (paintOn || hl === 'span') {
+        const n = hl === 'span' ? pts.length : Math.round(paintT * pts.length);
+        for (let k = 0; k < n; k++) P.point(M.add(M.scale(v1, pts[k][0]), M.scale(v2, pts[k][1])), { color: 'x', r: hl === 'span' ? 3.4 : 2.6, alpha: 0.8 });
+      }
+      // target
+      P.circle(T, 0.24, { color: 'w', width: 2.2 });
+      P.text(R101.t('目标 (3, 1)', 'target (3, 1)'), T, { offset: [14, -14], color: 'w', bold: true });
+      // recipe path
+      const a = M.scale(v1, c[0]), p = result();
+      P.arrow([0, 0], a, { color: 'i', width: hlw('c1', 5, 2.5), dash: [6, 5], alpha: hlw('c1', 1, 0.7), head: 9 });
+      P.arrow(a, p, { color: 'j', width: hlw('c2', 5, 2.5), dash: [6, 5], alpha: hlw('c2', 1, 0.7), head: 9 });
+      if (M.norm(a) > 0.7) P.text('c₁v₁', M.scale(a, 0.5), { color: 'i', bold: true, offset: [0, 16], size: 12 });
+      if (M.norm(M.sub(p, a)) > 0.7) P.text('c₂v₂', M.scale(M.add(a, p), 0.5), { color: 'j', bold: true, offset: [0, -16], size: 12 });
+      P.arrow([0, 0], v1, { color: 'i', width: hlw('v1', 6, 4), label: 'v₁' });
+      P.arrow([0, 0], v2, { color: 'j', width: hlw('v2', 6, 4), label: 'v₂' });
+      P.arrow([0, 0], p, { color: 'v', width: hlw('p', 6, 4), label: 'p' });
+    }
+    P.handle({ pos: () => v1, set: p => { v1 = clampV(p, 4.3); }, color: 'i', snap: 0.25, start: stopAnim });
+    P.handle({ pos: () => v2, set: p => { v2 = clampV(p, 4.3); }, color: 'j', snap: 0.25, start: stopAnim });
+    P.handle({
+      pos: result, color: 'v', start: stopAnim,
+      visible: () => spanKind(v1, v2) !== 'point',
+      set: p => {
+        const kind = spanKind(v1, v2);
+        if (kind === 'plane') { const cc = solve2(v1, v2, p); c = cc.map(x => M.clamp(Math.round(x * 10) / 10, -4, 4)); }
+        else if (M.norm(v1) >= M.norm(v2)) { c[0] = M.clamp(Math.round(M.dot(M.sub(p, M.scale(v2, c[1])), v1) / M.dot(v1, v1) * 10) / 10, -4, 4); }
+        else { c[1] = M.clamp(Math.round(M.dot(M.sub(p, M.scale(v1, c[0])), v2) / M.dot(v2, v2) * 10) / 10, -4, 4); }
+      }
+    });
+    const ctr = document.getElementById('lab-controls');
+    const sl1 = ui.slider(ctr, { zh: 'c₁（红）', en: 'c₁ (red)', min: -4, max: 4, step: 0.1, value: c[0], fmt: v => M.fmt(v, 1), onInput: v => { stopAnim(); c[0] = v; sync(); } });
+    const sl2 = ui.slider(ctr, { zh: 'c₂（绿）', en: 'c₂ (green)', min: -4, max: 4, step: 0.1, value: c[1], fmt: v => M.fmt(v, 1), onInput: v => { stopAnim(); c[1] = v; sync(); } });
+    const seg = ui.seg(document.getElementById('lab-seg'), [{ value: 'on', zh: '画出张成', en: 'Paint the span' }, { value: 'off', zh: '隐藏', en: 'Hide' }], 'on', v => {
+      if (paintAnim) { paintAnim(); paintAnim = null; }
+      paintOn = v === 'on';
+      if (paintOn) { paintT = 0; paintAnim = R101.animate(1100, e => { paintT = e; P.invalidate(); }, () => { paintAnim = null; paintT = 1; P.invalidate(); }); }
+      P.invalidate();
+    });
+    const texEl = document.getElementById('lab-tex'), readEl = document.getElementById('lab-read');
+    function sync() {
+      sl1.set(c[0]); sl2.set(c[1]);
+      const p = result(), kind = spanKind(v1, v2);
+      R101.tex(texEl, `\\cv{\\mathbf p} = ${M.tex(c[0], 1)}\\,\\ci{${tv(v1)}}${signed(c[1])}\\,\\cj{${tv(v2)}} = \\cv{${tv(p)}}`);
+      const kindTxt = kind === 'plane' ? L('整个平面', 'the whole plane') : kind === 'line' ? L('一条直线', 'a line') : L('一个点', 'a point');
+      const hasZero = M.norm(v1) < 0.08 || M.norm(v2) < 0.08;
+      const ind = kind === 'plane';
+      const ang = Math.asin(M.clamp(sinAng(v1, v2), 0, 1)) * 180 / Math.PI;
+      const dot = M.dot(v1, v2) < 0 && kind === 'plane' ? 180 - ang : ang;
+      readEl.innerHTML = `${L('张成', 'span')} = <b>${kindTxt}</b><br>` +
+        `${L('v₁, v₂ ', 'v₁, v₂ are ')}<b style="color:var(--c-${ind ? 'good' : 'bad'})">${ind ? L('线性无关', 'independent') : L('线性相关', 'dependent')}</b>` +
+        (!ind && hasZero ? `<br><span class="muted">${L('（含零向量：必相关）', '(contains the zero vector)')}</span>` : '') +
+        (kind === 'plane' ? `<br>${L('夹角', 'angle')} = ${M.fmt(dot, 0)}°` : '') +
+        `<br>${L('离目标', 'distance to target')} = ${M.fmt(M.norm(M.sub(p, T)), 2)}`;
+      if (kind === 'line' && !(M.norm(v1) < 0.08 && M.norm(v2) < 0.08)) R101.done('line');
+      if (kind === 'point') R101.done('point');
+      const hit = M.norm(M.sub(p, T)) < 0.15;
+      if (hit && M.norm(M.sub(v1, [1, 1])) < 0.12 && M.norm(M.sub(v2, [1, -1])) < 0.12) R101.done('target');
+      if (hit && ind && (c[0] < -0.05 || c[1] < -0.05)) R101.done('neg');
+      P.invalidate();
+    }
+    function goTo(n1, n2, nc) {
+      stopAnim();
+      const s1 = v1.slice(), s2 = v2.slice(), sc = c.slice();
+      anim = R101.animate(700, e => { v1 = lv(s1, n1, e); v2 = lv(s2, n2, e); c = lv(sc, nc, e); sync(); }, () => { anim = null; v1 = n1; v2 = n2; c = nc; sync(); });
+    }
+    const presets = [
+      ['标准基', 'Standard', [1, 0], [0, 1], [2, 1]],
+      ['CoreXY', 'CoreXY', [1, 1], [1, -1], [1, 1]],
+      ['斜基', 'Skewed', [1, 0], [1, 1], [1, 1]],
+      ['拉长', 'Long & short', [3, 0.5], [-0.25, 1], [1, 1]]
+    ];
+    const ph = document.getElementById('lab-presets');
+    presets.forEach(([zh, en, a, b, cc]) => ui.button(ph, { zh, en, cls: 'sm', onClick: () => goTo(a, b, cc) }));
+    R101.on('lang', sync);
+    sync();
+  })();
+
+  /* ---------------- FIG 3: find the recipe ---------------- */
+  (function () {
+    let b1, b2, cs, w, c = [0, 0], hits = 0, solved = false, revealed = false, anim = null;
+    const ri = (a, b) => a + Math.floor(Math.random() * (b - a + 1));
+    const coef = () => { const k = ri(1, 3); return Math.random() < 0.5 ? -k : k; };
+    const P = new R101.Plane2D('#game-canvas', { height: 400, view: { span: 10 }, draw, onChange: onDrag });
+    const result = () => M.add(M.scale(b1, c[0]), M.scale(b2, c[1]));
+    function draw(P) {
+      P.grid({ color: 'grid', axisColor: 'grid-2' });
+      P.grid({ A: colsM(b1, b2), extent: 24, color: 'x', alpha: 0.32, width: 1, axisColor: 'x', axisWidth: 1.4 });
+      const a = M.scale(b1, c[0]), p = result();
+      P.arrow([0, 0], a, { color: 'i', width: 2.5, dash: [6, 5], alpha: 0.7, head: 9 });
+      P.arrow(a, p, { color: 'j', width: 2.5, dash: [6, 5], alpha: 0.7, head: 9 });
+      P.arrow([0, 0], b1, { color: 'i', width: 4, label: 'v₁' });
+      P.arrow([0, 0], b2, { color: 'j', width: 4, label: 'v₂' });
+      P.circle(w, 0.26, { color: solved ? 'good' : 'w', width: 2.6 });
+      P.point(w, { color: solved ? 'good' : 'w', r: 4 });
+      P.text('t', w, { offset: [14, -14], color: solved ? 'good' : 'w', bold: true });
+      P.arrow([0, 0], p, { color: 'v', width: 4, label: 'p' });
+    }
+    P.handle({
+      pos: result, color: 'v',
+      start: () => { if (anim) { anim(); anim = null; } },
+      set: p => {
+        if (solved) return;
+        const cc = solve2(b1, b2, p);
+        if (cc) c = cc.map(x => M.clamp(Math.round(x * 2) / 2, -5, 5));
+      }
+    });
+    const ctr = document.getElementById('game-controls');
+    const mkSl = (zh, en, k) => ui.slider(ctr, { zh, en, min: -5, max: 5, step: 0.5, value: 0, fmt: v => M.fmt(v, 1), onInput: v => { if (solved) { sls[k].set(c[k]); return; } if (anim) { anim(); anim = null; } c[k] = v; onDrag(); } });
+    const sls = [mkSl('c₁（红）', 'c₁ (red)', 0), mkSl('c₂（绿）', 'c₂ (green)', 1)];
+    const tex = document.getElementById('game-tex'), msg = document.getElementById('game-msg'), score = document.getElementById('game-score');
+    function show() {
+      sls[0].set(c[0]); sls[1].set(c[1]);
+      const p = result();
+      R101.tex(tex, `\\begin{aligned}\\ci{\\mathbf v_1}&=${tv(b1)},\\;\\cj{\\mathbf v_2}=${tv(b2)}\\\\ \\cw{\\mathbf t}&=${tv(w)}\\\\ \\cv{\\mathbf p}&=${M.tex(c[0], 1)}\\,\\ci{\\mathbf v_1}${signed(c[1])}\\,\\cj{\\mathbf v_2}=${tv(p)}${solved ? '\\;\\checkmark' : ''}\\end{aligned}`);
+      score.innerHTML = L(`答对 ${hits}`, `hits: ${hits}`);
+      msg.innerHTML = solved
+        ? `<b style="color:var(--c-good)">${revealed ? L('这是配方，点"下一题"继续。', 'That is the recipe. Hit "Next".') : L('命中！p = t。', 'Hit! p = t.')}</b><br>t = ${M.fmt(cs[0], 0)}·v₁ ${cs[1] < 0 ? '−' : '+'} ${M.fmt(Math.abs(cs[1]), 0)}·v₂`
+        : L('提示：数斜网格的格子。先沿 v₁ 走几格，再沿 v₂ 走几格？', 'Hint: count cells on the skewed grid. How many along v₁, then how many along v₂?');
+    }
+    function onDrag() {
+      if (!solved && Math.abs(c[0] - cs[0]) < 0.01 && Math.abs(c[1] - cs[1]) < 0.01) {
+        solved = true;
+        if (!revealed) { hits++; if (hits >= 3) R101.done('game3'); }
+      }
+      show(); P.invalidate();
+    }
+    function next() {
+      if (anim) { anim(); anim = null; }
+      for (let tries = 0; tries < 2000; tries++) {
+        b1 = [ri(-2, 2), ri(-2, 2)]; b2 = [ri(-2, 2), ri(-2, 2)];
+        if (M.norm(b1) < 1 || M.norm(b2) < 1 || sinAng(b1, b2) < 0.4) continue;
+        cs = [coef(), coef()];
+        w = M.add(M.scale(b1, cs[0]), M.scale(b2, cs[1]));
+        if (Math.abs(w[0]) <= 4.5 && Math.abs(w[1]) <= 4.5) break;
+      }
+      c = [0, 0]; solved = false; revealed = false;
+      show(); P.invalidate();
+    }
+    document.getElementById('game-next').onclick = next;
+    document.getElementById('game-reveal').onclick = () => {
+      if (solved) return;
+      revealed = true;
+      const from = c.slice();
+      anim = R101.animate(1600, (e, t) => {
+        // first walk along v1, then along v2
+        const u = Math.min(1, t * 2), v = Math.max(0, t * 2 - 1);
+        const eu = u * u * (3 - 2 * u), ev = v * v * (3 - 2 * v);
+        c = [M.lerp(from[0], cs[0], eu), M.lerp(from[1], cs[1], ev)];
+        show(); P.invalidate();
+      }, () => { anim = null; c = cs.slice(); solved = true; show(); P.invalidate(); });
+    };
+    R101.on('lang', show);
+    next();
+  })();
+
+  /* ---------------- FIG 4: coordinates depend on the basis ---------------- */
+  (function () {
+    const c30 = Math.cos(Math.PI / 6), s30 = Math.sin(Math.PI / 6);
+    const bases = { corexy: [[1, 1], [1, -1]], skew: [[1, 0], [1, 1]], stretch: [[2, 0], [0, 0.5]], rot: [[c30, s30], [-s30, c30]] };
+    let basis = 'corexy', p = [3, 1], touched = false;
+    const B = () => bases[basis];
+    const coordsNew = () => solve2(B()[0], B()[1], p);
+    const opts = { height: 380, view: { span: 10 } };
+    const PS = new R101.Plane2D('#basis-std', Object.assign({}, opts, { draw: drawS, onChange: () => { touched = true; sync(); } }));
+    const PN = new R101.Plane2D('#basis-new', Object.assign({}, opts, { draw: drawN, onChange: () => { touched = true; sync(); } }));
+    function drawS(P) {
+      P.grid({ color: 'grid', axisColor: 'grid-2' });
+      P.line([0, 0], [p[0], 0], { color: 'i', width: 2, dash: [5, 4] });
+      P.line([p[0], 0], p, { color: 'j', width: 2, dash: [5, 4] });
+      P.arrow([0, 0], [1, 0], { color: 'i', width: 4, label: 'î' });
+      P.arrow([0, 0], [0, 1], { color: 'j', width: 4, label: 'ĵ' });
+      P.arrow([0, 0], p, { color: 'v', width: 4, label: 'p' });
+    }
+    function drawN(P) {
+      const [b1, b2] = B(), c = coordsNew();
+      P.grid({ color: 'grid-2', axisColor: 'axis', axisAlpha: 0.4 });
+      P.grid({ A: colsM(b1, b2), extent: 30, color: 'x', alpha: 0.38, width: 1.1, axisColor: 'x', axisWidth: 1.6 });
+      const s = M.scale(b1, c[0]);
+      P.line([0, 0], s, { color: 'i', width: 2, dash: [5, 4] });
+      P.line(s, p, { color: 'j', width: 2, dash: [5, 4] });
+      P.arrow([0, 0], b1, { color: 'i', width: 4, label: 'b₁' });
+      P.arrow([0, 0], b2, { color: 'j', width: 4, label: 'b₂' });
+      P.arrow([0, 0], p, { color: 'v', width: 4, label: 'p' });
+    }
+    PS.handle({ pos: () => p, color: 'v', snap: 0.25, set: q => { p = clampV(q, 4.5); } });
+    PN.handle({
+      pos: () => p, color: 'v',
+      set: q => { const cc = solve2(B()[0], B()[1], q).map(x => Math.round(x * 4) / 4); p = clampV(M.add(M.scale(B()[0], cc[0]), M.scale(B()[1], cc[1])), 4.5); }
+    });
+    ui.seg(document.getElementById('basis-seg'), [
+      { value: 'corexy', zh: 'CoreXY', en: 'CoreXY' }, { value: 'skew', zh: '斜', en: 'Skew' },
+      { value: 'stretch', zh: '拉伸', en: 'Stretch' }, { value: 'rot', zh: '旋转 30°', en: 'Rotate 30°' }
+    ], basis, v => { basis = v; sync(); });
+    const ts = document.getElementById('basis-tex-s'), tn = document.getElementById('basis-tex-n');
+    function sync() {
+      const c = coordsNew(), [b1, b2] = B();
+      R101.tex(ts, `\\cv{\\mathbf p} = ${M.tex(p[0], 2)}\\,\\ihat${signed(p[1], 2)}\\,\\jhat,\\quad [\\mathbf p]_{\\text{std}} = ${tv(p)}`);
+      R101.tex(tn, `\\cv{\\mathbf p} = ${M.tex(c[0], 2)}\\,\\ci{\\mathbf b_1}${signed(c[1], 2)}\\,\\cj{\\mathbf b_2},\\quad [\\mathbf p]_B = ${tv(c)}`);
+      if (basis === 'corexy' && touched) {
+        if (Math.abs(c[0] - 2) < 0.06 && Math.abs(c[1] - 1) < 0.06) R101.done('basis21');
+        if (p[0] > 0.2 && p[1] > 0.2 && Math.min(c[0], c[1]) < -0.2) R101.done('basisneg');
+      }
+      PS.invalidate(); PN.invalidate();
+    }
+    R101.on('lang', sync);
+    sync();
+  })();
+
+  /* ---------------- FIG 5: the plane and the third vector ---------------- */
+  (function () {
+    const w1 = [2, 0, 1], w2 = [0, 2, 1], nn = M.cross(w1, w2), nl = M.norm(nn), nh = M.scale(nn, 1 / nl);
+    let a = 0.4, b = 0.5, h = 1.0;
+    const inPlane = () => M.add(M.scale(w1, a), M.scale(w2, b));
+    const v3 = () => M.add(inPlane(), M.scale(nh, h));
+    const V = new R101.View3D('#span3-canvas', { height: 440, dist: 8.4, yaw: -0.75, pitch: 0.38, target: [0, 0, 0.5], draw, onInteract: () => R101.done('orbit') });
+    function draw(V) {
+      V.grid({ extent: 3 });
+      const s = 1.3, q = (i, j) => M.add(M.scale(w1, i * s), M.scale(w2, j * s));
+      const flat = Math.abs(h) < 0.03;
+      V.poly([q(-1, -1), q(1, -1), q(1, 1), q(-1, 1)], { fill: flat ? 'good' : 'x', fillAlpha: 0.16, stroke: flat ? 'good' : 'x', alpha: 0.7, width: 1.2, bias: 2 });
+      for (let k = -1; k <= 1.001; k += 0.5) {
+        V.line(q(k, -1), q(k, 1), { color: 'x', alpha: 0.3, width: 1 });
+        V.line(q(-1, k), q(1, k), { color: 'x', alpha: 0.3, width: 1 });
+      }
+      V.text(R101.t('span{v₁, v₂}', 'span{v₁, v₂}'), q(1, -1), { color: 'x', dx: 6, dy: 12 });
+      const f = inPlane(), t = v3();
+      V.line([0, 0, 0], f, { color: 'k', width: 1.5, dash: [3, 4], alpha: 0.6 });
+      if (!flat) {
+        V.line(f, t, { color: 'v', width: 2.5, dash: [5, 4] });
+        V.text('h = ' + M.fmt(Math.abs(h), 2), M.scale(M.add(f, t), 0.5), { color: 'v', dx: 8, dy: 0 });
+      }
+      V.point(f, { color: 'k', r: 3.5, alpha: 0.8 });
+      V.arrow([0, 0, 0], w1, { color: 'i', width: 3.5, label: 'v₁' });
+      V.arrow([0, 0, 0], w2, { color: 'j', width: 3.5, label: 'v₂' });
+      V.arrow([0, 0, 0], t, { color: 'k', width: 4, label: 'v₃' });
+    }
+    const ctr = document.getElementById('span3-controls');
+    const slA = ui.slider(ctr, { zh: 'a（v₁ 的份数）', en: 'a (parts of v₁)', min: -1, max: 1, step: 0.05, value: a, onInput: v => { a = v; sync(); } });
+    const slB = ui.slider(ctr, { zh: 'b（v₂ 的份数）', en: 'b (parts of v₂)', min: -1, max: 1, step: 0.05, value: b, onInput: v => { b = v; sync(); } });
+    const slH = ui.slider(ctr, { zh: 'h（离开平面）', en: 'h (out of plane)', min: -2, max: 2, step: 0.05, value: h, onInput: v => { h = v; sync(); } });
+    const bt = document.getElementById('span3-btns');
+    ui.button(bt, { zh: '放进平面', en: 'Into the plane', cls: 'sm', onClick: () => { h = 0; slH.set(0); sync(); } });
+    ui.button(bt, { zh: '拉出平面', en: 'Out of the plane', cls: 'sm', onClick: () => { h = 1.2; slH.set(1.2); sync(); } });
+    const tex = document.getElementById('span3-tex'), read = document.getElementById('span3-read');
+    function sync() {
+      const flat = Math.abs(h) < 0.03, det = nl * h;
+      R101.tex(tex, `\\ck{\\mathbf v_3} = \\underbrace{${M.tex(a, 2)}\\,\\ci{\\mathbf v_1}${signed(b, 2)}\\,\\cj{\\mathbf v_2}}_{\\text{${R101.t('平面内', 'in the plane')}}} + \\underbrace{${M.tex(h, 2)}\\,\\hat{\\mathbf n}}_{\\text{${R101.t('平面外', 'out of plane')}}}`);
+      read.innerHTML = `${L('到平面的距离', 'distance to the plane')} |h| = <b>${M.fmt(Math.abs(h), 2)}</b><br>` +
+        `${L('体积', 'box volume')} |det[v₁ v₂ v₃]| = <b>${M.fmt(Math.abs(det), 2)}</b><br>` +
+        (flat
+          ? `<b style="color:var(--c-good)">${L('v₃ 在平面内：三个向量线性相关，张成仍是这个平面（2 维）', 'v₃ is in the plane: the three are dependent, and the span is still this plane (2D)')}</b>`
+          : `<b style="color:var(--c-v)">${L('v₃ 伸出平面：三个向量线性无关，张成整个 ℝ³（3 维）', 'v₃ sticks out: the three are independent and span all of ℝ³ (3D)')}</b>` +
+            (Math.abs(h) < 0.3 ? `<br><span class="muted">${L('几乎相关：一点噪声就可能让结论翻转', 'nearly dependent: a little noise could flip the conclusion')}</span>` : ''));
+      if (flat) R101.done('flat3d');
+      V.invalidate();
+    }
+    R101.on('lang', sync);
+    sync();
+  })();
+
+  /* ---------------- FIG 6: CoreXY gantry ---------------- */
+  (function () {
+    const dA = [1, 1], dB = [1, -1], T = [3, 1], LIM = 3;
+    let ab = [-1, 1], fault = 'none', frozen = 0;
+    const pos = () => [ab[0] + ab[1], ab[0] - ab[1]];
+    const P = new R101.Plane2D('#cxy-canvas', { height: 430, view: { span: 15 }, draw, onChange: sync });
+    // closest the head can get to T given the fault state
+    function closest() {
+      let a = M.clamp((T[0] + T[1]) / 2, -LIM, LIM), b = M.clamp((T[0] - T[1]) / 2, -LIM, LIM);
+      if (fault === 'A') a = frozen; else if (fault === 'B') b = frozen;
+      return M.norm(M.sub(T, [a + b, a - b]));
+    }
+    function draw(P) {
+      P.grid({ color: 'grid', axisColor: 'grid-2' });
+      const ok = fault === 'none';
+      P.poly([[2 * LIM, 0], [0, 2 * LIM], [-2 * LIM, 0], [0, -2 * LIM]], { fill: 'x', fillAlpha: ok ? 0.08 : 0.025, stroke: 'x', alpha: 0.5, width: 1.2, dash: [5, 5] });
+      P.textPx(ok ? R101.t('可达：整个菱形（两个电机都正常）', 'reachable: the whole diamond (both motors OK)') : R101.t('可达：只剩一条线段', 'reachable: only a line segment'), 12, 18, { color: 'x', bold: true });
+      P.line([-9, -9], [9, 9], { color: 'i', alpha: 0.28, width: 1.5, dash: [2, 6] });
+      P.line([-9, 9], [9, -9], { color: 'j', alpha: 0.28, width: 1.5, dash: [2, 6] });
+      if (!ok) {
+        const f = fault === 'A' ? M.scale(dA, frozen) : M.scale(dB, frozen), d = fault === 'A' ? dB : dA;
+        P.line(M.sub(f, M.scale(d, LIM)), M.add(f, M.scale(d, LIM)), { color: 'x', width: 5, alpha: 0.85 });
+      }
+      P.circle(T, 0.26, { color: 'w', width: 2.4 });
+      P.text(R101.t('目标 (3, 1)', 'target (3, 1)'), T, { offset: [14, -14], color: 'w', bold: true });
+      const a = M.scale(dA, ab[0]), p = pos();
+      const jamA = fault === 'A', jamB = fault === 'B';
+      P.arrow([0, 0], a, { color: jamA ? 'bad' : 'i', width: 3, dash: [7, 5], alpha: 0.9, head: 10 });
+      P.arrow(a, p, { color: jamB ? 'bad' : 'j', width: 3, dash: [7, 5], alpha: 0.9, head: 10 });
+      if (M.norm(a) > 0.8) P.text((jamA ? R101.t('A 卡死 ', 'A jammed ') : 'A ') + 'α(1,1)', M.scale(a, 0.5), { color: jamA ? 'bad' : 'i', bold: true, offset: [-6, 18], size: 12, align: 'right' });
+      if (M.norm(M.sub(p, a)) > 0.8) P.text((jamB ? R101.t('B 卡死 ', 'B jammed ') : 'B ') + 'β(1,−1)', M.scale(M.add(a, p), 0.5), { color: jamB ? 'bad' : 'j', bold: true, offset: [10, -16], size: 12 });
+      // tool head
+      P.circle(p, 0.38, { fill: 'v', fillAlpha: 0.25, stroke: 'v', width: 2.2 });
+      P.line([p[0] - 0.55, p[1]], [p[0] + 0.55, p[1]], { color: 'v', width: 1.5 });
+      P.line([p[0], p[1] - 0.55], [p[0], p[1] + 0.55], { color: 'v', width: 1.5 });
+    }
+    P.handle({
+      pos, color: 'v', snap: 0.25,
+      set: q => {
+        const a = (q[0] + q[1]) / 2, b = (q[0] - q[1]) / 2;
+        if (fault !== 'A') ab[0] = M.clamp(a, -LIM, LIM);
+        if (fault !== 'B') ab[1] = M.clamp(b, -LIM, LIM);
+      }
+    });
+    const ctr = document.getElementById('cxy-controls');
+    const slA = ui.slider(ctr, { zh: '电机 A（α）', en: 'motor A (α)', min: -LIM, max: LIM, step: 0.1, value: ab[0], fmt: v => M.fmt(v, 1), onInput: v => { if (fault === 'A') slA.set(frozen); else { ab[0] = v; sync(); } } });
+    const slB = ui.slider(ctr, { zh: '电机 B（β）', en: 'motor B (β)', min: -LIM, max: LIM, step: 0.1, value: ab[1], fmt: v => M.fmt(v, 1), onInput: v => { if (fault === 'B') slB.set(frozen); else { ab[1] = v; sync(); } } });
+    ui.seg(document.getElementById('cxy-seg'), [
+      { value: 'none', zh: '正常', en: 'Healthy' }, { value: 'A', zh: '电机 A 卡死', en: 'A jammed' }, { value: 'B', zh: '电机 B 卡死', en: 'B jammed' }
+    ], fault, v => { fault = v; frozen = v === 'A' ? ab[0] : v === 'B' ? ab[1] : 0; sync(); });
+    const tex = document.getElementById('cxy-tex'), read = document.getElementById('cxy-read');
+    function sync() {
+      slA.set(ab[0]); slB.set(ab[1]);
+      const p = pos(), dist = closest();
+      R101.tex(tex, `\\cv{\\mathbf p} = ${M.tex(ab[0], 1)}\\,\\ci{\\begin{bmatrix}1\\\\1\\end{bmatrix}}${signed(ab[1])}\\,\\cj{\\begin{bmatrix}1\\\\-1\\end{bmatrix}} = \\cv{${tv(p)}}`);
+      const faultTxt = fault === 'none' ? L('两个电机正常：张成 = 整个平面', 'both motors healthy: span = the whole plane')
+        : `<span style="color:var(--c-bad)">${L(`电机 ${fault} 卡死：张成 = 一条线`, `motor ${fault} jammed: span = a line`)}</span>`;
+      read.innerHTML = `${faultTxt}<br>` +
+        `${L('打印头', 'head')} = ${pair(p, 2)}<br>` +
+        `${L('最近能到离目标', 'closest approach to target')} = <b style="color:var(--c-${dist < 0.15 ? 'good' : 'bad'})">${M.fmt(dist, 2)}</b>`;
+      if (fault === 'none' && M.norm(M.sub(p, T)) < 0.13) R101.done('xy_target');
+      if (fault !== 'none' && dist > 0.5) R101.done('xy_jam');
+      if (fault !== 'none' && M.norm(M.sub(p, T)) < 0.13) R101.done('xy_lucky');
+      P.invalidate();
+    }
+    R101.on('lang', sync);
+    sync();
+  })();
+
+  /* ---------------- FIG 7: differential drive vs omni ---------------- */
+  (function () {
+    let mode = 'diff', d = [1.5, 1.8], om = 0.6;
+    const P = new R101.Plane2D('#dd-canvas', { height: 400, view: { span: 8 }, draw, onChange: sync });
+    const got = () => (mode === 'diff' ? [d[0], 0] : d.slice());
+    const rect = (cx, cy, hl, hw, ang) => { const c = Math.cos(ang || 0), s = Math.sin(ang || 0); return [[-hl, -hw], [hl, -hw], [hl, hw], [-hl, hw]].map(q => [cx + q[0] * c - q[1] * s, cy + q[0] * s + q[1] * c]); };
+    function draw(P) {
+      P.grid({ color: 'grid', axisColor: 'grid-2' });
+      P.poly(rect(0, 0, 0.55, 0.38), { fill: 'x', fillAlpha: 0.22, stroke: 'x', width: 1.6 });
+      if (mode === 'diff') {
+        [0.5, -0.5].forEach(y => P.poly(rect(0, y, 0.3, 0.07), { fill: 'text-2', fillAlpha: 0.7, stroke: 'text-2', width: 1 }));
+        P.point([-0.42, 0], { color: 'text-2', r: 3 });
+      } else {
+        [[0.38, 0.5, 1], [0.38, -0.5, -1], [-0.38, 0.5, -1], [-0.38, -0.5, 1]].forEach(([x, y, sg]) => {
+          P.poly(rect(x, y, 0.2, 0.07), { fill: 'text-2', fillAlpha: 0.7, stroke: 'text-2', width: 1 });
+          P.line([x - 0.1, y - 0.1 * sg], [x + 0.1, y + 0.1 * sg], { color: 'canvas', width: 1.5 });
+        });
+      }
+      P.arrow([0, 0], [1.5, 0], { color: 'i', width: 3, alpha: 0.9, label: 'x_r', labelOffset: [8, 12] });
+      P.arrow([0, 0], [0, 1.1], { color: 'j', width: 3, alpha: 0.9, label: 'y_r' });
+      // desired and achieved translational velocity
+      const g = got();
+      P.arrow([0, 0], d, { color: 'w', width: 2.5, dash: [6, 5], alpha: 0.9, head: 10, label: R101.t('想要', 'wanted'), labelOffset: [10, -10] });
+      if (mode === 'diff' && Math.abs(d[1]) > 0.15) {
+        P.line(g, d, { color: 'bad', width: 2, dash: [3, 4] });
+        P.text(R101.t('横向被吃掉', 'sideways lost'), M.scale(M.add(g, d), 0.5), { color: 'bad', bold: true, offset: [12, 0] });
+      }
+      if (M.norm(g) > 0.05) P.arrow([0, 0], g, { color: 'v', width: 4.5, label: R101.t('做得到', 'achieved'), labelOffset: [10, 14] });
+      // spin arc
+      if (Math.abs(om) > 0.05) {
+        const sg = om > 0 ? 1 : -1, r = 0.95, a0 = 2.2, a1 = a0 + sg * Math.min(2.4, Math.abs(om) * 2.2), arc = [];
+        for (let k = 0; k <= 24; k++) { const t = a0 + (a1 - a0) * k / 24; arc.push([r * Math.cos(t), r * Math.sin(t)]); }
+        P.path(arc, { color: 'k', width: 3 });
+        P.arrow(arc[22], arc[24], { color: 'k', width: 3, head: 11 });
+        P.text('ω', [1.25 * Math.cos(a0), 1.25 * Math.sin(a0)], { color: 'k', bold: true });
+      }
+    }
+    P.handle({ pos: () => d, color: 'w', snap: 0.25, set: q => { d = clampV(q, 3.6); } });
+    const ctr = document.getElementById('dd-controls');
+    ui.slider(ctr, { zh: '转动 ω', en: 'spin ω', min: -1, max: 1, step: 0.05, value: om, fmt: v => M.fmt(v, 2), onInput: v => { om = v; sync(); } });
+    ui.seg(document.getElementById('dd-seg'), [{ value: 'diff', zh: '差速', en: 'Differential' }, { value: 'omni', zh: '全向轮', en: 'Omni wheels' }], mode, v => { mode = v; sync(); });
+    const tex = document.getElementById('dd-tex'), read = document.getElementById('dd-read');
+    function sync() {
+      const g = got();
+      if (mode === 'diff') {
+        R101.tex(tex, `\\begin{bmatrix}v_x\\\\v_y\\\\\\omega\\end{bmatrix} = ${M.tex(g[0], 2)}\\,\\ci{\\begin{bmatrix}1\\\\0\\\\0\\end{bmatrix}} + ${M.tex(om, 2)}\\,\\ck{\\begin{bmatrix}0\\\\0\\\\1\\end{bmatrix}}`);
+      } else {
+        R101.tex(tex, `\\begin{bmatrix}v_x\\\\v_y\\\\\\omega\\end{bmatrix} = ${M.tex(g[0], 2)}\\,\\ci{\\begin{bmatrix}1\\\\0\\\\0\\end{bmatrix}}${signed(g[1], 2)}\\,\\cj{\\begin{bmatrix}0\\\\1\\\\0\\end{bmatrix}}${signed(om, 2)}\\,\\ck{\\begin{bmatrix}0\\\\0\\\\1\\end{bmatrix}}`);
+      }
+      read.innerHTML = mode === 'diff'
+        ? `${L('两个方向的张成：ℝ³ 里的一个<b>平面</b>（2 维）', 'two directions span a <b>plane</b> inside ℝ³ (2D)')}<br>${L('想要', 'wanted')} v = ${pair(d, 2)}<br>${L('做得到', 'achieved')} v = ${pair(g, 2)}`
+        : `${L('三个方向的张成：整个 ℝ³（3 维）', 'three directions span all of ℝ³ (3D)')}<br>${L('想要', 'wanted')} v = ${pair(d, 2)}<br>${L('做得到', 'achieved')} v = ${pair(g, 2)}`;
+      if (mode === 'diff' && Math.abs(d[1]) > 1.5 && Math.abs(d[0]) < 0.3) R101.done('diffside');
+      if (mode === 'omni' && Math.abs(d[1]) > 1.5 && Math.abs(d[0]) < 0.3) R101.done('omniside');
+      P.invalidate();
+    }
+    R101.on('lang', sync);
+    sync();
+  })();
+});
+</script>
+</body>
+</html>

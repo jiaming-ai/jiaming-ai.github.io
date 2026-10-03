@@ -1,0 +1,934 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-theme="dark" data-lang-ui="zh">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>1.4 矩阵乘法即复合 · Robotics for Beginners</title>
+<meta name="description" content="An interactive, intuition-first lesson: a matrix product is one transformation followed by another. Order matters, the row-times-column rule is just bookkeeping, and chains of robot frames collapse into a single matrix.">
+<link rel="icon" href="../../favicon.svg" type="image/svg+xml">
+<script>(function(){var d=document.documentElement,t='dark',l=null;try{t=localStorage.getItem('theme')||'dark'}catch(e){}d.setAttribute('data-theme',t);try{l=new URLSearchParams(location.search).get('lang')||localStorage.getItem('lang')}catch(e){}if(l!=='zh'&&l!=='en')l=(navigator.language||'').toLowerCase().indexOf('zh')===0?'zh':'en';d.setAttribute('data-lang-ui',l);d.lang=l==='zh'?'zh-CN':'en';})();</script>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.22/dist/katex.min.css">
+<link rel="stylesheet" href="../assets/course.css">
+</head>
+<body data-page="1.4" data-root=".." data-title-zh="1.4 矩阵乘法即复合 · Robotics for Beginners" data-title-en="1.4 Matrix Multiplication as Composition · Robotics for Beginners">
+<div class="r101-layout">
+<aside class="r101-side" id="r101-side"></aside>
+<main class="r101-main">
+<article class="lesson">
+
+<header class="lesson-head">
+  <div class="eyebrow"><span data-lang="zh">Part I · 第 1 章 线性代数 · 1.4</span><span data-lang="en">Part I · Ch. 1 Linear Algebra · 1.4</span></div>
+  <h1><span data-lang="zh">矩阵乘法即复合</span><span data-lang="en">Matrix Multiplication as Composition</span></h1>
+  <p class="lede">
+    <span data-lang="zh">机器人是一串坐标系：世界、底盘、云台、相机。从一个坐标系走到下一个，是一次变换；走完整条链，是把这些变换<b>一个接一个</b>做下去。矩阵乘法 \(AB\) 的本意正是这个：先做 B，再做 A，合成一个新的变换。"行乘列"只是算它的记账法。顺序一换，结果就变。</span>
+    <span data-lang="en">A robot is a chain of frames: world, base, pan-tilt head, camera. Going from one frame to the next is one transformation; going down the whole chain is doing them <b>one after another</b>. That is what the matrix product \(AB\) means: do B first, then A, as one new transformation. "Row times column" is only the bookkeeping for computing it. Swap the order and the answer changes.</span>
+  </p>
+  <div class="lesson-meta">
+    <span class="chip"><span data-lang="zh">约 25 分钟</span><span data-lang="en">~25 min</span></span>
+    <span class="chip"><span data-lang="zh">前置：1.3 矩阵即变换</span><span data-lang="en">Prereqs: 1.3 Matrices as Transformations</span></span>
+    <span class="chip"><span data-lang="zh">7 个交互</span><span data-lang="en">7 interactives</span></span>
+  </div>
+  <ul class="toc-steps" id="step-toc"></ul>
+</header>
+
+<!-- ============ 1. WHY ============ -->
+<section class="step" id="why">
+  <h2><span class="n">1</span><span data-lang="zh">为什么机器人需要它</span><span data-lang="en">Why robots need this</span></h2>
+  <div data-lang="zh">
+    <p>想象一台移动机器人，底盘上立着一个云台，云台上装着相机。相机看到一个杯子，报告："杯子在我正前方 2.4 米、偏左 0.8 米。"可机械臂要的是杯子在<b>世界坐标系</b>里的位置。怎么换算？</p>
+    <p>先用云台相对相机的姿态，把读数换到云台坐标系；再用云台相对底盘的姿态，换到底盘坐标系；最后用底盘相对世界的姿态，换到世界坐标系。每一步是一个矩阵，一共三步。三步不必每次分开做，把它们<b>连乘</b>成一个矩阵，一次就够：</p>
+  </div>
+  <div data-lang="en">
+    <p>Picture a mobile robot with a pan-tilt head on its base and a camera on the head. The camera spots a cup and reports: "the cup is 2.4 m straight ahead and 0.8 m to my left." The arm, however, needs the cup in the <b>world frame</b>. How do you convert?</p>
+    <p>First use the camera's orientation relative to the head to move the reading into the head frame; then the head's orientation relative to the base to reach the base frame; finally the base's orientation relative to the world. Each step is one matrix, three steps in all. You do not have to apply them separately every time: <b>multiply</b> them into one matrix and a single step does it all:</p>
+  </div>
+  <div class="math-card">$$ {}^{W}R_{C} \;=\; {}^{W}R_{B}\;\;{}^{B}R_{H}\;\;{}^{H}R_{C} $$</div>
+  <div data-lang="zh">
+    <p>注意下标像多米诺骨牌一样"接龙"：相邻的 B 对 B、H 对 H 约掉，剩下最外面的 W 和 C。机械臂也是同一个套路：底座 → 肩 → 肘 → 腕 → 夹爪，一路连乘。</p>
+    <p>这条链里最容易出事的是<b>顺序</b>。写反了，程序不会崩溃，只会给出一个看起来合理、其实错了的位置，机器人则会伸手去抓空气。本节只讲旋转，平移要到 5.3 节才加进来。</p>
+  </div>
+  <div data-lang="en">
+    <p>Notice how the subscripts chain like dominoes: the neighbouring B's and H's cancel, leaving the outermost W and C. A robot arm follows the same pattern: base → shoulder → elbow → wrist → gripper, multiplied all the way down.</p>
+    <p>The treacherous part of this chain is the <b>order</b>. Write it backwards and nothing crashes; you just get a plausible-looking wrong position, and the robot reaches for thin air. This lesson covers rotations only; translations join in Lesson 5.3.</p>
+  </div>
+</section>
+
+<!-- ============ 2. INTUITION ============ -->
+<section class="step" id="intuition">
+  <h2><span class="n">2</span><span data-lang="zh">直觉：先 B，再 A，合成一个变换</span><span data-lang="en">Intuition: first B, then A, as one transformation</span></h2>
+  <div data-lang="zh">
+    <p>上一节学到：矩阵是一个动作，它由 <span class="ci">î</span> 和 <span class="cj">ĵ</span> 的落点决定。现在做两个动作：先用 \(B\) 把空间变形，再用 \(A\) 把变形后的空间再变形一次。两步合起来仍然是一个线性变换（直线仍是直线，原点不动），所以它也有一个矩阵。这个矩阵怎么找？跟上一节一样：<b>追踪 <span class="ci">î</span> 和 <span class="cj">ĵ</span> 的去向</b>。</p>
+    <p>下图中，\(B\) 是逆时针转 90°，\(A\) 是水平剪切。用下面的切换键一步步看。拖动黄色向量，也可以看它被先后推到哪里。</p>
+  </div>
+  <div data-lang="en">
+    <p>Last lesson: a matrix is an action, fixed by where <span class="ci">î</span> and <span class="cj">ĵ</span> land. Now do two actions: first deform space with \(B\), then deform the deformed space again with \(A\). The two steps together are still a linear transformation (lines stay lines, the origin stays put), so they have a matrix too. How do we find it? Exactly as before: <b>track where <span class="ci">î</span> and <span class="cj">ĵ</span> go</b>.</p>
+    <p>In the figure, \(B\) is a 90° counter-clockwise rotation and \(A\) is a horizontal shear. Step through it with the switch. Drag the amber vector to see where it is pushed at each stage.</p>
+  </div>
+
+  <figure class="fig" id="fig-steps">
+    <div class="fig-head"><span class="fig-kind">FIG 1</span><span class="fig-title"><span data-lang="zh">两步合成一步</span><span data-lang="en">Two steps, one matrix</span></span><span class="spacer"></span><span id="c1-seg"></span></div>
+    <div class="fig-body split">
+      <div class="canvas-wrap" id="c1-canvas"></div>
+      <div class="fig-side">
+        <div class="small muted"><span data-lang="zh">基向量的旅程</span><span data-lang="en">The journey of the basis vectors</span></div>
+        <div class="katex-live" id="c1-tex-i"></div>
+        <div class="katex-live" id="c1-tex-j"></div>
+        <div class="small muted"><span data-lang="zh">黄色向量</span><span data-lang="en">The amber vector</span></div>
+        <div class="katex-live" id="c1-tex-v"></div>
+        <div class="katex-live" id="c1-tex-m"></div>
+      </div>
+    </div>
+    <figcaption class="fig-cap">
+      <span data-lang="zh">淡色网格是原始网格，亮色网格是做完当前步骤后的样子。红、绿箭头是 <span class="ci">î</span>、<span class="cj">ĵ</span> 当前的位置；虚线箭头是黄色向量在前几步的位置。到最后一步，两个箭头的坐标并排写下来，就是 \(AB\)。</span>
+      <span data-lang="en">The faint grid is the original; the bright grid is the result after the current step. The red and green arrows are where <span class="ci">î</span> and <span class="cj">ĵ</span> are right now; dashed arrows show the amber vector at earlier stages. At the last step, the coordinates of the two arrows written side by side are \(AB\).</span>
+    </figcaption>
+  </figure>
+
+  <div data-lang="zh">
+    <p>看右边的记录。<span class="ci">î</span> 先被 \(B\) 送到 \(B\hat\imath\)（就是 \(B\) 的第 1 列），再被 \(A\) 送到 \(A(B\hat\imath)\)。<span class="cj">ĵ</span> 同理。所以：</p>
+  </div>
+  <div data-lang="en">
+    <p>Read the record on the right. <span class="ci">î</span> is first sent by \(B\) to \(B\hat\imath\) (which is just column 1 of \(B\)), then by \(A\) to \(A(B\hat\imath)\). Same story for <span class="cj">ĵ</span>. Hence:</p>
+  </div>
+  <div class="callout key">
+    <div class="ct"><span data-lang="zh">核心洞见</span><span data-lang="en">Key insight</span></div>
+    <p data-lang="zh">\(AB\) 是"先做 B，再做 A"的矩阵。它的第 \(j\) 列，是 \(A\) 作用在 \(B\) 的第 \(j\) 列上的结果。<b>从右往左读</b>：和函数复合 \(f(g(x))\) 一样，离向量最近的那个最先作用。</p>
+    <p data-lang="en">\(AB\) is the matrix of "do B, then A". Its column \(j\) is \(A\) applied to column \(j\) of \(B\). <b>Read right to left</b>: just like function composition \(f(g(x))\), the matrix nearest the vector acts first.</p>
+  </div>
+</section>
+
+<!-- ============ 3. PLAY ============ -->
+<section class="step" id="play">
+  <h2><span class="n">3</span><span data-lang="zh">动手玩：复合实验室</span><span data-lang="en">Play: the composition lab</span></h2>
+  <p data-lang="zh">现在你来选 \(A\) 和 \(B\)。改矩阵里的数（左右拖动数字可以连续调节），或点下面的预设。"先 B 后 A" 给出 \(AB\)，"先 A 后 B" 给出 \(BA\)。点 ▶ 播放：网格先从单位网格变成第一步的样子，再变成最终的样子。</p>
+  <p data-lang="en">Now you choose \(A\) and \(B\). Edit the entries (drag a number sideways to scrub it) or click a preset below. "B then A" gives \(AB\); "A then B" gives \(BA\). Press ▶ to play: the grid first turns from the plain grid into the result of step one, then into the final result.</p>
+
+  <figure class="fig bleed" id="fig-lab">
+    <div class="fig-head"><span class="fig-kind">FIG 2</span><span class="fig-title"><span data-lang="zh">复合实验室</span><span data-lang="en">Composition lab</span></span><span class="spacer"></span><span id="lab-seg"></span><button class="btn sm" id="lab-play">▶ <span data-lang="zh">播放</span><span data-lang="en">Play</span></button></div>
+    <div class="fig-body split">
+      <div class="canvas-wrap" id="lab-canvas"></div>
+      <div class="fig-side">
+        <div><div class="small muted"><span data-lang="zh">矩阵 A</span><span data-lang="en">Matrix A</span></div><div id="lab-matA"></div></div>
+        <div><div class="small muted"><span data-lang="zh">矩阵 B</span><span data-lang="en">Matrix B</span></div><div id="lab-matB"></div></div>
+        <div class="katex-live" id="lab-tex"></div>
+        <div class="katex-live" id="lab-tex2"></div>
+        <div class="readout" id="lab-read"></div>
+      </div>
+    </div>
+    <div class="fig-controls" id="lab-ctrl"></div>
+    <div class="fig-controls" style="flex-direction:column;align-items:flex-start;gap:8px">
+      <div style="display:flex;flex-wrap:wrap;gap:6px;align-items:center"><b class="small muted" style="min-width:3.2em"><span data-lang="zh">A 预设</span><span data-lang="en">A presets</span></b><div class="presets" id="lab-pa"></div></div>
+      <div style="display:flex;flex-wrap:wrap;gap:6px;align-items:center"><b class="small muted" style="min-width:3.2em"><span data-lang="zh">B 预设</span><span data-lang="en">B presets</span></b><div class="presets" id="lab-pb"></div></div>
+    </div>
+    <figcaption class="fig-cap">
+      <span data-lang="zh">淡色网格是原始网格；青色亮网格是做完当前步骤后的网格，红、绿箭头是 <span class="ci">î</span>、<span class="cj">ĵ</span> 此刻的位置。进度条拖到最右端时，紫色虚线是<b>另一种顺序</b>的结果。把鼠标悬停在"再看数学"一节的符号 A、B、AB 上，这里会单独画出对应的网格。</span>
+      <span data-lang="en">The faint grid is the original; the bright cyan grid is the result after the steps so far, and the red and green arrows are where <span class="ci">î</span> and <span class="cj">ĵ</span> are right now. With the progress bar at the far right, the dashed purple grid is the result of the <b>other order</b>. Hover the symbols A, B, AB in "The math" section and the matching grid is drawn alone here.</span>
+    </figcaption>
+  </figure>
+
+  <div class="tasks-title"><span data-lang="zh">试一试</span><span data-lang="en">Try this</span></div>
+  <ul class="tasks">
+    <li data-task="noncomm"><span><span data-lang="zh">改动至少一个矩阵，让 \(AB \ne BA\)（很容易），然后切换"先 B 后 A / 先 A 后 B"，看两个最终网格不一样。</span><span data-lang="en">Change at least one matrix so that \(AB \ne BA\) (easy), then flip between "B then A" and "A then B" and watch the two final grids differ.</span></span></li>
+    <li data-task="commute"><span><span data-lang="zh">找两个<b>可交换</b>的矩阵（\(AB = BA\)）：两个都不是单位矩阵，且 \(A \ne B\)。提示：两个旋转？两个只沿坐标轴拉伸的矩阵？</span><span data-lang="en">Find two matrices that <b>commute</b> (\(AB = BA\)): neither is the identity, and \(A \ne B\). Hint: two rotations? Two matrices that only stretch along the axes?</span></span></li>
+    <li data-task="inverse"><span><span data-lang="zh">让 \(AB = I\)，而 A、B 都不是单位矩阵。这时 B 恰好把 A 撤销了（1.6 节的主题）。提示：拉伸用反向拉伸撤销，旋转用转回去撤销。</span><span data-lang="en">Make \(AB = I\) with neither A nor B the identity. Now B exactly undoes A (the topic of Lesson 1.6). Hint: undo a stretch by stretching back; undo a rotation by rotating back.</span></span></li>
+    <li data-task="zero"><span><span data-lang="zh">让 \(AB = 0\)（四个数全为 0），而 A、B 都不是零矩阵。提示：先把平面压成一条线，再把剩下的那条线压成一个点。</span><span data-lang="en">Make \(AB = 0\) (all four entries zero) although neither A nor B is the zero matrix. Hint: squash the plane onto a line, then squash what is left of that line to a point.</span></span></li>
+  </ul>
+
+  <h3><span data-lang="zh">小游戏：这是 AB 还是 BA？</span><span data-lang="en">Mini-game: is this AB or BA?</span></h3>
+  <p data-lang="zh">给你两个矩阵 \(A\) 和 \(B\)，以及<b>其中一种顺序</b>的最终网格（紫色虚线）。判断它是 \(AB\) 还是 \(BA\)。诀窍：只看 <span class="ci">î</span> 去了哪里，也就是乘积的第 1 列。连续答对 4 题。</p>
+  <p data-lang="en">You get two matrices \(A\) and \(B\), and the final grid of <b>one of the two orders</b> (dashed purple). Decide whether it is \(AB\) or \(BA\). The trick: look only at where <span class="ci">î</span> lands, i.e. the first column of the product. Get 4 in a row.</p>
+  <figure class="fig" id="fig-detect">
+    <div class="fig-head"><span class="fig-kind">FIG 3</span><span class="fig-title"><span data-lang="zh">AB 还是 BA？</span><span data-lang="en">AB or BA?</span></span><span class="spacer"></span><span class="readout" id="dt-score"></span></div>
+    <div class="fig-body split">
+      <div class="canvas-wrap" id="dt-canvas"></div>
+      <div class="fig-side">
+        <div class="katex-live" id="dt-tex"></div>
+        <div class="small" id="dt-names"></div>
+        <div class="presets" id="dt-ans"></div>
+        <div id="dt-msg" class="small"></div>
+        <div class="presets"><button class="btn sm primary" id="dt-next"><span data-lang="zh">下一题</span><span data-lang="en">Next</span></button></div>
+      </div>
+    </div>
+  </figure>
+  <ul class="tasks"><li data-task="detective"><span><span data-lang="zh">连续答对 4 题。</span><span data-lang="en">Get 4 right in a row.</span></span></li></ul>
+</section>
+
+<!-- ============ 4. SECOND VIEW: ROW x COLUMN ============ -->
+<section class="step" id="rowcol">
+  <h2><span class="n">4</span><span data-lang="zh">第二种视角："行乘列"从哪里来</span><span data-lang="en">A second view: where "row times column" comes from</span></h2>
+  <style>
+    .mxs { display: grid; grid-template-columns: auto auto; gap: 8px 26px; justify-content: center; padding: 22px 12px; }
+    .mxb { display: flex; flex-direction: column; align-items: center; gap: 4px; }
+    .mxb .cap { font-size: 12.5px; color: var(--fg-3); font-family: 'JetBrains Mono', monospace; }
+    .mx { display: grid; grid-template-columns: repeat(2, 58px); gap: 4px; padding: 4px 9px; position: relative; }
+    .mx::before, .mx::after { content: ''; position: absolute; top: 0; bottom: 0; width: 6px; border: 2px solid var(--fg-2); }
+    .mx::before { left: 0; border-right: 0; border-radius: 4px 0 0 4px; }
+    .mx::after { right: 0; border-left: 0; border-radius: 0 4px 4px 0; }
+    .mx span { height: 38px; display: flex; align-items: center; justify-content: center; border-radius: 6px; font-family: 'JetBrains Mono', monospace; font-size: 15px; border: 1px solid transparent; }
+    .mx span.r { background: color-mix(in srgb, var(--c-x) 22%, transparent); border-color: var(--c-x); }
+    .mx span.c { background: color-mix(in srgb, var(--c-w) 22%, transparent); border-color: var(--c-w); }
+    .mx.prod span { cursor: pointer; border-color: var(--border-2); }
+    .mx.prod span:hover { border-color: var(--c-v); }
+    .mx.prod span.sel { background: color-mix(in srgb, var(--c-v) 26%, transparent); border-color: var(--c-v); color: var(--c-v); font-weight: 600; }
+    @media (max-width: 480px) { .mx { grid-template-columns: repeat(2, 50px); } .mxs { gap: 8px 14px; padding: 16px 4px; } }
+  </style>
+  <div data-lang="zh">
+    <p>课本上的乘法口诀是"第 \(i\) 行乘第 \(j\) 列，对应相乘再相加"。有了上面的图景，这条口诀不再神秘：它只是把"\(A\) 作用在 \(B\) 的第 \(j\) 列上"这件事，一个数一个数地算出来。</p>
+    <p>在下面的表里，把鼠标移到（或点击）乘积 \(AB\) 的任意一格。左边会高亮 \(A\) 的那一行，上边高亮 \(B\) 的那一列，右边列出它们的"对应相乘再相加"。同一格也可以按<b>列视角</b>读：乘积的整个第 \(j\) 列，是 \(A\) 的各列按 \(B\) 的第 \(j\) 列的数配比后的组合。两种读法，同一个数。</p>
+  </div>
+  <div data-lang="en">
+    <p>Textbooks teach "multiply row \(i\) by column \(j\), matching entries, then add." With the picture above this rule stops being mysterious: it is just the number-by-number way of computing "\(A\) applied to column \(j\) of \(B\)."</p>
+    <p>In the table below, hover (or tap) any cell of the product \(AB\). The matching row of \(A\) lights up on the left, the matching column of \(B\) on top, and the side panel lists "multiply matching entries and add." The same cell can also be read in the <b>column view</b>: the whole column \(j\) of the product is a combination of the columns of \(A\), mixed in the proportions given by column \(j\) of \(B\). Two readings, one number.</p>
+  </div>
+
+  <figure class="fig" id="fig-table">
+    <div class="fig-head"><span class="fig-kind">FIG 4</span><span class="fig-title"><span data-lang="zh">乘积表</span><span data-lang="en">The product table</span></span><span class="spacer"></span><span class="readout" id="tb-visits"></span></div>
+    <div class="fig-body split">
+      <div id="tb-stage" style="background:var(--c-canvas)"></div>
+      <div class="fig-side">
+        <div class="small muted"><span data-lang="zh">行乘列：对应相乘再相加</span><span data-lang="en">Row times column: multiply matching entries and add</span></div>
+        <div class="katex-live" id="tb-tex1"></div>
+        <div class="small muted"><span data-lang="zh">列视角：A 作用在 B 的这一列上</span><span data-lang="en">Column view: A applied to this column of B</span></div>
+        <div class="katex-live" id="tb-tex2"></div>
+      </div>
+    </div>
+    <div class="fig-controls" id="tb-ctrl">
+      <div style="display:flex;align-items:center;gap:8px"><b>A</b><div id="tb-edA"></div></div>
+      <div style="display:flex;align-items:center;gap:8px"><b>B</b><div id="tb-edB"></div></div>
+      <span class="small muted"><span data-lang="zh">和 FIG 2 共用同一对矩阵，这里改了那里也变。</span><span data-lang="en">These are the same A and B as in FIG 2: edit here and the lab changes too.</span></span>
+    </div>
+    <figcaption class="fig-cap">
+      <span data-lang="zh">青色是 \(A\) 的第 \(i\) 行，紫色是 \(B\) 的第 \(j\) 列，黄色是它们算出的那一格。表的摆法让每个乘积格的"行"在它左边，"列"在它上边，一眼就能对上。</span>
+      <span data-lang="en">Cyan is row \(i\) of \(A\), purple is column \(j\) of \(B\), amber is the cell they produce. The table is laid out so each product cell has its row to the left and its column above, so the match is easy to see.</span>
+    </figcaption>
+  </figure>
+  <ul class="tasks"><li data-task="cells"><span><span data-lang="zh">把乘积 \(AB\) 的四个格子都看一遍。</span><span data-lang="en">Visit all four cells of the product \(AB\).</span></span></li></ul>
+
+  <div class="callout view">
+    <div class="ct"><span data-lang="zh">实际计算时怎么选</span><span data-lang="en">Which reading to use in practice</span></div>
+    <p data-lang="zh">手算或写循环时，用"行乘列"最顺手：每个数独立，互不依赖。想弄明白一个乘积<b>做了什么</b>时，用"列视角"：每一列是一个基向量的落点。机器人里要排查坐标系链的时候，也是追着一个向量一步步看它落在哪个坐标系。</p>
+    <p data-lang="en">When computing by hand or writing loops, "row times column" is the handiest: every entry is independent. When you want to understand <b>what</b> a product does, use the column view: each column is where a basis vector lands. When debugging a chain of frames you do the same thing: follow one vector and see which frame it lands in at each step.</p>
+  </div>
+</section>
+
+<!-- ============ 5. THIRD VIEW: 3D ============ -->
+<section class="step" id="order3d">
+  <h2><span class="n">5</span><span data-lang="zh">第三种视角：到了三维，顺序更要紧</span><span data-lang="en">A third view: in 3D, order matters even more</span></h2>
+  <div data-lang="zh">
+    <p>拿一本书放在桌上。先绕 x 轴转 90°，再绕 z 轴转 90°，书最后朝哪边？反过来，先绕 z 再绕 x，会一样吗？下图把两种顺序并排放在一起。书的六个面按"垂直于哪根轴"着色：红色垂直于 x 轴（短的两端），绿色垂直于 y 轴（长边），蓝色垂直于 z 轴（封面和封底）。琥珀色边框是封面。</p>
+    <p>两次旋转都是绕<b>固定的世界坐标轴</b>转的，所以每做一步，就把新矩阵乘在<b>左边</b>：先绕 x 再绕 z，矩阵是 \(R_z R_x\)。</p>
+  </div>
+  <div data-lang="en">
+    <p>Put a book on a table. Rotate it 90° about the x-axis, then 90° about the z-axis. Which way does it end up facing? Now do z first, then x. Is it the same? The figure shows both orders side by side. The six faces are coloured by which axis they are perpendicular to: red for x (the two short ends), green for y (the long edges), blue for z (front and back cover). The amber frame marks the front cover.</p>
+    <p>Both rotations are about the <b>fixed world axes</b>, so each new step multiplies on the <b>left</b>: x first, then z, gives \(R_z R_x\).</p>
+  </div>
+
+  <figure class="fig bleed" id="fig-book">
+    <div class="fig-head"><span class="fig-kind">FIG 5</span><span class="fig-title"><span data-lang="zh">同样两次转动，不同顺序</span><span data-lang="en">The same two turns, in different orders</span></span><span class="spacer"></span><button class="btn sm" id="bk-play">▶ <span data-lang="zh">播放</span><span data-lang="en">Play</span></button></div>
+    <div class="fig-body two">
+      <div class="canvas-wrap" id="bk-x"><span class="overlay-label"><span data-lang="zh">先绕 x，再绕 z：R<sub>z</sub>R<sub>x</sub></span><span data-lang="en">x first, then z: R<sub>z</sub>R<sub>x</sub></span></span></div>
+      <div class="canvas-wrap" id="bk-z"><span class="overlay-label"><span data-lang="zh">先绕 z，再绕 x：R<sub>x</sub>R<sub>z</sub></span><span data-lang="en">z first, then x: R<sub>x</sub>R<sub>z</sub></span></span></div>
+    </div>
+    <div class="fig-body two" style="border-top:1px solid var(--border)">
+      <div class="fig-side" style="border:0"><div class="katex-live" id="bk-tex1"></div></div>
+      <div class="fig-side" style="border-left:1px solid var(--border)"><div class="katex-live" id="bk-tex2"></div></div>
+    </div>
+    <div class="fig-controls" id="bk-ctrl"><span class="readout" id="bk-read" style="flex:1 1 100%"></span></div>
+    <figcaption class="fig-cap">
+      <span data-lang="zh">拖动画面可以转动视角（两张图同步）。进度条 0 到 1 是第一次转动，1 到 2 是第二次。两个角度默认都是 90°，也可以改。数学上两张图的最终姿态由下方两个矩阵给出。</span>
+      <span data-lang="en">Drag a canvas to orbit the view (both stay in sync). Progress 0 to 1 is the first turn, 1 to 2 the second. Both angles default to 90° but can be changed. The two final orientations are given by the matrices below the canvases.</span>
+    </figcaption>
+  </figure>
+  <ul class="tasks"><li data-task="commute3d"><span><span data-lang="zh">找一对角度（两个都至少 20°），让两种顺序的最终姿态<b>完全一样</b>。有且只有一种选法，想想为什么。</span><span data-lang="en">Find a pair of angles (both at least 20°) for which the two orders end in <b>exactly the same</b> orientation. There is just one choice; think about why.</span></span></li></ul>
+
+  <div class="callout key">
+    <div class="ct"><span data-lang="zh">核心洞见</span><span data-lang="en">Key insight</span></div>
+    <p data-lang="zh">平面里的旋转可交换：转 30° 再转 40°，和转 40° 再转 30°，都是转 70°。三维里的旋转一般<b>不</b>可交换：转轴不同，顺序就是内容的一部分。角度很小的时候两种顺序几乎一样（把两个角都拖到 5° 试试），角度大了差别才明显。机器人姿态的所有 bug，几乎都来自把这条忘了。</p>
+    <p data-lang="en">Rotations in the plane commute: 30° then 40° is the same as 40° then 30°, namely 70°. Rotations in 3D generally do <b>not</b>: with different axes, the order is part of the information. For tiny angles the two orders nearly agree (drag both to 5°), and the gap only shows up as angles grow. Nearly every robot-orientation bug comes from forgetting this.</p>
+  </div>
+</section>
+
+<!-- ============ 6. MATH ============ -->
+<section class="step" id="math">
+  <h2><span class="n">6</span><span data-lang="zh">再看数学</span><span data-lang="en">The math</span></h2>
+  <p class="hl-hint"><span data-lang="zh">提示：把鼠标悬停在公式中带底色的 A、B、AB 上，FIG 2 会单独画出对应的网格。</span><span data-lang="en">Tip: hover the highlighted A, B and AB in the formulas; FIG 2 draws that grid alone.</span></p>
+
+  <h3><span data-lang="zh">定义：先 B，后 A</span><span data-lang="en">Definition: first B, then A</span></h3>
+  <p data-lang="zh">乘积 \(AB\) 是这样一个矩阵：对每个向量 \(\mathbf v\)，</p>
+  <p data-lang="en">The product \(AB\) is the matrix for which, for every vector \(\mathbf v\),</p>
+  <div class="math-card">$$ \hl{AB}{(AB)}\,\mathbf v \;=\; \hl{A}{A}\,\bigl(\hl{B}{B}\,\mathbf v\bigr). $$</div>
+  <p data-lang="zh">它存在而且唯一：两个线性变换复合后仍是线性变换，而线性变换由 \(\hat\imath,\hat\jmath\) 的落点唯一决定。</p>
+  <p data-lang="en">It exists and is unique: composing two linear maps gives a linear map, and a linear map is determined by where \(\hat\imath,\hat\jmath\) land.</p>
+
+  <h3><span data-lang="zh">一列一列算，以及单个数的公式</span><span data-lang="en">Column by column, and the entry formula</span></h3>
+  <p data-lang="zh">把 \(\hat\imath\) 代入定义：\((AB)\hat\imath = A(B\hat\imath) = A\mathbf b_1\)，其中 \(\mathbf b_1\) 是 \(B\) 的第 1 列。对 \(\hat\jmath\) 同理。所以</p>
+  <p data-lang="en">Plug \(\hat\imath\) into the definition: \((AB)\hat\imath = A(B\hat\imath) = A\mathbf b_1\), where \(\mathbf b_1\) is column 1 of \(B\). Likewise for \(\hat\jmath\). So</p>
+  <div class="math-card">$$ AB = A\,[\,\ci{\mathbf b_1}\;\;\cj{\mathbf b_2}\,] = [\,\ci{A\mathbf b_1}\;\;\cj{A\mathbf b_2}\,]. $$</div>
+  <p data-lang="zh">再把 \(A\mathbf b_j\) 按"行视角"展开（1.3 节），第 \(i\) 个分量是 \(A\) 的第 \(i\) 行与 \(\mathbf b_j\) 对应相乘再相加：</p>
+  <p data-lang="en">Now expand \(A\mathbf b_j\) with the row view (Lesson 1.3): its \(i\)-th entry is row \(i\) of \(A\) times \(\mathbf b_j\), matching entries multiplied and added:</p>
+  <div class="math-card">$$ (AB)_{ij} \;=\; \sum_{k=1}^{n} a_{ik}\,b_{kj} \;=\; a_{i1}b_{1j} + a_{i2}b_{2j} + \dots + a_{in}b_{nj}. $$</div>
+
+  <h3><span data-lang="zh">形状：内维必须相同</span><span data-lang="en">Shapes: the inner dimensions must match</span></h3>
+  <div class="math-card">$$ \underbrace{A}_{m\times n}\;\underbrace{B}_{n\times p} \;=\; \underbrace{AB}_{m\times p}. $$</div>
+  <div data-lang="zh">
+    <p>\(B\) 把 \(\R^p\) 里的向量送到 \(\R^n\)，\(A\) 再把 \(\R^n\) 里的向量送到 \(\R^m\)。能接起来的前提是：<b>\(B\) 的输出空间必须正好是 \(A\) 的输入空间</b>，也就是两个 \(n\) 要相等。例如相机投影 \(A\)（\(2\times 3\)：三维点到二维像素）乘一个 \(3\times 3\) 的旋转 \(B\)，得到 \(2\times 3\) 的"先转再投影"；反过来 \(BA\) 没有意义，因为投影的输出是二维，而旋转要吃三维。</p>
+  </div>
+  <div data-lang="en">
+    <p>\(B\) sends vectors of \(\R^p\) to \(\R^n\); \(A\) then sends vectors of \(\R^n\) to \(\R^m\). The two can only be chained if <b>the output space of \(B\) is exactly the input space of \(A\)</b>, i.e. the two \(n\)'s agree. For example a camera projection \(A\) (\(2\times 3\): 3D point to 2D pixel) times a \(3\times 3\) rotation \(B\) gives a \(2\times 3\) "rotate, then project"; \(BA\) makes no sense, because the projection outputs 2D while the rotation expects 3D.</p>
+  </div>
+
+  <h3><span data-lang="zh">结合律：怎么加括号都一样</span><span data-lang="en">Associativity: grouping does not matter</span></h3>
+  <div class="math-card">$$ A(BC) = (AB)C. $$</div>
+  <div data-lang="zh">
+    <p>两边都表示"先 C，再 B，最后 A"。不需要逐项验算，只需看懂两边在做同一件事。机器人里它很有用：可以提前把不变的那段链连乘好存起来，比如相机装在云台上，\({}^{H}R_{C}\) 是固定的，每帧只需要更新变化的部分。</p>
+  </div>
+  <div data-lang="en">
+    <p>Both sides mean "C first, then B, then A". No term-by-term check is needed; just see that both do the same thing. In robotics it is handy: you can pre-multiply the unchanging stretch of a chain and cache it. A camera bolted to a head has a fixed \({}^{H}R_{C}\), so each frame only the changing parts need updating.</p>
+  </div>
+
+  <h3><span data-lang="zh">不可交换，以及单位矩阵</span><span data-lang="en">Non-commutativity and the identity</span></h3>
+  <div class="math-card">$$ AB \ne BA \;\text{(in general)}, \qquad AI = IA = A. $$</div>
+  <div data-lang="zh">
+    <p>"先穿袜子再穿鞋"和"先穿鞋再穿袜子"不是一回事，这就是 \(AB \ne BA\)。少数情况下可以交换：\(A\) 或 \(B\) 是单位矩阵（"什么也不做"，对角线全是 1），或其中一个是单位矩阵的倍数，或两个都是对角矩阵，或两个都是同一平面内的旋转。</p>
+  </div>
+  <div data-lang="en">
+    <p>"Socks then shoes" is not the same as "shoes then socks"; that is \(AB \ne BA\). A few cases do commute: when one is the identity (the "do nothing" map, ones on the diagonal), or a multiple of it, or when both are diagonal, or both are rotations in the same plane.</p>
+  </div>
+
+  <h3><span data-lang="zh">转置：穿袜子与穿鞋</span><span data-lang="en">The transpose: socks and shoes</span></h3>
+  <div class="math-card">$$ (AB)^{\T} = B^{\T}A^{\T}. $$</div>
+  <div data-lang="zh">
+    <p>验证只要一行：\(\big((AB)^{\T}\big)_{ij} = (AB)_{ji} = \sum_k a_{jk}b_{ki} = \sum_k (B^{\T})_{ik}(A^{\T})_{kj}\)。直觉是"撤销"：穿的时候先袜后鞋，脱的时候先鞋后袜，顺序必须反过来。同一条规则也管逆矩阵：\((AB)^{-1} = B^{-1}A^{-1}\)（1.6 节）。对旋转矩阵 \(R^{-1} = R^{\T}\)（1.10 节），所以反过来换算坐标系时，整条链的顺序也会反过来。</p>
+  </div>
+  <div data-lang="en">
+    <p>The check is one line: \(\big((AB)^{\T}\big)_{ij} = (AB)_{ji} = \sum_k a_{jk}b_{ki} = \sum_k (B^{\T})_{ik}(A^{\T})_{kj}\). The intuition is "undoing": you put on socks then shoes, but you take off shoes then socks, so the order must reverse. The same rule governs inverses: \((AB)^{-1} = B^{-1}A^{-1}\) (Lesson 1.6). For rotations \(R^{-1} = R^{\T}\) (Lesson 1.10), so going the other way through a frame chain reverses the order of the whole chain.</p>
+  </div>
+
+  <h3><span data-lang="zh">二维旋转：角度加法白送</span><span data-lang="en">2D rotations: angle addition for free</span></h3>
+  <p data-lang="zh">旋转 \(R(\theta)\) 的两列是转过 \(\theta\) 后的 \(\hat\imath,\hat\jmath\)。先转 \(\beta\) 再转 \(\alpha\)，就是转 \(\alpha+\beta\)。把乘积算出来：</p>
+  <p data-lang="en">The rotation \(R(\theta)\) has as columns the turned \(\hat\imath,\hat\jmath\). Turning by \(\beta\) then \(\alpha\) is turning by \(\alpha+\beta\). Compute the product:</p>
+  <div class="math-card">$$ R(\alpha)R(\beta) = \begin{bmatrix} \cos\alpha & -\sin\alpha \\ \sin\alpha & \cos\alpha \end{bmatrix}\begin{bmatrix} \cos\beta & -\sin\beta \\ \sin\beta & \cos\beta \end{bmatrix} = \begin{bmatrix} \ci{\cos\alpha\cos\beta - \sin\alpha\sin\beta} & \cdots \\ \ci{\sin\alpha\cos\beta + \cos\alpha\sin\beta} & \cdots \end{bmatrix}. $$</div>
+  <p data-lang="zh">它必须等于 \(R(\alpha+\beta)\)，其第 1 列是 \((\cos(\alpha+\beta),\,\sin(\alpha+\beta))\)。比较第 1 列，两角和公式就出来了：</p>
+  <p data-lang="en">It must equal \(R(\alpha+\beta)\), whose first column is \((\cos(\alpha+\beta),\,\sin(\alpha+\beta))\). Compare first columns and the angle-addition formulas drop out:</p>
+  <div class="math-card">$$ \cos(\alpha+\beta) = \cos\alpha\cos\beta - \sin\alpha\sin\beta, \qquad \sin(\alpha+\beta) = \sin\alpha\cos\beta + \cos\alpha\sin\beta. $$</div>
+  <p data-lang="zh">因为 \(\alpha+\beta = \beta+\alpha\)，所以 \(R(\alpha)R(\beta) = R(\beta)R(\alpha)\)：平面旋转可交换。下面的图让你亲手拨一拨。</p>
+  <p data-lang="en">Since \(\alpha+\beta = \beta+\alpha\), we get \(R(\alpha)R(\beta) = R(\beta)R(\alpha)\): planar rotations commute. Play with it below.</p>
+
+  <figure class="fig" id="fig-angle">
+    <div class="fig-head"><span class="fig-kind">FIG 6</span><span class="fig-title"><span data-lang="zh">转两次，角度相加</span><span data-lang="en">Two turns, angles add</span></span></div>
+    <div class="fig-body split">
+      <div class="canvas-wrap" id="an-canvas"></div>
+      <div class="fig-side">
+        <div class="katex-live" id="an-tex"></div>
+        <div class="katex-live" id="an-tex2"></div>
+      </div>
+    </div>
+    <div class="fig-controls" id="an-ctrl"></div>
+    <figcaption class="fig-cap">
+      <span data-lang="zh">紫色是先转 \(\beta\) 的位置，黄色是再转 \(\alpha\) 后的位置；灰色虚线是反过来先转 \(\alpha\) 的路线。两条路终点相同。可以拖动紫色或黄色箭头尖，也可以用滑块。</span>
+      <span data-lang="en">Purple is the position after turning by \(\beta\), amber the position after then turning by \(\alpha\); the dashed grey route turns by \(\alpha\) first. Both routes end at the same place. Drag the purple or amber tip, or use the sliders.</span>
+    </figcaption>
+  </figure>
+  <ul class="tasks"><li data-task="angle90"><span><span data-lang="zh">让乘积正好是 90° 旋转 \(\begin{bmatrix}0&-1\\1&0\end{bmatrix}\)，且两个角都不是 0。</span><span data-lang="en">Make the product exactly the 90° rotation \(\begin{bmatrix}0&-1\\1&0\end{bmatrix}\), with neither angle zero.</span></span></li></ul>
+</section>
+
+<!-- ============ 7. ROBOTICS ============ -->
+<section class="step" id="robotics">
+  <h2><span class="n">7</span><span data-lang="zh">机器人中的它：云台相机的坐标系链</span><span data-lang="en">In robotics: the frame chain of a pan-tilt camera</span></h2>
+  <div data-lang="zh">
+    <p>云台由两个关节组成：下面一个关节绕竖直的 z 轴<b>水平转</b>（pan，偏航 \(\psi\)），上面一个关节让相机<b>俯仰</b>（tilt，\(\theta\)），它绕的是云台<em>自己</em>的 y 轴，这根轴会随着水平转动而转走。相机坐标系在世界里的姿态是</p>
+  </div>
+  <div data-lang="en">
+    <p>A pan-tilt head has two joints: the lower one <b>pans</b> about the vertical z-axis (yaw \(\psi\)), the upper one <b>tilts</b> the camera (\(\theta\)) about the head's <em>own</em> y-axis, which swings away as the head pans. The camera frame's orientation in the world is</p>
+  </div>
+  <div class="math-card">$$ {}^{W}R_{C} = R_z(\psi)\,R_y(\theta), \qquad R_y(\theta) = \begin{bmatrix} \cos\theta & 0 & \sin\theta \\ 0 & 1 & 0 \\ -\sin\theta & 0 & \cos\theta \end{bmatrix}, \qquad \mathbf p_W = {}^{W}R_{C}\,\mathbf p_C. $$</div>
+  <div data-lang="zh">
+    <p>\(R_y(\theta)\) 在 \(\theta>0\) 时把相机的前方（x 轴）向下压，所以正的 \(\theta\) 是"向下看"。杯子在相机坐标里固定为 \(\mathbf p_C = (2.4,\,0.8,\,0)\)（正前方 2.4 米，偏左 0.8 米）。调整 \(\psi\) 和 \(\theta\)，看它在世界里的位置如何变化。再切到"错误顺序"：\(R_y(\theta)R_z(\psi)\) 把两个矩阵的次序对调了。（为了专注旋转，所有坐标系都放在同一个原点。）</p>
+  </div>
+  <div data-lang="en">
+    <p>For \(\theta>0\), \(R_y(\theta)\) pushes the camera's forward axis (x) downward, so positive \(\theta\) means "looking down". The cup is fixed in camera coordinates at \(\mathbf p_C = (2.4,\,0.8,\,0)\) (2.4 m ahead, 0.8 m to the left). Change \(\psi\) and \(\theta\) and watch where it lands in the world. Then switch to "swapped order": \(R_y(\theta)R_z(\psi)\) swaps the two matrices. (To focus on rotation, all frames share one origin.)</p>
+  </div>
+
+  <figure class="fig bleed" id="fig-pantilt">
+    <div class="fig-head"><span class="fig-kind">FIG 7</span><span class="fig-title"><span data-lang="zh">云台相机看到的杯子</span><span data-lang="en">The cup seen by a pan-tilt camera</span></span><span class="spacer"></span><span id="pt-seg"></span></div>
+    <div class="fig-body split">
+      <div class="canvas-wrap" id="pt-canvas"></div>
+      <div class="fig-side">
+        <div class="katex-live" id="pt-tex"></div>
+        <div class="readout" id="pt-read"></div>
+      </div>
+    </div>
+    <div class="fig-controls" id="pt-ctrl"></div>
+    <figcaption class="fig-cap">
+      <span data-lang="zh">淡色的 x、y、z 箭头是世界坐标系；虚线箭头是只做了水平转动之后的云台坐标系（注意它的 y 轴，就是俯仰轴）；粗箭头是相机坐标系。黄点是正确算出的杯子位置，虚线折线是从相机原点出发沿 \(x_c\)、\(y_c\) 走到杯子的路。在"错误顺序"下，紫色的相机轴和紫点显示把矩阵乘反后的结果。</span>
+      <span data-lang="en">The faint x, y, z arrows are the world frame; the dashed arrows are the head frame after the pan alone (note its y-axis: the tilt axis); the bold arrows are the camera frame. The amber dot is the correctly computed cup position, and the dashed path goes from the camera origin along \(x_c\), \(y_c\) to the cup. In "swapped order", the purple camera axes and purple dot show what you get from multiplying the matrices the wrong way round.</span>
+    </figcaption>
+  </figure>
+  <ul class="tasks">
+    <li data-task="swap"><span><span data-lang="zh">切到"错误顺序"，找一组 \(\psi\)、\(\theta\)，让错算的位置偏离真实位置超过 1.5 米。</span><span data-lang="en">Switch to "swapped order" and find \(\psi,\theta\) that put the wrong position more than 1.5 m from the true one.</span></span></li>
+    <li data-task="agree"><span><span data-lang="zh">切到"错误顺序"，让两种顺序给出<b>相同</b>的位置，同时俯仰角 \(|\theta|\ge 15°\)。什么时候这种错误不会被发现？</span><span data-lang="en">In "swapped order", make both orders give the <b>same</b> position while \(|\theta|\ge 15°\). When would this bug go unnoticed?</span></span></li>
+  </ul>
+
+  <div class="callout view">
+    <div class="ct"><span data-lang="zh">同一个乘积的两种读法：固定轴与移动轴</span><span data-lang="en">One product, two readings: fixed axes and moving axes</span></div>
+    <p data-lang="zh">\(R_z(\psi)R_y(\theta)\) 可以这样读：<b>从右往左</b>，先绕世界 y 轴转 \(\theta\)，再绕世界 z 轴转 \(\psi\)，每一步都绕固定的世界轴；也可以<b>从左往右</b>，先转 \(\psi\)，再绕云台"现在的" y 轴转 \(\theta\)，每一步都绕<em>当前</em>的轴。口诀：<b>右乘（把新旋转写在右边）是绕自身的移动轴转，左乘（写在左边）是绕固定的世界轴转。</b>FIG 5 的书每步都是左乘；云台的俯仰是右乘。这两种说法的完整关系在 5.2 节讲。</p>
+    <p data-lang="en">\(R_z(\psi)R_y(\theta)\) can be read <b>right to left</b>: first turn by \(\theta\) about the world y-axis, then by \(\psi\) about the world z-axis, every step about a fixed world axis. It can also be read <b>left to right</b>: first turn by \(\psi\), then turn by \(\theta\) about the head's <em>current</em> y-axis, every step about the <em>current</em> axes. Rule of thumb: <b>post-multiplying (new rotation on the right) rotates about the current, moving axes; pre-multiplying (on the left) rotates about the fixed world axes.</b> The books in FIG 5 use pre-multiplication at every step; the tilt of the pan-tilt head is post-multiplication. The full story is in Lesson 5.2.</p>
+  </div>
+  <div class="callout robot">
+    <div class="ct"><span data-lang="zh">真实系统里</span><span data-lang="en">In real systems</span></div>
+    <p data-lang="zh">ROS 的 <code>tf2</code> 把整个机器人表示成一棵坐标系树，查询"相机在地图里的位姿"，就是沿树把一串变换连乘（并在需要反向走时取逆）。机械臂的正运动学也是同一件事：每个关节一个矩阵，从底座乘到末端（3.1 节、5.3 节）。把关节角写进变量名，再把链写成 <code>R_world_cam = R_world_base @ R_base_head @ R_head_cam</code>，下标能接龙就基本不会错。</p>
+    <p data-lang="en">ROS's <code>tf2</code> models the whole robot as a tree of frames; asking for "the camera's pose in the map" multiplies a chain of transforms along the tree (inverting when it must walk backwards). Forward kinematics of an arm is the same thing: one matrix per joint, multiplied from base to tip (Lessons 3.1 and 5.3). Name the matrices by their frames and write the chain as <code>R_world_cam = R_world_base @ R_base_head @ R_head_cam</code>: if the subscripts chain up, you are almost certainly right.</p>
+  </div>
+</section>
+
+<!-- ============ 8. PITFALLS ============ -->
+<section class="step" id="pitfalls">
+  <h2><span class="n">8</span><span data-lang="zh">常见误区</span><span data-lang="en">Common pitfalls</span></h2>
+  <div class="callout pitfall">
+    <div class="ct"><span data-lang="zh">误区 1：顺序写反（AB 当成 BA）</span><span data-lang="en">Pitfall 1: getting the order backwards (AB for BA)</span></div>
+    <p data-lang="zh">\(AB\) 是先做 B 再做 A：最后一个作用的矩阵写在<b>最左边</b>。很多人按"时间顺序"从左往右写，于是整条链反了。检查办法：看下标能不能接龙，\({}^{W}R_{B}\,{}^{B}R_{H}\) 对，\({}^{B}R_{H}\,{}^{W}R_{B}\) 错。</p>
+    <p data-lang="en">\(AB\) means do B, then A: the matrix applied last sits on the <b>far left</b>. Many people write the chain left to right in time order, which reverses everything. Check by the subscripts: \({}^{W}R_{B}\,{}^{B}R_{H}\) chains, \({}^{B}R_{H}\,{}^{W}R_{B}\) does not.</p>
+  </div>
+  <div class="callout pitfall">
+    <div class="ct"><span data-lang="zh">误区 2：NumPy 里用 * 做矩阵乘法</span><span data-lang="en">Pitfall 2: using * for matrix products in NumPy</span></div>
+    <p data-lang="zh">在 NumPy 里，对数组 <code>A * B</code> 是<b>逐元素</b>相乘，矩阵乘法要写 <code>A @ B</code>（或 <code>np.matmul</code>）。对小测验第 1 题的两个矩阵，<code>A * B</code> 给出 \(\begin{bmatrix}2&0\\0&1\end{bmatrix}\)，<code>A @ B</code> 才是 \(\begin{bmatrix}2&6\\1&4\end{bmatrix}\)。两个都是 2×2，程序不会报错，只会悄悄算错。（C++ 的 Eigen 里 <code>*</code> 才是矩阵乘法，换语言时要留神。）</p>
+    <p data-lang="en">In NumPy, <code>A * B</code> on arrays is <b>element-wise</b>; the matrix product is <code>A @ B</code> (or <code>np.matmul</code>). For the two matrices of quiz question 1, <code>A * B</code> gives \(\begin{bmatrix}2&0\\0&1\end{bmatrix}\) and only <code>A @ B</code> gives \(\begin{bmatrix}2&6\\1&4\end{bmatrix}\). Both are 2×2, so nothing complains; the result is just silently wrong. (In C++ Eigen, <code>*</code> is the matrix product, so mind the language.)</p>
+  </div>
+  <div class="callout pitfall">
+    <div class="ct"><span data-lang="zh">误区 3：把形状不匹配的报错当成小问题</span><span data-lang="en">Pitfall 3: treating a shape-mismatch error as a nuisance</span></div>
+    <p data-lang="zh">看到 <code>matmul: Input operand 1 has a mismatch in its core dimension</code>，别急着 <code>.T</code> 或 <code>reshape</code> 把它压下去。内维对不上，往往说明你把坐标系接错了：这个矩阵的输出空间，并不是下一个矩阵的输入空间。先搞清每个矩阵"从哪来到哪去"，再动手。</p>
+    <p data-lang="en">When you see <code>matmul: Input operand 1 has a mismatch in its core dimension</code>, do not silence it with <code>.T</code> or <code>reshape</code>. A mismatched inner dimension often means you have wired the frames wrong: the output space of one matrix is not the input space of the next. Work out what each matrix maps from and to before touching the code.</p>
+  </div>
+  <div class="callout pitfall">
+    <div class="ct"><span data-lang="zh">误区 4：混淆绕移动轴转和绕固定轴转</span><span data-lang="en">Pitfall 4: mixing up rotating about moving axes and fixed axes</span></div>
+    <p data-lang="zh">"先绕 z 转 30°，再绕 y 转 20°"有两种合理的意思：y 轴是世界的 y 轴，还是转完之后云台自己的 y 轴？前者是 \(R_y(20°)R_z(30°)\)，后者是 \(R_z(30°)R_y(20°)\)，结果不同。写代码前先说清每个关节转的是哪根轴。</p>
+    <p data-lang="en">"Turn 30° about z, then 20° about y" has two sensible meanings: is that y the world's y, or the head's own y after the first turn? The former is \(R_y(20°)R_z(30°)\), the latter \(R_z(30°)R_y(20°)\), and they differ. Before coding, say exactly which axis each joint turns about.</p>
+  </div>
+  <div class="callout pitfall">
+    <div class="ct"><span data-lang="zh">误区 5：\((AB)^{\T} = A^{\T}B^{\T}\)</span><span data-lang="en">Pitfall 5: \((AB)^{\T} = A^{\T}B^{\T}\)</span></div>
+    <p data-lang="zh">转置和求逆都会把顺序<b>反过来</b>：\((AB)^{\T} = B^{\T}A^{\T}\)。如果 \(A\) 是 \(2\times 3\)、\(B\) 是 \(3\times 4\)，错误写法 \(A^{\T}B^{\T}\) 连形状都对不上（\(3\times 2\) 乘 \(4\times 3\)），这也是形状检查能救你的一个例子。</p>
+    <p data-lang="en">Transposing and inverting both <b>reverse the order</b>: \((AB)^{\T} = B^{\T}A^{\T}\). If \(A\) is \(2\times 3\) and \(B\) is \(3\times 4\), the wrong form \(A^{\T}B^{\T}\) does not even have matching shapes (\(3\times 2\) times \(4\times 3\)), one more case where the shape check saves you.</p>
+  </div>
+</section>
+
+<!-- ============ 9. QUIZ ============ -->
+<section class="step" id="quiz">
+  <h2><span class="n">9</span><span data-lang="zh">小练习</span><span data-lang="en">Check yourself</span></h2>
+
+  <div class="quiz" data-answer="2">
+    <div class="q"><span data-lang="zh">1. 设 \(A = \begin{bmatrix}2&0\\1&1\end{bmatrix}\)，\(B = \begin{bmatrix}1&3\\0&1\end{bmatrix}\)。\(AB\) 是？</span><span data-lang="en">1. Let \(A = \begin{bmatrix}2&0\\1&1\end{bmatrix}\) and \(B = \begin{bmatrix}1&3\\0&1\end{bmatrix}\). What is \(AB\)?</span></div>
+    <div class="opts">
+      <button class="opt">\(\begin{bmatrix}5&3\\1&1\end{bmatrix}\)</button>
+      <button class="opt">\(\begin{bmatrix}3&3\\1&2\end{bmatrix}\)</button>
+      <button class="opt">\(\begin{bmatrix}2&6\\1&4\end{bmatrix}\)</button>
+      <button class="opt">\(\begin{bmatrix}2&0\\0&1\end{bmatrix}\)</button>
+    </div>
+    <div class="explain"><span data-lang="zh">按列算：第 1 列是 \(A\) 乘 \(B\) 的第 1 列 \((1,0)\)，得 \((2,1)\)；第 2 列是 \(A\) 乘 \((3,1)\)，即 \(3\,(2,1) + 1\,(0,1) = (6,4)\)。所以 \(AB = \begin{bmatrix}2&6\\1&4\end{bmatrix}\)。第一个选项是 \(BA\)，第二个是 \(A+B\)，第四个是逐元素相乘（NumPy 的 <code>*</code>）。</span><span data-lang="en">By columns: column 1 is \(A\) times column 1 of \(B\), \((1,0)\), giving \((2,1)\); column 2 is \(A\) times \((3,1)\), i.e. \(3\,(2,1) + 1\,(0,1) = (6,4)\). So \(AB = \begin{bmatrix}2&6\\1&4\end{bmatrix}\). The first option is \(BA\), the second is \(A+B\), the fourth is the element-wise product (NumPy's <code>*</code>).</span></div>
+  </div>
+
+  <div class="quiz" data-answer="0">
+    <div class="q"><span data-lang="zh">2. \(B\) 是"沿 x 方向拉伸 2 倍"（\(B=\begin{bmatrix}2&0\\0&1\end{bmatrix}\)），\(A\) 是"逆时针转 90°"。在 \(AB\)（先 B 后 A）下，<span class="ci">î</span> 和 <span class="cj">ĵ</span> 各落在哪里？</span><span data-lang="en">2. \(B\) stretches along x by 2 (\(B=\begin{bmatrix}2&0\\0&1\end{bmatrix}\)) and \(A\) rotates 90° counter-clockwise. Under \(AB\) (B first, then A), where do <span class="ci">î</span> and <span class="cj">ĵ</span> land?</span></div>
+    <div class="opts">
+      <button class="opt"><span data-lang="zh">î → (0, 2)，ĵ → (−1, 0)</span><span data-lang="en">î → (0, 2), ĵ → (−1, 0)</span></button>
+      <button class="opt"><span data-lang="zh">î → (0, 1)，ĵ → (−2, 0)</span><span data-lang="en">î → (0, 1), ĵ → (−2, 0)</span></button>
+      <button class="opt"><span data-lang="zh">î → (2, 0)，ĵ → (0, 1)</span><span data-lang="en">î → (2, 0), ĵ → (0, 1)</span></button>
+      <button class="opt"><span data-lang="zh">î → (0, 2)，ĵ → (−2, 0)</span><span data-lang="en">î → (0, 2), ĵ → (−2, 0)</span></button>
+    </div>
+    <div class="explain"><span data-lang="zh">追踪：<span class="ci">î</span> 先被拉成 \((2,0)\)，再转 90° 成 \((0,2)\)；<span class="cj">ĵ</span> 先保持 \((0,1)\)，再转成 \((-1,0)\)。所以 \(AB = \begin{bmatrix}0&-1\\2&0\end{bmatrix}\)。选项二是反过来的 \(BA\)（先转再拉：\((0,1)\) 被拉后不变，\((-1,0)\) 被拉成 \((-2,0)\)）。</span><span data-lang="en">Track them: <span class="ci">î</span> is first stretched to \((2,0)\), then rotated to \((0,2)\); <span class="cj">ĵ</span> stays \((0,1)\) under the stretch, then rotates to \((-1,0)\). So \(AB = \begin{bmatrix}0&-1\\2&0\end{bmatrix}\). Option two is the reverse order \(BA\) (rotate then stretch: \((0,1)\) is unchanged by the stretch, \((-1,0)\) becomes \((-2,0)\)).</span></div>
+  </div>
+
+  <div class="quiz" data-answer="3">
+    <div class="q"><span data-lang="zh">3. 已知 \({}^{W}R_{B}\)、\({}^{B}R_{H}\)、\({}^{H}R_{C}\)，要把相机坐标换算到世界坐标，应该用哪个乘积？</span><span data-lang="en">3. Given \({}^{W}R_{B}\), \({}^{B}R_{H}\) and \({}^{H}R_{C}\), which product converts camera coordinates to world coordinates?</span></div>
+    <div class="opts">
+      <button class="opt">\({}^{W}R_{B}\;{}^{H}R_{C}\;{}^{B}R_{H}\)</button>
+      <button class="opt">\({}^{C}R_{H}\;{}^{H}R_{B}\;{}^{B}R_{W}\)</button>
+      <button class="opt">\({}^{H}R_{C}\;{}^{B}R_{H}\;{}^{W}R_{B}\)</button>
+      <button class="opt">\({}^{W}R_{B}\;{}^{B}R_{H}\;{}^{H}R_{C}\)</button>
+    </div>
+    <div class="explain"><span data-lang="zh">相邻下标要能约掉：\({}^{W}R_{B}\,{}^{B}R_{H}\,{}^{H}R_{C} = {}^{W}R_{C}\)，把 C 坐标送到 W 坐标。选项二是从世界到相机的方向（\({}^{C}R_{W}\)，即上式的逆），选项一、三的下标接不上。</span><span data-lang="en">Neighbouring subscripts must cancel: \({}^{W}R_{B}\,{}^{B}R_{H}\,{}^{H}R_{C} = {}^{W}R_{C}\), taking C coordinates to W coordinates. Option two goes the other way (\({}^{C}R_{W}\), the inverse of this one); options one and three do not chain.</span></div>
+  </div>
+
+  <div class="quiz" data-answer="1">
+    <div class="q"><span data-lang="zh">4. 相机投影矩阵 \(A\) 是 \(2\times 3\)（三维点到二维像素），\(B\) 是 \(3\times 3\) 的旋转矩阵。下面哪个说法对？</span><span data-lang="en">4. A camera projection matrix \(A\) is \(2\times 3\) (3D point to 2D pixel) and \(B\) is a \(3\times 3\) rotation. Which statement is right?</span></div>
+    <div class="opts">
+      <button class="opt"><span data-lang="zh">\(AB\) 和 \(BA\) 都有定义，都是 \(2\times 3\)</span><span data-lang="en">Both \(AB\) and \(BA\) are defined, both \(2\times 3\)</span></button>
+      <button class="opt"><span data-lang="zh">\(AB\) 是 \(2\times 3\)，\(BA\) 没有定义</span><span data-lang="en">\(AB\) is \(2\times 3\); \(BA\) is not defined</span></button>
+      <button class="opt"><span data-lang="zh">\(AB\) 没有定义，\(BA\) 是 \(3\times 2\)</span><span data-lang="en">\(AB\) is not defined; \(BA\) is \(3\times 2\)</span></button>
+      <button class="opt"><span data-lang="zh">两个都没有定义</span><span data-lang="en">Neither is defined</span></button>
+    </div>
+    <div class="explain"><span data-lang="zh">\(AB\)：\((2\times 3)(3\times 3)\)，内维都是 3，结果 \(2\times 3\)，含义是"先旋转三维点，再投影到图像"。\(BA\)：\((3\times 3)(2\times 3)\)，内维是 3 和 2，对不上：投影输出的是二维，旋转却要吃三维。</span><span data-lang="en">\(AB\): \((2\times 3)(3\times 3)\), inner dimensions both 3, result \(2\times 3\), meaning "rotate the 3D point, then project to the image". \(BA\): \((3\times 3)(2\times 3)\), inner dimensions 3 and 2 do not match: the projection outputs 2D, but the rotation expects 3D.</span></div>
+  </div>
+
+  <div class="quiz" data-answer="2">
+    <div class="q"><span data-lang="zh">5. 云台先水平转 \(\psi\)（绕竖直 z 轴），再让相机绕云台<em>自己的</em> y 轴俯仰 \(\theta\)。相机在世界中的姿态是？</span><span data-lang="en">5. A pan-tilt head first pans by \(\psi\) (about the vertical z-axis), then the camera tilts by \(\theta\) about the head's <em>own</em> y-axis. The camera's orientation in the world is?</span></div>
+    <div class="opts">
+      <button class="opt">\(R_y(\theta)\,R_z(\psi)\)</button>
+      <button class="opt"><span data-lang="zh">无所谓，两个顺序一样</span><span data-lang="en">It does not matter; both orders agree</span></button>
+      <button class="opt">\(R_z(\psi)\,R_y(\theta)\)</button>
+      <button class="opt">\(R_z(\psi) + R_y(\theta)\)</button>
+    </div>
+    <div class="explain"><span data-lang="zh">绕"自身当前轴"转，新旋转写在<b>右边</b>：\(R_z(\psi)R_y(\theta)\)。两个顺序一般不同（FIG 7 里切到"错误顺序"可以看到），只有 \(\psi = 0\) 或 \(\theta = 0\) 这类特殊情形才一样。矩阵相加没有"先后"的含义。</span><span data-lang="en">Rotating about the "current own axis" puts the new rotation on the <b>right</b>: \(R_z(\psi)R_y(\theta)\). The two orders generally differ (switch FIG 7 to "swapped order" to see), agreeing only in special cases such as \(\psi = 0\) or \(\theta = 0\). Adding matrices has no "first, then" meaning.</span></div>
+  </div>
+</section>
+
+<!-- ============ 10. READING ============ -->
+<section class="step" id="reading">
+  <h2><span class="n">10</span><span data-lang="zh">延伸阅读</span><span data-lang="en">Further reading</span></h2>
+  <ul class="reading">
+    <li>3Blue1Brown, <a href="https://www.3blue1brown.com/topics/linear-algebra" target="_blank" rel="noopener"><i>Essence of Linear Algebra</i></a> — <span data-lang="zh">第 4 章（矩阵乘法即复合）与第 5 章（三维线性变换）</span><span data-lang="en">Ch. 4 (matrix multiplication as composition) and Ch. 5 (three-dimensional linear transformations)</span></li>
+    <li>G. Strang, <i>Introduction to Linear Algebra</i>, Ch. 2 — <span data-lang="zh">矩阵乘法的几种读法（2.4 节 矩阵运算规则）</span><span data-lang="en">The several ways to read a matrix product (Section 2.4, rules for matrix operations)</span></li>
+    <li>K. Lynch &amp; F. Park, <a href="https://hades.mech.northwestern.edu/index.php/Modern_Robotics" target="_blank" rel="noopener"><i>Modern Robotics</i></a>, Sec. 3.2 — <span data-lang="zh">旋转矩阵，以及绕固定轴与绕自身轴的复合</span><span data-lang="en">Rotation matrices, and composing rotations about fixed versus body axes</span></li>
+    <li>J. Ström et al., <a href="http://immersivemath.com/ila/" target="_blank" rel="noopener"><i>Immersive Linear Algebra</i></a> — <span data-lang="zh">矩阵乘法一章，带可拖动的交互插图</span><span data-lang="en">The matrix-multiplication chapter, with draggable interactive figures</span></li>
+  </ul>
+</section>
+
+</article>
+</main>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/katex@0.16.22/dist/katex.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/katex@0.16.22/dist/contrib/auto-render.min.js"></script>
+<script src="../assets/syllabus.js"></script>
+<script src="../assets/math.js"></script>
+<script src="../assets/course.js"></script>
+<script src="../assets/viz2d.js"></script>
+<script src="../assets/viz3d.js"></script>
+<script>
+R101.onReady(function () {
+  const { M, ui, L } = R101;
+  const D2R = Math.PI / 180;
+  const cols = B => [[B[0][0], B[1][0]], [B[0][1], B[1][1]]];
+  const colOf = (B, j) => B.map(r => r[j]);
+  const I2 = [[1, 0], [0, 1]];
+  const flat = A => [].concat(...A);
+  const mdiff = (A, B) => Math.max(...flat(A).map((x, i) => Math.abs(x - flat(B)[i])));
+  const mnorm = A => Math.max(...flat(A).map(Math.abs));
+  const near = (A, B, tol) => mdiff(A, B) < tol;
+  // number formatting: short, ASCII minus (for LaTeX); fmM for HTML
+  const tx = x => { let r = Math.round(x * 100) / 100; if (r === 0) r = 0; return String(r); };
+  const hx = x => tx(x).replace('-', '−');
+  const tmat = A => '\\begin{bmatrix}' + A.map(r => r.map(tx).join(' & ')).join(' \\\\ ') + '\\end{bmatrix}';
+  const tvec = v => '\\begin{bmatrix}' + v.map(tx).join(' \\\\ ') + '\\end{bmatrix}';
+  const CC = ['ci', 'cj', 'ck'];
+  const tcols = A => '\\begin{bmatrix}' + A.map(r => r.map((x, j) => `\\${CC[j]}{${tx(x)}}`).join(' & ')).join(' \\\\ ') + '\\end{bmatrix}';
+  const fmM = A => `[${hx(A[0][0])} ${hx(A[0][1])}; ${hx(A[1][0])} ${hx(A[1][1])}]`;
+  const pt = v => '(' + v.map(hx).join(', ') + ')';
+  // stage matrix: s in [0,1] morphs I -> first; s in [1,2] then morphs the result by `second`
+  const sm = u => u * u * (3 - 2 * u);
+  const stageMat = (first, second, s) => (s <= 1 ? M.lerpM(I2, first, s) : M.mul(M.lerpM(I2, second, s - 1), first));
+  const phase = raw => (raw < 0.45 ? sm(raw / 0.45) : raw < 0.55 ? 1 : 1 + sm((raw - 0.55) / 0.45));
+  const R90 = [[0, -1], [1, 0]], SHX = [[1, 1], [0, 1]];
+
+  // shared state of A and B between FIG 2 and FIG 4
+  const lab = { A: SHX.map(r => r.slice()), B: R90.map(r => r.slice()), touched: false };
+  const emitMat = src => R101.emit('labmat', src);
+
+  /* ---------------- FIG 1: two steps, one matrix ---------------- */
+  (function () {
+    const A = SHX, B = R90, AB = M.mul(A, B);
+    let t = 2, v = [1.5, 1], anim = null;
+    const Sm = () => stageMat(B, A, t);
+    const P = new R101.Plane2D('#c1-canvas', { height: 400, view: { span: 6 }, draw, onChange: sync });
+    function draw(P) {
+      const S = Sm(), [a1, a2] = cols(S), d = M.det2(S);
+      P.grid({ color: 'grid', axisColor: 'grid-2' });
+      P.grid({ A: S, color: 'x', alpha: 0.4, width: 1.1, axisColor: 'x', axisWidth: 1.8 });
+      P.poly([[0, 0], a1, M.add(a1, a2), a2], { fill: d >= 0 ? 'x' : 'j', fillAlpha: 0.13, stroke: d >= 0 ? 'x' : 'j', alpha: 0.45, width: 1 });
+      if (t > 0.03) P.arrow([0, 0], v, { color: 'axis', width: 2, dash: [4, 4], alpha: 0.5, head: 8 });
+      if (t > 1.03) P.arrow([0, 0], M.mv(B, v), { color: 'axis', width: 2, dash: [4, 4], alpha: 0.5, head: 8 });
+      const w = M.mv(S, v);
+      const k = t < 0.5 ? 0 : t < 1.5 ? 1 : 2;
+      P.arrow([0, 0], a1, { color: 'i', width: 4, label: ['î', 'Bî', 'A(Bî)'][k] });
+      P.arrow([0, 0], a2, { color: 'j', width: 4, label: ['ĵ', 'Bĵ', 'A(Bĵ)'][k] });
+      P.arrow([0, 0], w, { color: 'v', width: 4, label: ['v', 'Bv', 'A(Bv)'][k] });
+    }
+    P.handle({
+      pos: () => M.mv(Sm(), v), color: 'v',
+      set: p => { const Si = M.inv2(Sm()); if (!Si) return; v = M.mv(Si, p).map(x => M.clamp(Math.round(x * 10) / 10, -3.5, 3.5)); }
+    });
+    const ti = document.getElementById('c1-tex-i'), tj = document.getElementById('c1-tex-j'), tv = document.getElementById('c1-tex-v'), tm = document.getElementById('c1-tex-m');
+    function sync() {
+      const chain = (c, e, cls) => `\\${cls}{${tvec(e)}} \\xrightarrow{\\,B\\,} \\${cls}{${tvec(M.mv(B, e))}} \\xrightarrow{\\,A\\,} \\${cls}{${tvec(M.mv(AB, e))}}`;
+      R101.tex(ti, chain(0, [1, 0], 'ci'));
+      R101.tex(tj, chain(1, [0, 1], 'cj'));
+      R101.tex(tv, `\\cv{${tvec(v)}} \\xrightarrow{\\,B\\,} \\cv{${tvec(M.mv(B, v))}} \\xrightarrow{\\,A\\,} \\cv{${tvec(M.mv(AB, v))}}`);
+      R101.tex(tm, `AB = ${tcols(AB)}`);
+      P.invalidate();
+    }
+    const sg = ui.seg(document.getElementById('c1-seg'), [
+      { value: '0', zh: '起点', en: 'Start' }, { value: '1', zh: '做完 B', en: 'After B' }, { value: '2', zh: '再做 A', en: 'Then A' }
+    ], '2', val => {
+      if (anim) { anim(); anim = null; }
+      const from = t, to = +val;
+      anim = R101.animate(900 * Math.max(0.5, Math.abs(to - from)), e => { t = from + (to - from) * e; P.invalidate(); }, () => { anim = null; t = to; P.invalidate(); });
+    });
+    sync();
+  })();
+
+  /* ---------------- FIG 2: composition lab ---------------- */
+  (function () {
+    let t = 2, anim = null, order = 'AB';
+    const first = () => (order === 'AB' ? lab.B : lab.A);
+    const second = () => (order === 'AB' ? lab.A : lab.B);
+    const nm = () => (order === 'AB' ? ['B', 'A'] : ['A', 'B']);   // [first, second]
+    const prod = () => M.mul(second(), first());
+    const other = () => M.mul(first(), second());
+    const P = new R101.Plane2D('#lab-canvas', { height: 500, view: { span: 6.5 }, draw });
+
+    function draw(P) {
+      const S = stageMat(first(), second(), t), d = M.det2(S), [f, s] = nm();
+      P.grid({ color: 'grid', axisColor: 'grid-2' });
+      P.grid({ A: S, color: 'x', alpha: 0.4, width: 1.1, axisColor: 'x', axisWidth: 1.8 });
+      if (t > 1.98 && mdiff(other(), prod()) > 0.02) P.grid({ A: other(), color: 'w', alpha: 0.5, width: 1.2, dash: [6, 5], axisColor: 'w', axisWidth: 2 });
+      const hl = R101.hl;
+      if (hl === 'A') P.grid({ A: lab.A, color: 'w', alpha: 0.9, width: 1.8, axisColor: 'w', axisWidth: 2.6 });
+      if (hl === 'B') P.grid({ A: lab.B, color: 'v', alpha: 0.9, width: 1.8, axisColor: 'v', axisWidth: 2.6 });
+      if (hl === 'AB') P.grid({ A: prod(), color: 'x', alpha: 1, width: 2.2, axisColor: 'x', axisWidth: 3 });
+      const [a1, a2] = cols(S);
+      P.poly([[0, 0], a1, M.add(a1, a2), a2], { fill: d >= 0 ? 'x' : 'j', fillAlpha: d >= 0 ? 0.14 : 0.2, stroke: d >= 0 ? 'x' : 'j', alpha: 0.5, width: 1 });
+      const k = t < 0.5 ? 0 : t < 1.5 ? 1 : 2;
+      const pre = ['', f, s + f][k];
+      P.arrow([0, 0], a1, { color: 'i', width: 4, label: k === 0 ? 'î' : pre + 'î' });
+      P.arrow([0, 0], a2, { color: 'j', width: 4, label: k === 0 ? 'ĵ' : pre + 'ĵ' });
+      const state = k === 0 ? 'I' : k === 1 ? f : s + f;
+      P.textPx(R101.t('当前网格：', 'grid now: ') + state, 12, 20, { bold: true, size: 15, color: 'text' });
+    }
+
+    const edA = ui.matrixEditor(document.getElementById('lab-matA'), { value: lab.A, step: 0.1, onInput: B => { stopAnim(); lab.A = B; lab.touched = true; sync(); emitMat('lab'); } });
+    const edB = ui.matrixEditor(document.getElementById('lab-matB'), { value: lab.B, step: 0.1, onInput: B => { stopAnim(); lab.B = B; lab.touched = true; sync(); emitMat('lab'); } });
+    const texEl = document.getElementById('lab-tex'), tex2El = document.getElementById('lab-tex2'), readEl = document.getElementById('lab-read');
+    const sl = ui.slider(document.getElementById('lab-ctrl'), { zh: '进度', en: 'progress', min: 0, max: 2, step: 0.01, value: 2, fmt: v => M.fmt(v, 2), onInput: v => { stopAnim(); t = v; P.invalidate(); } });
+    const sg = ui.seg(document.getElementById('lab-seg'), [
+      { value: 'AB', zh: '先 B 后 A', en: 'B then A' }, { value: 'BA', zh: '先 A 后 B', en: 'A then B' }
+    ], 'AB', v => {
+      order = v; stopAnim(); t = 2; sl.set(2); sync();
+      if (lab.touched && mdiff(M.mul(lab.A, lab.B), M.mul(lab.B, lab.A)) > 0.3) R101.done('noncomm');
+    });
+    function stopAnim() { if (anim) { anim(); anim = null; } }
+    function play() {
+      stopAnim(); t = 0; sl.set(0); P.invalidate();
+      anim = R101.animate(3200, (e, raw) => { t = phase(raw); sl.set(t); P.invalidate(); }, () => { anim = null; t = 2; sl.set(2); P.invalidate(); });
+    }
+    document.getElementById('lab-play').onclick = play;
+
+    function sync() {
+      const A = lab.A, B = lab.B, X = second(), Y = first(), Pm = prod(), [fn, sn] = nm();
+      R101.tex(texEl, `\\begin{aligned} ${sn}${fn} &= ${tmat(X)}${tmat(Y)} \\\\ &= ${tcols(Pm)} \\end{aligned}`);
+      R101.tex(tex2El, `\\begin{aligned} \\ci{${sn}\\,${tvec(colOf(Y, 0))}} &= \\ci{${tvec(colOf(Pm, 0))}} \\\\ \\cj{${sn}\\,${tvec(colOf(Y, 1))}} &= \\cj{${tvec(colOf(Pm, 1))}} \\end{aligned}`);
+      const AB = M.mul(A, B), BA = M.mul(B, A), same = mdiff(AB, BA) < 0.02;
+      let extra = '';
+      if (mnorm(AB) < 0.02 && mnorm(A) > 0.1 && mnorm(B) > 0.1) extra = `<br><span style="color:var(--c-good)">${L('AB = 0，但 A、B 都不是 0：它们各自把平面压扁，秩的话题见 1.6 节。', 'AB = 0 yet A, B are not 0: each squashes the plane, and rank is the topic of Lesson 1.6.')}</span>`;
+      else if (near(AB, I2, 0.03) && !near(A, I2, 0.05) && !near(B, I2, 0.05)) extra = `<br><span style="color:var(--c-good)">${L('AB = I：B 把 A 撤销了（逆，见 1.6 节）。', 'AB = I: B undoes A (the inverse, Lesson 1.6).')}</span>`;
+      readEl.innerHTML = `AB = ${fmM(AB)}<br>BA = ${fmM(BA)}<br>` + (same
+        ? `<b style="color:var(--c-good)">AB = BA</b> ${L('（可交换）', '(they commute)')}`
+        : `<b style="color:var(--c-v)">AB ≠ BA</b> ${L('（紫色虚线是另一种顺序）', '(dashed purple = the other order)')}`) + extra;
+      if (lab.touched) {
+        const notI = !near(A, I2, 0.05) && !near(B, I2, 0.05);
+        if (notI && !near(A, B, 0.05) && mnorm(A) > 0.1 && mnorm(B) > 0.1 && mdiff(AB, BA) < 0.02) R101.done('commute');
+        if (notI && near(AB, I2, 0.03)) R101.done('inverse');
+        if (mnorm(A) > 0.1 && mnorm(B) > 0.1 && mnorm(AB) < 0.02) R101.done('zero');
+      }
+      P.invalidate();
+    }
+    const c45 = Math.SQRT1_2;
+    const presets = [
+      ['单位', 'Identity', [[1, 0], [0, 1]]], ['旋转 90°', 'Rotate 90°', R90], ['旋转 45°', 'Rotate 45°', [[c45, -c45], [c45, c45]]],
+      ['剪切', 'Shear', SHX], ['缩放', 'Scale', [[2, 0], [0, 0.5]]], ['镜像', 'Reflect', [[-1, 0], [0, 1]]],
+      ['投影到 x', 'Project to x', [[1, 0], [0, 0]]], ['投影到 y', 'Project to y', [[0, 0], [0, 1]]]
+    ];
+    presets.forEach(([zh, en, T]) => {
+      ui.button(document.getElementById('lab-pa'), { zh, en, cls: 'sm', onClick: () => { stopAnim(); lab.A = T.map(r => r.slice()); lab.touched = true; t = 2; sl.set(2); edA.set(lab.A); sync(); emitMat('lab'); } });
+      ui.button(document.getElementById('lab-pb'), { zh, en, cls: 'sm', onClick: () => { stopAnim(); lab.B = T.map(r => r.slice()); lab.touched = true; t = 2; sl.set(2); edB.set(lab.B); sync(); emitMat('lab'); } });
+    });
+    R101.on('labmat', src => { if (src === 'lab') return; stopAnim(); edA.set(lab.A); edB.set(lab.B); sync(); });
+    R101.on('lang', sync);
+    sync();
+  })();
+
+  /* ---------------- FIG 3: AB or BA? ---------------- */
+  (function () {
+    const pool = [
+      ['旋转 90°', 'rotate 90°', R90], ['水平剪切', 'horizontal shear', SHX], ['竖直剪切', 'vertical shear', [[1, 0], [1, 1]]],
+      ['x 方向拉伸 2 倍', 'stretch x by 2', [[2, 0], [0, 1]]], ['上下翻转', 'flip y', [[1, 0], [0, -1]]], ['y 方向压成一半', 'squeeze y to half', [[1, 0], [0, 0.5]]]
+    ];
+    let a, b, truth, target, answered = false, streak = 0, last = '';
+    const P = new R101.Plane2D('#dt-canvas', { height: 400, view: { span: 7 }, draw });
+    function draw(P) {
+      P.grid({ color: 'grid', axisColor: 'grid-2' });
+      if (answered) {
+        const alt = truth === 'AB' ? M.mul(b[2], a[2]) : M.mul(a[2], b[2]);
+        P.grid({ A: alt, color: 'x', alpha: 0.5, width: 1.2, dash: [3, 4], axisColor: 'x', axisWidth: 1.6 });
+      }
+      P.grid({ A: target, color: 'w', alpha: 0.9, width: 1.5, axisColor: 'w', axisWidth: 2.6, dash: [7, 5] });
+      const [t1, t2] = cols(target);
+      P.poly([[0, 0], t1, M.add(t1, t2), t2], { fill: 'w', fillAlpha: 0.12 });
+      P.arrow([0, 0], t1, { color: 'i', width: 4, label: 'î' });
+      P.arrow([0, 0], t2, { color: 'j', width: 4, label: 'ĵ' });
+    }
+    const tex = document.getElementById('dt-tex'), names = document.getElementById('dt-names'), msg = document.getElementById('dt-msg'), score = document.getElementById('dt-score'), ans = document.getElementById('dt-ans');
+    function show() {
+      R101.tex(tex, `A = ${tmat(a[2])}, \\quad B = ${tmat(b[2])}`);
+      names.innerHTML = `A = ${L(a[0], a[1])}<br>B = ${L(b[0], b[1])}`;
+      score.innerHTML = L(`连对 ${streak}`, `streak: ${streak}`);
+    }
+    function pick() {
+      let i, j, A, B;
+      do {
+        i = Math.floor(Math.random() * pool.length); j = Math.floor(Math.random() * pool.length);
+        A = pool[i]; B = pool[j];
+      } while (i === j || mdiff(M.mul(A[2], B[2]), M.mul(B[2], A[2])) < 0.4 || (i + ',' + j) === last);
+      last = i + ',' + j; a = A; b = B;
+      truth = Math.random() < 0.5 ? 'AB' : 'BA';
+      target = truth === 'AB' ? M.mul(a[2], b[2]) : M.mul(b[2], a[2]);
+      answered = false;
+      msg.innerHTML = L('提示：算一算 AB 的第 1 列 A(Bî)，和紫色的 î 对得上吗？', 'Hint: compute the first column of AB, A(Bî). Does it match the purple î?');
+      show(); P.invalidate();
+    }
+    function answer(g) {
+      if (answered) return;
+      answered = true;
+      const ok = g === truth;
+      streak = ok ? streak + 1 : 0;
+      if (streak >= 4) R101.done('detective');
+      const [f, s] = truth === 'AB' ? [b, a] : [a, b];
+      const nf = truth === 'AB' ? 'B' : 'A', ns = truth === 'AB' ? 'A' : 'B';
+      const u = colOf(f[2], 0), w = M.mv(s[2], u);
+      const why = L(`${truth} 是先 ${nf} 后 ${ns}：${nf} 把 î 送到 ${pt(u)}，${ns} 再把它送到 ${pt(w)}。这正是紫色的 î。青色虚线是另一种顺序。`,
+        `${truth} means ${nf} first, then ${ns}: ${nf} sends î to ${pt(u)}, then ${ns} sends that to ${pt(w)}. That is the purple î. The cyan dashed grid is the other order.`);
+      msg.innerHTML = `<b style="color:var(--c-${ok ? 'good' : 'bad'})">${ok ? L('答对了！', 'Correct!') : L('不对。', 'Not quite.')}</b> ${why}`;
+      show(); P.invalidate();
+    }
+    ui.button(ans, { zh: '这是 AB', en: 'This is AB', onClick: () => answer('AB') });
+    ui.button(ans, { zh: '这是 BA', en: 'This is BA', onClick: () => answer('BA') });
+    document.getElementById('dt-next').onclick = pick;
+    R101.on('lang', show);
+    pick();
+  })();
+
+  /* ---------------- FIG 4: the product table ---------------- */
+  (function () {
+    const stage = document.getElementById('tb-stage');
+    stage.innerHTML = `<div class="mxs"><div class="mxb"></div><div class="mxb"><div class="cap">B</div><div class="mx" id="tb-B"></div></div>` +
+      `<div class="mxb"><div class="cap">A</div><div class="mx" id="tb-A"></div></div><div class="mxb"><div class="cap">AB</div><div class="mx prod" id="tb-P"></div></div></div>`;
+    const mk = (id, cls) => { const el = document.getElementById(id); const cells = []; for (let i = 0; i < 2; i++) for (let j = 0; j < 2; j++) { const s = document.createElement('span'); s.dataset.i = i; s.dataset.j = j; el.appendChild(s); cells.push(s); } return cells; };
+    const cA = mk('tb-A'), cB = mk('tb-B'), cP = mk('tb-P');
+    let sel = [0, 0];
+    const seen = new Set();
+    cP.forEach(s => {
+      s.tabIndex = 0; s.setAttribute('role', 'button');
+      const go = () => { sel = [+s.dataset.i, +s.dataset.j]; seen.add(sel.join(',')); if (seen.size >= 4) R101.done('cells'); render(); };
+      s.addEventListener('pointerenter', go); s.addEventListener('click', go);
+      s.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); go(); } });
+    });
+    seen.add('0,0');
+    const t1 = document.getElementById('tb-tex1'), t2 = document.getElementById('tb-tex2'), vis = document.getElementById('tb-visits');
+    const edA = ui.matrixEditor(document.getElementById('tb-edA'), { value: lab.A, step: 0.1, onInput: B => { lab.A = B; lab.touched = true; render(); emitMat('tb'); } });
+    const edB = ui.matrixEditor(document.getElementById('tb-edB'), { value: lab.B, step: 0.1, onInput: B => { lab.B = B; lab.touched = true; render(); emitMat('tb'); } });
+    function render() {
+      const A = lab.A, B = lab.B, Pm = M.mul(A, B), [i, j] = sel;
+      cA.forEach(s => { s.textContent = hx(A[s.dataset.i][s.dataset.j]); s.className = +s.dataset.i === i ? 'r' : ''; });
+      cB.forEach(s => { s.textContent = hx(B[s.dataset.i][s.dataset.j]); s.className = +s.dataset.j === j ? 'c' : ''; });
+      cP.forEach(s => { s.textContent = hx(Pm[s.dataset.i][s.dataset.j]); s.className = (+s.dataset.i === i && +s.dataset.j === j) ? 'sel' : ''; });
+      const a1 = A[i][0], a2 = A[i][1], b1 = B[0][j], b2 = B[1][j], I = i + 1, J = j + 1;
+      R101.tex(t1, `\\begin{aligned} (AB)_{${I}${J}} &= \\cx{a_{${I}1}}\\cw{b_{1${J}}} + \\cx{a_{${I}2}}\\cw{b_{2${J}}} \\\\ &= \\cx{(${tx(a1)})}\\cw{(${tx(b1)})} + \\cx{(${tx(a2)})}\\cw{(${tx(b2)})} \\\\ &= ${tx(a1 * b1)} + ${tx(a2 * b2)} = \\cv{${tx(Pm[i][j])}} \\end{aligned}`);
+      const colA1 = colOf(A, 0), colA2 = colOf(A, 1), res = colOf(Pm, j);
+      const resTex = '\\begin{bmatrix}' + res.map((x, r) => (r === i ? `\\cv{${tx(x)}}` : tx(x))).join(' \\\\ ') + '\\end{bmatrix}';
+      R101.tex(t2, `\\begin{aligned} A\\,\\cw{${tvec(colOf(B, j))}} &= \\cw{(${tx(b1)})}${tvec(colA1)} + \\cw{(${tx(b2)})}${tvec(colA2)} \\\\ &= ${resTex} \\end{aligned}`);
+      vis.innerHTML = L(`已看 ${seen.size}/4`, `visited ${seen.size}/4`);
+    }
+    R101.on('labmat', src => { if (src === 'tb') return; edA.set(lab.A); edB.set(lab.B); render(); });
+    R101.on('lang', render);
+    render();
+  })();
+
+  /* ---------------- shared: draw a cuboid with View3D polys ---------------- */
+  function drawBox(V, Rm, h, face) {
+    const eye = V._b.eye, E = [[1, 0, 0], [0, 1, 0], [0, 0, 1]];
+    for (let a = 0; a < 3; a++) for (const sg of [1, -1]) {
+      const u = (a + 1) % 3, w = (a + 2) % 3;
+      const n = E[a].map(x => x * sg), ctr = n.map(x => x * h[a]);
+      const loc = [[1, 1], [-1, 1], [-1, -1], [1, -1]].map(([p, q]) => { const r = ctr.slice(); r[u] += p * h[u]; r[w] += q * h[w]; return r; });
+      const W = loc.map(p => M.mv(Rm, p)), cW = M.mv(Rm, ctr), nW = M.mv(Rm, n);
+      if (M.dot(nW, M.sub(eye, cW)) <= 0) continue;
+      const st = face(a, sg);
+      V.poly(W, { fill: st.fill, fillAlpha: st.alpha, stroke: st.stroke || 'text', alpha: 0.85, width: 1.4 });
+      if (st.mark) {
+        const at = (p, q) => { const r = ctr.slice(); r[u] += p * h[u]; r[w] += q * h[w]; return M.mv(Rm, r); };
+        V.poly([at(0.72, 0.72), at(-0.72, 0.72), at(-0.72, -0.72), at(0.72, -0.72)], { stroke: 'v', width: 2.4, bias: -0.08 });
+        V.poly([at(-0.4, 0.3), at(0.4, 0.3)], { stroke: 'v', width: 2, bias: -0.08 });
+        V.poly([at(-0.4, 0), at(0.4, 0)], { stroke: 'v', width: 2, bias: -0.08 });
+      }
+    }
+  }
+
+  /* ---------------- FIG 5: the book, two orders ---------------- */
+  (function () {
+    let al = 90, be = 90, t = 2, anim = null;
+    const H = [0.95, 0.62, 0.2], FC = ['i', 'j', 'k'];
+    const Rof = (order, tt) => {
+      const a = al * D2R, b = be * D2R, s1 = M.clamp(tt, 0, 1), s2 = M.clamp(tt - 1, 0, 1);
+      return order === 'xz' ? M.mul(M.rotZ(b * s2), M.rotX(a * s1)) : M.mul(M.rotX(a * s2), M.rotZ(b * s1));
+    };
+    const mkDraw = order => V => {
+      V.grid({ extent: 3 });
+      [['i', [2.3, 0, 0], 'x'], ['j', [0, 2.3, 0], 'y'], ['k', [0, 0, 2.1], 'z']].forEach(([c, e, lb]) => V.arrow([0, 0, 0], e, { color: c, width: 2, alpha: 0.55, label: lb, head: 9 }));
+      drawBox(V, Rof(order, t), H, (a, sg) => ({ fill: FC[a], alpha: 0.5, mark: a === 2 && sg === 1 }));
+    };
+    const opts = { height: 360, dist: 6.2, yaw: -0.85, pitch: 0.42 };
+    const V1 = new R101.View3D('#bk-x', Object.assign({}, opts, { draw: mkDraw('xz') }));
+    const V2 = new R101.View3D('#bk-z', Object.assign({}, opts, { draw: mkDraw('zx') }));
+    let busy = false;
+    const link = (S, T) => {
+      const ev = () => { if (busy) return; busy = true; T.cam.yaw = S.cam.yaw; T.cam.pitch = S.cam.pitch; T.cam.dist = S.cam.dist; T.invalidate(); busy = false; };
+      S.canvas.addEventListener('pointermove', ev); S.canvas.addEventListener('wheel', ev);
+    };
+    link(V1, V2); link(V2, V1);
+    const ctr = document.getElementById('bk-ctrl'), read = document.getElementById('bk-read');
+    const redraw = () => { V1.invalidate(); V2.invalidate(); };
+    const slT = ui.slider(ctr, { zh: '进度', en: 'progress', min: 0, max: 2, step: 0.01, value: 2, fmt: v => M.fmt(v, 2), onInput: v => { stopAnim(); t = v; redraw(); } });
+    const slA = ui.slider(ctr, { zh: '绕 x 的角 α', en: 'x-turn α', min: 0, max: 180, step: 5, value: al, fmt: v => v + '°', onInput: v => { al = v; sync(); } });
+    const slB = ui.slider(ctr, { zh: '绕 z 的角 β', en: 'z-turn β', min: 0, max: 180, step: 5, value: be, fmt: v => v + '°', onInput: v => { be = v; sync(); } });
+    read.style.order = 5;
+    const t1 = document.getElementById('bk-tex1'), t2 = document.getElementById('bk-tex2');
+    function stopAnim() { if (anim) { anim(); anim = null; } }
+    document.getElementById('bk-play').onclick = () => {
+      stopAnim(); t = 0; slT.set(0); redraw();
+      anim = R101.animate(3600, (e, raw) => { t = phase(raw); slT.set(t); redraw(); }, () => { anim = null; t = 2; slT.set(2); redraw(); });
+    };
+    function sync() {
+      const R1 = Rof('xz', 2), R2 = Rof('zx', 2), d = mdiff(R1, R2);
+      R101.tex(t1, `R_z(${be}^\\circ)\\,R_x(${al}^\\circ) = ${tmat(R1)}`);
+      R101.tex(t2, `R_x(${al}^\\circ)\\,R_z(${be}^\\circ) = ${tmat(R2)}`);
+      read.innerHTML = d < 0.02
+        ? `<b style="color:var(--c-good)">${L('两种顺序的最终姿态相同', 'Both orders end in the same orientation')}</b>`
+        : `<b style="color:var(--c-v)">${L('两种顺序的最终姿态不同', 'The two orders end in different orientations')}</b> · max |R<sub>1</sub> − R<sub>2</sub>| = ${M.fmt(d, 2)}`;
+      if (al >= 20 && be >= 20 && d < 0.02) R101.done('commute3d');
+      redraw();
+    }
+    R101.on('lang', sync);
+    sync();
+  })();
+
+  /* ---------------- FIG 6: angle addition ---------------- */
+  (function () {
+    let al = 30, be = 40;
+    const r = 3;
+    const pol = (a, rr) => [(rr || r) * Math.cos(a), (rr || r) * Math.sin(a)];
+    const arc = (a0, a1, rr) => { const pts = []; for (let k = 0; k <= 24; k++) pts.push(pol(a0 + (a1 - a0) * k / 24, rr)); return pts; };
+    const wrap = a => { while (a > Math.PI) a -= 2 * Math.PI; while (a <= -Math.PI) a += 2 * Math.PI; return a; };
+    const P = new R101.Plane2D('#an-canvas', { height: 380, view: { span: 8.4 }, draw, onChange: sync });
+    function draw(P) {
+      const a = al * D2R, b = be * D2R;
+      P.grid({ color: 'grid', axisColor: 'grid-2' });
+      P.circle([0, 0], r, { color: 'axis', alpha: 0.25, width: 1 });
+      P.arrow([0, 0], [r, 0], { color: 'i', width: 3, alpha: 0.8, label: 'î' });
+      // other order: alpha first (dashed grey)
+      P.arrow([0, 0], pol(a), { color: 'text-2', width: 2, dash: [5, 4], alpha: 0.75, label: 'R(α)î', labelColor: 'text-2' });
+      P.path(arc(a, a + b, 1.9), { color: 'text-2', width: 1.6, dash: [4, 4], alpha: 0.75 });
+      // this order: beta first, then alpha
+      P.path(arc(0, b, 1.0), { color: 'w', width: 2.6 });
+      P.arrow([0, 0], pol(b), { color: 'w', width: 3.5, label: 'R(β)î' });
+      P.path(arc(b, a + b, 1.5), { color: 'v', width: 2.6 });
+      P.arrow([0, 0], pol(a + b), { color: 'v', width: 4, label: 'R(α)R(β)î = R(α+β)î', labelOffset: [8, -12] });
+      P.text('β', pol(b / 2, 1.3), { color: 'w', bold: true });
+      P.text('α', pol(b + a / 2, 1.8), { color: 'v', bold: true });
+    }
+    P.handle({ pos: () => pol(be * D2R), color: 'w', snap: p => { const a = Math.atan2(p[1], p[0]); const q = pol(Math.round(a / (5 * D2R)) * 5 * D2R); return q; }, set: p => { be = Math.round(Math.atan2(p[1], p[0]) / D2R / 5) * 5; } });
+    P.handle({ pos: () => pol((al + be) * D2R), color: 'v', snap: p => p, set: p => { const tot = Math.atan2(p[1], p[0]); al = Math.round(wrap(tot - be * D2R) / D2R / 5) * 5; } });
+    const ctr = document.getElementById('an-ctrl');
+    const sa = ui.slider(ctr, { zh: 'α', en: 'α', min: -180, max: 180, step: 5, value: al, fmt: v => v + '°', onInput: v => { al = v; sync(); } });
+    const sb = ui.slider(ctr, { zh: 'β', en: 'β', min: -180, max: 180, step: 5, value: be, fmt: v => v + '°', onInput: v => { be = v; sync(); } });
+    const t1 = document.getElementById('an-tex'), t2 = document.getElementById('an-tex2');
+    const f3 = x => M.tex(x, 3);
+    function sync() {
+      al = M.clamp(al, -180, 180); be = M.clamp(be, -180, 180);
+      sa.set(al); sb.set(be);
+      const a = al * D2R, b = be * D2R, Ra = M.rot2(a), Rb = M.rot2(b), Pm = M.mul(Ra, Rb), Rs = M.rot2(a + b);
+      R101.tex(t1, `\\begin{aligned} R(${al}^\\circ)R(${be}^\\circ) &= ${tmat(Pm)} \\\\ &= R(${al + be}^\\circ) \\end{aligned}`);
+      R101.tex(t2, `\\begin{aligned} \\cv{\\cos(\\alpha+\\beta)} &= \\cos\\alpha\\cos\\beta \\\\ &\\quad - \\sin\\alpha\\sin\\beta \\\\ &= (${f3(Math.cos(a))})(${f3(Math.cos(b))}) \\\\ &\\quad - (${f3(Math.sin(a))})(${f3(Math.sin(b))}) \\\\ &= \\cv{${f3(Math.cos(a + b))}} \\end{aligned}`);
+      if (Math.abs(al + be - 90) < 0.5 && al !== 0 && be !== 0) R101.done('angle90');
+      P.invalidate();
+    }
+    R101.on('lang', sync);
+    sync();
+  })();
+
+  /* ---------------- FIG 7: pan-tilt camera ---------------- */
+  (function () {
+    const pc = [2.4, 0.8, 0], FL = -2.2;
+    let psi = 60, th = 30, mode = 'correct';
+    const Rc = () => M.mul(M.rotZ(psi * D2R), M.rotY(th * D2R));
+    const Rw = () => M.mul(M.rotY(th * D2R), M.rotZ(psi * D2R));
+    const V = new R101.View3D('#pt-canvas', { height: 470, dist: 6.8, yaw: -0.62, pitch: 0.3, target: [0.4, 0.7, -0.45], draw });
+    const o = [0, 0, 0];
+    function frame(Rm, len, o2) {
+      ['i', 'j', 'k'].forEach((c, j) => V.arrow(o, M.scale(colOf(Rm, j), len), Object.assign({ color: c }, o2.each ? o2.each(j) : o2)));
+    }
+    function draw(V0) {
+      const R1 = Rc(), R2 = Rw(), Rh = M.rotZ(psi * D2R), sw = mode === 'swapped', a = sw ? 0.3 : 1;
+      for (let k = -3; k <= 3; k++) {
+        V.line([k, -3, FL], [k, 3, FL], { color: 'grid-2', width: 1, alpha: 0.7, layer: 'bg' });
+        V.line([-3, k, FL], [3, k, FL], { color: 'grid-2', width: 1, alpha: 0.7, layer: 'bg' });
+      }
+      V.line(o, [0, 0, FL], { color: 'text-2', width: 5, alpha: 0.7, layer: 'bg' });
+      // world frame (faint) and head frame (dashed, after the pan only)
+      frame(M.eye(3), 2.1, { each: j => ({ width: 2, alpha: 0.45, label: ['x_w', 'y_w', 'z_w'][j], head: 9 }) });
+      frame(Rh, 1.5, { each: j => ({ width: 2, alpha: 0.6, dash: [5, 4], head: 9 }) });
+      V.text(R101.t('俯仰轴 y_h', 'tilt axis y_h'), M.mv(Rh, [0, 1.95, 0]), { color: 'j', dx: 8, dy: 16, size: 12 });
+      // arcs for pan and tilt
+      const yaw = [], pit = [];
+      for (let k = 0; k <= 24; k++) {
+        const s = psi * D2R * k / 24, q = th * D2R * k / 24;
+        yaw.push([1.0 * Math.cos(s), 1.0 * Math.sin(s), 0]);
+        pit.push(M.mv(Rh, [1.2 * Math.cos(q), 0, -1.2 * Math.sin(q)]));
+      }
+      V.polyline(yaw, { color: 'x', width: 2.2 });
+      V.polyline(pit, { color: 'x', width: 2.2 });
+      V.text('ψ', [1.2 * Math.cos(psi * D2R / 2), 1.2 * Math.sin(psi * D2R / 2), 0], { color: 'x', size: 15 });
+      V.text('θ', M.mv(Rh, [1.45 * Math.cos(th * D2R / 2), 0, -1.45 * Math.sin(th * D2R / 2)]), { color: 'x', size: 15 });
+      // camera body + camera frame (correct order)
+      drawBox(V, R1, [0.3, 0.22, 0.17], (ax, sg) => (ax === 0 && sg === 1 ? { fill: 'text-2', alpha: 0.9 } : { fill: 'x', alpha: 0.32 * (sw ? 0.6 : 1) }));
+      frame(R1, 1.6, { each: j => ({ width: 4, alpha: a, label: ['x_c', 'y_c', 'z_c'][j], head: 12 }) });
+      // the cup: path along the camera axes, then the world position
+      const p1 = M.mv(R1, pc), pa = M.scale(colOf(R1, 0), pc[0]);
+      V.line(o, pa, { color: 'i', width: 2, dash: [6, 5], alpha: a });
+      V.line(pa, p1, { color: 'j', width: 2, dash: [6, 5], alpha: a });
+      V.line(p1, [p1[0], p1[1], FL], { color: 'v', width: 1.5, dash: [2, 4], alpha: 0.55 * a });
+      V.point(p1, { color: 'v', r: 8, stroke: 'canvas', alpha: a });
+      V.text(R101.t('杯子 p', 'cup p'), p1, { color: 'v', dx: 14, dy: 16, size: 14 });
+      if (sw) {
+        const p2 = M.mv(R2, pc), pb = M.scale(colOf(R2, 0), pc[0]);
+        ['i', 'j', 'k'].forEach((c, j) => V.arrow(o, M.scale(colOf(R2, j), 1.6), { color: 'w', width: 3, dash: [6, 4], alpha: 0.9, head: 11, label: j === 0 ? "x_c′" : null }));
+        V.line(o, pb, { color: 'w', width: 2, dash: [6, 5] });
+        V.line(pb, p2, { color: 'w', width: 2, dash: [6, 5] });
+        V.line(p2, [p2[0], p2[1], FL], { color: 'w', width: 1.5, dash: [2, 4], alpha: 0.55 });
+        V.point(p2, { color: 'w', r: 8, stroke: 'canvas' });
+        V.text(R101.t('错算的位置 p′', 'wrong position p′'), p2, { color: 'w', dx: 14, dy: 16, size: 14 });
+      }
+    }
+    const ctr = document.getElementById('pt-ctrl');
+    const sP = ui.slider(ctr, { zh: '水平转 ψ', en: 'pan ψ', min: -180, max: 180, step: 1, value: psi, fmt: v => Math.round(v) + '°', onInput: v => { psi = v; sync(); } });
+    const sT = ui.slider(ctr, { zh: '俯仰 θ（正为向下）', en: 'tilt θ (+ = down)', min: -45, max: 45, step: 1, value: th, fmt: v => Math.round(v) + '°', onInput: v => { th = v; sync(); } });
+    ui.seg(document.getElementById('pt-seg'), [{ value: 'correct', zh: '正确顺序', en: 'Correct order' }, { value: 'swapped', zh: '错误顺序', en: 'Swapped order' }], mode, v => { mode = v; sync(); });
+    const tex = document.getElementById('pt-tex'), read = document.getElementById('pt-read');
+    function sync() {
+      const sw = mode === 'swapped', Rm = sw ? Rw() : Rc(), p = M.mv(Rm, pc), pOk = M.mv(Rc(), pc), pBad = M.mv(Rw(), pc);
+      const dist = M.norm(M.sub(pOk, pBad)), cls = sw ? 'cw' : 'cv';
+      const prodTex = sw ? `R_y(${th}^\\circ)\\,R_z(${psi}^\\circ)` : `R_z(${psi}^\\circ)\\,R_y(${th}^\\circ)`;
+      R101.tex(tex, `\\begin{aligned} \\${cls}{R} &= ${prodTex} \\\\ &= ${tmat(Rm)} \\\\ \\${cls}{\\mathbf p_W} &= R\\,${tvec(pc)} \\\\ &= \\${cls}{${tvec(p)}} \\end{aligned}`);
+      read.innerHTML = `${L('正确 p', 'correct p')} = ${pt(pOk.map(x => Math.round(x * 100) / 100))}<br>` +
+        (sw ? `${L('错算 p′', 'wrong p′')} = ${pt(pBad.map(x => Math.round(x * 100) / 100))}<br>` : '') +
+        `${L('两者相距', 'distance apart')} <b style="color:var(--c-${dist < 0.06 ? 'good' : 'v'})">${M.fmt(dist, 2)} m</b>` +
+        (dist < 0.06 && Math.abs(th) < 1e-9 ? `<br>${L('θ = 0 时顺序无关', 'with θ = 0 the order does not matter')}` : '') +
+        (dist < 0.06 && Math.abs(psi) < 1e-9 && Math.abs(th) >= 1 ? `<br>${L('ψ = 0 时顺序无关', 'with ψ = 0 the order does not matter')}` : '');
+      if (sw && dist > 1.5) R101.done('swap');
+      if (sw && dist < 0.06 && Math.abs(th) >= 15) R101.done('agree');
+      V.invalidate();
+    }
+    R101.on('lang', sync);
+    sync();
+  })();
+});
+</script>
+</body>
+</html>
