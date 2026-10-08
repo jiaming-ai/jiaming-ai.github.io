@@ -13,7 +13,7 @@
     <script>(function(){var d=document.documentElement,l;try{var p=new URLSearchParams(location.search).get('lang');l=(p==='zh'||p==='en')?p:localStorage.getItem('lang')}catch(e){}if(l!=='zh'&&l!=='en')l=/^zh/i.test(navigator.language||'')?'zh':'en';d.setAttribute('data-site-lang',l);d.lang=l==='zh'?'zh-Hans':'en'})()</script>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-    <link rel="stylesheet" href="css/styles.css?v=202610011400">
+    <link rel="stylesheet" href="css/styles.css?v=202610080643">
 </head>
 <body>
     <!-- Side Navigation (Desktop/Tablet) -->
@@ -40,11 +40,11 @@
                     </div>
                     <h1 class="hero-name reveal" style="--reveal-delay: .08s">Jiaming <span class="grad">Wang</span></h1>
                     <p class="hero-tagline reveal" lang="en" style="--reveal-delay: .16s">
-                        Building robots that <span class="typer" data-words='["navigate the open world — without a map.", "remember where they have been.", "relocalize when the world changes.", "turn language into action.", "win in the real world, not just in sim."]'>navigate the open world — without a map.</span>
+                        Building robots that <span class="typer" data-words='["navigate the open world — without a map.", "remember where they have been.", "relocalize when the world changes.", "see across sensors — even underwater.", "turn language into action.", "win in the real world, not just in sim."]'>navigate the open world — without a map.</span>
                     </p>
                     <p class="hero-tagline reveal" lang="zh-Hans" style="--reveal-delay: .16s">
 
-                        让机器人学会<span class="typer" data-words='["在没有地图的开放世界中导航。", "记住自己去过哪里。", "在世界变化时重新定位。", "把语言变成行动。", "在真实世界中取胜，而不只是在仿真里。"]'>在没有地图的开放世界中导航。</span>
+                        让机器人学会<span class="typer" data-words='["在没有地图的开放世界中导航。", "记住自己去过哪里。", "在世界变化时重新定位。", "跨越传感器去感知——甚至在水下。", "把语言变成行动。", "在真实世界中取胜，而不只是在仿真里。"]'>在没有地图的开放世界中导航。</span>
 
                     </p>
                     <p class="narrative-text reveal" style="--reveal-delay: .24s">
@@ -111,7 +111,7 @@
                         <div class="trophy-body">
                             <div class="trophy-event"><span lang="en">IEEE ICRA 2026 · Vienna</span><span lang="zh-Hans">IEEE ICRA 2026 · 维也纳</span></div>
                             <h3><span lang="en">REAL-I: Real-world Embodied AI Learning Challenge</span><span lang="zh-Hans">REAL-I：真实世界具身智能学习挑战赛</span></h3>
-                            <p><span lang="en">Won the inaugural challenge with an end-to-end robot learning and deployment system — through simulation, real-robot rounds, and an on-site physical-robot final. Team NUS-CLEAR: Jiaming Wang, Jizhuo Chen, Diwen Liu; advisor Harold Soh.</span><span lang="zh-Hans">凭借端到端的机器人学习与部署系统，赢得首届挑战赛——历经仿真赛、真机轮次，以及现场实体机器人决赛。NUS-CLEAR 团队：Jiaming Wang、Jizhuo Chen、Diwen Liu；指导教授 Harold Soh。</span></p>
+                            <p><span lang="en">Won the inaugural challenge with an end-to-end robot learning and deployment system — through simulation, real-robot rounds, and an on-site physical-robot final. The win also brought our lab a $70,000 humanoid robot. Team NUS-CLEAR: Jiaming Wang, Jizhuo Chen, Diwen Liu; advisor Harold Soh.</span><span lang="zh-Hans">凭借端到端的机器人学习与部署系统，赢得首届挑战赛——历经仿真赛、真机轮次，以及现场实体机器人决赛。实验室也因此获得一台价值 7 万美元的人形机器人。NUS-CLEAR 团队：Jiaming Wang、Jizhuo Chen、Diwen Liu；指导教授 Harold Soh。</span></p>
                             <div class="trophy-links">
                                 <a href="https://arxiv.org/abs/2609.13679" target="_blank" rel="noopener noreferrer"><i class="fas fa-file-lines"></i><span lang="en">Paper</span><span lang="zh-Hans">论文</span></a>
                                 <a href="pages/blog/how-to-win.html"><i class="fas fa-pen-nib"></i><span lang="en">How we won</span><span lang="zh-Hans">夺冠心得</span></a>
@@ -149,6 +149,7 @@
                             <p><span lang="en">Led the GeNIE autonomous navigation system: low-cost rovers operated remotely across real-world environments in seven countries, navigating with just an RGB camera and noisy GPS.</span><span lang="zh-Hans">主导 GeNIE 自主导航系统的研发：低成本移动机器人在七个国家的真实环境中远程运行，仅依靠 RGB 相机与带噪声的 GPS 完成导航。</span></p>
                             <div class="trophy-links">
                                 <a href="https://arxiv.org/abs/2506.17960" target="_blank" rel="noopener noreferrer"><i class="fas fa-file-lines"></i><span lang="en">GeNIE paper</span><span lang="zh-Hans">GeNIE 论文</span></a>
+                                <a href="https://clear-nus.github.io/genie" target="_blank" rel="noopener noreferrer"><i class="fas fa-globe"></i><span lang="en">Project</span><span lang="zh-Hans">项目</span></a>
                                 <a href="https://www.comp.nus.edu.sg/bytes/nus-computing-has-taken-1st-place-at-the-earth-rover-challenge-2025/" target="_blank" rel="noopener noreferrer"><i class="fas fa-newspaper"></i><span lang="en">NUS news</span><span lang="zh-Hans">NUS 新闻</span></a>
                                 <a href="pages/blog/how-to-win.html"><i class="fas fa-pen-nib"></i><span lang="en">How we won</span><span lang="zh-Hans">夺冠心得</span></a>
                             </div>
@@ -194,58 +195,83 @@
             <!-- Research focus -->
             <section class="simple-section" id="focus">
                 <h2 class="simple-section-title reveal"><span class="sec-idx">02</span><span lang="en">Research focus</span><span lang="zh-Hans">研究方向</span></h2>
-                <p class="section-lede reveal"><span lang="en">Robots that leave the lab: perceiving, remembering, and acting in places they have never seen.</span><span lang="zh-Hans">走出实验室的机器人：在从未见过的地方感知、记忆并行动。</span></p>
+                <p class="section-lede reveal"><span lang="en">Robots that leave the lab. Two lines of work: environment representations that stay reliable across places, conditions and sensors, and robot policies that stay robust in the open world.</span><span lang="zh-Hans">走出实验室的机器人。两条研究主线：在不同场景、条件与传感器下依然可靠的环境表示，以及在开放世界中依然鲁棒的机器人策略。</span></p>
                 <div class="pillars">
-                    <article class="pillar spotlight tilt reveal">
+                    <article class="pillar spotlight reveal">
                         <div class="pillar-head">
                             <div class="pillar-icon"><i class="fas fa-diagram-project"></i></div>
-                            <span class="pillar-code"><span lang="en">MOD-01 · PERCEPTION &amp; MEMORY</span><span lang="zh-Hans">MOD-01 · 感知与记忆</span></span>
+                            <span class="pillar-code"><span lang="en">LINE-01 · REPRESENTATION</span><span lang="zh-Hans">主线 01 · 环境表示</span></span>
                         </div>
-                        <h3><span lang="en">Spatial Perception &amp; Long-term Memory</span><span lang="zh-Hans">空间感知与长期记忆</span></h3>
-                        <p><span lang="en">Maps and memories that stay reliable as the world changes — topological mapping that relocalizes under perceptual aliasing, reasoning over pose hypotheses in continuous SE(3), and memory matched to the timescale of the task so robots can act on what they saw minutes, hours, or days ago.</span><span lang="zh-Hans">在世界不断变化时依然可靠的地图与记忆：在感知混淆（perceptual aliasing）下仍能重新定位的拓扑建图，在连续 SE(3) 空间中对位姿假设进行推理，以及与任务时间尺度相匹配的记忆，让机器人能够依据数分钟、数小时乃至数天前所见采取行动。</span></p>
+                        <h3><span lang="en">Open &amp; Robust Environment Representation</span><span lang="zh-Hans">开放、鲁棒的环境表示</span></h3>
+                        <p><span lang="en">Representations that operate across environments, conditions, and sensing modalities: topological maps that relocalize after severe change, support object search, scale up with GPS, and even work underwater.</span><span lang="zh-Hans">能够跨环境、跨条件、跨传感模态工作的表示：在剧烈变化后仍能重定位的拓扑地图，支撑物体搜索，借助 GPS 扩展到大尺度场景，甚至可以在水下运行。</span></p>
+                        <ul class="pillar-list">
+                            <li>
+                                <div class="pl-head"><b>CROSS</b><span class="pl-status">NeurIPS'26</span></div>
+                                <div class="pl-desc"><span lang="en">Open-world topological representation and localization.</span><span lang="zh-Hans">开放世界的拓扑表示与定位。</span></div>
+                                <div class="pl-links"><a href="https://jiaming.im/CROSS/" target="_blank" rel="noopener noreferrer"><span lang="en">Project</span><span lang="zh-Hans">项目</span></a><a href="https://arxiv.org/abs/2605.02227" target="_blank" rel="noopener noreferrer">arXiv</a></div>
+                            </li>
+                            <li>
+                                <div class="pl-head"><b>ECROM</b><span class="pl-status"><span lang="en">Under review</span><span lang="zh-Hans">审稿中</span></span></div>
+                                <div class="pl-desc"><span lang="en">Extends CROSS toward long-term, open-vocabulary object search.</span><span lang="zh-Hans">将 CROSS 扩展到长期、开放词汇的物体搜索。</span></div>
+                                <div class="pl-links"><a href="ecrom/"><span lang="en">Project</span><span lang="zh-Hans">项目</span></a><a href="https://arxiv.org/abs/2610.00330" target="_blank" rel="noopener noreferrer">arXiv</a></div>
+                            </li>
+                            <li>
+                                <div class="pl-head"><b>CROSS v2</b><span class="pl-status wip"><span lang="en">Coming · RSS'27</span><span lang="zh-Hans">即将投稿 · RSS'27</span></span></div>
+                                <div class="pl-desc"><span lang="en">Stereo and monocular-inertial modes, frontend smoothing with local factor graphs, cloud support, and large-scale operation with GPS.</span><span lang="zh-Hans">支持双目与单目-惯性模式，基于局部因子图的前端平滑，云端支持，以及结合 GPS 的大尺度运行。</span></div>
+                            </li>
+                            <li>
+                                <div class="pl-head"><b>CROSS-UW</b><span class="pl-status wip"><span lang="en">Coming · RSS'27</span><span lang="zh-Hans">即将投稿 · RSS'27</span></span></div>
+                                <div class="pl-desc"><span lang="en">CROSS for underwater environments, where multi-session relocalization is particularly challenging.</span><span lang="zh-Hans">将 CROSS 扩展到水下环境——在那里，多次会话间的重定位尤为困难。</span></div>
+                            </li>
+                            <li>
+                                <div class="pl-head"><b><span lang="en">Semantic CROSS</span><span lang="zh-Hans">语义 CROSS</span></b><span class="pl-status wip"><span lang="en">Exploring</span><span lang="zh-Hans">探索中</span></span></div>
+                                <div class="pl-desc"><span lang="en">Bringing richer semantic representations into the CROSS topological framework.</span><span lang="zh-Hans">在 CROSS 拓扑框架中引入更丰富的语义表示。</span></div>
+                            </li>
+                        </ul>
                         <div class="pillar-tags">
-                            <a href="https://arxiv.org/abs/2605.02227" target="_blank" rel="noopener noreferrer">CROSS · NeurIPS'26</a>
-                            <span>TOPO-Bench · ICRA'26</span>
+                            <a href="https://arxiv.org/abs/2510.04100" target="_blank" rel="noopener noreferrer">TOPO-Bench · ICRA'26</a>
+                            <span>POLo · ICRA'24</span>
                             <a href="pages/blog/robot-memory.html"><span lang="en">Blog · The right memory</span><span lang="zh-Hans">博客 · 对的 memory</span></a>
                         </div>
                     </article>
-                    <article class="pillar spotlight tilt reveal" style="--reveal-delay: .08s">
+                    <article class="pillar spotlight reveal" style="--reveal-delay: .08s">
                         <div class="pillar-head">
                             <div class="pillar-icon"><i class="fas fa-route"></i></div>
-                            <span class="pillar-code"><span lang="en">MOD-02 · NAVIGATION</span><span lang="zh-Hans">MOD-02 · 导航</span></span>
+                            <span class="pillar-code"><span lang="en">LINE-02 · POLICIES</span><span lang="zh-Hans">主线 02 · 机器人策略</span></span>
                         </div>
-                        <h3><span lang="en">Open-world Navigation</span><span lang="zh-Hans">开放世界导航</span></h3>
-                        <p><span lang="en">Map-free navigation that survives the real world — deployed across seven countries — plus social navigation among people and language-guided navigation.</span><span lang="zh-Hans">能在真实世界中生存的无地图导航——已在七个国家部署——以及人群中的社交导航和语言引导的导航。</span></p>
+                        <h3><span lang="en">Robust Robot Policies in the Open World</span><span lang="zh-Hans">开放世界中的鲁棒机器人策略</span></h3>
+                        <p><span lang="en">Policies that generalize beyond the lab: map-free navigation deployed in seven countries, championship-winning VLA post-training, social navigation learned from video, and foundation-model agents that reason, act, and improve.</span><span lang="zh-Hans">能够泛化到实验室之外的策略：已在七个国家部署的无地图导航，夺冠的 VLA 后训练，从视频中学到的社交导航，以及能够推理、行动并自我改进的基础模型智能体。</span></p>
+                        <ul class="pillar-list">
+                            <li>
+                                <div class="pl-head"><b>GeNIE</b><span class="pl-status win"><i class="fas fa-trophy"></i> Earth Rover · ICRA'25</span><span class="pl-status">RA-L</span></div>
+                                <div class="pl-desc"><span lang="en">Generalizable in-the-wild navigation; won the ICRA 2025 Earth Rover Challenge.</span><span lang="zh-Hans">面向真实开放环境的可泛化导航系统；ICRA 2025 Earth Rover Challenge 冠军。</span></div>
+                                <div class="pl-links"><a href="https://clear-nus.github.io/genie" target="_blank" rel="noopener noreferrer"><span lang="en">Project</span><span lang="zh-Hans">项目</span></a><a href="https://arxiv.org/abs/2506.17960" target="_blank" rel="noopener noreferrer">arXiv</a></div>
+                            </li>
+                            <li>
+                                <div class="pl-head"><b><span lang="en">VLA post-training</span><span lang="zh-Hans">VLA 后训练</span></b><span class="pl-status win"><i class="fas fa-trophy"></i> REAL-I · ICRA'26</span></div>
+                                <div class="pl-desc"><span lang="en">Won the ICRA 2026 REAL-I Challenge, through which our lab was also awarded a $70,000 humanoid robot.</span><span lang="zh-Hans">赢得 ICRA 2026 REAL-I 挑战赛，实验室也因此获得一台价值 7 万美元的人形机器人。</span></div>
+                                <div class="pl-links"><a href="https://arxiv.org/abs/2609.13679" target="_blank" rel="noopener noreferrer"><span lang="en">Paper</span><span lang="zh-Hans">论文</span></a><a href="pages/blog/how-to-win.html"><span lang="en">How we won</span><span lang="zh-Hans">夺冠心得</span></a></div>
+                            </li>
+                            <li>
+                                <div class="pl-head"><b><span lang="en">Social Navigation from Video</span><span lang="zh-Hans">从视频学习社交导航</span></b><span class="pl-status"><span lang="en">Under review</span><span lang="zh-Hans">审稿中</span></span></div>
+                                <div class="pl-desc"><span lang="en">Learning socially appropriate navigation behavior from large-scale video data.</span><span lang="zh-Hans">从大规模视频数据中学习符合社交规范的导航行为。</span></div>
+                                <div class="pl-links"><a href="https://jiaming.im/VideoSocNav/" target="_blank" rel="noopener noreferrer"><span lang="en">Project</span><span lang="zh-Hans">项目</span></a><a href="https://arxiv.org/abs/2609.37476" target="_blank" rel="noopener noreferrer">arXiv</a></div>
+                            </li>
+                            <li>
+                                <div class="pl-head"><b><span lang="en">Agentic robotics</span><span lang="zh-Hans">智能体机器人</span></b><span class="pl-status"><span lang="en">Survey</span><span lang="zh-Hans">综述</span></span></div>
+                                <div class="pl-desc"><span lang="en">How foundation-model-based agents can reason, act, and improve in robotic systems.</span><span lang="zh-Hans">基于基础模型的智能体如何在机器人系统中推理、行动并自我改进。</span></div>
+                                <div class="pl-links"><a href="https://www.alphaxiv.org/abs/2610.rsi-agentic-robotics" target="_blank" rel="noopener noreferrer"><span lang="en">Survey</span><span lang="zh-Hans">综述</span></a></div>
+                            </li>
+                            <li>
+                                <div class="pl-head"><b><span lang="en">Agentic world models</span><span lang="zh-Hans">智能体世界模型</span></b><span class="pl-status wip"><span lang="en">Exploring</span><span lang="zh-Hans">探索中</span></span></div>
+                                <div class="pl-desc"><span lang="en">A VLM constructs and reasons over a model of the world rather than directly predicting actions. Early results are very promising, for both manipulation and navigation.</span><span lang="zh-Hans">由 VLM 构建世界模型并在其上推理，而不是直接预测动作。初步实验结果非常可观，且同时适用于操作与导航。</span></div>
+                            </li>
+                        </ul>
                         <div class="pillar-tags">
-                            <span class="win"><i class="fas fa-trophy"></i> GeNIE · Earth Rover '25</span>
-                            <span>Arena-Bench 2.0</span>
-                            <span>POLo · ICRA'24</span>
-                        </div>
-                    </article>
-                    <article class="pillar spotlight tilt reveal">
-                        <div class="pillar-head">
-                            <div class="pillar-icon"><i class="fas fa-hand"></i></div>
-                            <span class="pillar-code"><span lang="en">MOD-03 · MANIPULATION</span><span lang="zh-Hans">MOD-03 · 操作</span></span>
-                        </div>
-                        <h3><span lang="en">Manipulation</span><span lang="zh-Hans">操作</span></h3>
-                        <p><span lang="en">Learning manipulation from real-robot data and deploying it reliably on physical robots — from task-oriented grasping and mobile base placement to uncertainty-aware trajectory diffusion.</span><span lang="zh-Hans">从真机数据中学习操作，并将其可靠地部署到实体机器人上——涵盖面向任务的抓取、移动底盘的位置规划，以及具备不确定性感知的轨迹扩散。</span></p>
-                        <div class="pillar-tags">
-                            <span class="win"><i class="fas fa-trophy"></i> REAL-I · ICRA'26</span>
-                            <span>TOG</span>
-                            <span>GBPP</span>
+                            <span>TOG · IROS'25 WS</span>
+                            <span>GBPP · IROS'25 WS</span>
                             <span>SCOPE · CoRL'26</span>
-                        </div>
-                    </article>
-                    <article class="pillar spotlight tilt reveal" style="--reveal-delay: .08s">
-                        <div class="pillar-head">
-                            <div class="pillar-icon"><i class="fas fa-brain"></i></div>
-                            <span class="pillar-code"><span lang="en">MOD-04 · AGENTIC</span><span lang="zh-Hans">MOD-04 · 智能体</span></span>
-                        </div>
-                        <h3><span lang="en">Agentic Robotics</span><span lang="zh-Hans">智能体机器人</span></h3>
-                        <p><span lang="en">Robots as agents that reason, plan, and improve themselves — using world models to imagine outcomes and agentic optimization to search for better behavior, instead of relying on a single fixed policy.</span><span lang="zh-Hans">把机器人视为能够推理、规划并自我改进的智能体——借助世界模型想象行动后果，借助 agentic 优化搜索更好的行为，而不是依赖单一的固定策略。</span></p>
-                        <div class="pillar-tags">
-                            <span><span lang="en">SCOPE · Agentic optimization</span><span lang="zh-Hans">SCOPE · Agentic 优化</span></span>
-                            <span><span lang="en">Video world models</span><span lang="zh-Hans">视频世界模型</span></span>
+                            <span>Arena-Bench 2.0</span>
                         </div>
                     </article>
                 </div>
@@ -255,10 +281,13 @@
             <section class="simple-section" id="news">
                 <h2 class="simple-section-title reveal"><span class="sec-idx">03</span><span lang="en">Mission log</span><span lang="zh-Hans">任务日志</span></h2>
                 <ul class="news-list">
-                    <li class="reveal"><span class="news-date"><span lang="en">Sep 2026</span><span lang="zh-Hans">2026年9月</span></span><span><span lang="en"><span class="news-tag">Paper</span><strong>CROSS</strong> accepted to <strong>NeurIPS 2026</strong>. <a href="https://arxiv.org/abs/2605.02227" class="link-accent" target="_blank" rel="noopener noreferrer">arXiv</a></span><span lang="zh-Hans"><span class="news-tag">论文</span><strong>CROSS</strong> 被 <strong>NeurIPS 2026</strong> 录用。<a href="https://arxiv.org/abs/2605.02227" class="link-accent" target="_blank" rel="noopener noreferrer">arXiv</a></span></span></li>
+                    <li class="reveal"><span class="news-date"><span lang="en">Oct 2026</span><span lang="zh-Hans">2026年10月</span></span><span><span lang="en"><span class="news-tag">Survey</span>New survey: <em>A Survey of Agentic Robotics: Toward Continual Self-Improvement</em>. <a href="https://www.alphaxiv.org/abs/2610.rsi-agentic-robotics" class="link-accent" target="_blank" rel="noopener noreferrer">Read</a></span><span lang="zh-Hans"><span class="news-tag">综述</span>新综述 <em>A Survey of Agentic Robotics: Toward Continual Self-Improvement</em> 发布。<a href="https://www.alphaxiv.org/abs/2610.rsi-agentic-robotics" class="link-accent" target="_blank" rel="noopener noreferrer">阅读</a></span></span></li>
+                    <li class="reveal"><span class="news-date"><span lang="en">Oct 2026</span><span lang="zh-Hans">2026年10月</span></span><span><span lang="en"><span class="news-tag">Paper</span><strong>ECROM</strong>, extending CROSS to long-term object search, is out on arXiv (under review). <a href="ecrom/" class="link-accent">Project</a> · <a href="https://arxiv.org/abs/2610.00330" class="link-accent" target="_blank" rel="noopener noreferrer">arXiv</a></span><span lang="zh-Hans"><span class="news-tag">论文</span>将 CROSS 扩展到长期物体搜索的 <strong>ECROM</strong> 已发布于 arXiv（审稿中）。<a href="ecrom/" class="link-accent">项目</a> · <a href="https://arxiv.org/abs/2610.00330" class="link-accent" target="_blank" rel="noopener noreferrer">arXiv</a></span></span></li>
+                    <li class="reveal"><span class="news-date"><span lang="en">Sep 2026</span><span lang="zh-Hans">2026年9月</span></span><span><span lang="en"><span class="news-tag">Paper</span><em>Learning Social Navigation from Internet Videos</em> is out on arXiv (under review). <a href="https://jiaming.im/VideoSocNav/" class="link-accent" target="_blank" rel="noopener noreferrer">Project</a> · <a href="https://arxiv.org/abs/2609.37476" class="link-accent" target="_blank" rel="noopener noreferrer">arXiv</a></span><span lang="zh-Hans"><span class="news-tag">论文</span><em>Learning Social Navigation from Internet Videos</em> 已发布于 arXiv（审稿中）。<a href="https://jiaming.im/VideoSocNav/" class="link-accent" target="_blank" rel="noopener noreferrer">项目</a> · <a href="https://arxiv.org/abs/2609.37476" class="link-accent" target="_blank" rel="noopener noreferrer">arXiv</a></span></span></li>
+                    <li class="reveal"><span class="news-date"><span lang="en">Sep 2026</span><span lang="zh-Hans">2026年9月</span></span><span><span lang="en"><span class="news-tag">Paper</span><strong>CROSS</strong> accepted to <strong>NeurIPS 2026</strong>. <a href="https://jiaming.im/CROSS/" class="link-accent" target="_blank" rel="noopener noreferrer">Project</a> · <a href="https://arxiv.org/abs/2605.02227" class="link-accent" target="_blank" rel="noopener noreferrer">arXiv</a></span><span lang="zh-Hans"><span class="news-tag">论文</span><strong>CROSS</strong> 被 <strong>NeurIPS 2026</strong> 录用。<a href="https://jiaming.im/CROSS/" class="link-accent" target="_blank" rel="noopener noreferrer">项目</a> · <a href="https://arxiv.org/abs/2605.02227" class="link-accent" target="_blank" rel="noopener noreferrer">arXiv</a></span></span></li>
                     <li class="reveal"><span class="news-date"><span lang="en">Sep 2026</span><span lang="zh-Hans">2026年9月</span></span><span><span lang="en"><span class="news-tag">Report</span>Our REAL-I challenge report, <em>How to Better Train VLAs</em>, is out on <a href="https://arxiv.org/abs/2609.13679" class="link-accent" target="_blank" rel="noopener noreferrer">arXiv</a>.</span><span lang="zh-Hans"><span class="news-tag">报告</span>我们的 REAL-I 挑战赛报告 <em>How to Better Train VLAs</em> 已发布于 <a href="https://arxiv.org/abs/2609.13679" class="link-accent" target="_blank" rel="noopener noreferrer">arXiv</a>。</span></span></li>
                     <li class="reveal"><span class="news-date">2026</span><span><span lang="en"><span class="news-tag">Service</span>Co-organizing workshops at <strong>RSS 2026</strong> (open-world navigation) and <strong>IROS 2026</strong> (social robot navigation).</span><span lang="zh-Hans"><span class="news-tag">服务</span>共同组织 <strong>RSS 2026</strong>（开放世界导航）与 <strong>IROS 2026</strong>（社交机器人导航）workshop。</span></span></li>
-                    <li class="reveal"><span class="news-date"><span lang="en">Jun 2026</span><span lang="zh-Hans">2026年6月</span></span><span><span lang="en"><span class="news-tag win">Win</span>Team NUS-CLEAR won <strong>1st place</strong> at the <strong>REAL-I Challenge, ICRA 2026</strong> in Vienna.</span><span lang="zh-Hans"><span class="news-tag win">夺冠</span>NUS-CLEAR 团队在维也纳举行的 <strong>ICRA 2026</strong> 上获得 <strong>REAL-I 挑战赛</strong><strong>冠军</strong>。</span></span></li>
+                    <li class="reveal"><span class="news-date"><span lang="en">Jun 2026</span><span lang="zh-Hans">2026年6月</span></span><span><span lang="en"><span class="news-tag win">Win</span>Team NUS-CLEAR won <strong>1st place</strong> at the <strong>REAL-I Challenge, ICRA 2026</strong> in Vienna. The win also brought our lab a $70,000 humanoid robot.</span><span lang="zh-Hans"><span class="news-tag win">夺冠</span>NUS-CLEAR 团队在维也纳举行的 <strong>ICRA 2026</strong> 上获得 <strong>REAL-I 挑战赛</strong><strong>冠军</strong>，实验室也因此获得一台价值 7 万美元的人形机器人。</span></span></li>
                     <li class="reveal"><span class="news-date"><span lang="en">Oct 2025</span><span lang="zh-Hans">2025年10月</span></span><span><span lang="en"><span class="news-tag win">Award</span>Two Best Paper Awards at IROS 2025 workshops (WIR-M and RoDGE).</span><span lang="zh-Hans"><span class="news-tag win">获奖</span>在 IROS 2025 workshop（WIR-M 与 RoDGE）上获得两项最佳论文奖。</span></span></li>
                     <li class="reveal"><span class="news-date"><span lang="en">May 2025</span><span lang="zh-Hans">2025年5月</span></span><span><span lang="en"><span class="news-tag win">Win</span><strong>1st place</strong> at the <strong>Earth Rover Challenge, ICRA 2025</strong> with the GeNIE navigation system.</span><span lang="zh-Hans"><span class="news-tag win">夺冠</span>凭借 GeNIE 导航系统，在 <strong>ICRA 2025</strong> 的 <strong>Earth Rover Challenge</strong> 中获得<strong>冠军</strong>。</span></span></li>
                 </ul>
@@ -353,7 +382,7 @@
         </footer>
     </div>
 
-    <script src="js/main.js?v=202610011900"></script>
-    <script src="js/robot-sim.js?v=202610011400"></script>
+    <script src="js/main.js?v=202610080643"></script>
+    <script src="js/robot-sim.js?v=202610080643"></script>
 </body>
 </html>

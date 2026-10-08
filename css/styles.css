@@ -2354,6 +2354,76 @@ body::before {
     background: var(--award-soft);
 }
 
+.pillar-list {
+    list-style: none;
+    padding: 0;
+    margin: 0 0 1rem;
+    border-top: 1px solid var(--border);
+}
+
+.pillar-list li {
+    padding: 0.7rem 0;
+    border-bottom: 1px solid var(--border);
+}
+
+.pl-head {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.4rem;
+    margin-bottom: 0.2rem;
+}
+
+.pl-head b {
+    color: var(--text-primary);
+    font-size: 0.95rem;
+    margin-right: 0.15rem;
+}
+
+.pl-status {
+    font-family: var(--mono);
+    font-size: 0.6rem;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    padding: 0.1rem 0.4rem;
+    border-radius: 0.3rem;
+    color: var(--brand);
+    border: 1px solid color-mix(in srgb, var(--brand) 35%, transparent);
+}
+
+.pl-status.win {
+    color: var(--award);
+    border-color: var(--award-border);
+    background: var(--award-soft);
+}
+
+.pl-status.wip {
+    color: var(--signal);
+    border-color: color-mix(in srgb, var(--signal) 40%, transparent);
+}
+
+.pl-desc {
+    font-size: 0.86rem;
+    line-height: 1.55;
+    color: var(--text-secondary);
+}
+
+.pl-links {
+    display: flex;
+    gap: 0.9rem;
+    margin-top: 0.25rem;
+}
+
+.pl-links a {
+    font-family: var(--mono);
+    font-size: 0.7rem;
+    color: var(--brand);
+    text-decoration: none;
+}
+
+.pl-links a[target="_blank"]::after { content: " ↗"; }
+.pl-links a:hover { text-decoration: underline; }
+
 /* ---------- Mission log (news timeline) ---------- */
 .news-list {
     list-style: none;

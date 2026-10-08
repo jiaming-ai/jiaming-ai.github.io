@@ -1,6 +1,47 @@
 [
     {
         "year": 2026,
+        "title": "A Survey of Agentic Robotics: Toward Continual Self-Improvement",
+        "authors": "Jiaming Wang, Yuhua Jiang, Zhengcheng Shen, Harold Soh",
+        "venue": "Preprint",
+        "venueShort": "Survey 2026",
+        "links": {
+            "paper": "https://www.alphaxiv.org/abs/2610.rsi-agentic-robotics"
+        },
+        "selected": true,
+        "bibtex": "@article{wang2026agenticrobotics,\n  title={A Survey of Agentic Robotics: Toward Continual Self-Improvement},\n  author={Wang, Jiaming and Jiang, Yuhua and Shen, Zhengcheng and Soh, Harold},\n  journal={Preprint},\n  year={2026}\n}",
+        "award": null
+    },
+    {
+        "year": 2026,
+        "title": "Retrospective Open-Vocabulary Memory for Long-Term Object Search",
+        "authors": "Jiaming Wang, Zhiwei Xue, Jizhuo Chen, Shiqi Peng, Harold Soh",
+        "venue": "arXiv preprint (under review)",
+        "venueShort": "Under review",
+        "links": {
+            "arxiv": "https://arxiv.org/abs/2610.00330",
+            "project": "ecrom/"
+        },
+        "selected": true,
+        "bibtex": "@article{wang2026ecrom,\n  title={Retrospective Open-Vocabulary Memory for Long-Term Object Search},\n  author={Wang, Jiaming and Xue, Zhiwei and Chen, Jizhuo and Peng, Shiqi and Soh, Harold},\n  journal={arXiv preprint arXiv:2610.00330},\n  year={2026}\n}",
+        "award": null
+    },
+    {
+        "year": 2026,
+        "title": "Learning Social Navigation from Internet Videos in the Policy State Space",
+        "authors": "Jiaming Wang, Duc Thang Nguyen, Jizhuo Chen, Volodymyr Shcherbyna, Diwen Liu, Zhengcheng Shen, Harold Soh",
+        "venue": "arXiv preprint (under review)",
+        "venueShort": "Under review",
+        "links": {
+            "arxiv": "https://arxiv.org/abs/2609.37476",
+            "project": "https://jiaming.im/VideoSocNav/"
+        },
+        "selected": true,
+        "bibtex": "@article{wang2026videosocnav,\n  title={Learning Social Navigation from Internet Videos in the Policy State Space},\n  author={Wang, Jiaming and Nguyen, Duc Thang and Chen, Jizhuo and Shcherbyna, Volodymyr and Liu, Diwen and Shen, Zhengcheng and Soh, Harold},\n  journal={arXiv preprint arXiv:2609.37476},\n  year={2026}\n}",
+        "award": null
+    },
+    {
+        "year": 2026,
         "title": "How to Better Train VLAs: Lessons Learned From the REAL-I Challenge at ICRA 2026",
         "authors": "Jiaming Wang, Jizhuo Chen, Diwen Liu, Wang Song, Qiang Wang, Jie Ren, Chao Fu, Dingkun Zhu, Minchi Ruan, Hongtong Li, Yuhua Jiang, Zhiwei Xue, Yongping Pan, Harold Soh",
         "venue": "arXiv preprint",
@@ -21,7 +62,8 @@
         "venue": "Advances in Neural Information Processing Systems (NeurIPS)",
         "venueShort": "NeurIPS 2026",
         "links": {
-            "arxiv": "https://arxiv.org/abs/2605.02227"
+            "arxiv": "https://arxiv.org/abs/2605.02227",
+            "project": "https://jiaming.im/CROSS/"
         },
         "selected": true,
         "bibtex": "@inproceedings{wang2026cross,\n  title={CROSS: Change-Robust Online Spatial-Semantic Topological Mapping},\n  author={Wang, Jiaming and Chen, Jizhuo and Liu, Diwen and Ghotavadekar, Atharva and Da, Jiaxuan and K{\\\"a}stner, Linh and Soh, Harold},\n  booktitle={Advances in Neural Information Processing Systems (NeurIPS)},\n  year={2026}\n}",
@@ -71,7 +113,8 @@
         "venue": "IEEE Robotics and Automation Letters (RA-L)",
         "venueShort": "RA-L 2025",
         "links": {
-            "arxiv": "https://arxiv.org/abs/2506.17960"
+            "arxiv": "https://arxiv.org/abs/2506.17960",
+            "project": "https://clear-nus.github.io/genie"
         },
         "award": "Winner, Earth Rover Challenge @ ICRA 2025",
         "awardZh": "ICRA 2025 Earth Rover Challenge 冠军",

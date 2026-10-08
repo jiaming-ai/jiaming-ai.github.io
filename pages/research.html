@@ -11,7 +11,7 @@
     <script>(function(){var d=document.documentElement,l;try{var p=new URLSearchParams(location.search).get('lang');l=(p==='zh'||p==='en')?p:localStorage.getItem('lang')}catch(e){}if(l!=='zh'&&l!=='en')l=/^zh/i.test(navigator.language||'')?'zh':'en';d.setAttribute('data-site-lang',l);d.lang=l==='zh'?'zh-Hans':'en'})()</script>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-    <link rel="stylesheet" href="../css/styles.css?v=202610011400">
+    <link rel="stylesheet" href="../css/styles.css?v=202610080643">
 </head>
 <body>
     <!-- Side Navigation (Desktop/Tablet) -->
@@ -27,8 +27,95 @@
     <!-- Main Content -->
     <div class="main-content-with-sidebar">
 
+    <!-- Research Lines Section -->
+    <section class="section-container" id="lines" style="padding-top: 3rem;">
+        <h2 class="section-title"><span lang="en">Research Lines</span><span lang="zh-Hans">研究主线</span></h2>
+        <p class="narrative-text" style="margin-bottom: 1.5rem;">
+            <span lang="en">My recent work follows two lines: open and robust environment representations that operate across environments, conditions, and sensing modalities; and robot policies that stay robust and generalizable in open-world settings.</span><span lang="zh-Hans">我近期的工作沿着两条主线展开：一是能够跨环境、跨条件、跨传感模态工作的开放、鲁棒的环境表示；二是在开放世界中保持鲁棒、可泛化的机器人策略。</span>
+        </p>
+                <div class="pillars">
+                    <article class="pillar spotlight reveal">
+                        <div class="pillar-head">
+                            <div class="pillar-icon"><i class="fas fa-diagram-project"></i></div>
+                            <span class="pillar-code"><span lang="en">LINE-01 · REPRESENTATION</span><span lang="zh-Hans">主线 01 · 环境表示</span></span>
+                        </div>
+                        <h3><span lang="en">Open &amp; Robust Environment Representation</span><span lang="zh-Hans">开放、鲁棒的环境表示</span></h3>
+                        <p><span lang="en">Representations that operate across environments, conditions, and sensing modalities: topological maps that relocalize after severe change, support object search, scale up with GPS, and even work underwater.</span><span lang="zh-Hans">能够跨环境、跨条件、跨传感模态工作的表示：在剧烈变化后仍能重定位的拓扑地图，支撑物体搜索，借助 GPS 扩展到大尺度场景，甚至可以在水下运行。</span></p>
+                        <ul class="pillar-list">
+                            <li>
+                                <div class="pl-head"><b>CROSS</b><span class="pl-status">NeurIPS'26</span></div>
+                                <div class="pl-desc"><span lang="en">Open-world topological representation and localization.</span><span lang="zh-Hans">开放世界的拓扑表示与定位。</span></div>
+                                <div class="pl-links"><a href="https://jiaming.im/CROSS/" target="_blank" rel="noopener noreferrer"><span lang="en">Project</span><span lang="zh-Hans">项目</span></a><a href="https://arxiv.org/abs/2605.02227" target="_blank" rel="noopener noreferrer">arXiv</a></div>
+                            </li>
+                            <li>
+                                <div class="pl-head"><b>ECROM</b><span class="pl-status"><span lang="en">Under review</span><span lang="zh-Hans">审稿中</span></span></div>
+                                <div class="pl-desc"><span lang="en">Extends CROSS toward long-term, open-vocabulary object search.</span><span lang="zh-Hans">将 CROSS 扩展到长期、开放词汇的物体搜索。</span></div>
+                                <div class="pl-links"><a href="../ecrom/"><span lang="en">Project</span><span lang="zh-Hans">项目</span></a><a href="https://arxiv.org/abs/2610.00330" target="_blank" rel="noopener noreferrer">arXiv</a></div>
+                            </li>
+                            <li>
+                                <div class="pl-head"><b>CROSS v2</b><span class="pl-status wip"><span lang="en">Coming · RSS'27</span><span lang="zh-Hans">即将投稿 · RSS'27</span></span></div>
+                                <div class="pl-desc"><span lang="en">Stereo and monocular-inertial modes, frontend smoothing with local factor graphs, cloud support, and large-scale operation with GPS.</span><span lang="zh-Hans">支持双目与单目-惯性模式，基于局部因子图的前端平滑，云端支持，以及结合 GPS 的大尺度运行。</span></div>
+                            </li>
+                            <li>
+                                <div class="pl-head"><b>CROSS-UW</b><span class="pl-status wip"><span lang="en">Coming · RSS'27</span><span lang="zh-Hans">即将投稿 · RSS'27</span></span></div>
+                                <div class="pl-desc"><span lang="en">CROSS for underwater environments, where multi-session relocalization is particularly challenging.</span><span lang="zh-Hans">将 CROSS 扩展到水下环境——在那里，多次会话间的重定位尤为困难。</span></div>
+                            </li>
+                            <li>
+                                <div class="pl-head"><b><span lang="en">Semantic CROSS</span><span lang="zh-Hans">语义 CROSS</span></b><span class="pl-status wip"><span lang="en">Exploring</span><span lang="zh-Hans">探索中</span></span></div>
+                                <div class="pl-desc"><span lang="en">Bringing richer semantic representations into the CROSS topological framework.</span><span lang="zh-Hans">在 CROSS 拓扑框架中引入更丰富的语义表示。</span></div>
+                            </li>
+                        </ul>
+                        <div class="pillar-tags">
+                            <a href="https://arxiv.org/abs/2510.04100" target="_blank" rel="noopener noreferrer">TOPO-Bench · ICRA'26</a>
+                            <span>POLo · ICRA'24</span>
+                            <a href="blog/robot-memory.html"><span lang="en">Blog · The right memory</span><span lang="zh-Hans">博客 · 对的 memory</span></a>
+                        </div>
+                    </article>
+                    <article class="pillar spotlight reveal" style="--reveal-delay: .08s">
+                        <div class="pillar-head">
+                            <div class="pillar-icon"><i class="fas fa-route"></i></div>
+                            <span class="pillar-code"><span lang="en">LINE-02 · POLICIES</span><span lang="zh-Hans">主线 02 · 机器人策略</span></span>
+                        </div>
+                        <h3><span lang="en">Robust Robot Policies in the Open World</span><span lang="zh-Hans">开放世界中的鲁棒机器人策略</span></h3>
+                        <p><span lang="en">Policies that generalize beyond the lab: map-free navigation deployed in seven countries, championship-winning VLA post-training, social navigation learned from video, and foundation-model agents that reason, act, and improve.</span><span lang="zh-Hans">能够泛化到实验室之外的策略：已在七个国家部署的无地图导航，夺冠的 VLA 后训练，从视频中学到的社交导航，以及能够推理、行动并自我改进的基础模型智能体。</span></p>
+                        <ul class="pillar-list">
+                            <li>
+                                <div class="pl-head"><b>GeNIE</b><span class="pl-status win"><i class="fas fa-trophy"></i> Earth Rover · ICRA'25</span><span class="pl-status">RA-L</span></div>
+                                <div class="pl-desc"><span lang="en">Generalizable in-the-wild navigation; won the ICRA 2025 Earth Rover Challenge.</span><span lang="zh-Hans">面向真实开放环境的可泛化导航系统；ICRA 2025 Earth Rover Challenge 冠军。</span></div>
+                                <div class="pl-links"><a href="https://clear-nus.github.io/genie" target="_blank" rel="noopener noreferrer"><span lang="en">Project</span><span lang="zh-Hans">项目</span></a><a href="https://arxiv.org/abs/2506.17960" target="_blank" rel="noopener noreferrer">arXiv</a></div>
+                            </li>
+                            <li>
+                                <div class="pl-head"><b><span lang="en">VLA post-training</span><span lang="zh-Hans">VLA 后训练</span></b><span class="pl-status win"><i class="fas fa-trophy"></i> REAL-I · ICRA'26</span></div>
+                                <div class="pl-desc"><span lang="en">Won the ICRA 2026 REAL-I Challenge, through which our lab was also awarded a $70,000 humanoid robot.</span><span lang="zh-Hans">赢得 ICRA 2026 REAL-I 挑战赛，实验室也因此获得一台价值 7 万美元的人形机器人。</span></div>
+                                <div class="pl-links"><a href="https://arxiv.org/abs/2609.13679" target="_blank" rel="noopener noreferrer"><span lang="en">Paper</span><span lang="zh-Hans">论文</span></a><a href="blog/how-to-win.html"><span lang="en">How we won</span><span lang="zh-Hans">夺冠心得</span></a></div>
+                            </li>
+                            <li>
+                                <div class="pl-head"><b><span lang="en">Social Navigation from Video</span><span lang="zh-Hans">从视频学习社交导航</span></b><span class="pl-status"><span lang="en">Under review</span><span lang="zh-Hans">审稿中</span></span></div>
+                                <div class="pl-desc"><span lang="en">Learning socially appropriate navigation behavior from large-scale video data.</span><span lang="zh-Hans">从大规模视频数据中学习符合社交规范的导航行为。</span></div>
+                                <div class="pl-links"><a href="https://jiaming.im/VideoSocNav/" target="_blank" rel="noopener noreferrer"><span lang="en">Project</span><span lang="zh-Hans">项目</span></a><a href="https://arxiv.org/abs/2609.37476" target="_blank" rel="noopener noreferrer">arXiv</a></div>
+                            </li>
+                            <li>
+                                <div class="pl-head"><b><span lang="en">Agentic robotics</span><span lang="zh-Hans">智能体机器人</span></b><span class="pl-status"><span lang="en">Survey</span><span lang="zh-Hans">综述</span></span></div>
+                                <div class="pl-desc"><span lang="en">How foundation-model-based agents can reason, act, and improve in robotic systems.</span><span lang="zh-Hans">基于基础模型的智能体如何在机器人系统中推理、行动并自我改进。</span></div>
+                                <div class="pl-links"><a href="https://www.alphaxiv.org/abs/2610.rsi-agentic-robotics" target="_blank" rel="noopener noreferrer"><span lang="en">Survey</span><span lang="zh-Hans">综述</span></a></div>
+                            </li>
+                            <li>
+                                <div class="pl-head"><b><span lang="en">Agentic world models</span><span lang="zh-Hans">智能体世界模型</span></b><span class="pl-status wip"><span lang="en">Exploring</span><span lang="zh-Hans">探索中</span></span></div>
+                                <div class="pl-desc"><span lang="en">A VLM constructs and reasons over a model of the world rather than directly predicting actions. Early results are very promising, for both manipulation and navigation.</span><span lang="zh-Hans">由 VLM 构建世界模型并在其上推理，而不是直接预测动作。初步实验结果非常可观，且同时适用于操作与导航。</span></div>
+                            </li>
+                        </ul>
+                        <div class="pillar-tags">
+                            <span>TOG · IROS'25 WS</span>
+                            <span>GBPP · IROS'25 WS</span>
+                            <span>SCOPE · CoRL'26</span>
+                            <span>Arena-Bench 2.0</span>
+                        </div>
+                    </article>
+                </div>
+    </section>
+
     <!-- Ongoing Projects Section -->
-    <section class="section-container" style="padding-top: 3rem;">
+    <section class="section-container">
         <h2 class="section-title"><span lang="en">Ongoing Projects</span><span lang="zh-Hans">在研项目</span></h2>
         <p class="narrative-text">
             <span lang="en">Below are my current research projects that I am actively working on. 
@@ -265,6 +352,6 @@
 
     </div>
 
-    <script src="../js/main.js?v=202610011900"></script>
+    <script src="../js/main.js?v=202610080643"></script>
 </body>
 </html>

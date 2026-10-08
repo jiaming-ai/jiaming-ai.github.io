@@ -231,7 +231,7 @@ async function loadData() {
         const pathPrefix = typeof getPathPrefix === 'function' ? getPathPrefix() : (isNestedSub ? '../../' : (isSub ? '../' : ''));
 
         const [pubData, projectData, peopleData] = await Promise.all([
-            fetchWithCache(pathPrefix + 'data/publications.json', 'cache_publications_v2'),
+            fetchWithCache(pathPrefix + 'data/publications.json', 'cache_publications_v3'),
             fetchWithCache(pathPrefix + 'data/projects.json', 'cache_projects'),
             fetchWithCache(pathPrefix + 'data/people.json', 'cache_people')
         ]);
