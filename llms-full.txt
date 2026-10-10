@@ -1,0 +1,79 @@
+# Jiaming Wang: full profile
+
+> Robotics and embodied AI researcher, PhD candidate at the National University of Singapore (NUS). Canonical site: https://jiaming.im/
+
+## Identity
+
+- Name: Jiaming Wang (not to be confused with other people of the same name)
+- Position: PhD candidate in Computer Science, National University of Singapore (School of Computing), Singapore
+- Advisor / lab: Harold Soh, CLeAR Lab
+- Focus: robot navigation, spatial perception and mapping, long-term robot memory, manipulation, agentic robotics
+- Status: recruiting student researchers (Python / C++, ROS 2, real robots)
+- Languages of the site: English and Chinese (中文)
+- Links: [Home](https://jiaming.im/), [LinkedIn](https://www.linkedin.com/in/jiaming-wang-ai/), [GitHub](https://github.com/jiaming-ai), [Contact page](https://jiaming.im/pages/contact.html)
+
+## Background
+
+Before research, Jiaming was a serial entrepreneur: he studied computing at NUS (2007 to 2011), co-founded the peer-to-peer car-sharing platform iCarsClub (acquired by a NASDAQ-listed company; Forbes China 30 Under 30 in 2014), spent a gap year at Oxford studying theology and philosophy (2018), built further startups, and joined Harold Soh's lab in 2022 after getting interested in AI. Full story: https://jiaming.im/pages/about.html
+
+## Research
+
+**1. Open and robust environment representation**: representations that work across environments, conditions and sensing modalities.
+- CROSS: open-world topological representation and localization (NeurIPS 2026).
+- ECROM: extends CROSS to long-term, open-vocabulary object search (under review).
+- CROSS v2: stereo and monocular-inertial modes, local factor-graph smoothing, cloud support and large-scale operation with GPS (in progress).
+- CROSS-UW: CROSS for underwater environments and multi-session relocalization (in progress).
+- Exploring richer semantic representations inside the CROSS topological framework.
+
+**2. Robust robot policies in the open world**: policies that generalize beyond the lab.
+- GeNIE: generalizable in-the-wild navigation; won the Earth Rover Challenge at ICRA 2025 (RA-L).
+- VLA post-training: won the REAL-I Challenge at ICRA 2026, which also brought the lab a US$70,000 humanoid robot.
+- Social navigation from video: learning socially appropriate navigation from large-scale video (under review).
+- Agentic robotics: foundation-model agents that reason, act and improve in robotic systems (survey published).
+- Agentic world models: a VLM builds and reasons over a model of the world instead of directly predicting actions (early results, manipulation and navigation).
+
+## Awards and honors
+
+- Champion, REAL-I: Real-world Embodied AI Learning Challenge, IEEE ICRA 2026
+- Champion, Earth Rover Challenge, IEEE ICRA 2025
+- Best Workshop Paper Prize, WIR-M Workshop, IEEE/RSJ IROS 2025 (TOG)
+- Best Paper Award, RoDGE Workshop, IEEE/RSJ IROS 2025 (GBPP)
+- Forbes China 30 Under 30 (2014)
+
+## Teaching and service
+
+- Teaching assistant, CS5242 Neural Networks and Deep Learning (2026), NUS
+- Teaching assistant, CS5284 Graph Machine Learning (2024, 2025), NUS
+- Co-organizer, RSS 2026 workshop: Open World Navigation in the Foundation Model Era: Robustness and Failure Recovery
+- Co-organizer, IROS 2026 workshop: 5th Workshop on Social Robot Navigation: From Humans, to Robots, and to the World
+
+## Publications (newest first)
+
+- [A Survey of Agentic Robotics: Toward Continual Self-Improvement](https://www.alphaxiv.org/abs/2610.rsi-agentic-robotics): Jiaming Wang, Yuhua Jiang, Zhengcheng Shen, Harold Soh. Preprint, 2026
+- [Retrospective Open-Vocabulary Memory for Long-Term Object Search](https://jiaming.im/ecrom/): Jiaming Wang, Zhiwei Xue, Jizhuo Chen, Shiqi Peng, Harold Soh. arXiv preprint (under review), 2026 (arxiv: https://arxiv.org/abs/2610.00330)
+- [Learning Social Navigation from Internet Videos in the Policy State Space](https://jiaming.im/VideoSocNav/): Jiaming Wang, Duc Thang Nguyen, Jizhuo Chen, Volodymyr Shcherbyna, Diwen Liu, Zhengcheng Shen, Harold Soh. arXiv preprint (under review), 2026 (arxiv: https://arxiv.org/abs/2609.37476)
+- [How to Better Train VLAs: Lessons Learned From the REAL-I Challenge at ICRA 2026](https://arxiv.org/abs/2609.13679): Jiaming Wang, Jizhuo Chen, Diwen Liu, Wang Song, Qiang Wang, Jie Ren, Chao Fu, Dingkun Zhu, Minchi Ruan, Hongtong Li, Yuhua Jiang, Zhiwei Xue, Yongping Pan, Harold Soh. arXiv preprint, 2026 (Winner, REAL-I Challenge @ ICRA 2026) (blog: https://jiaming.im/pages/blog/how-to-win.html)
+- [CROSS: Change-Robust Online Spatial-Semantic Topological Mapping](https://jiaming.im/CROSS/): Jiaming Wang, Jizhuo Chen, Diwen Liu, Atharva Ghotavadekar, Jiaxuan Da, Linh Kästner, Harold Soh. Advances in Neural Information Processing Systems (NeurIPS), 2026 (arxiv: https://arxiv.org/abs/2605.02227)
+- SCOPE: Control-Ready Uncertainty for Trajectory Diffusion: Zhiwei Xue, Kam Jia Yue, Jinhang Qiu, Yifeng Cheng, Ege Gursoy, Jiaming Wang, Vincent Bonnet, Harold Soh. Conference on Robot Learning (CoRL), 2026
+- [SCOPE: Score-Isolated Agentic Optimization for Video World Models](https://arxiv.org/abs/2608.15043): Yuhua Jiang, Jiaming Wang, Qingbin Liu, Feifei Gao. arXiv preprint, 2026
+- [TOPO-Bench: An Open-Source Topological Mapping Evaluation Framework with Quantifiable Perceptual Aliasing](https://arxiv.org/abs/2510.04100): Jiaming Wang, Jizhuo Chen, Diwen Liu, Jiaxuan Da, Jiamo Hu, Zhiwei Xue, Linh Kästner, Harold Soh. IEEE International Conference on Robotics and Automation (ICRA), 2026
+- [GeNIE: A Generalizable Navigation System for In-the-Wild Environments](https://clear-nus.github.io/genie): Jiaming Wang, Diwen Liu, Jizhuo Chen, Jiaxuan Da, Nuowen Qian, Tram Minh Man, Harold Soh. IEEE Robotics and Automation Letters (RA-L), 2025 (Winner, Earth Rover Challenge @ ICRA 2025) (arxiv: https://arxiv.org/abs/2506.17960)
+- [Training-Free Task-Oriented Grasp Generation](https://arxiv.org/abs/2502.04873): Jiaming Wang, Diwen Liu, Jizhuo Chen, Harold Soh. WIR-M Workshop, IEEE/RSJ International Conference on Intelligent Robots and Systems (IROS), 2025 (Best Workshop Paper Prize)
+- [GBPP: Grasp-Aware Base Placement Prediction for Robots via Two-Stage Learning](https://arxiv.org/abs/2509.11594): Jizhuo Chen, Diwen Liu, Jiaming Wang, Harold Soh. RoDGE Workshop, IEEE/RSJ International Conference on Intelligent Robots and Systems (IROS), 2025 (Best Paper Award)
+- [Arena-Bench 2.0: A Comprehensive Benchmark of Social Navigation Approaches in Collaborative Environments](https://ieeexplore.ieee.org/abstract/document/11246895/): Volodymyr Shcherbyna, Linh Kästner, Duc Anh Do, Jiaming Wang, Huu Giang Nguyen, Tim Seeger, Ahmed Martban, Zhengcheng Shen, Huajian Zeng, Nhan Trinh, Eva Wiese. IEEE/RSJ International Conference on Intelligent Robots and Systems (IROS), 2025
+- [Probable Object Location (POLo) Score Estimation for Efficient Object Goal Navigation](https://arxiv.org/abs/2311.07992): Jiaming Wang, Harold Soh. IEEE International Conference on Robotics and Automation (ICRA), 2024
+- Small Object Navigation with Context Information: Jiaming Wang, Harold Soh. Proceedings of the AAAI Symposium Series, 2023
+- [Pre-training with Graph Transformers](https://arxiv.org/abs/2609.13844): Jiaming Wang, Thomas Laurent, Xavier Bresson. KDD Workshop on Deep Learning on Graphs, 2023
+
+## Blog posts
+
+- [Robot Policies Need the Right Memory, Not an 8K Context Window](https://jiaming.im/pages/blog/robot-memory.html) (2026-07-29; Technical, Research): RoboTTT, WAM-TTT, and RoboSSM show that long context matters only when history becomes usable state—through task-relevant information, aligned meta-training, and memory matched to its timescale.
+- [How We Won IEEE ICRA Robotics Challenges Two Years in a Row](https://jiaming.im/pages/blog/how-to-win.html) (2026-07-26; Career, Thoughts): Lessons from winning ICRA navigation and manipulation challenges: start from the problem, decompose it from first principles, and test the assumptions that matter.
+- [OpenGEN-1: Reconstructing GEN-1 from First Principles](https://jiaming.im/pages/blog/opengen.html) (2026-07-26; Technical, Research): A first-principles reconstruction of GEN-1 as a physical foundation model trained on streams of interaction, with a proposed architecture, objective, data scale, and real-time inference system.
+- [VLA Is Not Dead—At Least Not Yet](https://jiaming.im/pages/blog/wam.html) (2026-07-26; Technical, Research): DreamZero and WAM split robot policy learning into future-video prediction and inverse dynamics—opening a powerful path beyond VLA, but at a steep deployment cost.
+- [Pi 0.6: Supervised Learning in RL's Clothing](https://jiaming.im/pages/blog/pio06.html) (2026-03-14; Technical, Research): How RECAP reveals that modern RL post-training is fundamentally supervised learning guided by value-based preference signals and environment interaction.
+- [CFGRL: The Theory Behind pi0.6*](https://jiaming.im/pages/blog/cfgrl.html) (2026-03-14; Technical, Research): How CFGRL reframes RL policy improvement as optimality-conditioned inference, then implements it via classifier-free guidance at sampling time.
+
+## Course
+
+- [Robotics for Beginners](https://jiaming.im/robotics101/): Robotics for Beginners: an intuition-first, interactive, bilingual course on the math and methods of robotics and embodied AI — from linear algebra and Lie groups to planning, learning, VLAs and agentic robots.

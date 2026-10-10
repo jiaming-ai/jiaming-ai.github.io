@@ -43,7 +43,8 @@ You are an expert blog publishing engineer specializing in static site generatio
 5. Convert markdown content to HTML.
 6. Translate the content to the other language.
 7. Generate two static HTML pages using the template — one English, one Chinese.
-8. Verify that:
+8. Run `python3 tools/seo/build.py` from the repo root. It adds the canonical/Open Graph/JSON-LD block to the new post, and updates `sitemap.xml`, `llms.txt`, `llms-full.txt` and `feed.xml`. The new post must already have a card in `pages/blog.html` (title, summary, date, tags), because that card is the source for its SEO metadata.
+9. Verify that:
    - All images are in `asset/` and paths are correct.
    - Both HTML files are valid and render properly.
    - The template structure is preserved.

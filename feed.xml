@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+  <title>Jiaming Wang: Blog</title>
+  <subtitle>Robotics, vision-language-action models and embodied AI</subtitle>
+  <link href="https://jiaming.im/feed.xml" rel="self"/>
+  <link href="https://jiaming.im/pages/blog.html"/>
+  <id>https://jiaming.im/</id>
+  <updated>2026-07-29T00:00:00Z</updated>
+  <author><name>Jiaming Wang</name></author>
+  <entry>
+    <title>Robot Policies Need the Right Memory, Not an 8K Context Window</title>
+    <link href="https://jiaming.im/pages/blog/robot-memory.html"/>
+    <id>https://jiaming.im/pages/blog/robot-memory.html</id>
+    <updated>2026-07-29T00:00:00Z</updated>
+    <summary>RoboTTT, WAM-TTT, and RoboSSM show that long context matters only when history becomes usable state—through task-relevant information, aligned meta-training, and memory matched to its timescale.</summary>
+    <author><name>Jiaming Wang</name></author>
+    <category term="Technical"/>
+    <category term="Research"/>
+  </entry>
+  <entry>
+    <title>How We Won IEEE ICRA Robotics Challenges Two Years in a Row</title>
+    <link href="https://jiaming.im/pages/blog/how-to-win.html"/>
+    <id>https://jiaming.im/pages/blog/how-to-win.html</id>
+    <updated>2026-07-26T00:00:00Z</updated>
+    <summary>Lessons from winning ICRA navigation and manipulation challenges: start from the problem, decompose it from first principles, and test the assumptions that matter.</summary>
+    <author><name>Jiaming Wang</name></author>
+    <category term="Career"/>
+    <category term="Thoughts"/>
+  </entry>
+  <entry>
+    <title>OpenGEN-1: Reconstructing GEN-1 from First Principles</title>
+    <link href="https://jiaming.im/pages/blog/opengen.html"/>
+    <id>https://jiaming.im/pages/blog/opengen.html</id>
+    <updated>2026-07-26T00:00:00Z</updated>
+    <summary>A first-principles reconstruction of GEN-1 as a physical foundation model trained on streams of interaction, with a proposed architecture, objective, data scale, and real-time inference system.</summary>
+    <author><name>Jiaming Wang</name></author>
+    <category term="Technical"/>
+    <category term="Research"/>
+  </entry>
+  <entry>
+    <title>VLA Is Not Dead—At Least Not Yet</title>
+    <link href="https://jiaming.im/pages/blog/wam.html"/>
+    <id>https://jiaming.im/pages/blog/wam.html</id>
+    <updated>2026-07-26T00:00:00Z</updated>
+    <summary>DreamZero and WAM split robot policy learning into future-video prediction and inverse dynamics—opening a powerful path beyond VLA, but at a steep deployment cost.</summary>
+    <author><name>Jiaming Wang</name></author>
+    <category term="Technical"/>
+    <category term="Research"/>
+  </entry>
+  <entry>
+    <title>Pi 0.6: Supervised Learning in RL's Clothing</title>
+    <link href="https://jiaming.im/pages/blog/pio06.html"/>
+    <id>https://jiaming.im/pages/blog/pio06.html</id>
+    <updated>2026-03-14T00:00:00Z</updated>
+    <summary>How RECAP reveals that modern RL post-training is fundamentally supervised learning guided by value-based preference signals and environment interaction.</summary>
+    <author><name>Jiaming Wang</name></author>
+    <category term="Technical"/>
+    <category term="Research"/>
+  </entry>
+  <entry>
+    <title>CFGRL: The Theory Behind pi0.6*</title>
+    <link href="https://jiaming.im/pages/blog/cfgrl.html"/>
+    <id>https://jiaming.im/pages/blog/cfgrl.html</id>
+    <updated>2026-03-14T00:00:00Z</updated>
+    <summary>How CFGRL reframes RL policy improvement as optimality-conditioned inference, then implements it via classifier-free guidance at sampling time.</summary>
+    <author><name>Jiaming Wang</name></author>
+    <category term="Technical"/>
+    <category term="Research"/>
+  </entry>
+</feed>

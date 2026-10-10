@@ -1,0 +1,56 @@
+# Everything is public and crawlable, including AI search and assistant crawlers.
+# To opt out of AI model training only, disallow GPTBot, ClaudeBot, Google-Extended,
+# Applebot-Extended, CCBot, Amazonbot and meta-externalagent below.
+
+User-agent: *
+Allow: /
+
+User-agent: OAI-SearchBot
+Allow: /
+
+User-agent: ChatGPT-User
+Allow: /
+
+User-agent: GPTBot
+Allow: /
+
+User-agent: Claude-SearchBot
+Allow: /
+
+User-agent: Claude-User
+Allow: /
+
+User-agent: ClaudeBot
+Allow: /
+
+User-agent: PerplexityBot
+Allow: /
+
+User-agent: Perplexity-User
+Allow: /
+
+User-agent: Google-Extended
+Allow: /
+
+User-agent: Applebot-Extended
+Allow: /
+
+User-agent: Bingbot
+Allow: /
+
+User-agent: DuckAssistBot
+Allow: /
+
+User-agent: Amazonbot
+Allow: /
+
+User-agent: CCBot
+Allow: /
+
+User-agent: meta-externalagent
+Allow: /
+
+User-agent: MistralAI-User
+Allow: /
+
+Sitemap: https://jiaming.im/sitemap.xml

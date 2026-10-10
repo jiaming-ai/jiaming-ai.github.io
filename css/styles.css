@@ -3295,3 +3295,16 @@ html[data-site-lang="zh"] .narrative-text,
 html[data-site-lang="zh"] .blog-post-summary {
     line-height: 1.9;
 }
+
+/* Headings kept for document structure / crawlers but not shown on screen */
+.visually-hidden {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    margin: -1px;
+    padding: 0;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+}
