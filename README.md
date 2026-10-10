@@ -127,13 +127,21 @@ It is idempotent (stdlib only) and refreshes:
 
 Sources of truth: `data/publications.json`, the post cards in `pages/blog.html` (title, summary, date, tags), and each page's own `<title>` and `<meta name="description">` (the script fails if a page has no description). Don't edit the generated blocks by hand. The social preview image is `assets/img/og-card.png` (1200×630).
 
+## 🎨 Tailwind CSS
+
+Pages use a few Tailwind utility classes (`flex`, `mt-8`, `space-y-4`, …). They are precompiled into `css/tailwind.css` (Tailwind 3.4 defaults, about 9 KB) instead of loading the runtime `cdn.tailwindcss.com` script, which was render-blocking and slow. The file is linked **after** `css/styles.css` on purpose: the old runtime script injected its styles last, and that cascade order is preserved. If you add a new utility class to a page, `js/` or `data/`, rebuild and commit the result:
+
+```bash
+cd tools/tailwind && npm install && npm run build   # writes ../../css/tailwind.css
+```
+
 ## ♻️ Cache busting
 
-Every page links `css/styles.css`, `js/main.js` (and `js/robot-sim.js` on the homepage) with a `?v=` query string.
+Every page links `css/styles.css`, `css/tailwind.css`, `js/main.js` (and `js/robot-sim.js` on the homepage) with a `?v=` query string.
 When you change CSS or JS, bump that version on all pages so visitors never get new HTML paired with a stale cached stylesheet:
 
 ```bash
-V=$(date +%Y%m%d%H%M); for f in index.html pages/*.html pages/blog/*.html; do sed -i -E "s#(css/styles\.css|js/main\.js|js/robot-sim\.js)(\?v=[A-Za-z0-9]+)?\"#\1?v=$V\"#g" "$f"; done
+V=$(date +%Y%m%d%H%M); for f in index.html pages/*.html pages/blog/*.html; do sed -i -E "s#(css/styles\.css|css/tailwind\.css|js/main\.js|js/robot-sim\.js)(\?v=[A-Za-z0-9]+)?\"#\1?v=$V\"#g" "$f"; done
 ```
 
 ## 🚀 Deployment

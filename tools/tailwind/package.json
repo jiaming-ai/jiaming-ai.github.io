@@ -1,0 +1,11 @@
+{
+  "name": "jiaming-site-tailwind",
+  "private": true,
+  "description": "Compiles css/tailwind.css (replaces the runtime cdn.tailwindcss.com script). Run: npm install && npm run build",
+  "scripts": {
+    "build": "tailwindcss -c tailwind.config.js -i input.css -o ../../css/tailwind.css --minify"
+  },
+  "devDependencies": {
+    "tailwindcss": "3.4.17"
+  }
+}
