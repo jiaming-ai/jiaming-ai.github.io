@@ -43,6 +43,9 @@ GITHUB = "https://github.com/jiaming-ai"
 EXTERNAL_PAGES = [SITE + "/CROSS/", SITE + "/VideoSocNav/", SITE + "/genie/"]
 # Site-verification meta tags for the home page. Paste the token Google / Bing give you, then rebuild.
 VERIFICATION = {"google-site-verification": "", "msvalidate.01": ""}
+# Cloudflare Web Analytics site token (Cloudflare dashboard > Web Analytics > your site > JS snippet).
+# Cookieless, so no consent banner is needed. Empty = nothing emitted.
+CLOUDFLARE_ANALYTICS_TOKEN = "0748c4ccdb7e4335b7236731918036b2"
 # Google Analytics 4 measurement ID, e.g. "G-ABC123XYZ9" (GA: Admin > Data streams > your stream).
 # Empty = no analytics code is emitted on any page. The site has no cookie banner, so visitors from the
 # EEA, UK and Switzerland start with analytics storage denied (Google Consent Mode: cookieless pings only).
@@ -53,10 +56,15 @@ CONSENT_DENIED_REGIONS = ["AT", "BE", "BG", "HR", "CY", "CZ", "DK", "EE", "FI", 
 
 
 def analytics_lines():
+    lines = []
+    if CLOUDFLARE_ANALYTICS_TOKEN:
+        assert re.fullmatch(r"[0-9a-f]{32}", CLOUDFLARE_ANALYTICS_TOKEN), "CLOUDFLARE_ANALYTICS_TOKEN must be 32 hex chars"
+        lines.append("<script type=\"module\" src=\"https://static.cloudflareinsights.com/beacon.min.js\" "
+                     "data-cf-beacon='{\"token\": \"%s\"}'></script>" % CLOUDFLARE_ANALYTICS_TOKEN)
     if not ANALYTICS_ID:
-        return []
+        return lines
     assert re.fullmatch(r"G-[A-Z0-9]{4,}", ANALYTICS_ID), "ANALYTICS_ID must look like G-XXXXXXXXXX"
-    return [
+    return lines + [
         '<script async src="https://www.googletagmanager.com/gtag/js?id=%s"></script>' % ANALYTICS_ID,
         "<script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments)}"
         "gtag('consent','default',{analytics_storage:'denied',region:%s});gtag('js',new Date());"

@@ -134,9 +134,11 @@ Search-console verification: paste the token Google / Bing give you into `VERIFI
 
 Sources of truth: `data/publications.json`, the post cards in `pages/blog.html` (title, summary, date, tags), and each page's own `<title>` and `<meta name="description">` (the script fails if a page has no description). Don't edit the generated blocks by hand. The social preview image is `assets/img/og-card.png` (1200×630).
 
-## 📈 Google Analytics
+## 📈 Analytics
 
-Set `ANALYTICS_ID` (a GA4 measurement ID such as `G-ABC123XYZ9`) at the top of `tools/seo/build.py`, run `python3 tools/seo/build.py`, then commit and push. The gtag snippet is added to every page, including the `/zh/` twins; while the ID is empty nothing is emitted. Visitors from the EEA, UK and Switzerland start with analytics storage denied (Google Consent Mode, no cookie banner needed for cookieless pings); edit `CONSENT_DENIED_REGIONS` to change that. Google is blocked in mainland China, so those visits will not appear in GA.
+**Cloudflare Web Analytics** (cookieless, no consent banner) is on: `CLOUDFLARE_ANALYTICS_TOKEN` at the top of `tools/seo/build.py` adds its beacon to every page, including the `/zh/` twins. Change the token, run `python3 tools/seo/build.py`, then commit and push.
+
+**Google Analytics** is also supported but off: set `ANALYTICS_ID` (a GA4 measurement ID such as `G-ABC123XYZ9`) and rebuild. Visitors from the EEA, UK and Switzerland then start with analytics storage denied (Google Consent Mode; edit `CONSENT_DENIED_REGIONS` to change it). Google is blocked in mainland China, so those visits will not appear in GA.
 
 ## 🎨 Tailwind CSS
 
