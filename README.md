@@ -134,6 +134,10 @@ Search-console verification: paste the token Google / Bing give you into `VERIFI
 
 Sources of truth: `data/publications.json`, the post cards in `pages/blog.html` (title, summary, date, tags), and each page's own `<title>` and `<meta name="description">` (the script fails if a page has no description). Don't edit the generated blocks by hand. The social preview image is `assets/img/og-card.png` (1200×630).
 
+## 📈 Google Analytics
+
+Set `ANALYTICS_ID` (a GA4 measurement ID such as `G-ABC123XYZ9`) at the top of `tools/seo/build.py`, run `python3 tools/seo/build.py`, then commit and push. The gtag snippet is added to every page, including the `/zh/` twins; while the ID is empty nothing is emitted. Visitors from the EEA, UK and Switzerland start with analytics storage denied (Google Consent Mode, no cookie banner needed for cookieless pings); edit `CONSENT_DENIED_REGIONS` to change that. Google is blocked in mainland China, so those visits will not appear in GA.
+
 ## 🎨 Tailwind CSS
 
 Pages use a few Tailwind utility classes (`flex`, `mt-8`, `space-y-4`, …). They are precompiled into `css/tailwind.css` (Tailwind 3.4 defaults, about 9 KB) instead of loading the runtime `cdn.tailwindcss.com` script, which was render-blocking and slow. The file is linked **after** `css/styles.css` on purpose: the old runtime script injected its styles last, and that cascade order is preserved. If you add a new utility class to a page, `js/` or `data/`, rebuild and commit the result:

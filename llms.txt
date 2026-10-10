@@ -19,7 +19,7 @@ Chinese edition: every main page has a Chinese-only twin under https://jiaming.i
 
 - [CROSS](https://jiaming.im/CROSS/): change-robust online spatial-semantic topological mapping and relocalization (NeurIPS 2026)
 - [ECROM](https://jiaming.im/ecrom/): retrospective open-vocabulary memory for long-term object search
-- [GeNIE](https://clear-nus.github.io/genie): generalizable navigation system for in-the-wild environments
+- [GeNIE](https://jiaming.im/genie/): generalizable navigation system for in-the-wild environments
 
 ## Blog posts
 
@@ -39,7 +39,7 @@ Chinese edition: every main page has a Chinese-only twin under https://jiaming.i
 - [CROSS: Change-Robust Online Spatial-Semantic Topological Mapping](https://jiaming.im/CROSS/): Jiaming Wang, Jizhuo Chen, Diwen Liu, Atharva Ghotavadekar, Jiaxuan Da, Linh Kästner, Harold Soh. Advances in Neural Information Processing Systems (NeurIPS), 2026
 - SCOPE: Control-Ready Uncertainty for Trajectory Diffusion: Zhiwei Xue, Kam Jia Yue, Jinhang Qiu, Yifeng Cheng, Ege Gursoy, Jiaming Wang, Vincent Bonnet, Harold Soh. Conference on Robot Learning (CoRL), 2026
 - [TOPO-Bench: An Open-Source Topological Mapping Evaluation Framework with Quantifiable Perceptual Aliasing](https://arxiv.org/abs/2510.04100): Jiaming Wang, Jizhuo Chen, Diwen Liu, Jiaxuan Da, Jiamo Hu, Zhiwei Xue, Linh Kästner, Harold Soh. IEEE International Conference on Robotics and Automation (ICRA), 2026
-- [GeNIE: A Generalizable Navigation System for In-the-Wild Environments](https://clear-nus.github.io/genie): Jiaming Wang, Diwen Liu, Jizhuo Chen, Jiaxuan Da, Nuowen Qian, Tram Minh Man, Harold Soh. IEEE Robotics and Automation Letters (RA-L), 2025 (Winner, Earth Rover Challenge @ ICRA 2025)
+- [GeNIE: A Generalizable Navigation System for In-the-Wild Environments](https://jiaming.im/genie/): Jiaming Wang, Diwen Liu, Jizhuo Chen, Jiaxuan Da, Nuowen Qian, Tram Minh Man, Harold Soh. IEEE Robotics and Automation Letters (RA-L), 2025 (Winner, Earth Rover Challenge @ ICRA 2025)
 - [Training-Free Task-Oriented Grasp Generation](https://arxiv.org/abs/2502.04873): Jiaming Wang, Diwen Liu, Jizhuo Chen, Harold Soh. WIR-M Workshop, IEEE/RSJ International Conference on Intelligent Robots and Systems (IROS), 2025 (Best Workshop Paper Prize)
 - [GBPP: Grasp-Aware Base Placement Prediction for Robots via Two-Stage Learning](https://arxiv.org/abs/2509.11594): Jizhuo Chen, Diwen Liu, Jiaming Wang, Harold Soh. RoDGE Workshop, IEEE/RSJ International Conference on Intelligent Robots and Systems (IROS), 2025 (Best Paper Award)
 - [Probable Object Location (POLo) Score Estimation for Efficient Object Goal Navigation](https://arxiv.org/abs/2311.07992): Jiaming Wang, Harold Soh. IEEE International Conference on Robotics and Automation (ICRA), 2024

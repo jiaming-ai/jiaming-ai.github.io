@@ -40,9 +40,28 @@ OG_ALT_ZH = "Jiaming Wang，新加坡国立大学机器人与具身智能研究�
 LINKEDIN = "https://www.linkedin.com/in/jiaming-wang-ai/"
 GITHUB = "https://github.com/jiaming-ai"
 # Project pages that live in other repositories but are served from this domain.
-EXTERNAL_PAGES = [SITE + "/CROSS/", SITE + "/VideoSocNav/"]
+EXTERNAL_PAGES = [SITE + "/CROSS/", SITE + "/VideoSocNav/", SITE + "/genie/"]
 # Site-verification meta tags for the home page. Paste the token Google / Bing give you, then rebuild.
 VERIFICATION = {"google-site-verification": "", "msvalidate.01": ""}
+# Google Analytics 4 measurement ID, e.g. "G-ABC123XYZ9" (GA: Admin > Data streams > your stream).
+# Empty = no analytics code is emitted on any page. The site has no cookie banner, so visitors from the
+# EEA, UK and Switzerland start with analytics storage denied (Google Consent Mode: cookieless pings only).
+ANALYTICS_ID = ""
+CONSENT_DENIED_REGIONS = ["AT", "BE", "BG", "HR", "CY", "CZ", "DK", "EE", "FI", "FR", "DE", "GR", "HU", "IE", "IT",
+                          "LV", "LT", "LU", "MT", "NL", "PL", "PT", "RO", "SK", "SI", "ES", "SE", "IS", "LI", "NO",
+                          "GB", "CH"]
+
+
+def analytics_lines():
+    if not ANALYTICS_ID:
+        return []
+    assert re.fullmatch(r"G-[A-Z0-9]{4,}", ANALYTICS_ID), "ANALYTICS_ID must look like G-XXXXXXXXXX"
+    return [
+        '<script async src="https://www.googletagmanager.com/gtag/js?id=%s"></script>' % ANALYTICS_ID,
+        "<script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments)}"
+        "gtag('consent','default',{analytics_storage:'denied',region:%s});gtag('js',new Date());"
+        "gtag('config','%s');</script>" % (json.dumps(CONSENT_DENIED_REGIONS), ANALYTICS_ID),
+    ]
 
 BLOCK_RE = re.compile(r"[ \t]*<!-- seo:start.*?<!-- seo:end -->\n?", re.S)
 PUBS_RE = re.compile(r"<!-- seo:pubs:start -->.*?<!-- seo:pubs:end -->", re.S)
@@ -418,6 +437,7 @@ def seo_block(doc, rel, lang="en"):
             if token:
                 L.append('<meta name="%s" content="%s">' % (name, attr(token)))
     L += extra
+    L += analytics_lines()
     graph = {"@context": "https://schema.org", "@graph": nodes}
     L.append(jsonld(graph))
     body = "\n".join("    " + line if not line.startswith("<script") else "    " + line.replace("\n", "\n    ")
@@ -640,7 +660,7 @@ def build_llms(pages_desc):
     L += ["", "## Research projects", "",
           "- [CROSS](%s/CROSS/): change-robust online spatial-semantic topological mapping and relocalization (NeurIPS 2026)" % SITE,
           "- [ECROM](%s/ecrom/): retrospective open-vocabulary memory for long-term object search" % SITE,
-          "- [GeNIE](https://clear-nus.github.io/genie): generalizable navigation system for in-the-wild environments",
+          "- [GeNIE](https://jiaming.im/genie/): generalizable navigation system for in-the-wild environments",
           "", "## Blog posts", ""]
     for p in POSTS:
         L.append("- [%s](%s): %s (%s)" % (p["title"], p["url"], p["summary"], p["date"]))
