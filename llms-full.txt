@@ -9,7 +9,7 @@
 - Advisor / lab: Harold Soh, CLeAR Lab
 - Focus: robot navigation, spatial perception and mapping, long-term robot memory, manipulation, agentic robotics
 - Status: recruiting student researchers (Python / C++, ROS 2, real robots)
-- Languages of the site: English and Chinese (中文)
+- Languages of the site: English (https://jiaming.im/) and Chinese 中文 (https://jiaming.im/zh/), each as separate static pages
 - Links: [Home](https://jiaming.im/), [LinkedIn](https://www.linkedin.com/in/jiaming-wang-ai/), [GitHub](https://github.com/jiaming-ai), [Contact page](https://jiaming.im/pages/contact.html)
 
 ## Background

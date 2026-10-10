@@ -12,7 +12,11 @@ It is idempotent and (re)generates:
   * a prerendered publication list inside #publications-list (index.html and
     pages/research.html) so crawlers that do not run JavaScript still see the papers;
     js/main.js replaces it with an identical list once data/publications.json loads
-  * sitemap.xml, robots.txt, llms.txt, llms-full.txt, feed.xml
+  * the static Chinese edition of every main page under zh/ (see zh_edition.py): Chinese-only HTML at
+    its own URL with canonical + hreflang links, so Chinese pages can be indexed and ranked separately
+  * sitemap.xml (with hreflang alternates), robots.txt, llms.txt, llms-full.txt, feed.xml
+
+Flags:  --bump   also bump the ?v= cache-busting query on css/js links before building
 
 Sources of truth: data/publications.json, the post cards in pages/blog.html, and each
 page's own <title> / <meta name="description"> (a page without a description fails the run).
@@ -23,16 +27,22 @@ import re
 import sys
 from pathlib import Path
 
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+import zh_edition  # noqa: E402
+
 ROOT = Path(__file__).resolve().parents[2]
 SITE = "https://jiaming.im"
 NAME = "Jiaming Wang"
 PERSON_ID = SITE + "/#person"
 OG_IMAGE = SITE + "/assets/img/og-card.png"
 OG_ALT = "Jiaming Wang, robotics and embodied AI researcher at the National University of Singapore"
+OG_ALT_ZH = "Jiaming Wang，新加坡国立大学机器人与具身智能研究者"
 LINKEDIN = "https://www.linkedin.com/in/jiaming-wang-ai/"
 GITHUB = "https://github.com/jiaming-ai"
 # Project pages that live in other repositories but are served from this domain.
-EXTERNAL_PAGES = [SITE + "/CROSS/"]
+EXTERNAL_PAGES = [SITE + "/CROSS/", SITE + "/VideoSocNav/"]
+# Site-verification meta tags for the home page. Paste the token Google / Bing give you, then rebuild.
+VERIFICATION = {"google-site-verification": "", "msvalidate.01": ""}
 
 BLOCK_RE = re.compile(r"[ \t]*<!-- seo:start.*?<!-- seo:end -->\n?", re.S)
 PUBS_RE = re.compile(r"<!-- seo:pubs:start -->.*?<!-- seo:pubs:end -->", re.S)
@@ -52,6 +62,17 @@ AWARDS = [
     "Best Paper Award, RoDGE Workshop, IEEE/RSJ IROS 2025 (GBPP)",
     "Forbes China 30 Under 30 (2014)",
 ]
+KNOWS_ABOUT_ZH = ["机器人学", "具身智能", "机器人导航", "拓扑建图", "视觉重定位", "机器人长期记忆", "物体搜索",
+                  "社交导航", "视觉-语言-动作模型", "机器人学习", "智能体机器人", "世界模型"]
+AWARDS_ZH = [
+    "冠军，REAL-I 真实世界具身智能学习挑战赛，IEEE ICRA 2026",
+    "冠军，Earth Rover Challenge，IEEE ICRA 2025",
+    "Workshop 最佳论文奖，WIR-M Workshop，IEEE/RSJ IROS 2025（TOG）",
+    "最佳论文奖，RoDGE Workshop，IEEE/RSJ IROS 2025（GBPP）",
+    "福布斯中国 30 Under 30（2014）",
+]
+PERSON_DESC_ZH = ("新加坡国立大学计算机科学博士生（CLeAR 实验室，导师 Harold Soh），研究机器人导航、空间记忆与具身智能。"
+                  "ICRA 2026 REAL-I 挑战赛与 ICRA 2025 Earth Rover Challenge 冠军。")
 PERSON_DESC = (
     "PhD candidate in Computer Science at the National University of Singapore (CLeAR Lab, advised by "
     "Harold Soh), working on robot navigation, spatial memory and embodied AI. Champion of REAL-I at "
@@ -71,6 +92,7 @@ def write(rel, text):
     p = ROOT / rel
     if p.exists() and p.read_text(encoding="utf-8") == text:
         return
+    p.parent.mkdir(parents=True, exist_ok=True)
     p.write_text(text, encoding="utf-8")
     CHANGED.append(rel)
 
@@ -84,6 +106,15 @@ def canonical(rel):
 
 def attr(s):
     return html.escape(s, quote=True)
+
+
+def tr(en, zh, lang):
+    return zh if lang == "zh" else en
+
+
+def page_url(rel, lang="en"):
+    """Canonical URL of page `rel` in `lang`; the Chinese twin of x lives at zh/x."""
+    return canonical(("zh/" + rel) if lang == "zh" else rel)
 
 
 def head_of(doc):
@@ -157,8 +188,14 @@ def blog_posts():
 POSTS = blog_posts()
 
 
+
 def course_pages():
     return sorted(str(p.relative_to(ROOT)) for p in (ROOT / "robotics101").rglob("*.html"))
+
+
+# Pages that get a static Chinese twin under zh/ (the rest, e.g. ecrom/ and the md2img tool, stay English-only)
+ZH_SOURCES = CORE_PAGES + [p["rel"] for p in POSTS] + course_pages()
+ZH_SET = set(ZH_SOURCES)
 
 
 # ---------------------------------------------------------------- schema.org nodes
@@ -166,29 +203,31 @@ def person_ref():
     return {"@type": "Person", "@id": PERSON_ID, "name": NAME, "url": SITE + "/"}
 
 
-def person_full():
+def person_full(lang="en"):
     return {
         "@type": "Person", "@id": PERSON_ID, "name": NAME, "url": SITE + "/",
         "image": SITE + "/assets/img/profile.jpeg",
-        "jobTitle": "PhD Candidate, Computer Science",
-        "description": PERSON_DESC,
+        "jobTitle": tr("PhD Candidate, Computer Science", "计算机科学博士生", lang),
+        "description": tr(PERSON_DESC, PERSON_DESC_ZH, lang),
         "affiliation": {
-            "@type": "CollegeOrUniversity", "name": "National University of Singapore",
+            "@type": "CollegeOrUniversity", "name": tr("National University of Singapore", "新加坡国立大学", lang),
             "url": "https://www.nus.edu.sg/",
-            "department": {"@type": "Organization", "name": "School of Computing, National University of Singapore",
+            "department": {"@type": "Organization",
+                           "name": tr("School of Computing, National University of Singapore", "新加坡国立大学计算学院", lang),
                            "url": "https://www.comp.nus.edu.sg/"},
         },
-        "address": {"@type": "PostalAddress", "addressLocality": "Singapore", "addressCountry": "SG"},
-        "knowsAbout": KNOWS_ABOUT,
-        "award": AWARDS,
+        "address": {"@type": "PostalAddress", "addressLocality": tr("Singapore", "新加坡", lang), "addressCountry": "SG"},
+        "knowsAbout": tr(KNOWS_ABOUT, KNOWS_ABOUT_ZH, lang),
+        "award": tr(AWARDS, AWARDS_ZH, lang),
         "sameAs": [LINKEDIN, GITHUB],
     }
 
 
-def website_node():
+def website_node(lang="en"):
     return {
         "@type": "WebSite", "@id": SITE + "/#website", "url": SITE + "/", "name": NAME,
-        "description": "Academic homepage of Jiaming Wang: robotics and embodied AI research, publications, blog and an interactive robotics course.",
+        "description": tr("Academic homepage of Jiaming Wang: robotics and embodied AI research, publications, blog and an interactive robotics course.",
+                          "Jiaming Wang 的学术主页：机器人与具身智能研究、论文、博客与交互式机器人入门课。", lang),
         "inLanguage": ["en", "zh-Hans"], "publisher": {"@id": PERSON_ID},
     }
 
@@ -225,57 +264,63 @@ def article_node(p, with_context=False):
 
 
 # ---------------------------------------------------------------- per-page SEO block
-def page_spec(rel, doc):
-    """Return (og_type, [jsonld nodes], extra head lines) for a page."""
-    url = canonical(rel)
+def page_spec(rel, doc, lang="en"):
+    """Return (url, title, desc, og_type, [jsonld nodes], extra head lines) for a page in `lang`."""
+    T = lambda en, zh: tr(en, zh, lang)
+    url = page_url(rel, lang)
     title = get_title(doc)
     desc = get_desc(doc)
     extra = []
     nodes = []
     og_type = "website"
-    home_crumb = ("Home", SITE + "/")
+    in_lang = T("en", "zh-Hans")
+    home_crumb = (T("Home", "首页"), page_url("index.html", lang))
+    feed_link = '<link rel="alternate" type="application/atom+xml" title="Jiaming Wang: Blog" href="/feed.xml">'
 
     if rel == "index.html":
-        nodes = [website_node(), {"@type": "ProfilePage", "@id": SITE + "/#profile", "url": url, "name": title,
-                                  "description": desc, "mainEntity": {"@id": PERSON_ID},
-                                  "isPartOf": {"@id": SITE + "/#website"}, "inLanguage": ["en", "zh-Hans"]},
-                 person_full()]
-        extra.append('<link rel="alternate" type="application/atom+xml" title="Jiaming Wang: Blog" href="/feed.xml">')
+        nodes = [website_node(lang), {"@type": "ProfilePage", "@id": SITE + "/#profile", "url": url, "name": title,
+                                      "description": desc, "mainEntity": {"@id": PERSON_ID},
+                                      "isPartOf": {"@id": SITE + "/#website"}, "inLanguage": in_lang},
+                 person_full(lang)]
+        extra.append(feed_link)
     elif rel == "pages/about.html":
-        nodes = [{"@type": "AboutPage", "url": url, "name": title, "description": desc,
+        nodes = [{"@type": "AboutPage", "url": url, "name": title, "description": desc, "inLanguage": in_lang,
                   "mainEntity": {"@id": PERSON_ID}, "isPartOf": {"@id": SITE + "/#website"}},
-                 person_full(), breadcrumb([home_crumb, ("About", url)])]
+                 person_full(lang), breadcrumb([home_crumb, (T("About", "关于"), url)])]
     elif rel == "pages/contact.html":
-        nodes = [{"@type": "ContactPage", "url": url, "name": title, "description": desc,
+        nodes = [{"@type": "ContactPage", "url": url, "name": title, "description": desc, "inLanguage": in_lang,
                   "mainEntity": person_ref(), "isPartOf": {"@id": SITE + "/#website"}},
-                 breadcrumb([home_crumb, ("Contact", url)])]
+                 breadcrumb([home_crumb, (T("Contact", "联系"), url)])]
     elif rel == "pages/research.html":
-        nodes = [{"@type": "CollectionPage", "url": url, "name": title, "description": desc,
+        nodes = [{"@type": "CollectionPage", "url": url, "name": title, "description": desc, "inLanguage": in_lang,
                   "about": person_ref(), "isPartOf": {"@id": SITE + "/#website"},
-                  "mainEntity": {"@type": "ItemList", "name": "Publications by Jiaming Wang",
+                  "mainEntity": {"@type": "ItemList", "name": T("Publications by Jiaming Wang", "Jiaming Wang 的论文"),
                                  "numberOfItems": len(PUBS),
                                  "itemListElement": [{"@type": "ListItem", "position": i + 1, "item": article_node(p)}
                                                      for i, p in enumerate(PUBS)]}},
-                 breadcrumb([home_crumb, ("Research", url)])]
+                 breadcrumb([home_crumb, (T("Research", "研究"), url)])]
     elif rel == "pages/blog.html":
-        nodes = [{"@type": "Blog", "url": url, "name": "Jiaming Wang: Blog", "description": desc,
-                  "author": person_ref(), "inLanguage": ["en", "zh-Hans"],
-                  "blogPost": [{"@type": "BlogPosting", "headline": p["title"], "url": p["url"],
-                                "datePublished": p["date"]} for p in POSTS]},
-                 breadcrumb([home_crumb, ("Blog", url)])]
-        extra.append('<link rel="alternate" type="application/atom+xml" title="Jiaming Wang: Blog" href="/feed.xml">')
+        nodes = [{"@type": "Blog", "url": url, "name": T("Jiaming Wang: Blog", "Jiaming Wang 的博客"),
+                  "description": desc, "author": person_ref(), "inLanguage": in_lang,
+                  "blogPost": [{"@type": "BlogPosting", "headline": T(p["title"], p["title_zh"] or p["title"]),
+                                "url": page_url(p["rel"], lang), "datePublished": p["date"]} for p in POSTS]},
+                 breadcrumb([home_crumb, (T("Blog", "博客"), url)])]
+        extra.append(feed_link)
     elif rel.startswith("pages/blog/"):
         post = next(p for p in POSTS if p["rel"] == rel)
         og_type = "article"
-        title = post["title"] + " - " + NAME
-        desc = post["summary"]
-        nodes = [{"@type": "BlogPosting", "headline": post["title"], "alternativeHeadline": post["title_zh"] or None,
-                  "description": post["summary"], "url": url, "mainEntityOfPage": url,
+        head_t = T(post["title"], post["title_zh"] or post["title"])
+        title = head_t + " - " + NAME
+        desc = T(post["summary"], post["summary_zh"] or post["summary"])
+        blog_url = page_url("pages/blog.html", lang)
+        nodes = [{"@type": "BlogPosting", "headline": head_t,
+                  "alternativeHeadline": T(post["title_zh"], post["title"]) or None,
+                  "description": desc, "url": url, "mainEntityOfPage": url,
                   "datePublished": post["date"], "dateModified": post["date"],
                   "author": person_ref(), "publisher": person_ref(),
-                  "image": OG_IMAGE, "keywords": post["tags"], "inLanguage": ["en", "zh-Hans"],
-                  "isPartOf": {"@type": "Blog", "url": SITE + "/pages/blog.html", "name": "Jiaming Wang: Blog"}},
-                 breadcrumb([home_crumb, ("Blog", SITE + "/pages/blog.html"), (post["title"], url)])]
+                  "image": OG_IMAGE, "keywords": post["tags"], "inLanguage": in_lang,
+                  "isPartOf": {"@type": "Blog", "url": blog_url, "name": T("Jiaming Wang: Blog", "Jiaming Wang 的博客")}},
+                 breadcrumb([home_crumb, (T("Blog", "博客"), blog_url), (head_t, url)])]
         nodes[0] = {k: v for k, v in nodes[0].items() if v}
     elif rel == "ecrom/index.html":
         pub = next(p for p in PUBS if p["title"].startswith("Retrospective Open-Vocabulary Memory"))
@@ -285,30 +330,35 @@ def page_spec(rel, doc):
         nodes = [node, breadcrumb([home_crumb, ("Research", SITE + "/pages/research.html"), ("ECROM", url)])]
         og_type = "article"
     elif rel == "robotics101/index.html":
-        nodes = [{"@type": "Course", "@id": SITE + "/robotics101/#course", "name": "Robotics for Beginners",
+        course_name = T("Robotics for Beginners", "Robotics for Beginners · 具身智能入门")
+        nodes = [{"@type": "Course", "@id": SITE + "/robotics101/#course", "name": course_name,
                   "description": desc, "url": url, "provider": person_ref(), "author": person_ref(),
-                  "inLanguage": ["en", "zh-Hans"], "isAccessibleForFree": True, "educationalLevel": "Beginner",
-                  "teaches": ["Linear algebra", "Probability", "Lie groups and rigid-body motion", "Optimization",
-                              "Motion planning and control", "Robot learning", "Vision-language-action models",
-                              "Agentic robotics"]},
-                 breadcrumb([home_crumb, ("Robotics for Beginners", url)])]
+                  "inLanguage": in_lang, "isAccessibleForFree": True, "educationalLevel": T("Beginner", "入门"),
+                  "teaches": T(["Linear algebra", "Probability", "Lie groups and rigid-body motion", "Optimization",
+                                "Motion planning and control", "Robot learning", "Vision-language-action models",
+                                "Agentic robotics"],
+                               ["线性代数", "概率", "李群与刚体运动", "优化", "运动规划与控制", "机器人学习",
+                                "视觉-语言-动作模型", "智能体机器人"])},
+                 breadcrumb([home_crumb, (course_name, url)])]
     elif rel.startswith("robotics101/"):
-        en_title = body_attr(doc, "data-title-en") or title
+        key = T("data-title-en", "data-title-zh")
+        en_title = body_attr(doc, key) or title
         title = en_title
-        crumbs = [home_crumb, ("Robotics for Beginners", SITE + "/robotics101/")]
+        course_name = T("Robotics for Beginners", "具身智能入门")
+        crumbs = [home_crumb, (course_name, page_url("robotics101/index.html", lang))]
         if rel == "robotics101/part1/index.html":
             nodes = [{"@type": "CollectionPage", "url": url, "name": en_title, "description": desc,
                       "isPartOf": {"@type": "Course", "@id": SITE + "/robotics101/#course"}, "author": person_ref(),
-                      "inLanguage": ["en", "zh-Hans"]}]
+                      "inLanguage": in_lang}]
             crumbs.append((en_title.split(" · ")[0], url))
         else:
             part = read("robotics101/part1/index.html")
-            part_title = (body_attr(part, "data-title-en") or "Part I").split(" · ")[0]
+            part_title = (body_attr(part, key) or "Part I").split(" · ")[0]
             nodes = [{"@type": "LearningResource", "name": en_title, "description": desc, "url": url,
-                      "learningResourceType": "Interactive lesson",
+                      "learningResourceType": T("Interactive lesson", "交互式课程"),
                       "isPartOf": {"@type": "Course", "@id": SITE + "/robotics101/#course"},
-                      "author": person_ref(), "inLanguage": ["en", "zh-Hans"], "isAccessibleForFree": True}]
-            crumbs += [(part_title, SITE + "/robotics101/part1/"), (en_title.split(" · ")[0], url)]
+                      "author": person_ref(), "inLanguage": in_lang, "isAccessibleForFree": True}]
+            crumbs += [(part_title, page_url("robotics101/part1/index.html", lang)), (en_title.split(" · ")[0], url)]
         nodes.append(breadcrumb(crumbs))
     else:
         raise SystemExit("no SEO spec for " + rel)
@@ -317,34 +367,56 @@ def page_spec(rel, doc):
     return url, title, desc, og_type, nodes, extra
 
 
-def seo_block(doc, rel):
-    url, title, desc, og_type, nodes, extra = page_spec(rel, doc)
+# zh-preferring visitors who land on an English URL are sent to its /zh/ twin (stored or browser
+# language is Chinese; ?lang=en opts out). Crawlers send no zh preference, so they are not redirected.
+ZH_REDIRECT = ('<script>(function(){try{var d=document.documentElement;if((d.getAttribute("data-site-lang")||d.getAttribute("data-lang-ui"))!=="zh")return;'
+               'if(new URLSearchParams(location.search).get("lang")==="en")return;'
+               'var a=document.querySelector(\'link[rel="alternate"][hreflang="zh-Hans"]\');if(!a)return;'
+               'var t=new URL(a.href).pathname;if(t!==location.pathname)location.replace(t+location.hash)}catch(e){}})()</script>')
+
+
+def seo_block(doc, rel, lang="en"):
+    url, title, desc, og_type, nodes, extra = page_spec(rel, doc, lang)
     outside = BLOCK_RE.sub("", head_of(doc))
     has = lambda pat: re.search(pat, outside)
+    paired = rel in ZH_SET
     L = []
     if not has(r'<meta\s+name="description"'):
         L.append('<meta name="description" content="%s">' % attr(desc))
     if not has(r'rel="canonical"'):
         L.append('<link rel="canonical" href="%s">' % attr(url))
+    if paired:
+        L.append('<link rel="alternate" hreflang="en" href="%s">' % attr(page_url(rel, "en")))
+        L.append('<link rel="alternate" hreflang="zh-Hans" href="%s">' % attr(page_url(rel, "zh")))
+        L.append('<link rel="alternate" hreflang="x-default" href="%s">' % attr(page_url(rel, "en")))
+        if lang == "en":
+            L.append(ZH_REDIRECT)
     own_image = has(r'property="og:image"')
-    og = [("og:type", og_type), ("og:site_name", NAME), ("og:locale", "en_US"), ("og:locale:alternate", "zh_CN"),
-          ("og:title", title), ("og:description", desc), ("og:url", url)]
+    og = [("og:type", og_type), ("og:site_name", NAME),
+          ("og:locale", tr("en_US", "zh_CN", lang))]
+    if paired:
+        og.append(("og:locale:alternate", tr("zh_CN", "en_US", lang)))
+    og += [("og:title", title), ("og:description", desc), ("og:url", url)]
     if not own_image:
         og += [("og:image", OG_IMAGE), ("og:image:width", "1200"), ("og:image:height", "630"),
-               ("og:image:alt", OG_ALT)]
+               ("og:image:alt", tr(OG_ALT, OG_ALT_ZH, lang))]
     for prop, val in og:
         if not has(r'property="%s"' % re.escape(prop)):
             L.append('<meta property="%s" content="%s">' % (prop, attr(val)))
     if not has(r'name="twitter:card"'):
         L.append('<meta name="twitter:card" content="summary_large_image">')
     if og_type == "article" and rel.startswith("pages/blog/"):
-        date = next(p["date"] for p in POSTS if p["rel"] == rel)
-        L.append('<meta property="article:published_time" content="%s">' % date)
+        post = next(p for p in POSTS if p["rel"] == rel)
+        L.append('<meta property="article:published_time" content="%s">' % post["date"])
         L.append('<meta property="article:author" content="%s">' % (SITE + "/"))
-        for t in next(p["tags"] for p in POSTS if p["rel"] == rel):
+        for t in post["tags"]:
             L.append('<meta property="article:tag" content="%s">' % attr(t))
     if not has(r'<meta\s+name="author"'):
         L.append('<meta name="author" content="%s">' % NAME)
+    if rel == "index.html" and lang == "en":
+        for name, token in VERIFICATION.items():
+            if token:
+                L.append('<meta name="%s" content="%s">' % (name, attr(token)))
     L += extra
     graph = {"@context": "https://schema.org", "@graph": nodes}
     L.append(jsonld(graph))
@@ -364,6 +436,52 @@ def apply_block(rel):
         line_start = doc.rfind("\n", 0, i) + 1
         new = doc[:line_start] + block + doc[line_start:]
     write(rel, new)
+
+
+# ---------------------------------------------------------------- Chinese edition
+BOOTSTRAP_RE = r"<script>\(function\(\)\{var d=document\.documentElement,l;.*?\}\)\(\)</script>"
+ZH_BOOTSTRAP = ("<script>(function(){var d=document.documentElement;d.setAttribute('data-site-lang','zh');"
+                "d.lang='zh-Hans'})()</script>")
+
+
+COURSE_BOOTSTRAP_RE = r"<script>\(function\(\)\{var d=document\.documentElement,t='dark',l=null;.*?\}\)\(\);</script>"
+COURSE_ZH_BOOTSTRAP = ("<script>(function(){var d=document.documentElement,t='dark';try{t=localStorage.getItem('theme')||'dark'}"
+                       "catch(e){}d.setAttribute('data-theme',t);d.setAttribute('data-lang-ui','zh');d.lang='zh-Hans'})();</script>")
+
+
+def course_zh_desc(doc):
+    """Chinese meta description for a course page: its own Chinese lede, minus markup and formulas."""
+    m = re.search(r'<p class="lede">\s*<span data-lang="zh">(.*?)</span>\s*<span data-lang="en">', doc, re.S)
+    if not m:
+        return None
+    t = re.sub(r"\\\(.*?\\\)|\$\$.*?\$\$", "", m.group(1), flags=re.S)
+    t = html.unescape(re.sub(r"<[^>]+>", "", t))
+    t = re.sub(r"\s+", " ", t).strip()
+    if len(t) > 118:
+        cut = max(t.rfind(c, 0, 118) for c in "。！？；")
+        t = t[:cut + 1] if cut >= 40 else t[:117] + "…"
+    return t
+
+
+def build_zh(rel):
+    doc = BLOCK_RE.sub("", read(rel))
+    post = next((p for p in POSTS if p["rel"] == rel), None)
+    zh_title = ((post["title_zh"] or post["title"]) + " - " + NAME) if post else None
+    course = rel.startswith("robotics101/")
+    out = zh_edition.to_zh(doc, rel, ZH_SET, COURSE_BOOTSTRAP_RE if course else BOOTSTRAP_RE,
+                           COURSE_ZH_BOOTSTRAP if course else ZH_BOOTSTRAP, zh_title)
+    zh_desc = (post["summary_zh"] or post["summary"]) if post else (course_zh_desc(doc) if course else None)
+    if zh_desc:  # replace an existing English <meta description>
+        out = re.sub(r'(<meta\s+name="description"[^>]*\scontent=")[^"]*(")',
+                     lambda m: m.group(1) + attr(zh_desc) + m.group(2), out, count=1)
+    out = re.sub(r'[ \t]*<meta property="og:[^"]*" content="[^"]*">\n?', "", out)  # regenerated in Chinese below
+    block = seo_block(out, rel, "zh")
+    i = out.lower().index("</head>")
+    line_start = out.rfind("\n", 0, i) + 1
+    out = out[:line_start] + block + out[line_start:]
+    leftover = re.findall(r'\s(?:data-)?lang="en"', out)
+    assert not leftover, "%s: English-marked elements survived in the Chinese edition" % rel
+    write("zh/" + rel, out)
 
 
 # ---------------------------------------------------------------- prerendered publications
@@ -422,15 +540,24 @@ def apply_pubs(rel, selected_only, root):
 # ---------------------------------------------------------------- sitemap / robots / feed / llms
 def build_sitemap(pages):
     rows = []
-    for rel in pages:
-        url = canonical(rel)
+
+    def entry(rel, lang):
         post = next((p for p in POSTS if p["rel"] == rel), None)
         lm = "<lastmod>%s</lastmod>" % post["date"] if post else ""
-        rows.append("  <url><loc>%s</loc>%s</url>" % (html.escape(url), lm))
+        alts = ""
+        if rel in ZH_SET:
+            alts = "".join('<xhtml:link rel="alternate" hreflang="%s" href="%s"/>' % (hl, html.escape(page_url(rel, lg)))
+                           for hl, lg in (("en", "en"), ("zh-Hans", "zh"), ("x-default", "en")))
+        rows.append("  <url><loc>%s</loc>%s%s</url>" % (html.escape(page_url(rel, lang)), lm, alts))
+
+    for rel in pages:
+        entry(rel, "en")
+        if rel in ZH_SET:
+            entry(rel, "zh")
     for url in EXTERNAL_PAGES:
         rows.append("  <url><loc>%s</loc></url>" % html.escape(url))
-    return ('<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n%s\n</urlset>\n'
-            % "\n".join(rows))
+    return ('<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" '
+            'xmlns:xhtml="http://www.w3.org/1999/xhtml">\n%s\n</urlset>\n' % "\n".join(rows))
 
 
 AI_BOTS = ["OAI-SearchBot", "ChatGPT-User", "GPTBot", "Claude-SearchBot", "Claude-User", "ClaudeBot",
@@ -503,6 +630,8 @@ def build_llms(pages_desc):
          "academic homepage; every page is bilingual (English / 中文).", "",
          "Jiaming Wang is a common name. This Jiaming Wang is the robotics researcher at NUS (School of Computing, "
          "CLeAR Lab, Singapore) and a co-founder of iCarsClub. He is recruiting student researchers.", "",
+         "Chinese edition: every main page has a Chinese-only twin under %s/zh/ (for example %s)." % (
+             SITE, page_url("pages/about.html", "zh")), "",
          "## Main pages", ""]
     for name, rel in [("Home", "index.html"), ("Research and publications", "pages/research.html"),
                       ("About", "pages/about.html"), ("Blog", "pages/blog.html"),
@@ -532,7 +661,7 @@ def build_llms_full(pages_desc):
          "- Advisor / lab: Harold Soh, CLeAR Lab",
          "- Focus: robot navigation, spatial perception and mapping, long-term robot memory, manipulation, agentic robotics",
          "- Status: recruiting student researchers (Python / C++, ROS 2, real robots)",
-         "- Languages of the site: English and Chinese (中文)",
+         "- Languages of the site: English (%s/) and Chinese 中文 (%s/zh/), each as separate static pages" % (SITE, SITE),
          "- Links: [Home](%s/), [LinkedIn](%s), [GitHub](%s), [Contact page](%s)" % (
              SITE, LINKEDIN, GITHUB, canonical("pages/contact.html")), "",
          "## Background", "",
@@ -559,12 +688,28 @@ def build_llms_full(pages_desc):
 
 
 # ---------------------------------------------------------------- main
+def bump_assets():
+    """Cache-busting: point every page's css/js links at a fresh ?v= value."""
+    import time
+    v = time.strftime("%Y%m%d%H%M")
+    pat = re.compile(r'(css/styles\.css|css/tailwind\.css|js/main\.js|js/robot-sim\.js)(\?v=[A-Za-z0-9]+)?"')
+    files = ["index.html"] + sorted(str(p.relative_to(ROOT)) for p in (ROOT / "pages").glob("*.html")) + \
+        sorted(str(p.relative_to(ROOT)) for p in (ROOT / "pages" / "blog").glob("*.html"))
+    for rel in files:
+        doc = read(rel)
+        write(rel, pat.sub(lambda m: '%s?v=%s"' % (m.group(1), v), doc))
+
+
 def main():
+    if "--bump" in sys.argv:
+        bump_assets()
     pages = CORE_PAGES + [p["rel"] for p in POSTS] + course_pages() + ["ecrom/index.html"]
     for rel in pages:
         apply_block(rel)
     apply_pubs("index.html", True, "")
     apply_pubs("pages/research.html", False, "../")
+    for rel in ZH_SOURCES:
+        build_zh(rel)
 
     pages_desc = {rel: (get_desc(read(rel)) or "") for rel in pages}
     write("sitemap.xml", build_sitemap(pages))
@@ -572,7 +717,7 @@ def main():
     write("feed.xml", build_feed())
     write("llms.txt", build_llms(pages_desc))
     write("llms-full.txt", build_llms_full(pages_desc))
-    print("pages processed: %d; files changed: %d" % (len(pages), len(CHANGED)))
+    print("pages processed: %d (+%d Chinese editions); files changed: %d" % (len(pages), len(ZH_SOURCES), len(CHANGED)))
     for c in CHANGED:
         print("  updated", c)
 

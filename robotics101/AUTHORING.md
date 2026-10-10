@@ -20,6 +20,7 @@ robotics101/
 1. Copy an existing lesson (e.g. `part1/1-3-matrix-as-transformation.html`) and keep its `<head>`, body attributes, layout wrapper and script tags.
 2. Set `data-page`, `data-title-zh`, `data-title-en` on `<body>`.
 3. Mark the page `ready: true` in `assets/syllabus.js` — the sidebar, course map, Part overview and prev/next links update automatically.
+4. Run `python3 tools/seo/build.py` from the repo root: it adds the SEO block (canonical, hreflang, JSON-LD), generates the Chinese-only twin under `zh/robotics101/`, and updates `sitemap.xml`. Give the lesson a `<p class="lede">` with a `data-lang="zh"` span: its text becomes the Chinese meta description.
 
 ## Lesson anatomy
 Why robots need it → Intuition → Play (core lab + "Try this" tasks) → (extra views) → The math → In robotics → Pitfalls → Check yourself → Further reading.

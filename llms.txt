@@ -4,6 +4,8 @@
 
 Jiaming Wang is a common name. This Jiaming Wang is the robotics researcher at NUS (School of Computing, CLeAR Lab, Singapore) and a co-founder of iCarsClub. He is recruiting student researchers.
 
+Chinese edition: every main page has a Chinese-only twin under https://jiaming.im/zh/ (for example https://jiaming.im/zh/pages/about.html).
+
 ## Main pages
 
 - [Home](https://jiaming.im/): Jiaming Wang — PhD candidate at NUS working on robot navigation, spatial memory and embodied AI. Champion of REAL-I @ ICRA 2026 and Earth Rover Challenge @ ICRA 2025.

@@ -14,7 +14,21 @@
   /* ---------- language ---------- */
   R.lang = doc.getAttribute('data-lang-ui') || 'zh';
   R.t = (zh, en) => (R.lang === 'zh' ? zh : en);
+  // /zh/robotics101/… is the static Chinese edition (<html data-fixed-lang="zh">, built by tools/seo/build.py):
+  // it carries Chinese only and links to its English twin, so switching language navigates between the two.
+  const FIXED = doc.hasAttribute('data-fixed-lang');
+  const altEdition = lang => {
+    const l = document.querySelector('link[rel="alternate"][hreflang="' + (lang === 'zh' ? 'zh-Hans' : 'en') + '"]');
+    return l ? new URL(l.href, location.href).pathname : null;
+  };
   R.setLang = lang => {
+    lang = lang === 'en' ? 'en' : 'zh';
+    const target = lang !== R.lang ? altEdition(lang) : null;
+    if (target) {
+      try { localStorage.setItem('lang', lang); } catch (e) {}
+      location.assign(target + location.hash);
+      return;
+    }
     R.lang = lang === 'en' ? 'en' : 'zh';
     doc.setAttribute('data-lang-ui', R.lang);
     doc.lang = R.lang === 'zh' ? 'zh-CN' : 'en';
@@ -55,7 +69,7 @@
     S().parts[0].chapters.forEach(ch => ch.pages.forEach(p => out.push(Object.assign({ ch }, p))));
     return out;
   };
-  const L = (zh, en) => `<span data-lang="zh">${zh}</span><span data-lang="en">${en}</span>`;
+  const L = (zh, en) => FIXED ? `<span data-lang="zh">${zh}</span>` : `<span data-lang="zh">${zh}</span><span data-lang="en">${en}</span>`;
   R.L = L;
 
   function buildShell() {
