@@ -13,6 +13,7 @@ robotics101/
     course.js                shell, 中文/EN switch, theme, KaTeX, quizzes, tasks, UI widgets
     math.js                  R101.M — vectors, 2×2/3×3, SVD, SO(3)/SE(3) exp/log, RNG
     viz2d.js                 R101.Plane2D — 2D math canvas with draggable handles
+                             (also `fit` / `axes` / `clip` for anisotropic data plots: `const m = P.fit([x0,x1],[y0,y1]); P.axes(); P.path(pts.map(m.pt))`)
     viz3d.js                 R101.View3D — z-up orbit 3D canvas (painter's algorithm)
 ```
 

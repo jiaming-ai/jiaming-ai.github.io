@@ -221,6 +221,48 @@
       }
     }
 
+    /* ---------- data plots (anisotropic): fit a data window into the canvas, then draw with m.pt([x, y]) ---------- */
+    // fit([x0,x1],[y0,y1]) sets the view so the data window fills the canvas minus a margin, and returns the mapping.
+    // World x equals data x; world y equals data y times m.ky, so handles/primitives take m.pt(p) and m.inv(w) converts back.
+    fit(xr, yr, pad) {
+      const p = Object.assign({ l: 46, r: 14, t: 14, b: 32 }, pad || {});
+      const W = this.W, H = this.H, sc = (W - p.l - p.r) / (xr[1] - xr[0]);
+      const ky = (H - p.t - p.b) / ((yr[1] - yr[0]) * sc);
+      this.view.span = Math.min(W, H) / sc;
+      this.view.cx = xr[0] + (W / 2 - p.l) / sc;
+      this.view.cy = yr[1] * ky - (H / 2 - p.t) / sc;
+      const m = this.m = { xr, yr, pad: p, ky, pt: q => [q[0], q[1] * ky], inv: w => [w[0], w[1] / ky] };
+      return m;
+    }
+    // light grid + tick labels for the current fit()
+    axes(o = {}) {
+      const m = this.m, c = this.ctx, p = m.pad, W = this.W, H = this.H;
+      const nice = (range, target) => { const raw = range / target, e = Math.pow(10, Math.floor(Math.log10(raw))), f = raw / e; return (f < 1.5 ? 1 : f < 3.5 ? 2 : f < 7.5 ? 5 : 10) * e; };
+      const lab = v => { const s = String(parseFloat(v.toPrecision(6))); return s.replace('-', '−'); };
+      const sx = o.xstep || nice(m.xr[1] - m.xr[0], Math.max(3, Math.round((W - p.l - p.r) / 90)));
+      const sy = o.ystep || nice(m.yr[1] - m.yr[0], Math.max(3, Math.round((H - p.t - p.b) / 50)));
+      const X0 = this.X(m.xr[0]), X1 = this.X(m.xr[1]), Y0 = this.Y(m.yr[0] * m.ky), Y1 = this.Y(m.yr[1] * m.ky);
+      c.save();
+      c.lineWidth = 1;
+      for (let v = Math.ceil(m.xr[0] / sx - 1e-9) * sx; v <= m.xr[1] + 1e-9; v += sx) {
+        const x = this.X(v), zero = Math.abs(v) < 1e-9 * sx;
+        c.strokeStyle = this.col(zero ? 'axis' : 'grid'); c.globalAlpha = zero ? 0.8 : 1;
+        c.beginPath(); c.moveTo(x, Y1); c.lineTo(x, Y0); c.stroke();
+        if (!o.noXLabels) this.textPx((o.xfmt || lab)(v), x, Y0 + 12, { color: 'text-2', size: 11, align: 'center', halo: false });
+      }
+      for (let v = Math.ceil(m.yr[0] / sy - 1e-9) * sy; v <= m.yr[1] + 1e-9; v += sy) {
+        const y = this.Y(v * m.ky), zero = Math.abs(v) < 1e-9 * sy;
+        c.strokeStyle = this.col(zero ? 'axis' : 'grid'); c.globalAlpha = zero ? 0.8 : 1;
+        c.beginPath(); c.moveTo(X0, y); c.lineTo(X1, y); c.stroke();
+        if (!o.noYLabels) this.textPx((o.yfmt || lab)(v), X0 - 6, y, { color: 'text-2', size: 11, align: 'right', halo: false });
+      }
+      c.restore();
+      if (o.xlabel) this.textPx(o.xlabel, X1, Y0 + 26, { color: 'text-2', size: 12, align: 'right', halo: false });
+      if (o.ylabel) this.textPx(o.ylabel, X0 + 4, Y1 - 4, { color: 'text-2', size: 12, align: 'left', halo: false });
+    }
+    clip() { const m = this.m, c = this.ctx; c.save(); c.beginPath(); c.rect(this.X(m.xr[0]), this.Y(m.yr[1] * m.ky), this.X(m.xr[1]) - this.X(m.xr[0]), this.Y(m.yr[0] * m.ky) - this.Y(m.yr[1] * m.ky)); c.clip(); }
+    unclip() { this.ctx.restore(); }
+
     /* ---------- interaction ---------- */
     handle(h) { this.handles.push(h); this.invalidate(); return h; }
     _hit(px, py) {
