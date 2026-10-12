@@ -1,0 +1,120 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>今天吃什么 · What to Eat Today</title>
+<meta name="description" content="Can't decide what to eat? Shuffle a balanced home-style menu from 370+ dishes, each with a recipe video.">
+<meta name="theme-color" content="#ffb703">
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=Noto+Sans+SC:wght@400;500;700;900&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<div class="floaties" aria-hidden="true"></div>
+
+<header class="hero">
+  <div class="hero-inner">
+    <p class="date" id="date"></p>
+    <h1><span class="h-zh">今天吃什么?</span><span class="h-en">What to eat today?</span></h1>
+    <p class="sub">Can't decide? Roll the dice and get a balanced home-style menu from <b id="total">0</b> dishes.</p>
+  </div>
+  <button class="theme" id="themeBtn" title="Toggle dark mode" aria-label="Toggle dark mode">🌙</button>
+</header>
+
+<main>
+  <section class="panel controls" aria-label="Options">
+    <div class="row">
+      <div class="ctl">
+        <label>Dishes</label>
+        <div class="seg" id="countSeg" role="group" aria-label="Number of dishes">
+          <button data-n="0" class="on">🎲 5–8</button>
+          <button data-n="5">5</button><button data-n="6">6</button>
+          <button data-n="7">7</button><button data-n="8">8</button>
+        </div>
+      </div>
+      <div class="ctl">
+        <label>Style</label>
+        <div class="seg" id="modeSeg" role="group" aria-label="Menu style">
+          <button data-mode="home" class="on" title="Mains + egg/tofu + greens + soup + staple">🍚 Balanced meal</button>
+          <button data-mode="any" title="Completely random">🤪 Anything goes</button>
+        </div>
+      </div>
+      <div class="ctl">
+        <label>Spice</label>
+        <div class="seg" id="spiceSeg" role="group" aria-label="Spice level">
+          <button data-spicy="any" class="on">Any</button>
+          <button data-spicy="no">😌 Mild</button>
+          <button data-spicy="only">🌶️ Spicy</button>
+        </div>
+      </div>
+      <div class="ctl">
+        <label>Time</label>
+        <div class="seg" id="timeSeg" role="group" aria-label="Cooking time">
+          <button data-max="0" class="on">Any</button>
+          <button data-max="20">⚡ ≤ 20 min</button>
+          <button data-max="45">≤ 45 min</button>
+        </div>
+      </div>
+    </div>
+    <div class="ctl wide">
+      <label>Cuisine <small>(pick any; none = all)</small></label>
+      <div class="chips" id="cuisineChips"></div>
+    </div>
+  </section>
+
+  <div class="rollbar">
+    <button class="roll" id="rollBtn"><span class="dice" id="dice">🎲</span><span>Shuffle my menu!</span><kbd>space</kbd></button>
+    <p class="hint" id="hint"></p>
+  </div>
+
+  <section id="menuSection" aria-live="polite">
+    <div class="menu-head">
+      <h2>Today's menu <span class="count" id="menuCount"></span></h2>
+      <div class="menu-actions">
+        <button class="btn" id="copyBtn">📋 Copy menu</button>
+        <button class="btn" id="unlockBtn" hidden>🔓 Unlock all</button>
+      </div>
+    </div>
+    <div class="grid" id="menu"></div>
+    <p class="fine">🔒 lock a dish to keep it when you shuffle · 🔄 swap just that one · ❤️ save to your favourites</p>
+  </section>
+
+  <section id="favSection" hidden>
+    <div class="menu-head"><h2>❤️ My favourites <span class="count" id="favCount"></span></h2></div>
+    <div class="grid small" id="favGrid"></div>
+  </section>
+
+  <section id="library">
+    <div class="menu-head">
+      <h2>📖 Dish library <span class="count" id="libCount"></span></h2>
+      <input id="search" type="search" placeholder="Search 蒜蓉, soup, chicken…" aria-label="Search dishes">
+    </div>
+    <div class="chips kinds" id="kindChips"></div>
+    <div class="grid small" id="libGrid"></div>
+    <button class="btn more" id="moreBtn">Show more</button>
+  </section>
+</main>
+
+<footer>
+  <p>Made with 🍳 and too much indecision. Photos from Wikipedia / Wikimedia Commons (free licences); recipe videos belong to their creators on YouTube.</p>
+</footer>
+
+<div class="modal" id="modal" hidden role="dialog" aria-modal="true" aria-labelledby="mTitle">
+  <div class="modal-box">
+    <button class="x" id="mClose" aria-label="Close">✕</button>
+    <h3 id="mTitle"></h3>
+    <p class="m-sub" id="mSub"></p>
+    <div class="player" id="mPlayer"></div>
+    <div class="m-vids" id="mVids"></div>
+    <div class="m-links" id="mLinks"></div>
+  </div>
+</div>
+
+<script src="data/dishes.js"></script>
+<script src="data/videos.js"></script>
+<script src="js/app.js"></script>
+</body>
+</html>
