@@ -298,3 +298,71 @@ footer { text-align: center; color: var(--muted); font-size: 13.5px; padding: 10
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { animation: none !important; transition: none !important; }
 }
+
+/* ---- mix steppers ---- */
+.mix { display: flex; flex-wrap: wrap; gap: 10px; }
+.mix.off { opacity: .4; pointer-events: none; }
+.mixitem {
+  display: flex; align-items: center; gap: 8px; background: var(--bg); border: 2.5px solid var(--line);
+  border-radius: 14px; padding: 4px 6px 4px 12px; font-weight: 600; font-size: 14.5px;
+}
+.mixitem.custom { background: #d8f5df; color: #14391f; }
+:root[data-theme="dark"] .mixitem.custom { background: #1f4d33; color: #d8f5df; }
+.mi-c { display: inline-flex; align-items: center; gap: 4px; }
+.mi-c b { min-width: 1.4em; text-align: center; font-size: 17px; }
+.step {
+  width: 28px; height: 28px; border-radius: 50%; border: 2px solid var(--line); background: var(--yellow);
+  color: #2b1d14; font-weight: 700; font-size: 17px; line-height: 1; padding: 0; display: inline-grid; place-items: center;
+}
+.step:hover { transform: scale(1.12); }
+.step:active { transform: scale(.92); }
+.linkbtn { border: 0; background: none; color: var(--red); font-weight: 600; font-size: 13px; text-decoration: underline; cursor: pointer; padding: 0 4px; text-transform: none; letter-spacing: 0; }
+
+/* ---- plan ---- */
+.btn.primary { background: var(--green); color: #fff; }
+.btn.primary:hover { background: var(--yellow); color: #2b1d14; }
+.btn:disabled { opacity: .45; pointer-events: none; }
+.slot {
+  border: 2.5px solid var(--line); background: var(--card); border-radius: 12px; padding: 7px 10px;
+  font-weight: 600; font-size: 14.5px; box-shadow: 3px 3px 0 var(--line); color: var(--ink);
+}
+.people { display: inline-flex; align-items: center; gap: 6px; font-weight: 600; border: 2.5px solid var(--line); border-radius: 12px; padding: 3px 8px; background: var(--card); box-shadow: 3px 3px 0 var(--line); }
+.people b { min-width: 1.2em; text-align: center; }
+.plan-grid { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.25fr); gap: 20px; align-items: start; }
+.plan-meals { display: grid; gap: 14px; }
+.meal { padding: 12px 14px; }
+.meal-h { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; font-size: 17px; }
+.dchips { display: flex; flex-wrap: wrap; gap: 8px; }
+.dchip { display: inline-flex; align-items: center; background: var(--kc); color: #2b1d14; border: 2px solid var(--line); border-radius: 999px; overflow: hidden; font-weight: 600; }
+.dchip button { border: 0; background: none; color: inherit; padding: 4px 10px; font-size: 14.5px; }
+.dchip .dn:hover { text-decoration: underline; }
+.dchip .dx { padding: 4px 9px 4px 4px; opacity: .6; }
+.dchip .dx:hover { opacity: 1; color: var(--red); }
+.shop { padding: 14px 18px 16px; }
+.shop h3 { margin: 0 0 6px; font-size: 22px; }
+.shop h3 small { font-size: 14px; color: var(--muted); font-weight: 500; }
+.aisle h4 { margin: 14px 0 4px; font-size: 14px; letter-spacing: .5px; color: var(--muted); border-bottom: 2px dashed var(--muted); padding-bottom: 2px; }
+.aisle ul { list-style: none; margin: 0; padding: 0; }
+.aisle li { padding: 5px 0; border-bottom: 1px dotted rgba(122,100,85,.35); }
+.aisle label { display: flex; align-items: center; gap: 10px; cursor: pointer; }
+.aisle input { width: 20px; height: 20px; accent-color: var(--green); flex: none; }
+.aisle .in { flex: 1; }
+.aisle .in em { color: var(--muted); font-size: 13px; font-style: normal; }
+.aisle .iq { font-weight: 700; white-space: nowrap; background: var(--bg2); border-radius: 8px; padding: 1px 9px; }
+.aisle .iu { display: block; margin: 1px 0 0 30px; color: var(--muted); font-size: 12.5px; }
+.aisle li.done .in, .aisle li.done .iq { text-decoration: line-through; opacity: .45; }
+.pantry { margin-top: 14px; }
+.pantry summary { cursor: pointer; font-weight: 700; }
+.pantry p { display: flex; flex-wrap: wrap; gap: 6px; margin: 8px 0 0; }
+.pp { border: 2px solid var(--line); border-radius: 999px; padding: 1px 10px; font-size: 13px; background: var(--bg); }
+.card.inplan::after { content: "🛒 in plan"; position: absolute; left: 10px; bottom: 96px; z-index: 3; font-size: 12px; font-weight: 700; background: var(--green); color: #fff; border: 2px solid var(--line); border-radius: 999px; padding: 0 8px; }
+.fab {
+  position: fixed; right: 16px; bottom: 18px; z-index: 30; text-decoration: none; color: #fff; background: var(--green);
+  border: 3px solid var(--line); border-radius: 999px; padding: 8px 16px; font-weight: 700; font-size: 17px; box-shadow: 4px 4px 0 var(--line);
+}
+.fab:hover { background: var(--yellow); color: #2b1d14; }
+.m-ing { flex-basis: 100%; margin: 0 0 4px; font-size: 14px; color: var(--muted); }
+.m-ing b { color: var(--ink); }
+@media (max-width: 800px) { .plan-grid { grid-template-columns: 1fr; } }
+@media (max-width: 600px) { .slot { max-width: 150px; font-size: 13px; } .menu-actions { flex-wrap: wrap; } }
+@media (max-width: 600px) { .mixitem { flex: 1 1 calc(50% - 10px); justify-content: space-between; font-size: 13.5px; padding-left: 9px; } .mi-c b { min-width: 1.1em; } }

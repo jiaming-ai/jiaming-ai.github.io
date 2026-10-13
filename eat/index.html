@@ -19,7 +19,7 @@
   <div class="hero-inner">
     <p class="date" id="date"></p>
     <h1><span class="h-zh">今天吃什么?</span><span class="h-en">What to eat today?</span></h1>
-    <p class="sub">Can't decide? Roll the dice and get a balanced home-style menu from <b id="total">0</b> dishes.</p>
+    <p class="sub">Can't decide? Roll the dice for a balanced home-style menu, then turn it into a shopping list from <b id="total">0</b> dishes.</p>
   </div>
   <button class="theme" id="themeBtn" title="Toggle dark mode" aria-label="Toggle dark mode">🌙</button>
 </header>
@@ -30,8 +30,8 @@
       <div class="ctl">
         <label>Dishes</label>
         <div class="seg" id="countSeg" role="group" aria-label="Number of dishes">
-          <button data-n="0" class="on">🎲 5–8</button>
-          <button data-n="5">5</button><button data-n="6">6</button>
+          <button data-n="0" class="on">🎲 4–8</button>
+          <button data-n="4">4</button><button data-n="5">5</button><button data-n="6">6</button>
           <button data-n="7">7</button><button data-n="8">8</button>
         </div>
       </div>
@@ -59,6 +59,10 @@
         </div>
       </div>
     </div>
+    <div class="ctl wide" id="mixCtl">
+      <label>Mix <small id="mixNote">(how many of each; tap + / − to customise)</small> <button class="linkbtn" id="mixReset" hidden>↺ auto</button></label>
+      <div class="mix" id="mix"></div>
+    </div>
     <div class="ctl wide">
       <label>Cuisine <small>(pick any; none = all)</small></label>
       <div class="chips" id="cuisineChips"></div>
@@ -74,12 +78,34 @@
     <div class="menu-head">
       <h2>Today's menu <span class="count" id="menuCount"></span></h2>
       <div class="menu-actions">
+        <select id="slotSel" class="slot" aria-label="Which meal is this for?"></select>
+        <button class="btn primary" id="planBtn">🛒 Add to plan</button>
         <button class="btn" id="copyBtn">📋 Copy menu</button>
         <button class="btn" id="unlockBtn" hidden>🔓 Unlock all</button>
       </div>
     </div>
     <div class="grid" id="menu"></div>
     <p class="fine">🔒 lock a dish to keep it when you shuffle · 🔄 swap just that one · ❤️ save to your favourites</p>
+  </section>
+
+  <section id="planSection" hidden>
+    <div class="menu-head">
+      <h2>🛒 My plan <span class="count" id="planCount"></span></h2>
+      <div class="menu-actions">
+        <span class="people" title="Quantities are scaled for this many people">👥
+          <button class="step" id="pMinus" aria-label="Fewer people">−</button>
+          <b id="people">2</b>
+          <button class="step" id="pPlus" aria-label="More people">+</button>
+        </span>
+        <button class="btn" id="listCopy">📋 Copy list</button>
+        <button class="btn" id="planClear">🗑 Clear plan</button>
+      </div>
+    </div>
+    <div class="plan-grid">
+      <div class="plan-meals" id="planMeals"></div>
+      <div class="shop panel" id="shop"></div>
+    </div>
+    <p class="fine">Add several meals (lunch, dinner, tomorrow...) and shop once: quantities are added up across the whole plan. Amounts are rough, for the number of people above.</p>
   </section>
 
   <section id="favSection" hidden>
@@ -102,6 +128,8 @@
   <p>Made with 🍳 and too much indecision. Photos from Wikipedia / Wikimedia Commons (free licences); recipe videos belong to their creators on YouTube.</p>
 </footer>
 
+<a class="fab" id="fab" href="#planSection" hidden>🛒 <span id="fabN"></span></a>
+
 <div class="modal" id="modal" hidden role="dialog" aria-modal="true" aria-labelledby="mTitle">
   <div class="modal-box">
     <button class="x" id="mClose" aria-label="Close">✕</button>
@@ -115,6 +143,7 @@
 
 <script src="data/dishes.js"></script>
 <script src="data/videos.js"></script>
+<script src="data/recipes.js"></script>
 <script src="js/app.js"></script>
 </body>
 </html>
