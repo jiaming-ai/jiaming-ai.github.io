@@ -159,6 +159,72 @@
   // ZYX (yaw-pitch-roll) Euler → R
   M.eulerZYX = (yaw, pitch, roll) => M.mul(M.mul(M.rotZ(yaw), M.rotY(pitch)), M.rotX(roll));
 
+  /* ---------- dense linear algebra (n×n solve / inverse / determinant, symmetric eigen-solver, damped least squares) ---------- */
+  M.zeros = (r, c) => Array.from({ length: r }, () => new Array(c).fill(0));
+  // solve A x = b (A n×n) by Gaussian elimination with partial pivoting; b may be a vector or an n×m matrix. Returns null if singular.
+  M.solve = (A, b) => {
+    const n = A.length, vec = !Array.isArray(b[0]);
+    const B = vec ? b.map(x => [x]) : b.map(r => r.slice());
+    const m = B[0].length, a = A.map((r, i) => r.concat(B[i]));
+    for (let c = 0; c < n; c++) {
+      let p = c;
+      for (let r = c + 1; r < n; r++) if (Math.abs(a[r][c]) > Math.abs(a[p][c])) p = r;
+      if (Math.abs(a[p][c]) < 1e-12) return null;
+      [a[c], a[p]] = [a[p], a[c]];
+      for (let r = c + 1; r < n; r++) {
+        const f = a[r][c] / a[c][c];
+        if (f) for (let k = c; k < n + m; k++) a[r][k] -= f * a[c][k];
+      }
+    }
+    const X = M.zeros(n, m);
+    for (let j = 0; j < m; j++) for (let i = n - 1; i >= 0; i--) {
+      let s = a[i][n + j];
+      for (let k = i + 1; k < n; k++) s -= a[i][k] * X[k][j];
+      X[i][j] = s / a[i][i];
+    }
+    return vec ? X.map(r => r[0]) : X;
+  };
+  M.inv = A => M.solve(A, M.eye(A.length));
+  M.det = A => {
+    const n = A.length, a = A.map(r => r.slice());
+    let d = 1;
+    for (let c = 0; c < n; c++) {
+      let p = c;
+      for (let r = c + 1; r < n; r++) if (Math.abs(a[r][c]) > Math.abs(a[p][c])) p = r;
+      if (Math.abs(a[p][c]) < 1e-14) return 0;
+      if (p !== c) { [a[c], a[p]] = [a[p], a[c]]; d = -d; }
+      d *= a[c][c];
+      for (let r = c + 1; r < n; r++) { const f = a[r][c] / a[c][c]; for (let k = c; k < n; k++) a[r][k] -= f * a[c][k]; }
+    }
+    return d;
+  };
+  // symmetric eigen-decomposition (cyclic Jacobi): { values (descending), vectors (columns of V as rows of Vt) }
+  M.eigSym = S => {
+    const n = S.length, A = S.map(r => r.slice()), V = M.eye(n);
+    for (let sweep = 0; sweep < 60; sweep++) {
+      let off = 0;
+      for (let i = 0; i < n; i++) for (let j = i + 1; j < n; j++) off += A[i][j] * A[i][j];
+      if (off < 1e-22) break;
+      for (let p = 0; p < n; p++) for (let q = p + 1; q < n; q++) {
+        if (Math.abs(A[p][q]) < 1e-30) continue;
+        const th = (A[q][q] - A[p][p]) / (2 * A[p][q]);
+        const t = Math.sign(th || 1) / (Math.abs(th) + Math.sqrt(th * th + 1)), c = 1 / Math.sqrt(t * t + 1), s = t * c;
+        for (let k = 0; k < n; k++) { const akp = A[k][p], akq = A[k][q]; A[k][p] = c * akp - s * akq; A[k][q] = s * akp + c * akq; }
+        for (let k = 0; k < n; k++) { const apk = A[p][k], aqk = A[q][k]; A[p][k] = c * apk - s * aqk; A[q][k] = s * apk + c * aqk; }
+        for (let k = 0; k < n; k++) { const vkp = V[k][p], vkq = V[k][q]; V[k][p] = c * vkp - s * vkq; V[k][q] = s * vkp + c * vkq; }
+      }
+    }
+    const idx = A.map((_, i) => i).sort((a, b) => A[b][b] - A[a][a]);
+    return { values: idx.map(i => A[i][i]), vectors: idx.map(i => V.map(r => r[i])) }; // vectors[k] = k-th eigenvector
+  };
+  // damped least-squares solve of J dq = e :  dq = Jᵀ (J Jᵀ + λ² I)⁻¹ e   (λ = 0 → pseudo-inverse for full row rank J)
+  M.dls = (J, e, lam = 0) => {
+    const JJt = M.mul(J, M.T(J));
+    for (let i = 0; i < JJt.length; i++) JJt[i][i] += lam * lam + 1e-12;
+    const y = M.solve(JJt, e);
+    return y ? M.mv(M.T(J), y) : new Array(J[0].length).fill(0);
+  };
+
   /* ---------- LaTeX helpers ---------- */
   M.texMat = (A, d = 2) => '\\begin{bmatrix}' + A.map(r => r.map(x => M.tex(x, d)).join(' & ')).join(' \\\\ ') + '\\end{bmatrix}';
   M.texVec = (v, d = 2) => '\\begin{bmatrix}' + v.map(x => M.tex(x, d)).join(' \\\\ ') + '\\end{bmatrix}';

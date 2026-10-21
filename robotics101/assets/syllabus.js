@@ -111,21 +111,32 @@ window.R101_SYLLABUS = {
       ]
     },
     {
-      id: 'III', status: 'soon',
+      id: 'III', status: 'live', dir: 'part3',
       zh: '3D 视觉与几何', en: '3D Vision & Geometry',
       subZh: '从像素到三维世界：相机、对极几何、立体视觉与三维表示',
       subEn: 'From pixels to the 3D world: cameras, epipolar geometry, stereo and 3D representations',
-      groups: [
-        { zh: '相机与投影', en: 'Cameras & projection', topics: [
-          ['针孔相机模型', 'The pinhole camera'], ['射影几何与齐次坐标', 'Projective geometry & homogeneous coordinates'],
-          ['内参、外参与畸变', 'Intrinsics, extrinsics & distortion'], ['相机标定与手眼标定', 'Camera & hand–eye calibration'], ['单应性 Homography', 'Homographies'] ] },
-        { zh: '多视图几何', en: 'Multi-view geometry', topics: [
-          ['对极几何：本质矩阵与基础矩阵', 'Epipolar geometry: essential & fundamental matrices'], ['立体视觉与深度估计', 'Stereo vision & depth'],
-          ['三角化', 'Triangulation'], ['PnP 位姿估计', 'Perspective-n-Point'], ['特征匹配与 RANSAC', 'Feature matching & RANSAC'],
-          ['光束法平差 Bundle Adjustment', 'Bundle adjustment'] ] },
-        { zh: '三维表示与配准', en: '3D representations & registration', topics: [
-          ['点云与 ICP 配准', 'Point clouds & ICP'], ['体素、网格与 SDF', 'Voxels, meshes & SDFs'],
-          ['NeRF 与 3D Gaussian Splatting', 'NeRF & 3D Gaussian Splatting'], ['3D 图形学渲染管线基础', '3D graphics pipeline basics'] ] }
+      chapters: [
+        { n: 10, zh: '相机与投影', en: 'Cameras & Projection', pages: [
+          { n: '10.1', slug: 'pinhole', zh: '针孔相机模型', en: 'The Pinhole Camera', ready: true, star: true },
+          { n: '10.2', slug: 'projective-geometry', zh: '射影几何与齐次坐标', en: 'Projective Geometry & Homogeneous Coordinates', ready: true },
+          { n: '10.3', slug: 'intrinsics-extrinsics', zh: '内参、外参与畸变', en: 'Intrinsics, Extrinsics & Distortion', ready: true },
+          { n: '10.4', slug: 'calibration', zh: '相机标定与手眼标定', en: 'Camera & Hand–Eye Calibration', ready: true },
+          { n: '10.5', slug: 'homography', zh: '单应性 Homography', en: 'Homographies', ready: true }
+        ]},
+        { n: 11, zh: '多视图几何', en: 'Multi-View Geometry', pages: [
+          { n: '11.1', slug: 'epipolar', zh: '对极几何：本质矩阵与基础矩阵', en: 'Epipolar Geometry: Essential & Fundamental Matrices', ready: true, star: true },
+          { n: '11.2', slug: 'stereo', zh: '立体视觉与深度估计', en: 'Stereo Vision & Depth', ready: true },
+          { n: '11.3', slug: 'triangulation', zh: '三角化', en: 'Triangulation', ready: true },
+          { n: '11.4', slug: 'pnp', zh: 'PnP 位姿估计', en: 'Perspective-n-Point', ready: true },
+          { n: '11.5', slug: 'features-ransac', zh: '特征匹配与 RANSAC', en: 'Feature Matching & RANSAC', ready: true },
+          { n: '11.6', slug: 'bundle-adjustment', zh: '光束法平差 Bundle Adjustment', en: 'Bundle Adjustment', ready: true, star: true }
+        ]},
+        { n: 12, zh: '三维表示与配准', en: '3D Representations & Registration', pages: [
+          { n: '12.1', slug: 'point-clouds-icp', zh: '点云与 ICP 配准', en: 'Point Clouds & ICP', ready: true, star: true },
+          { n: '12.2', slug: 'voxels-meshes-sdf', zh: '体素、网格与 SDF', en: 'Voxels, Meshes & SDFs', ready: true },
+          { n: '12.3', slug: 'graphics-pipeline', zh: '3D 图形学渲染管线基础', en: '3D Graphics Pipeline Basics', ready: true },
+          { n: '12.4', slug: 'nerf-gaussian-splatting', zh: 'NeRF 与 3D Gaussian Splatting', en: 'NeRF & 3D Gaussian Splatting', ready: true, star: true }
+        ]}
       ]
     },
     {

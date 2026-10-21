@@ -9,6 +9,8 @@ robotics101/
   part1/<n>-<slug>.html      one lesson per file, e.g. 1-3-matrix-as-transformation.html
   part2/index.html           Part II overview (chapters 7–9: structure & kinematics, dynamics, embodiments)
   part2/<n>-<slug>.html      Part II lessons, e.g. 7-5-inverse-kinematics.html (chapter numbers run on across parts)
+  part3/index.html           Part III overview (chapters 10–12: cameras, multi-view geometry, 3D representations)
+  part3/<n>-<slug>.html      Part III lessons, e.g. 11-1-epipolar.html
   assets/
     syllabus.js              single source of truth for the outline (sidebar, maps, prev/next)
     course.css               layout, components, light/dark tokens, math color code
@@ -18,7 +20,9 @@ robotics101/
                              (also `fit` / `axes` / `clip` for anisotropic data plots: `const m = P.fit([x0,x1],[y0,y1]); P.axes(); P.path(pts.map(m.pt))`)
     viz3d.js                 R101.View3D — z-up orbit 3D canvas (painter's algorithm)
     robot.js                 R101.Robot — Part II kinematics: planar chains, the preset spatial 6R arm (`Robot.arm6`, PoE),
-                             Ad / jacSpace / jacBody / ikStep, drawing helpers; also adds solve / inv / det / eigSym / dls to R101.M
+                             Ad / jacSpace / jacBody / ikStep, drawing helpers
+    vision.js                R101.Vision — Part III camera geometry: OpenCV-style camera model, lookAt, project / ray / backproject, distortion,
+                             frustum drawing, test scenes, DLT homography / projection, 8-point E and F, triangulation, Kabsch, RANSAC; adds M.svd / M.nullvec
 ```
 
 ## Adding a lesson
