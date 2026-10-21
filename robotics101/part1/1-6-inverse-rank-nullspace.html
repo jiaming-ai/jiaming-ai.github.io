@@ -154,15 +154,15 @@
   <div class="callout key">
     <div class="ct"><span data-lang="zh">核心洞见</span><span data-lang="en">Key insight</span></div>
     <p data-lang="zh">能不能求逆，问的是<b>有没有信息被丢掉</b>。丢掉的那部分有两个名字：被压成零的输入方向叫<b>零空间</b>；输出里真正够得到的那部分叫<b>列空间</b>，够不到的输出就是“信息缺口”。没有方向被压掉、所有输出都够得到，\(A\) 才可逆。</p>
-    <p data-lang="en">Whether an inverse exists asks: <b>was any information thrown away?</b> The lost part has two names. The input directions crushed to zero form the <b>null space</b>; the outputs that can be reached at all form the <b>column space</b>. A is invertible exactly when nothing is crushed and everything is reachable.</p>
+    <p data-lang="en">Whether an inverse exists asks: <b>was any information thrown away?</b> The lost part has two names. The input directions crushed to zero form the <b>null space</b>; the outputs that can be reached at all form the <b>column space</b>, and the outputs it cannot reach are the "information gap". A is invertible exactly when nothing is crushed and everything is reachable.</p>
   </div>
 </section>
 
 <!-- ============ 3. PLAY ============ -->
 <section class="step" id="play">
   <h2><span class="n">3</span><span data-lang="zh">动手玩：逆与压扁</span><span data-lang="en">Play: inverses and squashing</span></h2>
-  <p data-lang="zh">这是 1.3 节矩阵实验室的升级版。拖动红绿箭头尖（或直接改矩阵里的数）。白色箭头是输入 \(\mathbf x\)，黄色箭头是输出 \(A\mathbf x\)。右侧实时给出 \(A^{-1}\)，以及它的元素有多大。点“▶”看 \(A\) 把网格拉变形，再由 \(A^{-1}\) 拉回来。把矩阵压成秩 1，看看会发生什么：青色线是<b>列空间</b>，紫色线是<b>零空间</b>，紫色虚线上的所有输入会落在同一个输出点上。</p>
-  <p data-lang="en">This is an upgrade of the matrix lab from Lesson 1.3. Drag the red and green arrow tips (or edit the entries). The white arrow is the input \(\mathbf x\), the amber arrow the output \(A\mathbf x\). The side panel shows \(A^{-1}\) live, and how large its entries are. Press "▶" to watch \(A\) deform the grid and \(A^{-1}\) pull it back. Then squash the matrix to rank 1 and see what happens: the cyan line is the <b>column space</b>, the purple line is the <b>null space</b>, and every input on a dashed purple line lands on the same output point.</p>
+  <p data-lang="zh">这是 1.3 节矩阵实验室的升级版。拖动红绿箭头尖（或直接改矩阵里的数）。不带颜色的箭头是输入 \(\mathbf x\)，黄色箭头是输出 \(A\mathbf x\)。右侧实时给出 \(A^{-1}\)，以及它的元素有多大。点“▶”看 \(A\) 把网格拉变形，再由 \(A^{-1}\) 拉回来。把矩阵压成秩 1，看看会发生什么：青色线是<b>列空间</b>，紫色线是<b>零空间</b>，紫色虚线上的所有输入会落在同一个输出点上。</p>
+  <p data-lang="en">This is an upgrade of the matrix lab from Lesson 1.3. Drag the red and green arrow tips (or edit the entries). The uncoloured arrow is the input \(\mathbf x\), the amber arrow the output \(A\mathbf x\). The side panel shows \(A^{-1}\) live, and how large its entries are. Press "▶" to watch \(A\) deform the grid and \(A^{-1}\) pull it back. Then squash the matrix to rank 1 and see what happens: the cyan line is the <b>column space</b>, the purple line is the <b>null space</b>, and every input on a dashed purple line lands on the same output point.</p>
 
   <figure class="fig bleed" id="fig-lab">
     <div class="fig-head"><span class="fig-kind">FIG 2</span><span class="fig-title"><span data-lang="zh">逆与零空间实验室</span><span data-lang="en">Inverse and null-space lab</span></span><span class="spacer"></span><button class="btn sm" id="lab-play">▶ <span data-lang="zh">先施加 A，再用 A⁻¹ 撤销</span><span data-lang="en">Apply A, then undo with A⁻¹</span></button></div>
@@ -176,8 +176,8 @@
       </div>
     </div>
     <figcaption class="fig-cap">
-      <span data-lang="zh">淡色网格是原坐标，青色网格是 \(A\) 变换后的网格。秩为 1 时，青色粗线是列空间，紫色粗线是零空间，细的紫色虚线是“输出相同”的输入集合，每条虚线对应青线上的一个小圆点。白色手柄靠近零空间时会吸附上去。</span>
-      <span data-lang="en">The faint grid is the original coordinates; the cyan grid is the grid after \(A\). At rank 1 the thick cyan line is the column space, the thick purple line the null space, and the thin dashed purple lines are sets of inputs with the same output, one per small dot on the cyan line. The white handle snaps onto the null space when it gets close.</span>
+      <span data-lang="zh">淡色网格是原坐标，青色网格是 \(A\) 变换后的网格。秩为 1 时，青色粗线是列空间，紫色粗线是零空间，细的紫色虚线是“输出相同”的输入集合，每条虚线对应青线上的一个小圆点。\(\mathbf x\) 的手柄靠近零空间时会吸附上去。</span>
+      <span data-lang="en">The faint grid is the original coordinates; the cyan grid is the grid after \(A\). At rank 1 the thick cyan line is the column space, the thick purple line the null space, and the thin dashed purple lines are sets of inputs with the same output, one per small dot on the cyan line. The handle of \(\mathbf x\) snaps onto the null space when it gets close.</span>
     </figcaption>
   </figure>
 
@@ -185,7 +185,7 @@
   <ul class="tasks">
     <li data-task="nearsing"><span><span data-lang="zh">让 \(A\) 仍然可逆，但 \(A^{-1}\) 里某个元素的绝对值<b>超过 10</b>（右侧的“逆有多大”条会变红）。</span><span data-lang="en">Keep \(A\) invertible, but make some entry of \(A^{-1}\) <b>exceed 10 in absolute value</b> (the "how big is the inverse" bar turns red).</span></span></li>
     <li data-task="ydiag"><span><span data-lang="zh">做一个<b>秩为 1</b> 的矩阵，使零空间正好是直线 y = x。提示：输入 (1, 1) 要被压成 0，这对两列意味着什么？</span><span data-lang="en">Build a <b>rank-1</b> matrix whose null space is exactly the line y = x. Hint: the input (1, 1) must be crushed to 0; what does that say about the two columns?</span></span></li>
-    <li data-task="nullvec"><span><span data-lang="zh">在一个秩为 1 的矩阵上，把白色输入 \(\mathbf x\) 拖到一个<b>非零</b>位置，使 \(A\mathbf x = \mathbf 0\)。</span><span data-lang="en">On a rank-1 matrix, drag the white input \(\mathbf x\) to a <b>non-zero</b> spot where \(A\mathbf x = \mathbf 0\).</span></span></li>
+    <li data-task="nullvec"><span><span data-lang="zh">在一个秩为 1 的矩阵上，把输入 \(\mathbf x\) 拖到一个<b>非零</b>位置，使 \(A\mathbf x = \mathbf 0\)。</span><span data-lang="en">On a rank-1 matrix, drag the input \(\mathbf x\) to a <b>non-zero</b> spot where \(A\mathbf x = \mathbf 0\).</span></span></li>
   </ul>
 
   <h3><span data-lang="zh">小游戏：把它撤销掉</span><span data-lang="en">Mini-game: undo it</span></h3>
@@ -206,18 +206,18 @@
       <span data-lang="en">The solid purple arrows are the columns of \(A\); the thin cyan arrows are what \(B\) does to them, \(BA\hat\imath\) and \(BA\hat\jmath\). When both cyan arrows sit exactly on \(\hat\imath\) and \(\hat\jmath\), you have it.</span>
     </figcaption>
   </figure>
-  <ul class="tasks"><li data-task="undo3"><span><span data-lang="zh">不看答案，连续撤销 3 个矩阵。</span><span data-lang="en">Undo 3 matrices without revealing the answer.</span></span></li></ul>
+  <ul class="tasks"><li data-task="undo3"><span><span data-lang="zh">不看答案，累计撤销 3 个矩阵。</span><span data-lang="en">Undo 3 matrices without revealing the answer.</span></span></li></ul>
 </section>
 
 <!-- ============ 4. SOLVING Ax = b ============ -->
 <section class="step" id="solve">
   <h2><span class="n">4</span><span data-lang="zh">第二个视角：解方程 Ax = b 的几何</span><span data-lang="en">Second view: the geometry of solving Ax = b</span></h2>
   <div data-lang="zh">
-    <p>“倒放”换一种说法，就是解方程：给定想要的输出 \(\mathbf b\)，哪个输入 \(\mathbf x\) 会产生它？两个面板对应两个空间：左边是<b>输入空间</b>（\(\mathbf x\) 住在这里），右边是<b>输出空间</b>（\(\mathbf b\) 住在这里）。拖动右边的黄色目标 \(\mathbf b\)，左边会显示解的集合；也可以拖动左边的白色 \(\mathbf x\)，右边会显示 \(A\mathbf x\)。</p>
+    <p>“倒放”换一种说法，就是解方程：给定想要的输出 \(\mathbf b\)，哪个输入 \(\mathbf x\) 会产生它？两个面板对应两个空间：左边是<b>输入空间</b>（\(\mathbf x\) 住在这里），右边是<b>输出空间</b>（\(\mathbf b\) 住在这里）。拖动右边的黄色目标 \(\mathbf b\)，左边会显示解的集合；也可以拖动左边的输入 \(\mathbf x\)，右边会显示 \(A\mathbf x\)。</p>
     <p>先用“可逆”预设：每个 \(\mathbf b\) 都有且只有一个 \(\mathbf x\)。再切到“秩 1”：输出被压在青色的列空间上。\(\mathbf b\) 在线上，解有一整条线；\(\mathbf b\) 离开了线，则一个解也没有。</p>
   </div>
   <div data-lang="en">
-    <p>"Rewinding" can be said another way: solving an equation. Given the output \(\mathbf b\) you want, which input \(\mathbf x\) produces it? The two panels are the two spaces: on the left the <b>input space</b> (where \(\mathbf x\) lives), on the right the <b>output space</b> (where \(\mathbf b\) lives). Drag the amber target \(\mathbf b\) on the right and the left panel shows the solution set; or drag the white \(\mathbf x\) on the left and the right panel shows \(A\mathbf x\).</p>
+    <p>"Rewinding" can be said another way: solving an equation. Given the output \(\mathbf b\) you want, which input \(\mathbf x\) produces it? The two panels are the two spaces: on the left the <b>input space</b> (where \(\mathbf x\) lives), on the right the <b>output space</b> (where \(\mathbf b\) lives). Drag the amber target \(\mathbf b\) on the right and the left panel shows the solution set; or drag the input \(\mathbf x\) on the left and the right panel shows \(A\mathbf x\).</p>
     <p>Start with the "Invertible" preset: every \(\mathbf b\) has one and only one \(\mathbf x\). Then switch to "Rank 1": the outputs are squashed onto the cyan column space. If \(\mathbf b\) is on the line, the solutions fill a whole line; if \(\mathbf b\) leaves the line, there is no solution at all.</p>
   </div>
 
@@ -239,7 +239,7 @@
 
   <div class="tasks-title"><span data-lang="zh">试一试</span><span data-lang="en">Try this</span></div>
   <ul class="tasks">
-    <li data-task="solline"><span><span data-lang="zh">选“秩 1”预设，让 \(\mathbf b\) 落在青色列空间上（且 \(\mathbf b \ne \mathbf 0\)），看解变成一整条线。拖动白色 \(\mathbf x\) 沿黄线滑动：\(\mathbf b\) 不动。</span><span data-lang="en">Pick the "Rank 1" preset and put \(\mathbf b\) on the cyan column space (with \(\mathbf b \ne \mathbf 0\)): the solution becomes a whole line. Slide the white \(\mathbf x\) along the amber line: \(\mathbf b\) does not move.</span></span></li>
+    <li data-task="solline"><span><span data-lang="zh">选“秩 1”预设，让 \(\mathbf b\) 落在青色列空间上（且 \(\mathbf b \ne \mathbf 0\)），看解变成一整条线。拖动输入 \(\mathbf x\) 沿黄线滑动：\(\mathbf b\) 不动。</span><span data-lang="en">Pick the "Rank 1" preset and put \(\mathbf b\) on the cyan column space (with \(\mathbf b \ne \mathbf 0\)): the solution becomes a whole line. Slide the input \(\mathbf x\) along the amber line: \(\mathbf b\) does not move.</span></span></li>
     <li data-task="nosol"><span><span data-lang="zh">在秩 1 的矩阵上，找一个<b>没有解</b>的 \(\mathbf b\)。</span><span data-lang="en">On a rank-1 matrix, find a \(\mathbf b\) with <b>no solution</b>.</span></span></li>
   </ul>
 </section>
@@ -354,12 +354,12 @@
   <div data-lang="zh">
     <p>考虑一个平面三连杆机械臂：3 个关节 \(\mathbf q = (q_1,q_2,q_3)\)，而手的位置只有 2 个坐标 \(\mathbf x = (x, y)\)。手速和关节速度之间是一个 \(2\times3\) 的雅可比矩阵：\(\dot{\mathbf x} = J(\mathbf q)\,\dot{\mathbf q}\)（3.3 节）。第 \(i\) 列是“只转第 \(i\) 个关节时手怎么动”：手相对于关节 \(i\) 的位置向量逆时针转 90°，即 \((-(y_h - y_i),\, x_h - x_i)\)。</p>
     <p>\(J\) 有 3 列、2 行，秩至多是 2。由秩–零化度定理，零空间至少是 \(3 - 2 = 1\) 维：存在一个关节速度方向 \(\mathbf n\)，使 \(J\mathbf n = \mathbf 0\)。沿着它转动关节，手一动也不动，但手肘和手腕都在动。这个方向可以直接算出来：\(J\) 的两行都是 \(\mathbb R^3\) 里的向量，\(\mathbf n\) 与两行都垂直，所以 \(\mathbf n\) 平行于两行的叉积（1.8 节）。</p>
-    <p>下面是这个想法的完整演示。<b>拖动黄色的手</b>，机械臂用阻尼伪逆迭代自己找关节角（伪逆见 1.13 节，这里是页内自带的简单实现）。<b>拖动白色的手肘</b>或下方的“自运动”滑块，关节沿着零空间方向 \(\mathbf n(\mathbf q)\) 积分：\(\dot{\mathbf q} = \alpha\,\mathbf n(\mathbf q)\)。注意积分只在一阶意义上保持手不动，所以每一步都要小步前进、重新归一化，再用牛顿修正把手拉回原位。紫色小箭头是 \(\mathbf n\) 引起的各关节点的速度：手上的那个是零。</p>
+    <p>下面是这个想法的完整演示。<b>拖动黄色的手</b>，机械臂用阻尼伪逆迭代自己找关节角（伪逆见 1.13 节，这里是页内自带的简单实现）。<b>拖动手肘</b>（空心圆圈）或下方的“自运动”滑块，关节沿着零空间方向 \(\mathbf n(\mathbf q)\) 积分：\(\dot{\mathbf q} = \alpha\,\mathbf n(\mathbf q)\)。注意积分只在一阶意义上保持手不动，所以每一步都要小步前进、重新归一化，再用牛顿修正把手拉回原位。紫色小箭头是 \(\mathbf n\) 引起的各关节点的速度：手上的那个是零。</p>
   </div>
   <div data-lang="en">
     <p>Consider a planar three-link arm: three joints \(\mathbf q = (q_1,q_2,q_3)\), but the hand position has only two coordinates \(\mathbf x = (x, y)\). The hand velocity and the joint velocities are related by a \(2\times3\) Jacobian: \(\dot{\mathbf x} = J(\mathbf q)\,\dot{\mathbf q}\) (Lesson 3.3). Column \(i\) says "how the hand moves when only joint \(i\) turns": the hand's position relative to joint \(i\), rotated 90° counter-clockwise, \((-(y_h - y_i),\, x_h - x_i)\).</p>
     <p>\(J\) has 3 columns and 2 rows, so its rank is at most 2. By the rank–nullity theorem the null space is at least \(3 - 2 = 1\) dimensional: there is a joint-velocity direction \(\mathbf n\) with \(J\mathbf n = \mathbf 0\). Turn the joints along it and the hand does not move at all, yet the elbow and wrist do. We can even compute it directly: the two rows of \(J\) are vectors in \(\mathbb R^3\), and \(\mathbf n\) is perpendicular to both, so \(\mathbf n\) is parallel to their cross product (Lesson 1.8).</p>
-    <p>Here is the whole idea in action. <b>Drag the amber hand</b> and the arm finds joint angles itself with damped pseudo-inverse iterations (the pseudo-inverse is Lesson 1.13; this page uses a small local implementation). <b>Drag the white elbow</b> or the "self-motion" slider below and the joints integrate along the null direction \(\mathbf n(\mathbf q)\): \(\dot{\mathbf q} = \alpha\,\mathbf n(\mathbf q)\). The integration keeps the hand still only to first order, so every step is small, renormalised, and followed by a Newton correction that pulls the hand back to its place. The small purple arrows are the velocities of the joints under \(\mathbf n\): the one on the hand is zero.</p>
+    <p>Here is the whole idea in action. <b>Drag the amber hand</b> and the arm finds joint angles itself with damped pseudo-inverse iterations (the pseudo-inverse is Lesson 1.13; this page uses a small local implementation). <b>Drag the elbow</b> (the hollow ring) or the "self-motion" slider below and the joints integrate along the null direction \(\mathbf n(\mathbf q)\): \(\dot{\mathbf q} = \alpha\,\mathbf n(\mathbf q)\). The integration keeps the hand still only to first order, so every step is small, renormalised, and followed by a Newton correction that pulls the hand back to its place. The small purple arrows are the velocities of the joints under \(\mathbf n\): the one on the hand is zero.</p>
   </div>
 
   <figure class="fig bleed" id="fig-arm">
@@ -375,8 +375,8 @@
     </div>
     <div class="fig-controls" id="arm-controls"></div>
     <figcaption class="fig-cap">
-      <span data-lang="zh">深色粗线是机械臂，淡色的“鬼影”是自运动经过的姿态，青色虚线是手肘和手腕走过的轨迹。紫色圆环是任务点，红色圆盘是障碍物。条形图是 \(\mathbf n\) 的三个分量：三个关节怎样配合，才能让手不动。</span>
-      <span data-lang="en">The thick dark lines are the arm, the faint "ghosts" are poses visited by the self-motion, and the cyan dashed curves are the paths of the elbow and wrist. The purple ring is the task point and the red disc an obstacle. The bars are the three components of \(\mathbf n\): how the three joints must cooperate so that the hand does not move.</span>
+      <span data-lang="zh">不带颜色的粗线是机械臂，淡色的“鬼影”是自运动经过的姿态，青色虚线是手肘和手腕走过的轨迹。紫色圆环是任务点，红色圆盘是障碍物。条形图是 \(\mathbf n\) 的三个分量：三个关节怎样配合，才能让手不动。</span>
+      <span data-lang="en">The thick uncoloured lines are the arm, the faint "ghosts" are poses visited by the self-motion, and the cyan dashed curves are the paths of the elbow and wrist. The purple ring is the task point and the red disc an obstacle. The bars are the three components of \(\mathbf n\): how the three joints must cooperate so that the hand does not move.</span>
     </figcaption>
   </figure>
   <ul class="tasks">
@@ -400,8 +400,8 @@
   </div>
   <div class="callout pitfall">
     <div class="ct"><span data-lang="zh">误区 2：“只要 det ≠ 0 就没问题”</span><span data-lang="en">Pitfall 2: "as long as det ≠ 0 we are fine"</span></div>
-    <p data-lang="zh">几乎奇异的矩阵会把噪声放大，放大倍数约和 \(1/|\det|\) 同量级。取 \(A = \begin{bmatrix}1&2\\0.5&1.1\end{bmatrix}\)，\(\det A = 0.1\)，\(A^{-1} = \begin{bmatrix}11&-20\\-5&10\end{bmatrix}\)。若 \(\mathbf b = (3, 1.6)\)，解是 \((1, 1)\)；传感器只让 \(b_2\) 变了 0.01，变成 \(\mathbf b = (3, 1.61)\)，解就变成 \((0.8, 1.1)\)。输入误差 0.01，输出误差 0.22：约 20 倍。矩阵越接近奇异，这个倍数越大（1.12 节的条件数）。</p>
-    <p data-lang="en">A nearly singular matrix amplifies noise, by a factor of roughly \(1/|\det|\). Take \(A = \begin{bmatrix}1&2\\0.5&1.1\end{bmatrix}\), \(\det A = 0.1\), \(A^{-1} = \begin{bmatrix}11&-20\\-5&10\end{bmatrix}\). For \(\mathbf b = (3, 1.6)\) the solution is \((1, 1)\). If the sensor shifts only \(b_2\) by 0.01, giving \(\mathbf b = (3, 1.61)\), the solution jumps to \((0.8, 1.1)\). An input error of 0.01 became an output error of 0.22: about 20 times. The closer to singular, the bigger the factor (the condition number of Lesson 1.12).</p>
+    <p data-lang="zh">几乎奇异的矩阵会把噪声放大。取 \(A = \begin{bmatrix}1&2\\0.5&1.1\end{bmatrix}\)，\(\det A = 0.1\)，\(A^{-1} = \begin{bmatrix}11&-20\\-5&10\end{bmatrix}\)。若 \(\mathbf b = (3, 1.6)\)，解是 \((1, 1)\)；传感器只让 \(b_2\) 变了 0.01，变成 \(\mathbf b = (3, 1.61)\)，解就变成 \((0.8, 1.1)\)。输入误差 0.01，输出误差 0.22：约 20 倍。放大倍数由<b>条件数</b>决定（1.12 节），而不是行列式本身的大小：1.5 节说过，\(0.1\,I\) 的行列式也很小，却一点也不病态。这里各元素都是 1 左右的量级，行列式小才恰好意味着接近奇异。</p>
+    <p data-lang="en">A nearly singular matrix amplifies noise. Take \(A = \begin{bmatrix}1&2\\0.5&1.1\end{bmatrix}\), \(\det A = 0.1\), \(A^{-1} = \begin{bmatrix}11&-20\\-5&10\end{bmatrix}\). For \(\mathbf b = (3, 1.6)\) the solution is \((1, 1)\). If the sensor shifts only \(b_2\) by 0.01, giving \(\mathbf b = (3, 1.61)\), the solution jumps to \((0.8, 1.1)\). An input error of 0.01 became an output error of 0.22: about 20 times. The amplification is set by the <b>condition number</b> (Lesson 1.12), not by the size of the determinant itself: as Lesson 1.5 showed, \(0.1\,I\) also has a small determinant yet is perfectly well-behaved. Here the entries are all of order 1, and only then does a small determinant signal near-singularity.</p>
   </div>
   <div class="callout pitfall">
     <div class="ct"><span data-lang="zh">误区 3：给非方阵求逆</span><span data-lang="en">Pitfall 3: inverting a non-square matrix</span></div>

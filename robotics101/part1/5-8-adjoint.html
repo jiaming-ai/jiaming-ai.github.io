@@ -131,7 +131,7 @@
       <li><b>机体 twist</b> \(\boldsymbol\xi_b = (\boldsymbol\omega_b,\mathbf v_b)\)：参考点是<b>机体原点</b>，数值在<b>机体系</b>的坐标轴上读出。这是机载传感器天然看到的：陀螺仪给 \(\boldsymbol\omega_b\)，轮速给 \(\mathbf v_b\)。</li>
       <li><b>空间 twist</b> \(\boldsymbol\xi_s = (\boldsymbol\omega_s,\mathbf v_s)\)：参考点是"此刻恰好位于<b>世界原点</b>的那个机体点"（想象橡皮板延伸到世界原点），数值在<b>世界系</b>的坐标轴上读出。这是 5.6 节里 \(\Exp(s\boldsymbol\xi)\) 的 \(\boldsymbol\xi\)。</li>
     </ul>
-    <p>下面先在平面上看，twist 只有三个数 \((\omega, v_x, v_y)\)。机器人在世界里有位姿 \(T\)，正绕着某个瞬时转动中心 \(C\) 以角速度 \(\omega\) 转动。拖动机器人、它的朝向手柄和中心 \(C\)，看两种读法如何变。灰青色小箭头就是整个速度场。</p>
+    <p>下面先在平面上看，twist 只有三个数 \((\omega, v_x, v_y)\)。机器人在世界里有位姿 \(T\)，正绕着某个瞬时转动中心 \(C\) 以角速度 \(\omega\) 转动。拖动机器人、它的朝向手柄和中心 \(C\)，看两种读法如何变。青色小箭头就是整个速度场。</p>
   </div>
   <div data-lang="en">
     <p>Think of a moving rigid body as a whole rubber sheet: every point on it has its own velocity, and together they form a <b>velocity field</b>. The field of a rigid motion is very regular, \(\mathbf u(\mathbf x) = \mathbf u_0 + \boldsymbol\omega\times(\mathbf x-\mathbf x_0)\): knowing the angular velocity \(\boldsymbol\omega\) and the velocity \(\mathbf u_0\) of one reference point \(\mathbf x_0\) fixes the entire field. A twist is those six numbers. What differs is <b>which point is the reference, and which axes you read the numbers on</b>:</p>
@@ -139,7 +139,7 @@
       <li>The <b>body twist</b> \(\boldsymbol\xi_b = (\boldsymbol\omega_b,\mathbf v_b)\): the reference point is the <b>body origin</b>, and the numbers are read on the <b>body frame's</b> axes. This is what on-board sensors naturally see: the gyro gives \(\boldsymbol\omega_b\), the wheel encoders give \(\mathbf v_b\).</li>
       <li>The <b>spatial twist</b> \(\boldsymbol\xi_s = (\boldsymbol\omega_s,\mathbf v_s)\): the reference point is "the body point that happens to sit at the <b>world origin</b> right now" (imagine the sheet extending to the world origin), and the numbers are read on the <b>world frame's</b> axes. This is the \(\boldsymbol\xi\) in \(\Exp(s\boldsymbol\xi)\) of Lesson 5.6.</li>
     </ul>
-    <p>Let us look at it in the plane first, where a twist has just three numbers \((\omega, v_x, v_y)\). A robot with pose \(T\) in the world is rotating at angular velocity \(\omega\) about an instantaneous centre \(C\). Drag the robot, its heading handle and the centre \(C\) and watch how the two readings change. The small teal arrows are the entire velocity field.</p>
+    <p>Let us look at it in the plane first, where a twist has just three numbers \((\omega, v_x, v_y)\). A robot with pose \(T\) in the world is rotating at angular velocity \(\omega\) about an instantaneous centre \(C\). Drag the robot, its heading handle and the centre \(C\) and watch how the two readings change. The small cyan arrows are the entire velocity field.</p>
   </div>
 
   <figure class="fig bleed" id="fig-planar">
@@ -153,8 +153,8 @@
     </div>
     <div class="fig-controls" id="pl-ctl"></div>
     <figcaption class="fig-cap">
-      <span data-lang="zh">黄色箭头：机体原点的速度（图中画在世界系里，机体系的读数是它旋转 \(R\T\) 之后的 \(\mathbf v_b\)）。紫色箭头：位于世界原点的那个机体点的速度，也就是 \(\mathbf v_s\)。灰青色小箭头是整个速度场；它在 \(C\) 处为零。三个手柄：机器人原点、朝向、转动中心 \(C\)。</span>
-      <span data-lang="en">Amber arrow: the velocity of the body origin (drawn in world axes; the body-frame reading \(\mathbf v_b\) is that arrow rotated by \(R\T\)). Purple arrow: the velocity of the body point sitting at the world origin, which is \(\mathbf v_s\). The small teal arrows are the whole velocity field, zero at \(C\). Three handles: the robot's origin, its heading, and the centre \(C\).</span>
+      <span data-lang="zh">本课的配色：角速度用紫色，线速度用琥珀色；<b>机体量画实线，空间量画虚线</b>。琥珀色实线箭头：机体原点的速度（图中画在世界系里，机体系的读数是它旋转 \(R\T\) 之后的 \(\mathbf v_b\)）。琥珀色虚线箭头：位于世界原点的那个机体点的速度，也就是 \(\mathbf v_s\)。青色小箭头是整个速度场；它在 \(C\) 处为零，紫色虚圆是机器人原点绕 \(C\) 走的圆。三个手柄：机器人原点、朝向、转动中心 \(C\)。</span>
+      <span data-lang="en">Colour code in this lesson: angular velocity purple, linear velocity amber; <b>body quantities solid, spatial quantities dashed</b>. Solid amber arrow: the velocity of the body origin (drawn in world axes; the body-frame reading \(\mathbf v_b\) is that arrow rotated by \(R\T\)). Dashed amber arrow: the velocity of the body point sitting at the world origin, which is \(\mathbf v_s\). The small cyan arrows are the whole velocity field, zero at \(C\); the dashed purple circle is the robot origin's path around \(C\). Three handles: the robot's origin, its heading, and the centre \(C\).</span>
     </figcaption>
   </figure>
   <div class="tasks-title"><span data-lang="zh">试一试</span><span data-lang="en">Try this</span></div>
@@ -176,11 +176,11 @@
   <h2><span class="n">3</span><span data-lang="zh">动手玩：同一根螺旋轴，换个坐标系</span><span data-lang="en">Play: the same screw axis in another frame</span></h2>
   <div data-lang="zh">
     <p>三维里也一样。在 5.6 节我们看到，每个 twist 都对应一根螺旋轴（轴线、转角、螺距）。机体 twist \(\boldsymbol\xi_b\) 在机体系里描述了一根轴；把机器人放到世界里的位姿 \(T\) 上，这根轴就跟着机器人一起搬到了世界里的某个位置，朝向某个方向。而空间 twist \(\boldsymbol\xi_s = \operatorname{Ad}_T\boldsymbol\xi_b\) 直接在世界系里描述螺旋轴。<b>两者描述的是同一根轴</b>：伴随矩阵只是改了读法。</p>
-    <p>FIG 2 验证这一点。青色虚线是"把机体系里的轴用 \(T\) 搬进世界"得到的轴；黄色实线是用 \(\operatorname{Ad}_T\boldsymbol\xi_b\) 算出来的轴。如果两者重合（青色虚线只在两端露出头），说明 \(\operatorname{Ad}_T\) 做对了。读数还会显示螺距 \(h\) 和转角 \(\theta\)：它们在换系时不变。</p>
+    <p>FIG 2 验证这一点。宽而半透明的紫色实线带是"把机体系里的轴用 \(T\) 搬进世界"得到的轴（机体量，实线）；紫色细虚线是用 \(\operatorname{Ad}_T\boldsymbol\xi_b\) 算出来的轴（空间量，虚线）。如果虚线始终落在实线带里（实线带只在两端露出头），说明 \(\operatorname{Ad}_T\) 做对了。读数还会显示螺距 \(h\) 和转角 \(\theta\)：它们在换系时不变。</p>
   </div>
   <div data-lang="en">
     <p>The same holds in 3D. Lesson 5.6 showed that every twist corresponds to a screw axis (a line, an angle and a pitch). The body twist \(\boldsymbol\xi_b\) describes an axis in the body frame; put the robot at pose \(T\) in the world and that axis is carried along to some place and direction in the world. The spatial twist \(\boldsymbol\xi_s = \operatorname{Ad}_T\boldsymbol\xi_b\) describes the screw axis directly in the world frame. <b>Both describe the same axis</b>: the adjoint only changes the reading.</p>
-    <p>FIG 2 checks this. The dashed teal line is the axis obtained by "carrying the body-frame axis into the world with \(T\)"; the solid amber line is the axis computed from \(\operatorname{Ad}_T\boldsymbol\xi_b\). If they coincide (the teal dashes poke out only at the ends), \(\operatorname{Ad}_T\) is doing its job. The readout also shows the pitch \(h\) and the angle \(\theta\): they do not change when the frame changes.</p>
+    <p>FIG 2 checks this. The wide translucent solid purple band is the axis obtained by "carrying the body-frame axis into the world with \(T\)" (a body quantity, solid); the thin dashed purple line is the axis computed from \(\operatorname{Ad}_T\boldsymbol\xi_b\) (a spatial quantity, dashed). If the dashes stay inside the band (the band pokes out only at the ends), \(\operatorname{Ad}_T\) is doing its job. The readout also shows the pitch \(h\) and the angle \(\theta\): they do not change when the frame changes.</p>
   </div>
 
   <figure class="fig bleed" id="fig-axis">
@@ -197,8 +197,8 @@
     <div class="fig-controls" id="ax-ctl-w"></div>
     <div class="fig-controls" id="ax-ctl-v"></div>
     <figcaption class="fig-cap">
-      <span data-lang="zh">灰色线框是世界系中的起点 \(T\)（带坐标轴的盒子），绿色盒子是 \(T\,\Exp(s\boldsymbol\xi_b)\)，它和 \(\Exp(s\boldsymbol\xi_s)\,T\) 是同一个位姿（读数中给出两者的差）。拖动画面旋转视角，可以从侧面检查两条轴线是否重合。</span>
-      <span data-lang="en">The grey wireframe is the start \(T\) (a box with axes) in the world, and the green box is \(T\,\Exp(s\boldsymbol\xi_b)\), which is the same pose as \(\Exp(s\boldsymbol\xi_s)\,T\) (the readout gives their difference). Orbit the view to check from the side that the two axis lines coincide.</span>
+      <span data-lang="zh">灰色线框是世界系中的起点 \(T\)（带坐标轴的盒子），绿色盒子是 \(T\,\Exp(s\boldsymbol\xi_b)\)，它和 \(\Exp(s\boldsymbol\xi_s)\,T\) 是同一个位姿（读数中给出两者的差）。拖动画面旋转视角，可以从侧面检查两条轴线是否重合。配色同 FIG 1：紫色是角速度和螺旋轴，琥珀色是线速度，机体量画实线、空间量画虚线。</span>
+      <span data-lang="en">The grey wireframe is the start \(T\) (a box with axes) in the world, and the green box is \(T\,\Exp(s\boldsymbol\xi_b)\), which is the same pose as \(\Exp(s\boldsymbol\xi_s)\,T\) (the readout gives their difference). Orbit the view to check from the side that the two axis lines coincide. Colours as in FIG 1: purple for angular velocity and screw axes, amber for linear velocity; body quantities solid, spatial quantities dashed.</span>
     </figcaption>
   </figure>
   <div class="tasks-title"><span data-lang="zh">试一试</span><span data-lang="en">Try this</span></div>
@@ -257,11 +257,11 @@
   <h3><span data-lang="zh">场景一：视觉伺服里的"相机系指令"</span><span data-lang="en">Scenario 1: a camera-frame command in visual servoing</span></h3>
   <div data-lang="zh">
     <p>手眼相机装在机械臂末端。视觉伺服律说："目标在相机系里的位置是 \(\mathbf p_c\)，所以相机应该以 \(\mathbf v_c = k\,\mathbf p_c\) 朝目标走，同时转向它。"这是相机系里的 twist \(\boldsymbol\xi_c\)。机械臂控制器却要<b>基座系</b>里的末端速度。正确的转换是 \(\boldsymbol\xi_s = \operatorname{Ad}_{T_{bc}}\boldsymbol\xi_c\)，其中 \(T_{bc}\) 由当前关节角和手眼标定共同给出。如果把 \(\boldsymbol\xi_c\) 当成基座系里的 twist 直接执行，相机就会朝错误的方向走。</p>
-    <p>下面的平面机械臂上，相机用一个固定的手眼变换装在末端。紫色和黄色箭头与 FIG 1 同义。绿色是"用 \(\operatorname{Ad}\) 换系后执行"（即 \(T_{bc}\Exp(\tau\boldsymbol\xi_c)\)）预期到达的相机位姿，红色是"没换系直接当基座系 twist 执行"（\(\Exp(\tau\boldsymbol\xi_c)T_{bc}\)）到达的位姿；\(\tau = 0.6\)。</p>
+    <p>下面的平面机械臂上，相机用一个固定的手眼变换装在末端。两支琥珀色箭头与 FIG 1 同义：实线是相机（机体）原点的速度 \(\mathbf v_c\)，虚线是空间 twist 的 \(\mathbf v_s\)。绿色是"用 \(\operatorname{Ad}\) 换系后执行"（即 \(T_{bc}\Exp(\tau\boldsymbol\xi_c)\)）预期到达的相机位姿，红色是"没换系直接当基座系 twist 执行"（\(\Exp(\tau\boldsymbol\xi_c)T_{bc}\)）到达的位姿；\(\tau = 0.6\)。</p>
   </div>
   <div data-lang="en">
     <p>A hand-eye camera is mounted at the end of the arm. The visual-servoing law says: "the target is at \(\mathbf p_c\) in the camera frame, so the camera should move toward it with \(\mathbf v_c = k\,\mathbf p_c\) while turning to face it." That is a twist \(\boldsymbol\xi_c\) in the <b>camera frame</b>. The arm controller, however, wants the end-effector velocity in the <b>base frame</b>. The correct conversion is \(\boldsymbol\xi_s = \operatorname{Ad}_{T_{bc}}\boldsymbol\xi_c\), where \(T_{bc}\) comes from the current joint angles and the hand-eye calibration. Execute \(\boldsymbol\xi_c\) as if it were a base-frame twist and the camera heads off in the wrong direction.</p>
-    <p>In the planar arm below the camera sits on the end link through a fixed hand-eye transform. The purple and amber arrows mean the same as in FIG 1. Green is the camera pose reached by executing the command <i>with</i> the \(\operatorname{Ad}\) conversion (\(T_{bc}\Exp(\tau\boldsymbol\xi_c)\)); red is the pose reached by treating \(\boldsymbol\xi_c\) as a base-frame twist (\(\Exp(\tau\boldsymbol\xi_c)T_{bc}\)); \(\tau = 0.6\).</p>
+    <p>In the planar arm below the camera sits on the end link through a fixed hand-eye transform. The two amber arrows mean the same as in FIG 1: solid is the velocity \(\mathbf v_c\) of the camera (body) origin, dashed is the spatial twist's \(\mathbf v_s\). Green is the camera pose reached by executing the command <i>with</i> the \(\operatorname{Ad}\) conversion (\(T_{bc}\Exp(\tau\boldsymbol\xi_c)\)); red is the pose reached by treating \(\boldsymbol\xi_c\) as a base-frame twist (\(\Exp(\tau\boldsymbol\xi_c)T_{bc}\)); \(\tau = 0.6\).</p>
   </div>
 
   <figure class="fig bleed" id="fig-servo">
@@ -275,8 +275,8 @@
     </div>
     <div class="fig-controls" id="sv-ctl"></div>
     <figcaption class="fig-cap">
-      <span data-lang="zh">拖动黄色圆点（目标）。机械臂基座在原点，两节连杆，滑块调关节角。相机（小楔形）通过固定的手眼变换装在末端，朝向它自己的 \(x\) 轴。读数里的距离是执行之后相机原点到目标的距离。上方读数给出相机系 twist \(\boldsymbol\xi_c\) 和换系后的 \(\boldsymbol\xi_s = \operatorname{Ad}_{T_{bc}}\boldsymbol\xi_c\)。</span>
-      <span data-lang="en">Drag the amber dot (the target). The arm base is at the origin, with two links whose angles are set by the sliders. The camera (the small wedge) is mounted on the end link through a fixed hand-eye transform and looks along its own \(x\)-axis. The distances in the readout are from the camera origin to the target after the motion. The panel above them shows the camera-frame twist \(\boldsymbol\xi_c\) and the converted \(\boldsymbol\xi_s = \operatorname{Ad}_{T_{bc}}\boldsymbol\xi_c\).</span>
+      <span data-lang="zh">拖动标着"目标"的圆点。机械臂基座在原点，两节连杆，滑块调关节角。相机（小楔形）通过固定的手眼变换装在末端，朝向它自己的 \(x\) 轴。读数里的距离是执行之后相机原点到目标的距离。上方读数给出相机系 twist \(\boldsymbol\xi_c\) 和换系后的 \(\boldsymbol\xi_s = \operatorname{Ad}_{T_{bc}}\boldsymbol\xi_c\)（紫色为角速度分量，琥珀色为线速度分量）。机体（相机）量画实线，空间量画虚线。</span>
+      <span data-lang="en">Drag the dot labelled "target". The arm base is at the origin, with two links whose angles are set by the sliders. The camera (the small wedge) is mounted on the end link through a fixed hand-eye transform and looks along its own \(x\)-axis. The distances in the readout are from the camera origin to the target after the motion. The panel above them shows the camera-frame twist \(\boldsymbol\xi_c\) and the converted \(\boldsymbol\xi_s = \operatorname{Ad}_{T_{bc}}\boldsymbol\xi_c\) (angular parts purple, linear parts amber). Body (camera) quantities are solid, spatial ones dashed.</span>
     </figcaption>
   </figure>
   <div class="tasks-title"><span data-lang="zh">试一试</span><span data-lang="en">Try this</span></div>
@@ -303,14 +303,14 @@
       </div>
     </div>
     <figcaption class="fig-cap">
-      <span data-lang="zh">黄色箭头是接触点 \(P\) 处的力 \(\mathbf f\)（拖动 \(P\) 整体移动，拖动箭头尖改变力）。紫色虚线是世界原点到作用线的杠杆臂，青色虚线是传感器原点到作用线的杠杆臂。力矩 \(m = \pm d\,\|\mathbf f\|\)，符号取逆时针为正。读数里 "几何直接算" 与 "\(\operatorname{Ad}_T\T\mathbf F_s\)" 两种算法应该相同。</span>
-      <span data-lang="en">The amber arrow is the force \(\mathbf f\) at the contact point \(P\) (drag \(P\) to move the whole arrow, drag the arrow tip to change the force). The purple dashed line is the lever arm from the world origin to the line of action, the teal one from the sensor origin. The torque is \(m = \pm d\,\|\mathbf f\|\), counter-clockwise positive. The "computed from geometry" and "\(\operatorname{Ad}_T\T\mathbf F_s\)" results in the readout should agree.</span>
+      <span data-lang="zh">琥珀色箭头是接触点 \(P\) 处的力 \(\mathbf f\)（拖动 \(P\) 会让它沿作用线滑动；拖动箭头尖改变力的大小和方向，作用线绕 \(P\) 转）。紫色虚线是世界原点到作用线的杠杆臂 \(d_s\)（空间量，虚线），紫色实线是传感器原点到作用线的杠杆臂 \(d_b\)（机体量，实线）。力矩 \(m = \pm d\,\|\mathbf f\|\)，符号取逆时针为正。读数里 "几何直接算" 与 "\(\operatorname{Ad}_T\T\mathbf F_s\)" 两种算法应该相同；公式里力矩分量为紫色，力分量为琥珀色。</span>
+      <span data-lang="en">The amber arrow is the force \(\mathbf f\) at the contact point \(P\) (dragging \(P\) slides it along the line of action; dragging the arrow tip changes the force, swinging the line of action about \(P\)). The dashed purple line is the lever arm \(d_s\) from the world origin to the line of action (spatial, dashed), the solid purple line the lever arm \(d_b\) from the sensor origin (body, solid). The torque is \(m = \pm d\,\|\mathbf f\|\), counter-clockwise positive. The "computed from geometry" and "\(\operatorname{Ad}_T\T\mathbf F_s\)" results in the readout should agree; in the formulas the torque component is purple and the force components amber.</span>
     </figcaption>
   </figure>
   <div class="tasks-title"><span data-lang="zh">试一试</span><span data-lang="en">Try this</span></div>
   <ul class="tasks">
     <li data-task="slide"><span><span data-lang="zh">沿着力的作用线把 \(P\) 滑动 1 个单位以上。力矩 \(m_s\)、\(m_b\) 变了吗？为什么？</span><span data-lang="en">Slide \(P\) more than 1 unit along the line of action. Do \(m_s\) and \(m_b\) change? Why not?</span></span></li>
-    <li data-task="zero"><span><span data-lang="zh">让传感器原点落在力的作用线上（\(|m_b| &lt; 0.05\)，\(\|\mathbf f\| &gt; 0.5\)）。传感器测到的是什么？</span><span data-lang="en">Put the sensor origin on the line of action (\(|m_b| &lt; 0.05\), \(\|\mathbf f\| &gt; 0.5\)). What does the sensor measure then?</span></span></li>
+    <li data-task="zero"><span><span data-lang="zh">拖动传感器（或转动力的方向），让传感器原点落在力的作用线上（杠杆臂 \(d_b &lt; 0.1\)，\(\|\mathbf f\| &gt; 0.5\)）。传感器测到的是什么？</span><span data-lang="en">Drag the sensor (or swing the force) so that the sensor origin lies on the line of action (lever arm \(d_b &lt; 0.1\), \(\|\mathbf f\| &gt; 0.5\)). What does the sensor measure then?</span></span></li>
   </ul>
   <div class="callout robot">
     <div class="ct"><span data-lang="zh">真实系统里</span><span data-lang="en">In real systems</span></div>
@@ -324,8 +324,8 @@
   <h2><span class="n">6</span><span data-lang="zh">常见误区</span><span data-lang="en">Common pitfalls</span></h2>
   <div class="callout pitfall">
     <div class="ct"><span data-lang="zh">误区 1：只旋转 ω 和 v，忘了杠杆臂</span><span data-lang="en">Pitfall 1: rotating ω and v and forgetting the lever arm</span></div>
-    <p data-lang="zh">把 twist 当成两个普通向量，各自乘 \(R\)，得到的是 \(\operatorname{diag}(R,R)\boldsymbol\xi\)，丢了 \(\skew{\mathbf t}R\boldsymbol\omega\) 一项。只在 \(\mathbf t = 0\)（两个坐标系原点重合）或 \(\boldsymbol\omega = 0\) 时才碰巧正确。症状：机器人原地转没问题，一边走一边转就出现横向漂移。</p>
-    <p data-lang="en">Treating a twist as two ordinary vectors and multiplying each by \(R\) gives \(\operatorname{diag}(R,R)\boldsymbol\xi\), which drops the \(\skew{\mathbf t}R\boldsymbol\omega\) term. It happens to be right only when \(\mathbf t = 0\) (the origins coincide) or \(\boldsymbol\omega = 0\). Symptom: turning in place is fine, but turning while driving produces a sideways drift.</p>
+    <p data-lang="zh">把 twist 当成两个普通向量，各自乘 \(R\)，得到的是 \(\operatorname{diag}(R,R)\boldsymbol\xi\)，丢了 \(\skew{\mathbf t}R\boldsymbol\omega\) 一项。只在 \(\mathbf t = 0\)（两个坐标系原点重合）或 \(\boldsymbol\omega = 0\) 时才碰巧正确。症状：直线行驶（\(\boldsymbol\omega = 0\)）没问题，一旦转弯，哪怕是原地转，偏离原点安装的传感器的速度就会多出或少掉一个横向的 \(\boldsymbol\omega\times\mathbf t\) 分量。</p>
+    <p data-lang="en">Treating a twist as two ordinary vectors and multiplying each by \(R\) gives \(\operatorname{diag}(R,R)\boldsymbol\xi\), which drops the \(\skew{\mathbf t}R\boldsymbol\omega\) term. It happens to be right only when \(\mathbf t = 0\) (the origins coincide) or \(\boldsymbol\omega = 0\). Symptom: driving straight (\(\boldsymbol\omega = 0\)) is fine, but as soon as the robot turns, even in place, the velocity of an offset-mounted sensor is off by a sideways \(\boldsymbol\omega\times\mathbf t\) term.</p>
   </div>
   <div class="callout pitfall">
     <div class="ct"><span data-lang="zh">误区 2：Ad 的下标和方向写反</span><span data-lang="en">Pitfall 2: getting the subscript and direction of Ad backwards</span></div>
@@ -435,6 +435,8 @@ R101.onReady(function () {
   const deg = x => M.fmt(x / D2R, 1) + '°';
   const vecStr = (v, d = 2) => '(' + v.map(x => M.fmt(x, d)).join(', ') + ')';
   const texRow = (v, d = 2) => v.map(x => M.tex(x, d)).join(',\\,');
+  // planar twist / wrench (angular, x, y): angular part purple, linear part amber
+  const twTex = v => `\\cw{${M.tex(v[0])}},\\,\\cv{${texRow(v.slice(1))}}`;
   const near = (A, B, tol) => A.every((r, i) => r.every((x, j) => Math.abs(x - B[i][j]) < tol));
 
   // ---- planar SE(2) helpers: pose {x, y, th}, twist (ω, vx, vy) ----
@@ -503,11 +505,11 @@ R101.onReady(function () {
       P.text('{s}', [0, 0], { offset: [-14, -14], color: 'text-2', size: 12, bold: true });
       P.text('{b}', [T.x, T.y], { offset: [-16, 16], color: 'x', size: 12, bold: true });
       if (hl === 'lever') {
-        P.line([0, 0], [T.x, T.y], { color: 'w', width: 3.5, dash: [6, 4] });
-        P.text(R101.t('杠杆臂 t', 'lever arm t'), [T.x / 2, T.y / 2], { offset: [0, -14], color: 'w', size: 12, bold: true, align: 'center' });
+        P.line([0, 0], [T.x, T.y], { color: 'text', width: 3.5, dash: [6, 4] });
+        P.text(R101.t('杠杆臂 t', 'lever arm t'), [T.x / 2, T.y / 2], { offset: [0, -14], color: 'text', size: 12, bold: true, align: 'center' });
       }
       const sc = 0.5;
-      if (Math.hypot(vs[0], vs[1]) > 1e-6) P.arrow([0, 0], [vs[0] * sc, vs[1] * sc], { color: 'w', width: hl === 'xis' ? 6 : 3.5, label: 'v_s', labelOffset: [8, 10] });
+      if (Math.hypot(vs[0], vs[1]) > 1e-6) P.arrow([0, 0], [vs[0] * sc, vs[1] * sc], { color: 'v', width: hl === 'xis' ? 6 : 3.5, dash: [7, 5], label: 'v_s', labelOffset: [8, 10] });
       if (Math.hypot(vo[0], vo[1]) > 1e-6) P.arrow([T.x, T.y], [T.x + vo[0] * sc, T.y + vo[1] * sc], { color: 'v', width: hl === 'xib' ? 6 : 3.5, label: R101.t('v_b（世界轴）', 'v_b (in world axes)'), labelOffset: [8, -10] });
       P.point(C, { color: 'text', r: 4.5 });
       P.text('C', C, { offset: [10, -10], color: 'text', size: 14, bold: true });
@@ -528,7 +530,7 @@ R101.onReady(function () {
     const tx = document.getElementById('pl-tex'), rd = document.getElementById('pl-read');
     function sync() {
       const { vb, vs } = twists(), xb = [om, vb[0], vb[1]], xs = [om, vs[0], vs[1]], A = Ad2(T), Axb = M.mv(A, xb);
-      R101.tex(tx, `\\begin{aligned}\\cv{\\boldsymbol\\xi_b} &= (${texRow(xb)})\\\\ \\cw{\\boldsymbol\\xi_s} &= (${texRow(xs)})\\\\ \\operatorname{Ad}_T &= ${M.texMat(A)}\\end{aligned}`);
+      R101.tex(tx, `\\begin{aligned}\\boldsymbol\\xi_b &= (${twTex(xb)})\\\\ \\boldsymbol\\xi_s &= (${twTex(xs)})\\\\ \\operatorname{Ad}_T &= ${M.texMat(A)}\\end{aligned}`);
       const err = M.norm(M.sub(Axb, xs));
       rd.innerHTML = `T = (${M.fmt(T.x, 2)}, ${M.fmt(T.y, 2)}, ${deg(T.th)})<br>${L('杠杆臂', 'lever arm')} (t<sub>y</sub>, −t<sub>x</sub>) = (${M.fmt(T.y, 2)}, ${M.fmt(-T.x, 2)})<br>‖Ad<sub>T</sub> ξ<sub>b</sub> − ξ<sub>s</sub>‖ = <b>${err.toExponential(1).replace('-', '−')}</b>${Math.abs(om) < 0.05 ? '<br><span class="muted small">' + L('ω ≈ 0：转动中心在无穷远，没有速度', 'ω ≈ 0: the centre is at infinity, no motion') + '</span>' : ''}`;
       P.invalidate();
@@ -565,13 +567,13 @@ R101.onReady(function () {
       V.text('{b}', t, { dx: -10, dy: 14, align: 'right', color: 'text-2' });
       if (sb) {
         const qw = M.add(M.mv(R, sb.q), t), dw = M.mv(R, sb.dir), big = hl === 'xib';
-        V.line(M.add(qw, M.scale(dw, -5.5)), M.add(qw, M.scale(dw, 5.5)), { color: 'x', width: big ? 5 : 2.4, dash: [9, 6], alpha: big ? 1 : 0.9 });
+        V.line(M.add(qw, M.scale(dw, -5.5)), M.add(qw, M.scale(dw, 5.5)), { color: 'w', width: big ? 11 : 8, alpha: big ? 0.45 : 0.28 });   // body axis: wide solid band
       }
       if (ss) {
         const big = hl === 'xis';
-        V.line(M.add(ss.q, M.scale(ss.dir, -4.2)), M.add(ss.q, M.scale(ss.dir, 4.2)), { color: 'v', width: big ? 5.5 : 3.2, alpha: 1 });
-        V.point(ss.q, { color: 'v', r: 5, stroke: 'canvas', label: 'q_s' });
-        V.arrow(ss.q, M.add(ss.q, M.scale(ss.dir, 1.2)), { color: 'v', width: 3, label: 'ω_s', bias: 0.05 });
+        V.line(M.add(ss.q, M.scale(ss.dir, -4.2)), M.add(ss.q, M.scale(ss.dir, 4.2)), { color: 'w', width: big ? 4 : 2.4, dash: [9, 6], alpha: 1 });   // spatial axis: thin dashed
+        V.point(ss.q, { color: 'w', r: 5, stroke: 'canvas', label: 'q_s' });
+        V.arrow(ss.q, M.add(ss.q, M.scale(ss.dir, 1.2)), { color: 'w', width: 3, dash: [6, 4], label: 'ω_s', bias: 0.05 });
       } else if (M.norm(v) > 1e-6) {
         V.text(R101.t('纯平移：螺旋轴在无穷远处', 'pure translation: screw axis at infinity'), [0, 0, 2.4], { color: 'w', size: 12 });
       }
@@ -606,7 +608,7 @@ R101.onReady(function () {
     const tx = document.getElementById('ax-tex'), rd = document.getElementById('ax-read');
     function sync() {
       compute();
-      R101.tex(tx, `\\begin{aligned}\\cw{\\boldsymbol\\omega_b} &= (${texRow(xib.slice(0, 3))})\\\\ \\cv{\\mathbf v_b} &= (${texRow(xib.slice(3))})\\\\ \\cw{\\boldsymbol\\omega_s} &= (${texRow(xis.slice(0, 3))})\\\\ \\cw{\\mathbf v_s} &= (${texRow(xis.slice(3))})\\end{aligned}`);
+      R101.tex(tx, `\\begin{aligned}\\cw{\\boldsymbol\\omega_b} &= (${texRow(xib.slice(0, 3))})\\\\ \\cv{\\mathbf v_b} &= (${texRow(xib.slice(3))})\\\\ \\cw{\\boldsymbol\\omega_s} &= (${texRow(xis.slice(0, 3))})\\\\ \\cv{\\mathbf v_s} &= (${texRow(xis.slice(3))})\\end{aligned}`);
       let h = '';
       if (sb) h += `${L('机体轴', 'body axis')}: θ = ${M.fmt(sb.th, 2)}, h = <b>${M.fmt(sb.h, 3)}</b><br>${L('空间轴', 'space axis')}: θ = ${M.fmt(ss.th, 2)}, h = <b>${M.fmt(ss.h, 3)}</b><br>q<sub>s</sub> = ${vecStr(ss.q)}<br>`;
       else h += L('ω = 0：纯平移，没有螺旋轴<br>', 'ω = 0: pure translation, no screw axis<br>');
@@ -653,11 +655,11 @@ R101.onReady(function () {
       P.arrow([0, 0], [0, 1], { color: 'j', width: 2, alpha: 0.5, head: 8 });
       const vcw = rotv(Tbc.th, [xic[1], xic[2]]);
       P.arrow([Tbc.x, Tbc.y], [Tbc.x + vcw[0] * 0.8, Tbc.y + vcw[1] * 0.8], { color: 'v', width: 3.5, label: 'v_c', labelOffset: [6, -10] });
-      P.arrow([0, 0], [xis[1] * 0.8, xis[2] * 0.8], { color: 'w', width: 3.5, label: 'v_s', labelOffset: [8, 10] });
-      P.point(Pt, { color: 'v', r: 5 });
-      P.text(R101.t('目标', 'target'), Pt, { offset: [12, 12], color: 'v', size: 12, bold: true });
+      P.arrow([0, 0], [xis[1] * 0.8, xis[2] * 0.8], { color: 'v', width: 3.5, dash: [7, 5], label: 'v_s', labelOffset: [8, 10] });
+      P.point(Pt, { color: 'text', r: 5 });
+      P.text(R101.t('目标', 'target'), Pt, { offset: [12, 12], color: 'text', size: 12, bold: true });
     }
-    P.handle({ pos: () => Pt, set: p => { Pt[0] = p[0]; Pt[1] = p[1]; }, color: 'v' });
+    P.handle({ pos: () => Pt, set: p => { Pt[0] = p[0]; Pt[1] = p[1]; }, color: 'text' });
     function user() {
       sync();
       if (dg < dist0 - 0.05 && dw > dist0 + 0.05) R101.done('servo');
@@ -670,7 +672,7 @@ R101.onReady(function () {
     const tx = document.getElementById('sv-tex'), rd = document.getElementById('sv-read');
     function sync() {
       compute();
-      R101.tex(tx, `\\begin{aligned}\\cv{\\boldsymbol\\xi_c} &= (${texRow(xic)})\\\\ \\cw{\\boldsymbol\\xi_s} &= (${texRow(xis)})\\end{aligned}`);
+      R101.tex(tx, `\\begin{aligned}\\boldsymbol\\xi_c &= (${twTex(xic)})\\\\ \\boldsymbol\\xi_s &= (${twTex(xis)})\\end{aligned}`);
       const col = c => `style="color:var(--c-${c})"`;
       rd.innerHTML = `${L('相机到目标', 'camera to target')}: <b>${M.fmt(dist0, 2)}</b><br><b ${col('good')}>${L('换系后执行', 'with Ad')}</b> → <b>${M.fmt(dg, 2)}</b><br><b ${col('bad')}>${L('没换系（当成基座系）', 'without Ad (as base-frame twist)')}</b> → <b>${M.fmt(dw, 2)}</b>`;
       P.invalidate();
@@ -684,7 +686,7 @@ R101.onReady(function () {
     const S = { x: 1.6, y: 0.8, th: 0.5 }, Pp = [3.1, 0.2], f = [-1.0, 1.5];
     const P0 = Pp.slice();
     const mOf = (p, ff) => p[0] * ff[1] - p[1] * ff[0];
-    const m0 = mOf(Pp, f);
+    let m0 = mOf(Pp, f);   // reset whenever the force changes (see the tip handle)
     const P = new R101.Plane2D('#wr-canvas', { height: 440, view: { cx: 1.4, cy: 1.1, span: 7 }, draw, onChange: user });
     const foot = (O) => { const fh = M.normalize(f), d = [Pp[0] - O[0], Pp[1] - O[1]], k = d[0] * fh[0] + d[1] * fh[1]; return [Pp[0] - k * fh[0], Pp[1] - k * fh[1]]; };
     function draw(P) {
@@ -692,10 +694,10 @@ R101.onReady(function () {
       const fh = M.normalize(f);
       P.line([Pp[0] - fh[0] * 7, Pp[1] - fh[1] * 7], [Pp[0] + fh[0] * 7, Pp[1] + fh[1] * 7], { color: 'v', width: 1.2, alpha: 0.35, dash: [3, 5] });
       const fw = foot([0, 0]), fs = foot([S.x, S.y]);
-      P.line([0, 0], fw, { color: 'w', width: 2, dash: [6, 4] });
-      P.line([S.x, S.y], fs, { color: 'x', width: 2, dash: [6, 4] });
+      P.line([0, 0], fw, { color: 'w', width: 2, dash: [6, 4] });   // spatial lever arm: dashed
+      P.line([S.x, S.y], fs, { color: 'w', width: 2 });              // body (sensor) lever arm: solid
       P.text('d_s', [fw[0] / 2, fw[1] / 2], { offset: [8, 8], color: 'w', size: 12, bold: true });
-      P.text('d_b', [(S.x + fs[0]) / 2, (S.y + fs[1]) / 2], { offset: [8, 8], color: 'x', size: 12, bold: true });
+      P.text('d_b', [(S.x + fs[0]) / 2, (S.y + fs[1]) / 2], { offset: [8, 8], color: 'w', size: 12, bold: true });
       P.poly(polyAt(S, BODY), { fill: 'x', fillAlpha: 0.14, stroke: 'x', width: 1.8 });
       P.arrow([S.x, S.y], [S.x + Math.cos(S.th) * 0.95, S.y + Math.sin(S.th) * 0.95], { color: 'i', width: 3, head: 9 });
       P.arrow([S.x, S.y], [S.x - Math.sin(S.th) * 0.95, S.y + Math.cos(S.th) * 0.95], { color: 'j', width: 3, head: 9 });
@@ -709,20 +711,22 @@ R101.onReady(function () {
     }
     P.handle({ pos: () => [S.x, S.y], set: p => { S.x = p[0]; S.y = p[1]; }, color: 'x' });
     P.handle({ pos: () => [S.x + Math.cos(S.th) * 1.15, S.y + Math.sin(S.th) * 1.15], set: p => { S.th = Math.atan2(p[1] - S.y, p[0] - S.x); }, color: 'i' });
-    P.handle({ pos: () => Pp, set: p => { Pp[0] = p[0]; Pp[1] = p[1]; }, color: 'v' });
-    P.handle({ pos: () => [Pp[0] + f[0], Pp[1] + f[1]], set: p => { f[0] = p[0] - Pp[0]; f[1] = p[1] - Pp[1]; }, color: 'v' });
+    // P slides along the line of action (moving it sideways would change the force system); the tip swings f about P
+    P.handle({ pos: () => Pp, set: p => { const fh = M.normalize(f), k = (p[0] - Pp[0]) * fh[0] + (p[1] - Pp[1]) * fh[1]; Pp[0] += k * fh[0]; Pp[1] += k * fh[1]; }, color: 'v' });
+    P.handle({ pos: () => [Pp[0] + f[0], Pp[1] + f[1]], set: p => { f[0] = p[0] - Pp[0]; f[1] = p[1] - Pp[1]; P0[0] = Pp[0]; P0[1] = Pp[1]; m0 = mOf(Pp, f); }, color: 'v' });
     const tx = document.getElementById('wr-tex'), rd = document.getElementById('wr-read');
     function user() {
       sync();
       const ms = mOf(Pp, f), mb = ms - (S.x * f[1] - S.y * f[0]);
       if (Math.hypot(Pp[0] - P0[0], Pp[1] - P0[1]) > 1 && Math.abs(ms - m0) < 0.05) R101.done('slide');
-      if (Math.abs(mb) < 0.05 && Math.hypot(f[0], f[1]) > 0.5) R101.done('zero');
+      const fn = Math.hypot(f[0], f[1]);
+      if (fn > 0.5 && Math.abs(mb) / fn < 0.1) R101.done('zero');
     }
     function sync() {
       const ms = mOf(Pp, f), Fs = [ms, f[0], f[1]];
       const A = Ad2(S), At = M.T(A), Fb = M.mv(At, Fs);
       const mb = ms - (S.x * f[1] - S.y * f[0]), fb = rotv(-S.th, f);
-      R101.tex(tx, `\\begin{aligned}\\cw{\\mathbf F_s} &= (${texRow(Fs)})\\\\ \\operatorname{Ad}_T\\T &= ${M.texMat(At)}\\\\ \\cv{\\mathbf F_b} &= (${texRow(Fb)})\\end{aligned}`);
+      R101.tex(tx, `\\begin{aligned}\\mathbf F_s &= (${twTex(Fs)})\\\\ \\operatorname{Ad}_T\\T &= ${M.texMat(At)}\\\\ \\mathbf F_b &= (${twTex(Fb)})\\end{aligned}`);
       const err = M.norm(M.sub(Fb, [mb, fb[0], fb[1]]));
       rd.innerHTML = `m<sub>s</sub> = P×f = <b>${M.fmt(ms, 2)}</b><br>${L('几何直接算', 'from geometry')}: m<sub>b</sub> = (P−t)×f = <b>${M.fmt(mb, 2)}</b>, f<sub>b</sub> = Rᵀf = ${vecStr(fb)}<br>${L('两种算法之差', 'difference between the two')} = <b>${err.toExponential(1).replace('-', '−')}</b>`;
       P.invalidate();

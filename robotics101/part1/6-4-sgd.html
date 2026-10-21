@@ -199,7 +199,7 @@
   </figure>
   <ul class="tasks">
     <li data-task="invsqrt"><span><span data-lang="zh">把 \(B\) 从 4 调到 16：点云的大小缩小为约一半（\(\sqrt{16/4}=2\)）。</span><span data-lang="en">Go from \(B=4\) to \(B=16\): the cloud shrinks to about half its size (\(\sqrt{16/4}=2\)).</span></span></li>
-    <li data-task="snr"><span><span data-lang="zh">把手柄拖到最小值（右上方的最优点）附近，设 \(B=4\)：真梯度几乎被噪声淹没，这时单个小批量甚至可能指向<b>上坡</b>。</span><span data-lang="en">Drag the handle next to the minimum with \(B=4\): the true gradient is drowned in noise, and a single minibatch may even point <b>uphill</b>.</span></span></li>
+    <li data-task="snr"><span><span data-lang="zh">把手柄拖到最小值（右下方的最优点 \(\x^\star\)）附近，设 \(B=4\)：真梯度几乎被噪声淹没，这时单个小批量甚至可能指向<b>上坡</b>。</span><span data-lang="en">Drag the handle next to the minimum (the optimum \(\x^\star\), to the lower right) with \(B=4\): the true gradient is drowned in noise, and a single minibatch may even point <b>uphill</b>.</span></span></li>
   </ul>
 </section>
 
@@ -273,7 +273,7 @@
 <!-- ============ 7. MATH ============ -->
 <section class="step" id="math">
   <h2><span class="n">7</span><span data-lang="zh">再看数学</span><span data-lang="en">The math</span></h2>
-  <p class="hl-hint"><span data-lang="zh">提示：悬停在带底色的符号上，FIG 1 和 FIG 2 中对应的元素（小批量梯度、真梯度、噪声椭圆）会被强调。</span><span data-lang="en">Tip: hover the highlighted symbols; the matching elements of FIG 1 and FIG 2 (minibatch gradient, true gradient, noise ellipse) light up.</span></p>
+  <p class="hl-hint"><span data-lang="zh">提示：悬停在带底色的符号上，FIG 1、FIG 2 和 FIG 3 中对应的元素（小批量梯度、真梯度、噪声椭圆、噪声球虚线）会被强调。</span><span data-lang="en">Tip: hover the highlighted symbols; the matching elements of FIG 1, FIG 2 and FIG 3 (minibatch gradient, true gradient, noise ellipse, noise-ball line) light up.</span></p>
   <h3><span data-lang="zh">有限和与小批量梯度</span><span data-lang="en">Finite sums and the minibatch gradient</span></h3>
   <p data-lang="zh">机器学习与标定里的代价几乎总是样本平均：</p>
   <p data-lang="en">Costs in machine learning and calibration are almost always sample averages:</p>
@@ -299,10 +299,10 @@
   <p data-lang="en">Taking the trace uses \(\mathrm{tr}(HP+PH)=2\,\mathrm{tr}(HP)\). The conclusion is clean: <b>the noise ball's height is proportional to \(\eta\) and inversely proportional to \(B\)</b>. Doubling \(\eta\) and \(B\) together leaves it unchanged, the origin of the "double the batch, double the learning rate" rule of thumb in deep learning (in the small-batch regime). The dashed line in FIG 3 is exactly this formula.</p>
   <h3><span data-lang="zh">动量与 Adam 放在 SGD 里</span><span data-lang="en">Momentum and Adam in the SGD setting</span></h3>
   <div data-lang="zh">
-    <p><a href="6-3-gradient-descent.html">6.3</a> 节的动量、RMSProp、Adam，在实际训练里<b>都是用小批量梯度</b>代替 \(\nabla f\) 来运行的。动量对连续多步的 \(\mathbf g_B\) 取指数平均，等于把噪声平均掉了一部分，使有效的噪声球高度大致不变而有效学习率变为 \(\eta/(1-\beta)\)；Adam 的二阶矩 \(\mathbf s\) 里含有噪声的方差，因此在梯度很小、几乎全是噪声的坐标上它会自动把步子变小。这些在 Part V 的"损失、泛化与正则化"和"反向传播"章节里会反复用到；这里只需记住：<b>噪声来自小批量，与用哪种优化器无关</b>。</p>
+    <p><a href="6-3-gradient-descent.html">6.3</a> 节的动量、RMSProp、Adam，在实际训练里<b>都是用小批量梯度</b>代替 \(\nabla f\) 来运行的。动量对连续多步的 \(\mathbf g_B\) 取指数平均，等于把噪声平均掉了一部分，但它同时把有效学习率放大到约 \(\eta/(1-\beta)\)，噪声球也按这个有效学习率缩放；Adam 的二阶矩 \(\mathbf s\) 里含有噪声的方差，因此在梯度很小、几乎全是噪声的坐标上它会自动把步子变小。这些在 Part V 的"损失、泛化与正则化"和"反向传播"章节里会反复用到；这里只需记住：<b>噪声来自小批量，与用哪种优化器无关</b>。</p>
   </div>
   <div data-lang="en">
-    <p>The momentum, RMSProp and Adam of Lesson <a href="6-3-gradient-descent.html">6.3</a> are, in real training, <b>all run on minibatch gradients</b> instead of \(\nabla f\). Momentum takes an exponential average of consecutive \(\mathbf g_B\), averaging out part of the noise; Adam's second moment \(\mathbf s\) contains the noise variance, so on coordinates where the gradient is tiny and mostly noise it automatically shortens the step. These come back repeatedly in Part V ("Losses, generalization &amp; regularization" and "Backpropagation"); for now remember: <b>the noise comes from the minibatch, whichever optimizer you use</b>.</p>
+    <p>The momentum, RMSProp and Adam of Lesson <a href="6-3-gradient-descent.html">6.3</a> are, in real training, <b>all run on minibatch gradients</b> instead of \(\nabla f\). Momentum takes an exponential average of consecutive \(\mathbf g_B\), averaging out part of the noise, but it also raises the effective learning rate to about \(\eta/(1-\beta)\), and the noise ball scales with that effective rate; Adam's second moment \(\mathbf s\) contains the noise variance, so on coordinates where the gradient is tiny and mostly noise it automatically shortens the step. These come back repeatedly in Part V ("Losses, generalization &amp; regularization" and "Backpropagation"); for now remember: <b>the noise comes from the minibatch, whichever optimizer you use</b>.</p>
   </div>
 </section>
 
@@ -329,13 +329,13 @@
     <div class="fig-controls" id="cb-controls"></div>
     <div class="fig-controls"><span class="readout" id="cb-read"></span></div>
     <figcaption class="fig-cap">
-      <span data-lang="zh">左：灰色是真实连杆长度 \((1.00,\,0.80)\) 的手臂，琥珀色是当前估计的手臂（同样的关节角），小点是 300 个测得的手爪位置，带圈的是当前小批量。右：连杆长度空间 \((l_1,l_2)\) 的代价地形，紫色是 GD 路径，琥珀色是 SGD 路径，白点是最小二乘最优解。下：到最优解的距离随"用掉的测量数"的变化（双对数）。GD 用它自己的最佳步长 \(2/(\lambda_{\max}+\lambda_{\min})\)，SGD 用滑块上的 \(\eta\)；GD 每用完 300 条测量（一整遍数据）才走一步。"窄姿态范围"时 \(q_2\) 只在 0.05–0.75 rad 内变化，数据激励不足，代价非常扁；"多样姿态"时 \(q_2\) 覆盖 0.05–2.8 rad。</span>
-      <span data-lang="en">Left: the gray arm has the true link lengths \((1.00,\,0.80)\), the amber arm the current estimate (same joint angles), the small dots are the 300 measured gripper positions and the circled ones the current minibatch. Right: the cost landscape over link lengths \((l_1,l_2)\), purple the GD path, amber the SGD path, the white dot the least-squares optimum. Bottom: distance to the optimum against measurements consumed (log–log). GD uses its own best step \(2/(\lambda_{\max}+\lambda_{\min})\) and SGD the slider's \(\eta\); GD takes one step per 300 measurements (a full pass). In the "narrow poses" setting \(q_2\) varies only within 0.05–0.75 rad, so the data are poorly exciting and the cost is very flat; in "diverse poses" \(q_2\) covers 0.05–2.8 rad.</span>
+      <span data-lang="zh">左：灰色是真实连杆长度 \((1.00,\,0.80)\) 的手臂，琥珀色是当前估计的手臂（同样的关节角），小点是 300 个测得的手爪位置，带圈的是当前小批量。右：连杆长度空间 \((l_1,l_2)\) 的代价地形，紫色是 GD 路径，琥珀色是 SGD 路径，标着"最优解"的实心点是最小二乘最优解。下：到最优解的距离随"用掉的测量数"的变化（双对数）。GD 用它自己的最佳步长 \(2/(\lambda_{\max}+\lambda_{\min})\)，SGD 用滑块上的 \(\eta\)；GD 每用完 300 条测量（一整遍数据）才走一步。"窄姿态范围"时 \(q_2\) 只在 0.05–0.75 rad 内变化，数据激励不足，代价非常扁；"多样姿态"时 \(q_2\) 覆盖 0.05–2.8 rad。</span>
+      <span data-lang="en">Left: the gray arm has the true link lengths \((1.00,\,0.80)\), the amber arm the current estimate (same joint angles), the small dots are the 300 measured gripper positions and the circled ones the current minibatch. Right: the cost landscape over link lengths \((l_1,l_2)\), purple the GD path, amber the SGD path, the solid dot labelled "optimum" the least-squares optimum. Bottom: distance to the optimum against measurements consumed (log–log). GD uses its own best step \(2/(\lambda_{\max}+\lambda_{\min})\) and SGD the slider's \(\eta\); GD takes one step per 300 measurements (a full pass). In the "narrow poses" setting \(q_2\) varies only within 0.05–0.75 rad, so the data are poorly exciting and the cost is very flat; in "diverse poses" \(q_2\) covers 0.05–2.8 rad.</span>
     </figcaption>
   </figure>
   <ul class="tasks">
     <li data-task="data-eff"><span><span data-lang="zh">用"窄姿态范围"运行：在用掉 1000 条测量时，SGD 的误差已经比 GD 小得多（GD 才走了三步多）。</span><span data-lang="en">Run with "narrow poses": by the time 1000 measurements are consumed, SGD's error is far below GD's (GD has taken barely three steps).</span></span></li>
-    <li data-task="excite"><span><span data-lang="zh">切换到"多样姿态"：代价变圆，两种方法都快得多，条件数从约 22 降到约 1.3。数据采得好，比算法选得好更重要。</span><span data-lang="en">Switch to "diverse poses": the cost becomes round and both methods are much faster, the condition number dropping from about 22 to about 1.3. Collecting good data matters more than picking a clever algorithm.</span></span></li>
+    <li data-task="excite"><span><span data-lang="zh">切换到"多样姿态"：代价变圆，两种方法都快得多，条件数从约 22 降到约 1.4。数据采得好，比算法选得好更重要。</span><span data-lang="en">Switch to "diverse poses": the cost becomes round and both methods are much faster, the condition number dropping from about 22 to about 1.4. Collecting good data matters more than picking a clever algorithm.</span></span></li>
   </ul>
   <div class="callout robot">
     <div class="ct"><span data-lang="zh">真实系统里</span><span data-lang="en">In real systems</span></div>
@@ -814,7 +814,7 @@ R101.onReady(function () {
       const A = axes(Q, { pl: 44, pr: 10, pt: 16, pb: 22, x0: 0, x1: TT, y0: -4.5, y1: 1.5, xt: [0, TT / 2, TT], xf: v => String(v), yt: [-4, -2, 0], yf: v => '1e' + String(v).replace('-', '−'), xlabel: T('步数 k', 'step k') });
       Q.textPx('f − f⋆', A.pl + 4, 8, { color: 'text-2', size: 11.5 });
       keys.forEach(key => { if (!on[key] || !curves[key]) return; const c = curves[key], pts = []; for (let k = 0; k <= TT; k += 2) pts.push([A.X(k), A.Y(M.clamp(Math.log10(c[k]), -4.5, 1.5))]); plotLine(Q, pts, SCH[key].col, 2.2, 0.95); });
-      if (on.const) { const fl = Math.log10(floorVal()); plotLine(Q, [[A.X(0), A.Y(fl)], [A.X(TT), A.Y(fl)]], 'i', 1.4, 0.9, [5, 4]); Q.textPx(T('理论噪声球', 'theory floor'), A.X(TT) - 4, A.Y(fl) - 7, { color: 'i', size: 10.5, align: 'right' }); }
+      if (on.const) { const fl = Math.log10(floorVal()); plotLine(Q, [[A.X(0), A.Y(fl)], [A.X(TT), A.Y(fl)]], 'i', R101.hl === 'floor' ? 3.2 : 1.4, 0.9, [5, 4]); Q.textPx(T('理论噪声球', 'theory floor'), A.X(TT) - 4, A.Y(fl) - 7, { color: 'i', size: 10.5, align: 'right' }); }
     }
     const readEl = document.getElementById('sc-read');
     function sync() {

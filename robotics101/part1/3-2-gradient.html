@@ -119,7 +119,7 @@
       <li><b>势场导航</b>：地图上每一点有一个"代价"，终点最低、障碍物附近很高。机器人朝代价下降最快的方向挪一步，就是沿着<b>负梯度</b>走。</li>
       <li><b>优化与学习</b>：逆运动学、标定、轨迹优化、训练神经网络，都是"调整参数让代价变小"，每一步沿着负梯度（6.3 节）。</li>
       <li><b>感知</b>：图像梯度给出边缘的方向；SDF（有符号距离场）的梯度指向离最近障碍物最远的方向，是避障的常用信息。</li>
-      <li><b>不确定性</b>：灵敏度分析问"参数朝哪个方向变化，对输出影响最大"，答案还是梯度。</li>
+      <li><b>灵敏度</b>：灵敏度分析问"参数朝哪个方向变化，对输出影响最大"，答案还是梯度。</li>
     </ul>
     <p>这一节把"每个坐标方向的坡度"升级成"任意方向的坡度"，并说明为什么梯度这个小小的向量能回答所有这些问题。</p>
   </div>
@@ -152,10 +152,10 @@
 <section class="step" id="play">
   <h2><span class="n">3</span><span data-lang="zh">动手玩：方向导数罗盘</span><span data-lang="en">Play: the directional-derivative compass</span></h2>
   <div data-lang="zh">
-    <p>左边是等高线图（颜色越深越低）。拖动黄点 \(\mathbf p\)，再拖动紫色手柄设定朝向 \(\mathbf u\)。琥珀色大箭头是梯度 \(\nabla f(\mathbf p)\)，青色线是穿过 \(\mathbf p\) 的等高线切线。右边把方向导数 \(D_{\mathbf u}f\) 画成朝向角 \(\varphi\) 的函数，竖线标出当前的 \(\varphi\)。</p>
+    <p>左边是等高线图（越偏青色越低，越偏紫色越高）。拖动黄点 \(\mathbf p\)，再拖动紫色手柄设定朝向 \(\mathbf u\)。琥珀色大箭头是梯度 \(\nabla f(\mathbf p)\)，青色线是穿过 \(\mathbf p\) 的等高线切线。右边把方向导数 \(D_{\mathbf u}f\) 画成朝向角 \(\varphi\) 的函数，竖线标出当前的 \(\varphi\)。</p>
   </div>
   <div data-lang="en">
-    <p>On the left is a contour map (darker is lower). Drag the amber point \(\mathbf p\), then drag the purple handle to set the heading \(\mathbf u\). The big amber arrow is the gradient \(\nabla f(\mathbf p)\) and the cyan line is the tangent to the contour through \(\mathbf p\). On the right, the directional derivative \(D_{\mathbf u}f\) is plotted against the heading angle \(\varphi\), with a vertical line at the current \(\varphi\).</p>
+    <p>On the left is a contour map (more cyan is lower, more purple is higher). Drag the amber point \(\mathbf p\), then drag the purple handle to set the heading \(\mathbf u\). The big amber arrow is the gradient \(\nabla f(\mathbf p)\) and the cyan line is the tangent to the contour through \(\mathbf p\). On the right, the directional derivative \(D_{\mathbf u}f\) is plotted against the heading angle \(\varphi\), with a vertical line at the current \(\varphi\).</p>
   </div>
 
   <figure class="fig bleed" id="fig-compass">
@@ -274,8 +274,8 @@
   <div class="math-card">
   $$ \nabla c(\mathbf q) \;=\; J_F(\mathbf q)^\top\,\nabla g\big(F(\mathbf q)\big). $$
   </div>
-  <p data-lang="zh">例如机械臂 IK 的代价 \(c(\boldsymbol\theta)=\tfrac12\|F(\boldsymbol\theta)-\mathbf t\|^2\)（\(F\) 是正运动学），\(\nabla g=\mathbf e=F-\mathbf t\)，于是 \(\nabla c=J^\top\mathbf e\)，与 3.4 节"转置法"的更新方向 \(-J^\top\mathbf e\) 完全一致。</p>
-  <p data-lang="en">For example, a robot-arm IK cost \(c(\boldsymbol\theta)=\tfrac12\|F(\boldsymbol\theta)-\mathbf t\|^2\) (\(F\) is forward kinematics) has \(\nabla g=\mathbf e=F-\mathbf t\), so \(\nabla c=J^\top\mathbf e\), exactly the "transpose method" update direction \(-J^\top\mathbf e\) of Lesson 3.4.</p>
+  <p data-lang="zh">例如机械臂 IK 的代价 \(c(\boldsymbol\theta)=\tfrac12\|F(\boldsymbol\theta)-\mathbf t\|^2\)（\(F\) 是正运动学），\(\nabla g=F-\mathbf t\)，于是 \(\nabla c=J^\top(F-\mathbf t)\)。沿负梯度走一步就是 \(\alpha J^\top(\mathbf t-F)\)，也就是 3.4 节"转置法"的更新 \(\alpha J^\top\mathbf e\)（那里误差定义为 \(\mathbf e=\mathbf t-F\)）。</p>
+  <p data-lang="en">For example, a robot-arm IK cost \(c(\boldsymbol\theta)=\tfrac12\|F(\boldsymbol\theta)-\mathbf t\|^2\) (\(F\) is forward kinematics) has \(\nabla g=F-\mathbf t\), so \(\nabla c=J^\top(F-\mathbf t)\). A step along the negative gradient is \(\alpha J^\top(\mathbf t-F)\), exactly the "transpose method" update \(\alpha J^\top\mathbf e\) of Lesson 3.4 (where the error is defined as \(\mathbf e=\mathbf t-F\)).</p>
 
   <h3><span data-lang="zh">例题</span><span data-lang="en">Worked example</span></h3>
   <p data-lang="zh">\(f(x,y)=x^2y\)，点 \(\mathbf p=(1,2)\)，方向 \(\mathbf u=(3,4)/5\)。\(\nabla f=(2xy,\;x^2)=(4,\;1)\)，\(\|\nabla f\|=\sqrt{17}\approx4.12\)。方向导数 \(D_{\mathbf u}f=(4\cdot3+1\cdot4)/5=3.2\)，小于最大值 \(4.12\)。最陡上升方向是 \((4,1)/\sqrt{17}\)，沿等高线的方向是 \((1,-4)/\sqrt{17}\)（与梯度的点积 \(4-4=0\)）。</p>
@@ -308,8 +308,8 @@
     </div>
     <div class="fig-controls" id="p-controls"></div>
     <figcaption class="fig-cap">
-      <span data-lang="zh">颜色越深势能越低（对数着色）。细箭头是 \(-\nabla U\) 的方向场；紫色粗线是机器人的轨迹（步长固定，速度限幅）；轨迹终点的圆点显示它是否到达目标。红色实心圆是障碍物，虚线圆是排斥势的作用范围 \(d_0\)。</span>
-      <span data-lang="en">Darker means lower potential (log shading). The thin arrows are the direction field of \(-\nabla U\); the thick purple line is the robot's trajectory (fixed time step, speed-limited); the dot at its end shows whether it reached the goal. The solid red discs are obstacles and the dashed circles mark the repulsion range \(d_0\).</span>
+      <span data-lang="zh">越偏青色势能越低，越偏紫色越高（对数着色）。细箭头是 \(-\nabla U\) 的方向场；紫色粗线是机器人的轨迹（步长固定，速度限幅）；轨迹终点的圆点显示它是否到达目标。红色实心圆是障碍物，虚线圆是排斥势的作用范围 \(d_0\)。</span>
+      <span data-lang="en">More cyan means lower potential, more purple higher (log shading). The thin arrows are the direction field of \(-\nabla U\); the thick purple line is the robot's trajectory (fixed time step, speed-limited); the dot at its end shows whether it reached the goal. The solid red discs are obstacles and the dashed circles mark the repulsion range \(d_0\).</span>
     </figcaption>
   </figure>
   <ul class="tasks">
@@ -360,7 +360,7 @@
       <button class="opt">\((1,\ 4)\)</button>
       <button class="opt">\((2,\ 3)\)</button>
     </div>
-    <div class="explain"><span data-lang="zh">\(f_x=2xy=2\)，\(f_y=x^2+3y^2=4\)。第一个选项漏了 \(y^3\) 的贡献，第三个把 \(f_x\) 求成了 \(x^2\)，第四个把 \(3y^2\) 当成了 3。</span><span data-lang="en">\(f_x=2xy=2\) and \(f_y=x^2+3y^2=4\). The first option dropped the \(y^3\) term, the third took \(f_x=x^2\), the fourth read \(3y^2\) as 3.</span></div>
+    <div class="explain"><span data-lang="zh">\(f_x=2xy=2\)，\(f_y=x^2+3y^2=4\)。选项 A 漏了 \(y^3\) 的贡献，选项 C 把 \(f_x\) 求成了 \(x^2\)，选项 D 在 \(f_y\) 里漏掉了 \(x^2\) 项。</span><span data-lang="en">\(f_x=2xy=2\) and \(f_y=x^2+3y^2=4\). Option A dropped the \(y^3\) term, option C took \(f_x=x^2\), and option D dropped the \(x^2\) term from \(f_y\).</span></div>
   </div>
 
   <div class="quiz" data-answer="2">
@@ -382,7 +382,7 @@
       <button class="opt"><span data-lang="zh">方向 \((-3,4)\)，速率 25</span><span data-lang="en">Direction \((-3,4)\), rate 25</span></button>
       <button class="opt"><span data-lang="zh">方向 \((4,3)/5\)，速率 0</span><span data-lang="en">Direction \((4,3)/5\), rate 0</span></button>
     </div>
-    <div class="explain"><span data-lang="zh">下降方向是 \(-\nabla f/\|\nabla f\|=(-3,4)/5\)，速率是 \(\|\nabla f\|=5\)。第四个选项 \((4,3)/5\) 与梯度垂直，沿它走高度不变（速率 0），那是等高线方向，不是下降方向。</span><span data-lang="en">The descent direction is \(-\nabla f/\|\nabla f\|=(-3,4)/5\), at rate \(\|\nabla f\|=5\). The fourth option, \((4,3)/5\), is perpendicular to the gradient: walking along it keeps the height constant (rate 0), the contour direction rather than a descent direction.</span></div>
+    <div class="explain"><span data-lang="zh">下降方向是 \(-\nabla f/\|\nabla f\|=(-3,4)/5\)，速率是 \(\|\nabla f\|=5\)。选项 D \((4,3)/5\) 与梯度垂直，沿它走高度不变（速率 0），那是等高线方向，不是下降方向。</span><span data-lang="en">The descent direction is \(-\nabla f/\|\nabla f\|=(-3,4)/5\), at rate \(\|\nabla f\|=5\). Option D, \((4,3)/5\), is perpendicular to the gradient: walking along it keeps the height constant (rate 0), the contour direction rather than a descent direction.</span></div>
   </div>
 
   <div class="quiz" data-answer="3">

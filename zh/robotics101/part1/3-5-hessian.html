@@ -236,7 +236,7 @@
     </div>
     <div class="fig-controls" id="n-controls"></div>
     <figcaption class="fig-cap">
-      <span data-lang="zh">黄点是起点（可拖动）。青色折线是梯度下降的前 \(N\) 步，紫色折线是牛顿法的前 \(N\) 步，红色菱形是真正的极小点。若 \(H\) 在某步不是正定，该步的牛顿步用红色标出，它不是下降方向。</span>
+      <span data-lang="zh">黄点是起点（可拖动）。青色折线是梯度下降的前 \(N\) 步，紫色折线是牛顿法的前 \(N\) 步，红色菱形是真正的极小点。若 \(H\) 在某步不是正定，该步的牛顿步用红色标出：它不保证是下降方向。为了留在画面内，单个牛顿步的长度被限制在 5 以内（二次碗上的起点不会触发这个限制）。</span>
       
     </figcaption>
   </figure>
@@ -345,7 +345,7 @@
   <h2><span class="n">7</span><span data-lang="zh">常见误区</span></h2>
   <div class="callout pitfall">
     <div class="ct"><span data-lang="zh">误区 1：只看对角元素判断凸性</span></div>
-    <p data-lang="zh">\(H=\begin{bmatrix}1&3\\3&1\end{bmatrix}\) 的对角元素都是正的，可是 \(\det H=-8&lt;0\)，特征值是 4 和 \(-2\)，是鞍面（试着在 FIG 2 里设 \(a=c=1,b=3\)，看看红色虚线）。要看特征值（或用 Sylvester 判据：所有顺序主子式为正）。</p>
+    <p data-lang="zh">\(H=\begin{bmatrix}1&2\\2&1\end{bmatrix}\) 的对角元素都是正的，可是 \(\det H=-3&lt;0\)，特征值是 3 和 \(-1\)，是鞍面（试着在 FIG 2 里设 \(a=c=1,b=2\)，看看红色虚线）。要看特征值（或用 Sylvester 判据：所有顺序主子式为正）。</p>
     
   </div>
   <div class="callout pitfall">
@@ -382,7 +382,7 @@
       <button class="opt">\(\begin{bmatrix}4&1\\2&0\end{bmatrix}\)</button>
       <button class="opt">\(\begin{bmatrix}2&2\\2&2\end{bmatrix}\)</button>
     </div>
-    <div class="explain"><span data-lang="zh">\(f_x=2xy\)，\(f_y=x^2\)。\(f_{xx}=2y=4\)，\(f_{xy}=2x=2\)，\(f_{yy}=0\)。Hessian 必须对称，所以第三个选项（非对称）一定错了。</span></div>
+    <div class="explain"><span data-lang="zh">\(f_x=2xy\)，\(f_y=x^2\)。\(f_{xx}=2y=4\)，\(f_{xy}=2x=2\)，\(f_{yy}=0\)。Hessian 必须对称，所以选项 C（非对称）一定错了。</span></div>
   </div>
 
   <div class="quiz" data-answer="2">
@@ -801,7 +801,7 @@ R101.onReady(function () {
         const g2 = F.g(y[0], y[1]), H = F.H(y[0], y[1]), A = [[H[0][0] + mu, H[0][1]], [H[1][0], H[1][1] + mu]], E = M.eigSym2(A), inv = M.inv2(A);
         const bad = E.l2 <= 1e-9;
         if (!inv) { nd.push(true); nw.push(y.slice()); continue; }
-        let s = M.scale(M.mv(inv, g2), -1); const sn = M.norm(s); if (sn > 3) s = M.scale(s, 3 / sn);
+        let s = M.scale(M.mv(inv, g2), -1); const sn = M.norm(s); if (sn > 5) s = M.scale(s, 5 / sn);
         y = M.add(y, s); nw.push(y.slice()); nd.push(bad);
       }
       paths = { gd, nw, nd, F };
@@ -838,7 +838,7 @@ R101.onReady(function () {
       const nbad = paths.nd.filter(Boolean).length, fmin = F.f(F.min[0], F.min[1]);
       read.innerHTML = `<span style="color:var(--c-x)">GD</span>: f − f* = <b>${sci(F.f(ge[0], ge[1]) - fmin)}</b> · ‖∇f‖ = <b>${sci(M.norm(F.g(ge[0], ge[1])))}</b><br>` +
         `<span style="color:var(--c-w)">${L('牛顿', 'Newton')}</span>: f − f* = <b>${sci(F.f(ne[0], ne[1]) - fmin)}</b> · ‖∇f‖ = <b>${sci(M.norm(F.g(ne[0], ne[1])))}</b>` +
-        (nbad ? `<br><span style="color:var(--c-bad)">${L(nbad + ' 步的 H 不是正定：牛顿步不是下降方向。', nbad + ' step(s) with a non-positive-definite H: not descent directions.')}</span>` : '') +
+        (nbad ? `<br><span style="color:var(--c-bad)">${L(nbad + ' 步的 H 不是正定：牛顿步不保证是下降方向。', nbad + ' step(s) with a non-positive-definite H: not guaranteed to be descent directions.')}</span>` : '') +
         (key === 'quad' ? `<br>${L('GD 每步的收缩因子', 'GD contraction per step')} (κ−1)/(κ+1) = <b>${M.fmt((kappa - 1) / (kappa + 1), 3)}</b>` : '');
       if (key === 'quad' && kappa >= 20 && N === 1) done('onestep');
       if (key === 'banana' && mu === 0 && nbad > 0) sawNd = true;

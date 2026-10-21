@@ -147,7 +147,7 @@
 <section class="step" id="intuition">
   <h2><span class="n">2</span><span data-lang="zh">直觉：一个接触点 = 一个力的锥</span><span data-lang="en">Intuition: one contact = a cone of forces</span></h2>
   <div data-lang="zh">
-    <p>手指按在物体上，物体表面给手指（也就是手指给物体）的力有三条规矩：<b>只能推不能拉</b>（法向分量 \(f_n\ge0\)）；切向力不能大于 \(\mu f_n\)（库仑摩擦）；方向由接触点的法向决定。把"所有允许的力"画出来，就是一个以内法向为轴、半角 \(\varphi=\arctan\mu\) 的<b>摩擦锥</b>。锥里的任何力都是它两条边的非负组合：\(\mathbf f=\alpha_+\mathbf e_++\alpha_-\mathbf e_-\)，\(\alpha_\pm\ge0\)。</p>
+    <p>手指按在物体上，手指给物体的接触力有三条规矩：<b>只能推不能拉</b>（法向分量 \(f_n\ge0\)）；切向力不能大于 \(\mu f_n\)（库仑摩擦）；方向由接触点的法向决定。把"所有允许的力"画出来，就是一个以内法向为轴、半角 \(\varphi=\arctan\mu\) 的<b>摩擦锥</b>。锥里的任何力都是它两条边的非负组合：\(\mathbf f=\alpha_+\mathbf e_++\alpha_-\mathbf e_-\)，\(\alpha_\pm\ge0\)。</p>
     <p>力还会产生力矩。物体上相对于参考点 \(\mathbf c\)（取质心）的受力点 \(\mathbf p\)，力 \(\mathbf f\) 产生力矩 \(m=(\mathbf p-\mathbf c)\times\mathbf f\)（1.8 节的叉积）。把力矩放前面，得到平面里的 wrench \(\mathbf w=(m/\rho,\ f_x,\ f_y)\)，三维空间中的一个点（和 7.6 节一致：wrench 力矩在前，力矩除以一个特征长度 \(\rho\) 是为了让三个分量量纲一致）。这样，一个摩擦锥就变成 wrench 空间里由两个"边 wrench" \(\mathbf w_\pm\) 张成的一个<b>二维扇形</b>。左图是物体上的接触，右图是它在 wrench 空间里的样子，两个图用同一个滑块联动。</p>
   </div>
   <div data-lang="en">
@@ -164,8 +164,8 @@
     <div class="fig-row" style="padding:12px 16px;border-top:1px solid var(--border);display:grid;gap:8px"><div class="katex-live" id="c1-tex"></div><div class="readout" id="c1-read"></div></div>
     <div class="fig-controls" id="c1-controls"></div>
     <figcaption class="fig-cap">
-      <span data-lang="zh">拖动物体边界上的圆圈移动接触点，拖动琥珀色手柄设定手指施加在物体上的力 \(\mathbf F\)。绿色扇形是摩擦锥，两条紫、蓝边是 \(\mathbf e_\pm=\mathbf n\pm\mu\mathbf t\)（法向分量归一为 1）。右图中同样的两条边是 wrench \(\mathbf w_\pm\)，绿色扇形是锥在线性映射 \(\mathbf F\mapsto\mathbf w\) 下的像；\(\mathbf F\) 在锥内，当且仅当它的 wrench（琥珀点）落在扇形内。</span>
-      <span data-lang="en">Drag the circle on the object's boundary to move the contact, and the amber handle to set the force \(\mathbf F\) the finger applies to the object. The green sector is the friction cone; the purple and blue edges are \(\mathbf e_\pm=\mathbf n\pm\mu\mathbf t\) (normal part normalized to 1). On the right the same two edges are the wrenches \(\mathbf w_\pm\) and the green sector is the image of the cone under the linear map \(\mathbf F\mapsto\mathbf w\); \(\mathbf F\) is in the cone exactly when its wrench (amber dot) lies in the sector.</span>
+      <span data-lang="zh">拖动物体边界上的圆圈移动接触点，拖动琥珀色手柄设定手指施加在物体上的力 \(\mathbf F\)。绿色扇形是摩擦锥，两条紫、蓝边是 \(\mathbf e_\pm=\mathbf n\pm\mu\mathbf t\)（法向分量归一为 1）。右图中同样的两条边是 wrench \(\mathbf w_\pm\)，绿色扇形是锥在线性映射 \(\mathbf F\mapsto\mathbf w\) 下的像；\(\mathbf F\) 在锥内，当且仅当它的 wrench（琥珀色箭头 \(\mathbf w(\mathbf F)\)，出锥时变红）落在扇形内。</span>
+      <span data-lang="en">Drag the circle on the object's boundary to move the contact, and the amber handle to set the force \(\mathbf F\) the finger applies to the object. The green sector is the friction cone; the purple and blue edges are \(\mathbf e_\pm=\mathbf n\pm\mu\mathbf t\) (normal part normalized to 1). On the right the same two edges are the wrenches \(\mathbf w_\pm\) and the green sector is the image of the cone under the linear map \(\mathbf F\mapsto\mathbf w\); \(\mathbf F\) is in the cone exactly when its wrench (the amber arrow \(\mathbf w(\mathbf F)\), red when outside) lies in the sector.</span>
     </figcaption>
   </figure>
   <div class="tasks-title"><span data-lang="zh">试一试</span><span data-lang="en">Try this</span></div>
@@ -203,8 +203,8 @@
     <div class="fig-controls" id="l-controls"></div>
     <div class="preset-row" id="l-presets"><span class="lbl"><span data-lang="zh">预设</span><span data-lang="en">Presets</span></span></div>
     <figcaption class="fig-cap">
-      <span data-lang="zh">圆圈是接触点，彩色扇形是各自的摩擦锥。右图的点是边 wrench（颜色对应接触点），透明多面体是它们的凸包，黄点是原点，绿色线框球半径等于 \(\varepsilon\)。抓取不封闭时凸包不包住原点，读数给出原点到凸包的距离。读数里的"采样"是对 20000 个方向取 \(\min_{\mathbf d}\max_i\mathbf d\cdot\mathbf w_i\) 的独立数值核对，它总是略大于精确值，方向越多越接近。力矩用 \(\rho\)（物体边界到质心的最大距离）归一化，参考点取质心。</span>
-      <span data-lang="en">Circles are contacts and the colored sectors their friction cones. The dots on the right are the edge wrenches (color = contact), the translucent polyhedron is their hull, the yellow dot is the origin and the green wireframe ball has radius \(\varepsilon\). When the grasp is not closed the hull misses the origin, and the readout gives the distance from the origin to the hull. "Sampled" in the readout is an independent numerical check, \(\min_{\mathbf d}\max_i\mathbf d\cdot\mathbf w_i\) over 20000 directions; it always lies slightly above the exact value and approaches it as directions are added. Moments are normalized by \(\rho\) (the largest distance from the centroid to the boundary) and the reference point is the centroid.</span>
+      <span data-lang="zh">圆圈是接触点，彩色扇形是各自的摩擦锥。右图的点是边 wrench（颜色对应接触点），透明多面体是它们的凸包，中心的实心小圆点是原点，绿色线框球半径等于 \(\varepsilon\)。抓取不封闭时凸包不包住原点，读数给出原点到凸包的距离。读数里的"采样"是对 20000 个方向取 \(\min_{\mathbf d}\max_i\mathbf d\cdot\mathbf w_i\) 的独立数值核对，它总是略大于精确值，方向越多越接近。力矩用 \(\rho\)（物体边界到质心的最大距离）归一化，参考点取质心。</span>
+      <span data-lang="en">Circles are contacts and the colored sectors their friction cones. The dots on the right are the edge wrenches (color = contact), the translucent polyhedron is their hull, the small solid dot at the center is the origin and the green wireframe ball has radius \(\varepsilon\). When the grasp is not closed the hull misses the origin, and the readout gives the distance from the origin to the hull. "Sampled" in the readout is an independent numerical check, \(\min_{\mathbf d}\max_i\mathbf d\cdot\mathbf w_i\) over 20000 directions; it always lies slightly above the exact value and approaches it as directions are added. Moments are normalized by \(\rho\) (the largest distance from the centroid to the boundary) and the reference point is the centroid.</span>
     </figcaption>
   </figure>
   <div class="tasks-title"><span data-lang="zh">试一试</span><span data-lang="en">Try this</span></div>
@@ -215,8 +215,8 @@
   </ul>
   <div class="callout view">
     <div class="ct"><span data-lang="zh">三种说法，一个条件</span><span data-lang="en">Three phrasings, one condition</span></div>
-    <p data-lang="zh"><b>力学</b>：抓取能抵抗任意外 wrench。<b>代数</b>：边 wrench 正张成 \(\mathbb R^3\)（平面）或 \(\mathbb R^6\)（空间）。<b>几何</b>：边 wrench 的凸包以原点为内点。FIG 2 里同时看得到三者：红箭头所指的外 wrench 能否被抵消（封闭时能，不封闭时不能）、多面体是否包住黄点、读数是否显示"封闭"，三者永远一致。</p>
-    <p data-lang="en"><b>Mechanics</b>: the grasp can resist any external wrench. <b>Algebra</b>: the edge wrenches positively span \(\mathbb R^3\) (plane) or \(\mathbb R^6\) (space). <b>Geometry</b>: the hull of the edge wrenches has the origin as an interior point. FIG 2 shows all three at once: whether the red arrow's wrench can be cancelled (yes when closed, no otherwise), whether the polyhedron surrounds the yellow dot, and whether the readout says "closed" always agree.</p>
+    <p data-lang="zh"><b>力学</b>：抓取能抵抗任意外 wrench。<b>代数</b>：边 wrench 正张成 \(\mathbb R^3\)（平面）或 \(\mathbb R^6\)（空间）。<b>几何</b>：边 wrench 的凸包以原点为内点。FIG 2 里同时看得到三者：红箭头所指的外 wrench 能否被抵消（封闭时能，不封闭时不能）、多面体是否包住原点、读数是否显示"封闭"，三者永远一致。</p>
+    <p data-lang="en"><b>Mechanics</b>: the grasp can resist any external wrench. <b>Algebra</b>: the edge wrenches positively span \(\mathbb R^3\) (plane) or \(\mathbb R^6\) (space). <b>Geometry</b>: the hull of the edge wrenches has the origin as an interior point. FIG 2 shows all three at once: whether the red arrow's wrench can be cancelled (yes when closed, no otherwise), whether the polyhedron surrounds the origin, and whether the readout says "closed" always agree.</p>
   </div>
 </section>
 
@@ -287,14 +287,14 @@
     </div>
     <div class="fig-controls" id="h-controls"></div>
     <figcaption class="fig-cap">
-      <span data-lang="zh">琥珀色圆点是物体重心（拖动或用滑块改变偏移 \(x_c\)），向下的琥珀箭头是重力 \(mg\)。每个指尖画出摩擦锥（绿色），以及指尖施加在物体上的力 \(\mathbf f_i=\)（浅色：\(G^{+}\mathbf w\)，承担重力的摩擦力）+（青色：挤压 \(N\) 沿零空间）。合力在锥内为绿，出锥为红并且物体下滑。右侧四根条是由 \(\boldsymbol\tau=J_h^\top\mathbf f\) 算出的关节力矩，红色竖线是力矩上限，超限变红。读数里的核对项分别是 \(G\mathbf f-\mathbf w_d\) 与由 \(\boldsymbol\tau\) 反解 \(\mathbf f=J_h^{-\top}\boldsymbol\tau\) 的往返误差。</span>
-      <span data-lang="en">The amber dot is the object's centre of mass (drag it or use the slider for the offset \(x_c\)); the downward amber arrow is gravity \(mg\). Each fingertip shows its friction cone (green) and the force \(\mathbf f_i\) it applies to the object = (faint: \(G^{+}\mathbf w\), the friction that carries the weight) + (cyan: squeeze \(N\) along the null space). The total is green inside the cone and red outside, and then the object slides down. The four bars on the right are the joint torques from \(\boldsymbol\tau=J_h^\top\mathbf f\); red ticks are the torque limit and a bar turns red beyond it. The readout's checks are \(G\mathbf f-\mathbf w_d\) and the round-trip error of recovering \(\mathbf f=J_h^{-\top}\boldsymbol\tau\) from the torques.</span>
+      <span data-lang="zh">琥珀色圆点是物体重心（拖动或用滑块改变偏移 \(x_c\)），向下的琥珀箭头是重力 \(mg\)。每个指尖画出摩擦锥（绿色），以及指尖施加在物体上的力 \(\mathbf f_i=\)（浅色：\(G^{+}\mathbf w\)，承担重力的摩擦力）+（青色：挤压 \(N\) 沿零空间）。合力在锥内为琥珀色，出锥为红并且物体下滑。右侧四根条是由 \(\boldsymbol\tau=J_h^\top\mathbf f\) 算出的关节力矩，红色竖线是力矩上限，超限变红。读数里的核对项分别是 \(G\mathbf f-\mathbf w_d\) 与由 \(\boldsymbol\tau\) 反解 \(\mathbf f=J_h^{-\top}\boldsymbol\tau\) 的往返误差。</span>
+      <span data-lang="en">The amber dot is the object's centre of mass (drag it or use the slider for the offset \(x_c\)); the downward amber arrow is gravity \(mg\). Each fingertip shows its friction cone (green) and the force \(\mathbf f_i\) it applies to the object = (faint: \(G^{+}\mathbf w\), the friction that carries the weight) + (cyan: squeeze \(N\) along the null space). The total is amber inside the cone and red outside, and then the object slides down. The four bars on the right are the joint torques from \(\boldsymbol\tau=J_h^\top\mathbf f\); red ticks are the torque limit and a bar turns red beyond it. The readout's checks are \(G\mathbf f-\mathbf w_d\) and the round-trip error of recovering \(\mathbf f=J_h^{-\top}\boldsymbol\tau\) from the torques.</span>
     </figcaption>
   </figure>
   <div class="tasks-title"><span data-lang="zh">试一试</span><span data-lang="en">Try this</span></div>
   <ul class="tasks">
     <li data-task="hold"><span><span data-lang="zh">调整挤压 \(N\)，使物体不滑，并且 \(N\) 只比最小值 \(N_{\min}\) 大不超过 15%。读数里的 \(N_{\min}\) 公式是什么形状？</span><span data-lang="en">Tune the squeeze \(N\) so the object does not slip and \(N\) exceeds the minimum \(N_{\min}\) by less than 15%. What shape does the \(N_{\min}\) formula in the readout have?</span></span></li>
-    <li data-task="com"><span><span data-lang="zh">把重心偏移 \(|x_c|\) 拉到 2 cm 以上，并重新找到一个不滑的 \(N\)：偏心让一侧手指承担更多摩擦力，所需的挤压为什么变大？</span><span data-lang="en">Move the centre of mass off by more than 2 cm and find a non-slipping \(N\) again: an off-centre mass loads one finger with more friction, so why does the required squeeze grow?</span></span></li>
+    <li data-task="com"><span><span data-lang="zh">把重心偏移 \(|x_c|\) 拉到 2 cm 以上，并重新找到一个刚好不滑的 \(N\)（不超过 \(N_{\min}\) 的 1.15 倍）：偏心让一侧手指承担更多摩擦力，所需的挤压为什么变大？</span><span data-lang="en">Move the centre of mass off by more than 2 cm and find a just-non-slipping \(N\) again (at most 1.15 × \(N_{\min}\)): an off-centre mass loads one finger with more friction, so why does the required squeeze grow?</span></span></li>
   </ul>
   <div class="callout view">
     <div class="ct"><span data-lang="zh">同一个对偶出现两次</span><span data-lang="en">The same duality, twice</span></div>
@@ -339,13 +339,13 @@
   </div>
 
   <h3><span data-lang="zh">抓取矩阵</span><span data-lang="en">The grasp map</span></h3>
-  <p data-lang="zh">取物体上的参考点 \(\mathbf c\)。第 \(i\) 个接触点在 \(\mathbf p_i\)，接触力 \(\mathbf f_i\in\mathbb R^3\)（空间）对物体产生的 wrench（力矩在前，7.6 节）是</p>
-  <p data-lang="en">Take a reference point \(\mathbf c\) on the object. Contact \(i\) at \(\mathbf p_i\) applying force \(\mathbf f_i\in\mathbb R^3\) (space) gives the object the wrench (moment first, Lesson 7.6)</p>
+  <p data-lang="zh">取物体上的参考点 \(\mathbf c\)。第 \(i\) 个接触点在 \(\mathbf p_i\)，接触力 \(\mathbf f_i\in\mathbb R^3\)（空间）对物体产生的 wrench（力矩在前，7.6 节；7.6 节把 wrench 记作 \(\mathbf F\)，本节改记为 \(\mathbf w\)，把 \(\mathbf F\) 留给 FIG 1 里手指的力）是</p>
+  <p data-lang="en">Take a reference point \(\mathbf c\) on the object. Contact \(i\) at \(\mathbf p_i\) applying force \(\mathbf f_i\in\mathbb R^3\) (space) gives the object the wrench (moment first, Lesson 7.6; that lesson writes a wrench as \(\mathbf F\), here it is \(\mathbf w\) and \(\mathbf F\) is the finger force of FIG 1)</p>
   <div class="math-card">
   $$ \mathbf w_i=\begin{bmatrix}\mathbf m_i\\ \mathbf f_i\end{bmatrix}=\underbrace{\begin{bmatrix}[\mathbf p_i-\mathbf c]_\times\\ I_3\end{bmatrix}}_{G_i\ (6\times3)}\mathbf f_i,\qquad \mathbf w=\sum_{i=1}^{k}G_i\mathbf f_i=\hl{G}{G}\,\mathbf f,\qquad \text{plane:}\ G_i=\begin{bmatrix}-(p_{i,y}-c_y) & p_{i,x}-c_x\\ 1&0\\ 0&1\end{bmatrix}. $$
   </div>
-  <p data-lang="zh">(\([\cdot]_\times\) 是 1.8 节的叉积矩阵；平面里 \(\mathbf m=(\mathbf p-\mathbf c)\times\mathbf f\) 是标量，也就是上式第一行。)接触力写成锥的基 \(\mathbf f_i=B_i\boldsymbol\lambda_i\)，\(\boldsymbol\lambda_i\ge0\)，\(B_i\) 的列就是 FIG 1 的 \(\mathbf e_\pm=\mathbf n\pm\mu\mathbf t\)。物体平衡要求 \(\mathbf w+\mathbf w_{\text{ext}}=\mathbf 0\)，所以<b>抓取抵抗得了 \(\mathbf w_{\text{ext}}\)，当且仅当 \(-\mathbf w_{\text{ext}}\) 属于 \(\{GB\boldsymbol\lambda:\boldsymbol\lambda\ge0\}\)</b>，这个集合正是 FIG 2 凸包张成的锥。</p>
-  <p data-lang="en">(\([\cdot]_\times\) is the cross-product matrix of Lesson 1.8; in the plane \(m=(\mathbf p-\mathbf c)\times\mathbf f\) is a scalar, the first row above.) Writing the contact force in the cone's basis, \(\mathbf f_i=B_i\boldsymbol\lambda_i\) with \(\boldsymbol\lambda_i\ge0\), the columns of \(B_i\) are FIG 1's \(\mathbf e_\pm=\mathbf n\pm\mu\mathbf t\). Equilibrium demands \(\mathbf w+\mathbf w_{\text{ext}}=\mathbf 0\), so <b>the grasp resists \(\mathbf w_{\text{ext}}\) if and only if \(-\mathbf w_{\text{ext}}\) lies in \(\{GB\boldsymbol\lambda:\boldsymbol\lambda\ge0\}\)</b>, exactly the cone spanned by FIG 2's hull.</p>
+  <p data-lang="zh">(\([\cdot]_\times\) 是 1.8 节的叉积矩阵；平面里 \(\mathbf m=(\mathbf p-\mathbf c)\times\mathbf f\) 是标量，也就是上式第一行。)接触力写成锥的基 \(\hl{cone}{\mathbf f_i=B_i\boldsymbol\lambda_i}\)，\(\boldsymbol\lambda_i\ge0\)，\(B_i\) 的列就是 FIG 1 的 \(\mathbf e_\pm=\mathbf n\pm\mu\mathbf t\)。物体平衡要求 \(\mathbf w+\mathbf w_{\text{ext}}=\mathbf 0\)，所以<b>抓取抵抗得了 \(\mathbf w_{\text{ext}}\)，当且仅当 \(-\mathbf w_{\text{ext}}\) 属于 \(\{GB\boldsymbol\lambda:\boldsymbol\lambda\ge0\}\)</b>，这个集合正是 FIG 2 凸包张成的锥。</p>
+  <p data-lang="en">(\([\cdot]_\times\) is the cross-product matrix of Lesson 1.8; in the plane \(m=(\mathbf p-\mathbf c)\times\mathbf f\) is a scalar, the first row above.) Writing the contact force in the cone's basis, \(\hl{cone}{\mathbf f_i=B_i\boldsymbol\lambda_i}\) with \(\boldsymbol\lambda_i\ge0\), the columns of \(B_i\) are FIG 1's \(\mathbf e_\pm=\mathbf n\pm\mu\mathbf t\). Equilibrium demands \(\mathbf w+\mathbf w_{\text{ext}}=\mathbf 0\), so <b>the grasp resists \(\mathbf w_{\text{ext}}\) if and only if \(-\mathbf w_{\text{ext}}\) lies in \(\{GB\boldsymbol\lambda:\boldsymbol\lambda\ge0\}\)</b>, exactly the cone spanned by FIG 2's hull.</p>
 
   <h3><span data-lang="zh">力封闭、形封闭与内力</span><span data-lang="en">Force closure, form closure and internal force</span></h3>
   <p data-lang="zh">令 \(p=3\)（平面）或 \(6\)（空间）。把全部边 wrench 记作 \(\mathbf w_1,\dots,\mathbf w_m\)（FIG 2 里 \(m=2k\)）。</p>
@@ -410,8 +410,8 @@
     </div>
     <div class="fig-controls" id="p-controls"></div>
     <figcaption class="fig-cap">
-      <span data-lang="zh">细线是满足开口限制且名义上封闭的候选对，越亮分数越高（当前排序方式）。粗线加两侧指垫是当前排名第一的抓取；虚线圈是"另一种排序方式"的第一名，两者不同时读数会提示。位姿误差 \(\sigma\) 以物体半径为单位（旋转用 \(\sigma\) 弧度）；随机数固定，所以拖动滑块时排名变化是真实的，不是抖动。</span>
-      <span data-lang="en">Thin lines are the candidate pairs that fit the opening limit and are nominally closed; brighter means a higher score (under the current ranking). The thick line with finger pads is the top-ranked grasp; the dashed ring marks the top pick of the <i>other</i> ranking, and the readout says so when they differ. Pose error \(\sigma\) is in object radii (rotation uses \(\sigma\) radians); the random numbers are fixed, so changes in the ranking as you drag a slider are real, not jitter.</span>
+      <span data-lang="zh">细线是满足开口限制且名义上封闭的候选对，线越不透明分数越高（当前排序方式）。粗线加两侧指垫是当前排名第一的抓取；虚线圈是"另一种排序方式"的第一名，两者不同时读数会提示。位姿误差 \(\sigma\) 以物体半径为单位（旋转用 \(\sigma\) 弧度）；随机数固定，所以拖动滑块时排名变化是真实的，不是抖动。</span>
+      <span data-lang="en">Thin lines are the candidate pairs that fit the opening limit and are nominally closed; the more opaque the line, the higher the score (under the current ranking). The thick line with finger pads is the top-ranked grasp; the dashed ring marks the top pick of the <i>other</i> ranking, and the readout says so when they differ. Pose error \(\sigma\) is in object radii (rotation uses \(\sigma\) radians); the random numbers are fixed, so changes in the ranking as you drag a slider are real, not jitter.</span>
     </figcaption>
   </figure>
   <div class="tasks-title"><span data-lang="zh">试一试</span><span data-lang="en">Try this</span></div>
@@ -420,8 +420,8 @@
   </ul>
   <div class="callout robot">
     <div class="ct"><span data-lang="zh">真实系统里</span><span data-lang="en">In real systems</span></div>
-    <p data-lang="zh"><b>学习式抓取检测</b>：Dex-Net 2.0/3.0（平行夹爪/吸盘，用解析质量作标签）、GraspNet-1Billion（Fang 等，CVPR 2020）、6-DoF GraspNet（Mousavian 等，ICCV 2019）、Contact-GraspNet（Sundermeyer 等，ICRA 2021）、AnyGrasp（Fang 等，T-RO 2023），输入点云，输出 6 自由度夹爪位姿与分数；Part V 与 Part VI 会从监督学习与扩散策略的角度回来讲这些方法。<b>吸盘</b>：不需要摩擦，需要一块可密封的平面，仓储拣选里最常用。<b>手内重定向</b>：OpenAI 的魔方手（2019）用 Shadow Hand、自动域随机化和 PPO 在仿真里训练再迁移到真机；后来 Allegro 与 LEAP Hand 上的手内旋转策略（Qi 等，2022 年起）用相同路线。<b>触觉</b>：GelSight、DIGIT 这类视触觉传感器直接看到接触面，估计法向力与滑移（见 9.4 节）。<b>夹爪选择</b>：平行夹爪便宜可靠，适合形状规则的零件；吸盘适合有平面的箱体；软手和自适应手适合形状不确定；灵巧手适合手内操作和使用工具，但贵、脆、难控。</p>
-    <p data-lang="en"><b>Learned grasp detection</b>: Dex-Net 2.0/3.0 (parallel-jaw/suction, analytic quality as labels), GraspNet-1Billion (Fang et al., CVPR 2020), 6-DoF GraspNet (Mousavian et al., ICCV 2019), Contact-GraspNet (Sundermeyer et al., ICRA 2021) and AnyGrasp (Fang et al., T-RO 2023) take a point cloud and output 6-DoF gripper poses with scores; Parts V and VI return to these methods from the supervised-learning and diffusion-policy angles. <b>Suction</b>: needs no friction, only a sealable surface, and is the workhorse of warehouse picking. <b>In-hand reorientation</b>: OpenAI's Rubik's-cube hand (2019) trained in simulation on a Shadow Hand with automatic domain randomization and PPO and transferred to hardware; in-hand rotation policies on Allegro and LEAP Hands (Qi et al., from 2022) follow the same recipe. <b>Touch</b>: vision-based tactile sensors such as GelSight and DIGIT see the contact patch and estimate normal force and slip (see Lesson 9.4). <b>Choosing a gripper</b>: parallel-jaw grippers are cheap and reliable for regular parts; suction suits boxes with a flat face; soft and adaptive hands suit uncertain shapes; dexterous hands suit in-hand manipulation and tool use, but are expensive, fragile and hard to control.</p>
+    <p data-lang="zh"><b>学习式抓取检测</b>：Dex-Net 2.0/3.0（平行夹爪/吸盘，用解析质量作标签）、GraspNet-1Billion（Fang 等，CVPR 2020）、6-DoF GraspNet（Mousavian 等，ICCV 2019）、Contact-GraspNet（Sundermeyer 等，ICRA 2021）、AnyGrasp（Fang 等，T-RO 2023），输入点云，输出 6 自由度夹爪位姿与分数；Part V 与 Part VI 会从监督学习与扩散策略的角度回来讲这些方法。<b>吸盘</b>：不需要摩擦，需要一块可密封的平面，仓储拣选里最常用。<b>手内重定向</b>：OpenAI 的魔方手（2019）用 Shadow Hand、自动域随机化和 PPO 在仿真里训练再迁移到真机；后来 Allegro 与 LEAP Hand 上的手内旋转策略（Qi 等，2022 年起）用相同路线。<b>触觉</b>：GelSight、DIGIT 这类视触觉传感器直接看到接触面，估计法向力与滑移（9.4 节的传感器分类表把它们与其他传感器放在一起比较）。<b>夹爪选择</b>：平行夹爪便宜可靠，适合形状规则的零件；吸盘适合有平面的箱体；软手和自适应手适合形状不确定；灵巧手适合手内操作和使用工具，但贵、脆、难控。</p>
+    <p data-lang="en"><b>Learned grasp detection</b>: Dex-Net 2.0/3.0 (parallel-jaw/suction, analytic quality as labels), GraspNet-1Billion (Fang et al., CVPR 2020), 6-DoF GraspNet (Mousavian et al., ICCV 2019), Contact-GraspNet (Sundermeyer et al., ICRA 2021) and AnyGrasp (Fang et al., T-RO 2023) take a point cloud and output 6-DoF gripper poses with scores; Parts V and VI return to these methods from the supervised-learning and diffusion-policy angles. <b>Suction</b>: needs no friction, only a sealable surface, and is the workhorse of warehouse picking. <b>In-hand reorientation</b>: OpenAI's Rubik's-cube hand (2019) trained in simulation on a Shadow Hand with automatic domain randomization and PPO and transferred to hardware; in-hand rotation policies on Allegro and LEAP Hands (Qi et al., from 2022) follow the same recipe. <b>Touch</b>: vision-based tactile sensors such as GelSight and DIGIT see the contact patch and estimate normal force and slip (the sensor table of Lesson 9.4 compares them with other sensors). <b>Choosing a gripper</b>: parallel-jaw grippers are cheap and reliable for regular parts; suction suits boxes with a flat face; soft and adaptive hands suit uncertain shapes; dexterous hands suit in-hand manipulation and tool use, but are expensive, fragile and hard to control.</p>
   </div>
 
   <div class="table-wrap">
@@ -500,7 +500,7 @@
       <button class="opt"><span data-lang="zh">否，平面里至少要三个接触点</span><span data-lang="en">No: the plane needs at least three contacts</span></button>
       <button class="opt"><span data-lang="zh">无法判断，还需要知道物体质量</span><span data-lang="en">Cannot tell without the object's mass</span></button>
     </div>
-    <div class="explain"><span data-lang="zh">对跖定理：连线在两个锥里就封闭，不需要法线重合（那是无摩擦的要求）。有摩擦时 2 个点接触就够，且封闭与质量无关，质量只决定需要多大的挤压力（FIG 4）。</span><span data-lang="en">Antipodal theorem: the line being inside both cones is enough; coincident normals are the frictionless requirement. With friction two point contacts suffice, and closure is independent of mass; mass only decides how hard you must squeeze (FIG 4).</span></div>
+    <div class="explain"><span data-lang="zh">对跖定理：连线在两个锥里就封闭，不需要法线重合（而没有摩擦时，即使法线重合，两点也封闭不了：平面里无摩擦至少要 4 个接触点）。有摩擦时 2 个点接触就够，且封闭与质量无关，质量只决定需要多大的挤压力（FIG 4）。</span><span data-lang="en">Antipodal theorem: the line being inside both cones is enough; coincident normals are not needed (and without friction even coincident normals would not close: a frictionless planar grasp needs at least 4 contacts). With friction two point contacts suffice, and closure is independent of mass; mass only decides how hard you must squeeze (FIG 4).</span></div>
   </div>
 
   <div class="quiz" data-answer="3">
@@ -857,7 +857,7 @@ R101.onReady(function () {
       else for (let i = 0; i < W.length; i++) for (let j = i + 1; j < W.length; j++) V.line(to3(W[i]), to3(W[j]), { color: col, width: 1.2, alpha: 0.6 });
       if (a.closed) V.ellipsoid([0, 0, 0], [[a.eps, 0, 0], [0, a.eps, 0], [0, 0, a.eps]], { color: 'good', lat: 5, lon: 8, alpha: hl === 'eps' ? 0.95 : 0.6, width: hl === 'eps' ? 1.8 : 1 });
       W.forEach((w, i) => V.point(to3(w), { color: CC[Math.floor(i / 2)], r: 5, stroke: 'canvas' }));
-      V.arrow([0, 0, 0], to3(k3(a.d, -1.15)), { color: 'bad', width: 3, label: 'w_ext', labelSize: 12 });
+      V.arrow([0, 0, 0], to3(k3(a.d, -1.15)), { color: 'bad', width: 3, label: 'wₑₓₜ', labelSize: 12 });
       V.point([0, 0, 0], { color: 'text', r: 5.5, stroke: 'canvas' });
     }
     // controls
@@ -882,9 +882,9 @@ R101.onReady(function () {
       compute();
       const { a, samp, W } = cur;
       R101.tex(tex, a.closed ? `\\hl{eps}{\\varepsilon}=\\min_{\\|\\mathbf d\\|=1}\\max_j\\,\\mathbf d^\\top\\mathbf w_j=\\cv{${M.tex(a.eps, 3)}}\\ \\text{(${R101.t('精确', 'exact')})},\\qquad ${M.tex(samp, 3)}\\ \\text{(${R101.t('采样', 'sampled')})}`
-        : `\\hl{eps}{\\varepsilon}=0,\\qquad \\min_{\\|\\mathbf d\\|=1}\\max_j\\,\\mathbf d^\\top\\mathbf w_j=\\cw{${M.tex(samp, 3)}}\\ \\text{(${R101.t('采样', 'sampled')})}\\ <0`);
+        : `\\hl{eps}{\\varepsilon}=0,\\qquad \\min_{\\|\\mathbf d\\|=1}\\max_j\\,\\mathbf d^\\top\\mathbf w_j=\\cw{${M.tex(samp, 3)}}\\ \\text{(${R101.t('采样', 'sampled')})}\\ ${a.dist < 1e-6 ? '\\approx0' : '<0'}`);
       const stat = a.closed ? `<span class="stat good">${L('力封闭（原点在凸包内部）', 'FORCE CLOSURE (origin inside the hull)')}</span>` : `<span class="stat bad">${L('不封闭', 'NOT CLOSED')}</span>`;
-      const extra = a.closed ? `${L('最薄方向 d* = ', 'thinnest direction d* = ')}(${a.d.map(x => M.fmt(x, 2)).join(', ')})` : `${L('原点在凸包外，距离', 'origin is outside the hull by')} ${M.fmt(a.dist, 3)}`;
+      const extra = a.closed ? `${L('最薄方向 d* = ', 'thinnest direction d* = ')}(${a.d.map(x => M.fmt(x, 2)).join(', ')})` : (a.dist < 1e-6 ? L('原点在凸包边界上（ε = 0：临界，不封闭）', 'origin on the hull boundary (ε = 0: marginal, not closed)') : `${L('原点在凸包外，距离', 'origin is outside the hull by')} ${M.fmt(a.dist, 3)}`);
       read.innerHTML = `${stat} · ${L('接触点', 'contacts')}: ${st.n} · ${L('边 wrench', 'edge wrenches')}: ${W.length} · φ = ${M.fmt(Math.atan(st.mu) * R2D, 1)}°<br>${extra}`;
       const dsc = st.shape === 'disc' && st.n === 3 && a.closed && Math.abs(a.eps - st.mu) < 0.004 && st.mu > 0.05;
       if (st.n === 2 && a.closed) done('close2');
@@ -1064,7 +1064,7 @@ R101.onReady(function () {
       read.innerHTML = `${stat} · N<sub>min</sub> = mg(½+|x<sub>c</sub>|/w)/μ = <b>${M.fmt(r.Nmin, 2)} N</b><br>${L('摩擦用量 |fₜ|/(μ fₙ)', 'friction use |fₜ|/(μ fₙ)')}: L ${pct(uL)} · R ${pct(uR)}<br>` +
         `${L('核对', 'checks')}: max|Gf − w<sub>d</sub>| = ${r.gerr.toExponential(1)} · |J<sup>−⊤</sup>τ − f| = ${r.rerr.toExponential(1)}`;
       if (r.ok && st.N <= 1.15 * r.Nmin) done('hold');
-      if (r.ok && Math.abs(st.xc) >= 0.02) done('com');
+      if (r.ok && Math.abs(st.xc) >= 0.02 && st.N <= 1.15 * r.Nmin) done('com');
       P.invalidate();
     }
     R101.on('lang', sync);

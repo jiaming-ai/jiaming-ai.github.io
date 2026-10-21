@@ -209,7 +209,7 @@
     <div class="fig-controls" id="e-ctl-a"></div>
     <div class="fig-controls" id="e-ctl-b"></div>
     <figcaption class="fig-cap">
-      <span data-lang="zh">淡色是世界系，亮色是机体系 \(\{B\}\)（带箱体）。琥珀小点 \(\mathbf p\) 固定在机体上，坐标是 \(\mathbf p^B = (0.8, 0, 0.5)\)；紫色小点 \(\mathbf q\) 固定在世界里，\(\mathbf q^W = (1.6, 1.0, 0.6)\)。前者用 \(T\) 变到世界系，后者用 \(T^{-1}\) 变到机体系。把鼠标放到右边公式里带底色的 \(R\)、\(\mathbf t\) 上，这里的箭头会加粗。</span>
+      <span data-lang="zh">淡色是世界系，亮色是机体系 \(\{B\}\)（带箱体）。琥珀小点 \(\mathbf p\) 固定在机体上，坐标是 \(\mathbf p^B = (0.8, 0, 0.5)\)；紫色小点 \(\mathbf q\) 固定在世界里，\(\mathbf q^W = (1.6, 1.0, 0.6)\)。前者用 \(T\) 变到世界系，后者用 \(T^{-1}\) 变到机体系。把鼠标放到下方"再看数学"一节公式里带底色的 \(R\)、\(\mathbf t\) 上，这里的箭头会加粗。</span>
       
     </figcaption>
   </figure>
@@ -250,7 +250,7 @@
 <!-- ============ 4. MATH ============ -->
 <section class="step" id="math">
   <h2><span class="n">4</span><span data-lang="zh">再看数学</span></h2>
-  <p class="hl-hint"><span data-lang="zh">提示：把鼠标悬停在公式中带底色的符号上，FIG 3 或 FIG 4 中对应的元素会被高亮。</span></p>
+  <p class="hl-hint"><span data-lang="zh">提示：把鼠标悬停在公式中带底色的符号上，FIG 3、FIG 4 或 FIG 5 中对应的元素会被高亮。</span></p>
 
   <h3><span data-lang="zh">齐次坐标：点和方向</span></h3>
   <p data-lang="zh">给 \(\mathbf p \in \R^3\) 添一个分量 1，得到齐次坐标 \(\tilde{\mathbf p} = (\mathbf p, 1) \in \R^4\)。方向（自由向量）则用 \((\mathbf d, 0)\)。位姿 \(T\) 作用在它们上：</p>
@@ -305,7 +305,7 @@
     </div>
     <div class="fig-controls" id="y-ctl"></div>
     <figcaption class="fig-cap">
-      <span data-lang="zh">两连杆机械臂（底座在原点），手上装着相机。实线相机是真值（物理上相机的真实安装），虚线相机是机器人以为的安装。琥珀点是杯子的真值，红点是用标定值算出来的估计。红线的长度就是抓取偏差。</span>
+      <span data-lang="zh">两连杆机械臂（底座在原点），手上装着相机。实线相机是真值（物理上相机的真实安装），虚线相机是机器人以为的安装。琥珀点是杯子的真值，红点是用标定值算出来的估计。红线的长度就是抓取偏差。把鼠标放到上面公式里的 \(T_{EC}\) 上，标定的安装（手到虚线相机）会以琥珀色加粗显示。</span>
       
     </figcaption>
   </figure>
@@ -341,7 +341,7 @@
     
   </div>
   <div class="callout pitfall">
-    <div class="ct"><span data-lang="zh">误区 4：忘了乘出来的 4×4 要保持正交性</span></div>
+    <div class="ct"><span data-lang="zh">误区 4：忘了左上角的 R 要保持正交</span></div>
     <p data-lang="zh">矩阵乘法在浮点数里会累积误差。把一个位姿连乘上万次（比如积分里程计）之后，左上角不再是严格的旋转矩阵，长度开始缩放、直角开始倾斜。对策是定期把 \(R\) 投影回 \(\SO\)（SVD 或 Gram–Schmidt），或者把旋转存成单位四元数，随时归一化。</p>
     
   </div>
@@ -359,7 +359,7 @@
       <button class="opt">\(\begin{bmatrix}1&0&0\\0&1&0\\2&3&1\end{bmatrix}\)</button>
       <button class="opt">\(\begin{bmatrix}1&2&0\\3&1&0\\0&0&1\end{bmatrix}\)</button>
     </div>
-    <div class="explain"><span data-lang="zh">平移放在最后一列（列向量约定）：\((x, y, 1)\mapsto(x + 2, y + 3, 1)\)。第一个选项是缩放，第三个是行向量约定下的写法（与本课程的列向量约定不同），第四个是剪切。</span></div>
+    <div class="explain"><span data-lang="zh">平移放在最后一列（列向量约定）：\((x, y, 1)\mapsto(x + 2, y + 3, 1)\)。选项 A 是缩放，选项 C 是行向量约定下的写法（与本课程的列向量约定不同），选项 D 是剪切。</span></div>
   </div>
 
   <div class="quiz" data-answer="2">
@@ -369,7 +369,7 @@
       <button class="opt">\((5, 0, 0, 1)\)</button>
       <button class="opt">\((1, 0, 0, 0)\)</button>
     </div>
-    <div class="explain"><span data-lang="zh">\(w = 0\) 的方向不受平移影响：\(R\mathbf d + \mathbf t\cdot 0 = (1,0,0)\)。选项 1 把它当成点来加平移了，选项 2 同时还错写了 \(w\)。</span></div>
+    <div class="explain"><span data-lang="zh">\(w = 0\) 的方向不受平移影响：\(R\mathbf d + \mathbf t\cdot 0 = (1,0,0)\)。选项 B 是把它当成点 \((\mathbf d, 1)\) 来变换的结果；选项 A 加上了平移却保留 \(w = 0\)，自相矛盾。</span></div>
   </div>
 
   <div class="quiz" data-answer="1">
@@ -667,8 +667,10 @@ R101.onReady(function () {
       P.path([[0, 0], j2, [E.x, E.y]], { color: 'text-2', width: 6, alpha: 0.7 });
       P.point([0, 0], { color: 'text', r: 6 }); P.point(j2, { color: 'text', r: 4 });
       drawFrame(P, E, { s: 0.25, width: 2, label: 'E', lc: 'text-2', off: [-8, 12] });
-      const wedge = (C, col, al, dash) => { const pts = [[C.x, C.y]]; for (let k = 0; k <= 10; k++) { const a = C.a - FOV + 2 * FOV * k / 10; pts.push([C.x + 1.6 * Math.cos(a), C.y + 1.6 * Math.sin(a)]); } P.poly(pts, { stroke: col, alpha: al, width: 1.5, dash, fill: col, fillAlpha: dash ? 0 : 0.07 }); };
-      wedge(Ctrue, 'x', 0.9); wedge(Cnom, 'text-2', 0.7, [5, 4]);
+      const wedge = (C, col, al, dash, wd = 1.5) => { const pts = [[C.x, C.y]]; for (let k = 0; k <= 10; k++) { const a = C.a - FOV + 2 * FOV * k / 10; pts.push([C.x + 1.6 * Math.cos(a), C.y + 1.6 * Math.sin(a)]); } P.poly(pts, { stroke: col, alpha: al, width: wd, dash, fill: col, fillAlpha: dash ? 0 : 0.07 }); };
+      const hc = R101.hl === 'cal';   // hovering T_EC: emphasise the calibrated mounting (hand → dashed camera)
+      wedge(Ctrue, 'x', 0.9); wedge(Cnom, hc ? 'v' : 'text-2', hc ? 1 : 0.7, [5, 4], hc ? 3 : 1.5);
+      if (hc) P.line([E.x, E.y], [Cnom.x, Cnom.y], { color: 'v', width: 3.5 });
       P.point([Ctrue.x, Ctrue.y], { color: 'x', r: 5 });
       P.point(cup, { color: 'v', r: 7, stroke: 'canvas', strokeWidth: 2 });
       P.text(R101.t('杯子（真值）', 'cup (truth)'), cup, { offset: [12, -12], color: 'v', bold: true, size: 13 });

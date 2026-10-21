@@ -188,11 +188,11 @@
   <h2><span class="n">3</span><span data-lang="zh">动手玩：不能横着滑，却到得了</span><span data-lang="en">Play: you cannot slide sideways, but you can get there</span></h2>
   <div data-lang="zh">
     <p>先自己试一试那条规则。下图里拖动小车：不管你把鼠标拉向哪里，小车只肯沿着车头所在的直线移动；你拉的横向分量被"禁止"（红色箭头），因为 \(\dot x\sin\theta-\dot y\cos\theta=0\)。</p>
-    <p>然后是反转。侧方位停车的秘诀是一个小小的摆动：<b>前进 \(\varepsilon\)、左转 \(\varepsilon\)、后退 \(\varepsilon\)、右转 \(\varepsilon\)</b>。四个动作每一个都完全合规，车朝向回到原来的方向，位置却向右挪了一点点：横向位移约为 \(\varepsilon^2\)。把 \(\varepsilon\) 减半，位移变成四分之一；但每次摆动的"工作量"只有一半，所以要横移 \(d\)，所需的行驶距离只和 \(\sqrt d\) 成正比。反复摆动几次，把车停进右下角的车位，调节 \(\varepsilon\) 看看效率如何变化。</p>
+    <p>然后是反转。侧方位停车的秘诀是一个小小的摆动（下图用能原地转向的差速小车演示；汽车做的是同一件事，只是用满舵的圆弧代替原地转向）：<b>前进 \(\varepsilon\)、左转 \(\varepsilon\)、后退 \(\varepsilon\)、右转 \(\varepsilon\)</b>。四个动作每一个都完全合规，车朝向回到原来的方向，位置却向右挪了一点点：横向位移约为 \(\varepsilon^2\)。把 \(\varepsilon\) 减半，位移变成四分之一；但每次摆动的"工作量"只有一半，所以要横移 \(d\)，所需的行驶距离只和 \(\sqrt d\) 成正比。反复摆动几次，把车停进右下角的车位，调节 \(\varepsilon\) 看看效率如何变化。</p>
   </div>
   <div data-lang="en">
-    <p>First test the rule yourself. In the figure, drag the car: wherever you pull the pointer, the car only agrees to move along the line of its heading; the sideways part of your pull is "forbidden" (red arrow), because \(\dot x\sin\theta-\dot y\cos\theta=0\).</p>
-    <p>Then the twist. The secret of parallel parking is a small wiggle: <b>forward \(\varepsilon\), turn left \(\varepsilon\), back \(\varepsilon\), turn right \(\varepsilon\)</b>. Every one of the four motions is perfectly legal, the heading returns to where it started, and yet the position has shifted a little to the right: the sideways displacement is about \(\varepsilon^2\). Halve \(\varepsilon\) and the shift drops to a quarter; but each wiggle also costs half the driving, so to shift sideways by \(d\) you drive a distance proportional to \(\sqrt d\). Wiggle a few times to park the car in the slot at the lower right, and tune \(\varepsilon\) to see how the efficiency changes.</p>
+    <p>First test the rule yourself. In the figure, drag the robot: wherever you pull the pointer, the robot only agrees to move along the line of its heading; the sideways part of your pull is "forbidden" (red arrow), because \(\dot x\sin\theta-\dot y\cos\theta=0\).</p>
+    <p>Then the twist. The secret of parallel parking is a small wiggle (the figure uses a differential-drive robot that can turn in place; a car does the same thing with full-lock arcs instead of turns in place): <b>forward \(\varepsilon\), turn left \(\varepsilon\), back \(\varepsilon\), turn right \(\varepsilon\)</b>. Every one of the four motions is perfectly legal, the heading returns to where it started, and yet the position has shifted a little to the right: the sideways displacement is about \(\varepsilon^2\). Halve \(\varepsilon\) and the shift drops to a quarter; but each wiggle also costs half the driving, so to shift sideways by \(d\) you drive a distance proportional to \(\sqrt d\). Wiggle a few times to park the robot in the slot at the lower right, and tune \(\varepsilon\) to see how the efficiency changes.</p>
   </div>
 
   <figure class="fig bleed" id="fig-park">
@@ -204,15 +204,15 @@
     <div class="fig-row" style="padding:12px 16px;border-top:1px solid var(--border);display:grid;gap:8px"><div class="katex-live" id="p-tex"></div><div class="readout" id="p-read"></div></div>
     <div class="fig-controls" id="p-controls"></div>
     <figcaption class="fig-cap">
-      <span data-lang="zh">左图：拖动小车（车体坐标原点在后轴中点）。琥珀色是摆动轨迹，每次摆动结束时，琥珀色箭头是实际净位移，紫色箭头是李括号的预测 \(\pm\varepsilon^2[g_1,g_2]\)，二者几乎重合。绿色虚线框是车位。右图：把摆动在积分器里真的跑一遍，得到横移距离随 \(\varepsilon\) 的变化（琥珀色），紫色虚线是斜率为 2 的参考线 \(\varepsilon^2\)；灰色是斜率为 1 的线，作为对照。</span>
-      <span data-lang="en">Left: drag the car (the body origin is the midpoint of the rear axle). The amber curve is the wiggle path; at the end of a wiggle the amber arrow is the actual net displacement and the purple arrow is the Lie-bracket prediction \(\pm\varepsilon^2[g_1,g_2]\), and the two nearly coincide. The green dashed box is the slot. Right: the wiggle is really run in the integrator to get the sideways shift as a function of \(\varepsilon\) (amber), with a slope-2 reference line \(\varepsilon^2\) (purple dashed) and a slope-1 line (gray) for contrast.</span>
+      <span data-lang="zh">左图：拖动差速小车（车体坐标原点在驱动轮轴中点）。琥珀色是摆动轨迹，每次摆动结束时，琥珀色箭头是实际净位移，紫色箭头是李括号的预测 \(\pm\varepsilon^2[g_1,g_2]\)，二者几乎重合。绿色虚线框是车位。右图：把摆动在积分器里真的跑一遍，得到横移距离随 \(\varepsilon\) 的变化（琥珀色），紫色虚线是斜率为 2 的参考线 \(\varepsilon^2\)；灰色是斜率为 1 的线，作为对照。</span>
+      <span data-lang="en">Left: drag the differential-drive robot (the body origin is the midpoint of the drive-wheel axle). The amber curve is the wiggle path; at the end of a wiggle the amber arrow is the actual net displacement and the purple arrow is the Lie-bracket prediction \(\pm\varepsilon^2[g_1,g_2]\), and the two nearly coincide. The green dashed box is the slot. Right: the wiggle is really run in the integrator to get the sideways shift as a function of \(\varepsilon\) (amber), with a slope-2 reference line \(\varepsilon^2\) (purple dashed) and a slope-1 line (gray) for contrast.</span>
     </figcaption>
   </figure>
   <div class="tasks-title"><span data-lang="zh">试一试</span><span data-lang="en">Try this</span></div>
   <ul class="tasks">
-    <li data-task="block"><span><span data-lang="zh">拖动小车，把鼠标向<b>侧面</b>拉出至少 0.5 m。小车的侧向位置变了吗？</span><span data-lang="en">Drag the car and pull the pointer at least 0.5 m <b>to the side</b>. Does the car's sideways position change?</span></span></li>
+    <li data-task="block"><span><span data-lang="zh">拖动小车，把鼠标向<b>侧面</b>拉出至少 0.5 m。小车的侧向位置变了吗？</span><span data-lang="en">Drag the robot and pull the pointer at least 0.5 m <b>to the side</b>. Does the robot's sideways position change?</span></span></li>
     <li data-task="quad"><span><span data-lang="zh">先用 \(\varepsilon\le 0.3\) 摆动一次，再用 \(\varepsilon\ge 0.6\) 摆动一次。第二次的横移是第一次的几倍？和 \(\varepsilon^2\) 的比值一致吗？</span><span data-lang="en">Wiggle once with \(\varepsilon\le 0.3\), then once with \(\varepsilon\ge 0.6\). How many times larger is the second shift, and does it match the ratio of \(\varepsilon^2\)?</span></span></li>
-    <li data-task="park"><span><span data-lang="zh">用摆动（和前进/后退微调）把小车停进车位：后轴中点进入车位中心附近，朝向偏差小于 7°。</span><span data-lang="en">Use wiggles (plus forward/back nudges) to park the car in the slot: rear-axle midpoint near the slot center, heading within 7°.</span></span></li>
+    <li data-task="park"><span><span data-lang="zh">用摆动（和前进/后退微调）把小车停进车位：轮轴中点进入车位中心附近，朝向偏差小于 7°。</span><span data-lang="en">Use wiggles (plus forward/back nudges) to park the robot in the slot: axle midpoint near the slot center, heading within 7°.</span></span></li>
   </ul>
   <div class="callout key">
     <div class="ct"><span data-lang="zh">核心洞见</span><span data-lang="en">Key insight</span></div>
@@ -301,8 +301,8 @@
     </div>
     <div class="fig-controls" id="r-controls"></div>
     <figcaption class="fig-cap">
-      <span data-lang="zh">机器人在原点，朝向 +x（红色箭头）。琥珀色区域是汽车在路径长度 \(\le T\) 内能到达的位置（浅色细线是边界的生成者：满舵转一段再直行）；紫色花瓣是差速（\(W/2=0.35\) m）；青色圆是全向。粗琥珀线是汽车到目标点（终端朝向不限）的最短路径，由第 5 节的 Dubins 解法逐朝向暴力搜索得到。</span>
-      <span data-lang="en">The robot sits at the origin facing +x (red arrow). The amber region is where the car can get with path length \(\le T\) (the faint thin curves generate its boundary: full lock for a while, then straight); the purple flower is the differential drive (\(W/2=0.35\) m); the cyan circle is the omnidirectional base. The thick amber line is the car's shortest path to the target (final heading free), found by brute-force search over final headings with the Dubins solver of Section 5.</span>
+      <span data-lang="zh">机器人在原点，朝向 +x（红色箭头）。琥珀色区域是汽车在路径长度 \(\le T\) 内能到达的位置（浅色细线是边界的生成者：满舵转一段再直行）；紫色花瓣是差速（\(W/2=0.25\) m）；青色圆是全向。粗琥珀线是汽车到目标点（终端朝向不限）的最短路径，由第 5 节的 Dubins 解法逐朝向暴力搜索得到。</span>
+      <span data-lang="en">The robot sits at the origin facing +x (red arrow). The amber region is where the car can get with path length \(\le T\) (the faint thin curves generate its boundary: full lock for a while, then straight); the purple flower is the differential drive (\(W/2=0.25\) m); the cyan circle is the omnidirectional base. The thick amber line is the car's shortest path to the target (final heading free), found by brute-force search over final headings with the Dubins solver of Section 5.</span>
     </figcaption>
   </figure>
   <ul class="tasks">
@@ -370,8 +370,8 @@
   <div class="math-card">
   $$ \begin{bmatrix}\omega_{FL}\\ \omega_{FR}\\ \omega_{RL}\\ \omega_{RR}\end{bmatrix}=\frac1r\begin{bmatrix}1&-1&-\ell\\ 1&1&\ell\\ 1&1&-\ell\\ 1&-1&\ell\end{bmatrix}\begin{bmatrix}v_x\\ v_y\\ \omega\end{bmatrix}. $$
   </div>
-  <p data-lang="zh">（符号取决于滚子方向和轮子编号，换了安装方式矩阵里的正负号会变；列向量两两正交，所以正解就是它的转置除以 4。）三个控制对三个自由度，矩阵可逆，所以是完整系统。</p>
-  <p data-lang="en">(Signs depend on roller orientation and wheel numbering and change with the mounting; the columns are mutually orthogonal, so the forward map is simply the transpose scaled accordingly.) Three controls for three DoF with an invertible map: a holonomic system.</p>
+  <p data-lang="zh">（符号取决于滚子方向和轮子编号，换了安装方式矩阵里的正负号会变；列向量两两正交，所以正解是 \((J^\top J)^{-1}J^\top=r\,\operatorname{diag}(\tfrac14,\tfrac14,\tfrac1{4\ell^2})J^\top\)，\(J\) 为上面的 4×3 矩阵。）三个控制对三个自由度，\(J\) 列满秩（有左逆），所以是完整系统。</p>
+  <p data-lang="en">(Signs depend on roller orientation and wheel numbering and change with the mounting; the columns are mutually orthogonal, so the forward map is \((J^\top J)^{-1}J^\top=r\,\operatorname{diag}(\tfrac14,\tfrac14,\tfrac1{4\ell^2})J^\top\), with \(J\) the 4×3 matrix above.) Three controls for three DoF and \(J\) has full column rank (a left inverse): a holonomic system.</p>
 
   <h3><span data-lang="zh">约束：Pfaffian 形式、可积性与 Frobenius</span><span data-lang="en">The constraint: Pfaffian form, integrability and Frobenius</span></h3>
   <p data-lang="zh">"轮子不侧滑"写成对速度的线性约束（Pfaffian 约束）：</p>
@@ -393,8 +393,8 @@
   <div class="math-card">
   $$ q_{\text{end}}=q_0+\varepsilon^2\,[g_1,g_2](q_0)+O(\varepsilon^3). $$
   </div>
-  <p data-lang="zh">独轮车的精确结果可以直接算：在车体坐标系下，净位移是 \((\varepsilon(1-\cos\varepsilon),\,-\varepsilon\sin\varepsilon)\approx(\tfrac{\varepsilon^3}{2},\,-\varepsilon^2)\)，朝向变化严格为零。FIG 2 右图用数值积分验证了这一点：横移 \(/\varepsilon^2\) 在 \(\varepsilon=0.0125\) 时等于 0.99997。位移 \(d\) 与路程 \(4\varepsilon\) 的关系是 \(\text{路程}\approx4\sqrt d\)：想横移 1 cm 就要来回开约 40 cm，小位移的"汇率"很差。</p>
-  <p data-lang="en">For the unicycle the exact result can be computed directly: in the body frame the net displacement is \((\varepsilon(1-\cos\varepsilon),\,-\varepsilon\sin\varepsilon)\approx(\tfrac{\varepsilon^3}{2},\,-\varepsilon^2)\), with exactly zero change in heading. The right panel of FIG 2 checks this numerically: sideways shift \(/\varepsilon^2\) equals 0.99997 at \(\varepsilon=0.0125\). The displacement \(d\) and the distance driven \(4\varepsilon\) are related by \(\text{distance}\approx4\sqrt d\): to shift 1 cm sideways you drive about 40 cm back and forth, a poor exchange rate for small shifts.</p>
+  <p data-lang="zh">独轮车的精确结果可以直接算：在车体坐标系下，净位移是 \((\varepsilon(1-\cos\varepsilon),\,-\varepsilon\sin\varepsilon)\approx(\tfrac{\varepsilon^3}{2},\,-\varepsilon^2)\)，朝向变化严格为零。FIG 2 右图用数值积分验证了这一点：横移 \(/\varepsilon^2\) 在 \(\varepsilon=0.0125\) 时等于 0.99997。一次摆动要前后共开 \(2\varepsilon\)，再原地来回转 \(2\varepsilon\) 弧度，取 \(\varepsilon=\sqrt d\) 时行驶距离 \(\approx2\sqrt d\)：想横移 1 cm 就要来回开约 20 cm，外加来回转约 0.2 rad（约 11°），小位移的"汇率"很差。</p>
+  <p data-lang="en">For the unicycle the exact result can be computed directly: in the body frame the net displacement is \((\varepsilon(1-\cos\varepsilon),\,-\varepsilon\sin\varepsilon)\approx(\tfrac{\varepsilon^3}{2},\,-\varepsilon^2)\), with exactly zero change in heading. The right panel of FIG 2 checks this numerically: sideways shift \(/\varepsilon^2\) equals 0.99997 at \(\varepsilon=0.0125\). One wiggle drives \(2\varepsilon\) forward and back and turns \(2\varepsilon\) rad in place, so with \(\varepsilon=\sqrt d\) the distance driven is \(\approx2\sqrt d\): to shift 1 cm sideways you drive about 20 cm back and forth, plus about 0.2 rad (11°) of turning, a poor exchange rate for small shifts.</p>
 
   <h3><span data-lang="zh">可控性：Chow–Rashevskii</span><span data-lang="en">Controllability: Chow–Rashevskii</span></h3>
   <p data-lang="zh">把 \(g_1,g_2\) 以及它们反复取李括号得到的所有向量场放在一起，如果在每一点都张成整个 \(\mathbb R^n\)（"李代数秩条件"），则系统在连通的构型空间里<b>可控</b>：任意两个位姿都能用允许的运动连起来（Chow 1939，Rashevskii 1938）。独轮车：\(\operatorname{span}\{g_1,g_2,[g_1,g_2]\}=\mathbb R^3\) 处处成立（\(\det[g_1,g_2,[g_1,g_2]]=1\)），所以可以停到任何位姿，只是代价是每个"缺失方向"上平方根的路程（亚黎曼几何里的"非完整度"）。对比：一个不可积约束（冰刀）的可达集是整个构型空间，一个可积约束（珠子在铁丝上）的可达集只是一条曲线。</p>
@@ -428,8 +428,8 @@
   <p data-lang="en">A small \(L_d\) hugs the path but steers hard and is sensitive to steering lag, so it oscillates easily; a large \(L_d\) is smooth but "cuts corners". In practice \(L_d\) grows with speed (e.g. \(L_d=k\,v\)).</p>
 
   <h3><span data-lang="zh">位姿镇定：极坐标律与 Brockett 障碍</span><span data-lang="en">Pose regulation: the polar-coordinate law and Brockett's obstruction</span></h3>
-  <p data-lang="zh">要把独轮车开到目标位姿 \((x_g,y_g,\theta_g)\)，Aicardi 等（1995）改用极坐标：\(\rho\) 是到目标的距离，\(\hl{alpha}{\alpha}\) 是车头到视线方向的夹角，\(\hl{beta}{\beta}\) 是视线方向到目标朝向的夹角（都取 \((-\pi,\pi]\)）：</p>
-  <p data-lang="en">To drive the unicycle to a goal pose \((x_g,y_g,\theta_g)\), Aicardi et al. (1995) switch to polar coordinates: \(\rho\) is the distance to the goal, \(\hl{alpha}{\alpha}\) is the angle from the heading to the line of sight, and \(\hl{beta}{\beta}\) is the angle from the line of sight to the goal heading (all wrapped to \((-\pi,\pi]\)):</p>
+  <p data-lang="zh">要把独轮车开到目标位姿 \((x_g,y_g,\theta_g)\)，Siegwart 等的教材（沿用 Astolfi 的极坐标镇定思路）改用极坐标：\(\rho\) 是到目标的距离，\(\hl{alpha}{\alpha}\) 是车头到视线方向的夹角，\(\hl{beta}{\beta}\) 是视线方向到目标朝向的夹角（都取 \((-\pi,\pi]\)）：</p>
+  <p data-lang="en">To drive the unicycle to a goal pose \((x_g,y_g,\theta_g)\), Siegwart et al.'s textbook, following Astolfi, switches to polar coordinates: \(\rho\) is the distance to the goal, \(\hl{alpha}{\alpha}\) is the angle from the heading to the line of sight, and \(\hl{beta}{\beta}\) is the angle from the line of sight to the goal heading (all wrapped to \((-\pi,\pi]\)):</p>
   <div class="math-card">
   $$ \dot\rho=-v\cos\alpha,\quad \dot\alpha=\frac{v\sin\alpha}{\rho}-\omega,\quad \dot\beta=-\frac{v\sin\alpha}{\rho};\qquad v=k_\rho\rho,\quad \omega=k_\alpha\alpha+k_\beta\beta. $$
   </div>
@@ -573,7 +573,7 @@
       <button class="opt"><span data-lang="zh">1/8</span><span data-lang="en">1/8</span></button>
       <button class="opt"><span data-lang="zh">不变，只和转弯半径有关</span><span data-lang="en">unchanged; it only depends on the turning radius</span></button>
     </div>
-    <div class="explain"><span data-lang="zh">净位移 \(\approx\varepsilon^2[g_1,g_2]\)，与 \(\varepsilon^2\) 成正比，所以变成 \(1/4\)；而路程只减半。因此要靠摆动横移一段距离 \(d\)，路程约为 \(4\sqrt d\)，小位移很"贵"。</span><span data-lang="en">The net displacement is \(\approx\varepsilon^2[g_1,g_2]\), proportional to \(\varepsilon^2\), so it becomes \(1/4\) while the driving distance is only halved. To shift sideways by \(d\) by wiggling you drive about \(4\sqrt d\), so small shifts are "expensive".</span></div>
+    <div class="explain"><span data-lang="zh">净位移 \(\approx\varepsilon^2[g_1,g_2]\)，与 \(\varepsilon^2\) 成正比，所以变成 \(1/4\)；而路程只减半。因此要靠摆动横移一段距离 \(d\)，要行驶约 \(2\sqrt d\)（另加约 \(2\sqrt d\) 弧度的原地转向），小位移很"贵"。</span><span data-lang="en">The net displacement is \(\approx\varepsilon^2[g_1,g_2]\), proportional to \(\varepsilon^2\), so it becomes \(1/4\) while the driving distance is only halved. To shift sideways by \(d\) by wiggling you drive about \(2\sqrt d\) (plus about \(2\sqrt d\) rad of turning in place), so small shifts are "expensive".</span></div>
   </div>
 
   <div class="quiz" data-answer="2">
@@ -610,7 +610,7 @@
     <li>L. E. Dubins, <i>On curves of minimal length with a constraint on average curvature, and with prescribed initial and terminal positions and tangents</i>, American Journal of Mathematics 79(3), 1957 — <span data-lang="zh">Dubins 最短路径的原始论文</span><span data-lang="en">The original Dubins shortest-path paper</span></li>
     <li>J. A. Reeds &amp; L. A. Shepp, <i>Optimal paths for a car that goes both forwards and backwards</i>, Pacific Journal of Mathematics 145(2), 1990 — <span data-lang="zh">允许倒车的最短路径</span><span data-lang="en">Shortest paths when reversing is allowed</span></li>
     <li>R. W. Brockett, <i>Asymptotic stability and feedback stabilization</i>, in <i>Differential Geometric Control Theory</i>, Birkhäuser, 1983 — <span data-lang="zh">Brockett 必要条件</span><span data-lang="en">Brockett's necessary condition</span></li>
-    <li>M. Aicardi, G. Casalino, A. Bicchi &amp; A. Balestrino, <i>Closed loop steering of unicycle-like vehicles via Lyapunov techniques</i>, IEEE Robotics &amp; Automation Magazine 2(1), 1995 — <span data-lang="zh">极坐标位姿镇定律的出处</span><span data-lang="en">The source of the polar pose-regulation law</span></li>
+    <li>M. Aicardi, G. Casalino, A. Bicchi &amp; A. Balestrino, <i>Closed loop steering of unicycle-like vehicles via Lyapunov techniques</i>, IEEE Robotics &amp; Automation Magazine 2(1), 1995 — <span data-lang="zh">用 Lyapunov 方法设计独轮车类车辆的闭环镇定律（与正文的线性极坐标律不同的另一种设计）</span><span data-lang="en">Closed-loop steering of unicycle-like vehicles designed with Lyapunov techniques (a different design from the linear polar law in the text)</span></li>
     <li>R. C. Coulter, <i>Implementation of the Pure Pursuit Path Tracking Algorithm</i>, CMU-RI-TR-92-01, 1992; and B. Paden et al., <i>A Survey of Motion Planning and Control Techniques for Self-Driving Urban Vehicles</i>, IEEE Trans. Intelligent Vehicles 1(1), 2016 — <span data-lang="zh">纯追踪与自动驾驶规划、控制综述</span><span data-lang="en">Pure pursuit, and a survey of planning and control for self-driving vehicles</span></li>
   </ul>
 </section>
@@ -736,7 +736,7 @@ function sampleRegion(R, Lmax, E, N) {
 }
 // unicycle with wheel limits |vL|,|vR| <= 1  =>  |v| + b|w| <= 1;  spin-then-drive reach set: r(phi) = T - b*min(|phi|, pi-|phi|)
 const diffReach = (phi, T, b) => Math.max(0, T - b * Math.min(Math.abs(wrapPi(phi)), PI - Math.abs(wrapPi(phi))));
-/* ---- polar-coordinate pose regulation (Aicardi et al. 1995; Siegwart ch. 3) ---- */
+/* ---- polar-coordinate pose regulation (Siegwart et al. ch. 3, after Astolfi) ---- */
 function polarState(q, g, dir) {
   const off = dir < 0 ? PI : 0;
   const dx = g[0] - q[0], dy = g[1] - q[1], psi = Math.atan2(dy, dx);
@@ -926,7 +926,7 @@ function polarCmd(q, g, dir, k) {
         read.innerHTML = `|v| = <b>${M.fmt(Math.hypot(b.vx, b.vy), 2)}</b> m/s · ω = <b>${M.fmt(b.w, 2)}</b> rad/s<br>${L('3 个控制量对应 3 个自由度：想往哪走都行；ICR 可以在任意位置（不必在车轴上）。', '3 controls for 3 DoF: any direction you like; the ICR can be anywhere (not just on the axle).')}`;
       } else {
         const Rs = I ? I.Rs : null;
-        R101.tex(tex, `\\begin{gathered} \\cv{v}=\\tfrac r2(\\omega_R+\\omega_L)=${M.tex(b.vx, 3)}\\ \\text{m/s}\\\\ \\cv{\\omega}=\\tfrac rW(\\omega_R-\\omega_L)=${M.tex(b.w, 3)}\\ \\text{rad/s}\\\\ \\cw{R}=v/\\omega=${Rs == null ? '\\text{(straight line, no ICR)}' : M.tex(Rs, 2) + '\\ \\text{m}'} \\end{gathered}`);
+        R101.tex(tex, `\\begin{gathered} \\cv{v}=\\tfrac r2(\\omega_R+\\omega_L)=${M.tex(b.vx, 3)}\\ \\text{m/s}\\\\ \\cv{\\omega}=\\tfrac rW(\\omega_R-\\omega_L)=${M.tex(b.w, 3)}\\ \\text{rad/s}\\\\ \\cw{R}=v/\\omega=${Rs == null ? '\\text{' + R101.t('（直线，没有 ICR）', '(straight line, no ICR)') + '}' : M.tex(Rs, 2) + '\\ \\text{m}'} \\end{gathered}`);
         let h = `ωL = <b>${M.fmt(wC(wl), 1)}</b>, ωR = <b>${M.fmt(wC(wr), 1)}</b> rad/s` + (sat ? ` <span style="color:var(--c-bad)">(${L('已限幅', 'clipped')})</span>` : '') + '<br>' +
           (Rs == null ? L('ICR 在无穷远：直线运动。', 'ICR at infinity: straight-line motion.') : `${L('机器人系中 ICR', 'ICR in the robot frame')} = (0, <b>${M.fmt(Rs, 2)}</b>) m`);
         if (Rs != null && Math.abs(Rs) < 0.01) h += `<br>${L('原地转：ICR 在车轴中点。', 'Spinning in place: the ICR is the axle midpoint.')}`;
@@ -945,7 +945,7 @@ function polarCmd(q, g, dir, k) {
 
   /* ---------------- FIG 2: blocked sideways motion and the parking wiggle ---------------- */
   (function () {
-    const SLOT = [0.8, -1.0], CX = 0.3;            // slot target for the rear-axle midpoint; body centre is 0.3 ahead of it
+    const SLOT = [0.8, -1.0], CX = 0.3;            // slot target for the axle midpoint; body centre is 0.3 ahead of it
     let q = [0, 0, 0], eps = 0.7, anim = null, trail = [[0, 0]], old = [], cyc = null, wig = 0, pull = null, grab = [0, 0], blocked = 0;
     const eDone = [];
     const SEQ = { right: [[1, 0], [0, 1], [-1, 0], [0, -1]], left: [[0, 1], [1, 0], [0, -1], [-1, 0]] };
@@ -968,10 +968,11 @@ function polarCmd(q, g, dir, k) {
         cyc = null;
       }
     });
-    function car(P, q, o) {
+    function car(P, q, o) {                        // differential-drive body: two drive wheels on the axle at the origin, a caster in front
       const a = o.alpha != null ? o.alpha : 1, c = o.color || 'v';
       P.poly(rectPoly(q, -0.15, -0.25, 0.75, 0.25), { fill: c, fillAlpha: 0.14 * a, stroke: c, width: 2.2, alpha: a, dash: o.dash });
-      [[0, 0.27], [0, -0.27], [0.6, 0.27], [0.6, -0.27]].forEach(([x, y]) => wheelSeg(P, q, x, y, 0, 0.2, { alpha: a }));
+      [[0, 0.27], [0, -0.27]].forEach(([x, y]) => wheelSeg(P, q, x, y, 0, 0.2, { alpha: a }));
+      P.point(rot(q, 0.6, 0), { color: 'text-2', r: 3.5, alpha: a });
       P.poly([rot(q, 0.75, 0.13), rot(q, 0.87, 0), rot(q, 0.75, -0.13)], { fill: c, fillAlpha: 0.75 * a });
     }
     function draw(P) {
@@ -982,7 +983,7 @@ function polarCmd(q, g, dir, k) {
       P.text(R101.t('车位', 'slot'), [sc[0], sc[1] - 0.52], { color: 'good', bold: true, size: 12, align: 'center' });
       old.forEach(o => P.path(o, { color: 'v', width: 1.6, alpha: 0.3 }));
       P.path(trail, { color: 'v', width: 2.6, alpha: 0.85 });
-      // allowed and forbidden directions at the rear-axle midpoint
+      // allowed and forbidden directions at the axle midpoint
       P.line(rot(q, -4, 0), rot(q, 5, 0), { color: 'v', width: hl === 'g1' ? 3 : 1.4, dash: [9, 7], alpha: hl === 'g1' ? 0.95 : 0.5 });
       P.line(rot(q, 0, -0.6), rot(q, 0, 0.6), { color: 'bad', width: 2.4, dash: [3, 5], alpha: 0.9 });
       car(P, q, {});
@@ -1024,7 +1025,7 @@ function polarCmd(q, g, dir, k) {
       const q0 = q.slice(), e = eps; if (trail.length > 1) old.push(trail); if (old.length > 14) old.shift(); trail = [q0.slice()]; cyc = null;
       begin(Math.max(1.0, 3.2 * e), s => qAt(q0, SEQ[dir], e, 4 * s), () => {
         const c = Math.cos(q0[2]), s = Math.sin(q0[2]), dx = q[0] - q0[0], dy = q[1] - q0[1];
-        const along = dx * c + dy * s, side = dx * s - dy * c;   // side > 0: to the car's right
+        const along = dx * c + dy * s, side = dx * s - dy * c;   // side > 0: to the robot's right
         cyc = { q0, q1: q.slice(), e, dir, side: dir === 'right' ? side : -side, along }; wig++;
         eDone.push(e);
         if (eDone.some(a => a <= 0.35 && eDone.some(b => b >= 2 * a))) done('quad');
@@ -1048,11 +1049,11 @@ function polarCmd(q, g, dir, k) {
     const tex = document.getElementById('p-tex'), read = document.getElementById('p-read');
     function sync() {
       const th = q[2], d = netSide(eps), d2 = netSide(eps / 2);
-      R101.tex(tex, `\\sin\\theta\\,\\dot x-\\cos\\theta\\,\\dot y=0,\\quad [\\cw{g_1},\\cw{g_2}]=\\begin{bmatrix}\\sin\\theta\\\\-\\cos\\theta\\\\0\\end{bmatrix}=\\begin{bmatrix}${M.tex(Math.sin(th))}\\\\${M.tex(-Math.cos(th))}\\\\0\\end{bmatrix},\\quad \\text{shift}\\approx\\varepsilon^2=${M.tex(eps * eps, 3)}\\ \\text{m}`);
-      let h = `ε = <b>${M.fmt(eps, 2)}</b> · ${L('已摆动', 'wiggles')} <b>${wig}</b> · ${L('后轴中点', 'rear axle')} = (${M.fmt(q[0], 2)}, ${M.fmt(q[1], 2)}) m, θ = ${M.fmt(th * 180 / PI, 1)}°`;
+      R101.tex(tex, `\\sin\\theta\\,\\dot x-\\cos\\theta\\,\\dot y=0,\\quad [\\ci{g_1},\\cj{g_2}]=\\begin{bmatrix}\\sin\\theta\\\\-\\cos\\theta\\\\0\\end{bmatrix}=\\begin{bmatrix}${M.tex(Math.sin(th))}\\\\${M.tex(-Math.cos(th))}\\\\0\\end{bmatrix},\\quad \\text{shift}\\approx\\varepsilon^2=${M.tex(eps * eps, 3)}\\ \\text{m}`);
+      let h = `ε = <b>${M.fmt(eps, 2)}</b> · ${L('已摆动', 'wiggles')} <b>${wig}</b> · ${L('轮轴中点', 'axle midpoint')} = (${M.fmt(q[0], 2)}, ${M.fmt(q[1], 2)}) m, θ = ${M.fmt(th * 180 / PI, 1)}°`;
       h += `<br>${L('单次摆动的横移 d(ε)', 'sideways shift per wiggle d(ε)')} = <b>${M.fmt(d, 4)}</b> m · ε² = ${M.fmt(eps * eps, 4)} · d/ε² = <b>${M.fmt(d / (eps * eps), 3)}</b> · ${L('局部斜率', 'local slope')} log₂(d(ε)/d(ε/2)) = <b>${M.fmt(Math.log2(d / d2), 3)}</b>`;
       if (cyc) h += `<br>${L('刚才这次', 'last wiggle')}: ${L('横移', 'sideways')} <b>${M.fmt(cyc.side, 3)}</b> m, ${L('沿车头方向漂移', 'drift along heading')} <b>${M.fmt(cyc.along, 3)}</b> m (ε³/2 = ${M.fmt(cyc.e ** 3 / 2, 3)}), ${L('朝向变化', 'heading change')} <b>${sci(Math.abs(wrapPi(cyc.q1[2] - cyc.q0[2])))}</b> rad`;
-      if (pull != null) h += `<br>${L('拖拽的横向分量', 'sideways part of your pull')} <b>${M.fmt(Math.abs(pull), 2)}</b> m → ${L('车的横向位移', 'car sideways displacement')} <b>0.00</b> m`;
+      if (pull != null) h += `<br>${L('拖拽的横向分量', 'sideways part of your pull')} <b>${M.fmt(Math.abs(pull), 2)}</b> m → ${L('小车的横向位移', 'robot sideways displacement')} <b>0.00</b> m`;
       read.innerHTML = h + (isParked() ? `<br><b style="color:var(--c-good)">${L('停好了！', 'Parked!')}</b>` : '');
       P.invalidate(); Q.invalidate();
     }
@@ -1062,7 +1063,7 @@ function polarCmd(q, g, dir, k) {
 
   /* ---------------- FIG 3: reachable sets ---------------- */
   (function () {
-    const bw = 0.35, E = 4.6, N = 120;
+    const bw = 0.25, E = 4.6, N = 120;
     let T = 3, Rr = 1, tgt = [-0.3, 1.8], grid = null, gridR = -1, small = null, key = '', best = null;
     const P = new R101.Plane2D('#r-canvas', { heightFn: hFn(0.95), view: { cx: 0, cy: 0, span: 9.6 }, draw, onChange: sync });
     P.handle({ pos: () => tgt, set: w => { const n = M.norm(w); tgt = n > 4.3 ? M.scale(w, 4.3 / n) : w; }, r: 20, color: 'v' });

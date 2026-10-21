@@ -194,8 +194,8 @@
     </div>
     <div class="fig-controls" id="w-controls"></div>
     <figcaption class="fig-cap">
-      <span data-lang="zh">力以体重 \(mg\) 为单位（1 m 对应 1 个体重）。绿色箭头是地面反力，半透明扇形是摩擦锥（半角 \(\arctan\mu\)）。拖动脚（地面上的圆圈）改变落脚点，拖动箭头尖端改变力。"求解"按钮用交替投影（在力平衡的仿射子空间与两个摩擦锥之间来回投影）找一组满足目标加速度的力，找不到就报告不可行。角加速度按等效回转半径 \(\rho=0.25\) m 计算：\(\alpha=M/(m\rho^2)\)。</span>
-      <span data-lang="en">Forces are in body weights \(mg\) (1 m ↔ 1 weight). Green arrows are ground reactions and the translucent wedges are friction cones (half-angle \(\arctan\mu\)). Drag a foot (circle on the ground) to move the footfall, and an arrow tip to change its force. "Solve" uses alternating projections (back and forth between the affine subspace of force balance and the two friction cones) to find forces that produce the target acceleration, and reports infeasibility if none exist. Angular acceleration uses an effective radius of gyration \(\rho=0.25\) m: \(\alpha=M/(m\rho^2)\).</span>
+      <span data-lang="zh">力以体重 \(mg\) 为单位（0.7 m 长的箭头对应 1 个体重）。绿色箭头是地面反力，半透明扇形是摩擦锥（半角 \(\arctan\mu\)）。拖动脚（地面上的圆圈）改变落脚点，拖动箭头尖端改变力。"求解"按钮用交替投影（在力平衡的仿射子空间与两个摩擦锥之间来回投影）找一组满足目标加速度的力，找不到就报告不可行。角加速度按等效回转半径 \(\rho=0.25\) m 计算：\(\alpha=M/(m\rho^2)\)。</span>
+      <span data-lang="en">Forces are in body weights \(mg\) (an arrow 0.7 m long ↔ 1 body weight). Green arrows are ground reactions and the translucent wedges are friction cones (half-angle \(\arctan\mu\)). Drag a foot (circle on the ground) to move the footfall, and an arrow tip to change its force. "Solve" uses alternating projections (back and forth between the affine subspace of force balance and the two friction cones) to find forces that produce the target acceleration, and reports infeasibility if none exist. Angular acceleration uses an effective radius of gyration \(\rho=0.25\) m: \(\alpha=M/(m\rho^2)\).</span>
     </figcaption>
   </figure>
   <ul class="tasks">
@@ -274,8 +274,8 @@
     <div class="fig-row" style="padding:12px 16px;border-top:1px solid var(--border);display:grid;gap:8px"><div class="katex-live" id="c-tex"></div><div class="readout" id="c-read"></div></div>
     <div class="fig-controls" id="c-controls"></div>
     <figcaption class="fig-cap">
-      <span data-lang="zh">\(z_c=0.85\) m，\(\omega=3.40\ \mathrm{s^{-1}}\)。"推"在 \(t=0\) 给质心一个速度增量 \(\Delta v\)；脚在 \(t_s\) 时刻落在目标点（地面上的绿色手柄，可拖动）。地面上：绿色线段是踝策略的范围（脚的大小），青色线段是迈步能到的范围（\(\pm r\) 围绕落脚时刻的质心），紫色菱形是 \(\xi(t_s)\)，绿色三角是你选的落脚点。右图：琥珀色是 \(x(t)\)，紫色是 \(\xi(t)\)，绿色阶梯线是支撑点 \(p(t)\)。</span>
-      <span data-lang="en">\(z_c=0.85\) m, \(\omega=3.40\ \mathrm{s^{-1}}\). The "push" adds a velocity \(\Delta v\) to the COM at \(t=0\); the foot lands at the target (the green handle on the ground, draggable) at time \(t_s\). On the ground: the green segment is the ankle-strategy range (the foot size), the cyan segment the stepping range (\(\pm r\) around the COM at touchdown), the purple diamond \(\xi(t_s)\) and the green triangle your chosen foothold. Right panel: amber is \(x(t)\), purple \(\xi(t)\), the green staircase the support point \(p(t)\).</span>
+      <span data-lang="zh">\(z_c=0.85\) m，\(\omega=3.40\ \mathrm{s^{-1}}\)。"推"在 \(t=0\) 给质心一个速度增量 \(\Delta v\)；脚在 \(t_s\) 时刻落在目标点（地面上的绿色手柄，可拖动）。地面上：绿色线段是踝策略的范围（脚的大小），青色线段是迈步能到的范围（\(\pm r\) 围绕落脚时刻的质心），紫色菱形是 \(\xi(t_s)\)，绿色手柄和绿色短线是你选的落脚点（落地前为虚线）。右图：琥珀色是 \(x(t)\)，紫色是 \(\xi(t)\)，绿色阶梯线是支撑点 \(p(t)\)。</span>
+      <span data-lang="en">\(z_c=0.85\) m, \(\omega=3.40\ \mathrm{s^{-1}}\). The "push" adds a velocity \(\Delta v\) to the COM at \(t=0\); the foot lands at the target (the green handle on the ground, draggable) at time \(t_s\). On the ground: the green segment is the ankle-strategy range (the foot size), the cyan segment the stepping range (\(\pm r\) around the COM at touchdown), the purple diamond \(\xi(t_s)\), and the green handle with its green bar your chosen foothold (dashed until touchdown). Right panel: amber is \(x(t)\), purple \(\xi(t)\), the green staircase the support point \(p(t)\).</span>
     </figcaption>
   </figure>
   <ul class="tasks">
@@ -331,10 +331,10 @@
   $$ x_{\text{CoP}} = \frac{\sum_i x_i\,f_{z,i}}{\sum_i f_{z,i}} \in \operatorname{conv}\{x_i\}. $$
   </div>
   <div data-lang="zh">
-    <p>凸组合必定落在接触点的凸包内，所以<b>真实的 CoP 永远在支撑多边形里</b>；平地上 ZMP 与 CoP 重合。FIG 2 的读数用 \(\sum x_if_{z,i}/\sum f_{z,i}\) 和上面的 ZMP 公式各算一遍，两者之差是浮点误差。如果某个运动"需要"的 ZMP 在多边形之外，那个点只是一个<b>虚构的 ZMP</b>：真实的 CoP 会停在边上，多出来的力矩变成绕这条边的角加速度，脚开始滚动，机器人开始翻倒。ZMP 条件只管法向力的单向性（\(f_z\ge0\)）；切向力的限制是另一个独立的条件，即 \(\|\mathbf f_t\|\le\mu f_z\)，另外还有绕竖直轴的摩擦力矩（偏航）。ZMP 在脚内，不保证不打滑。</p>
+    <p>凸组合必定落在接触点的凸包内，所以<b>真实的 CoP 永远在支撑多边形里</b>；平地上 ZMP 与 CoP 重合。FIG 2 的读数用 \(\sum x_if_{z,i}/\sum f_{z,i}\) 和上面的 ZMP 公式（其中 \(\dot H\) 取脚力对质心的合力矩）各算一遍：两者在代数上等价，差值只是浮点误差，它检验的是公式与代码一致，并不是一次独立的测量。如果某个运动"需要"的 ZMP 在多边形之外，那个点只是一个<b>虚构的 ZMP</b>：真实的 CoP 会停在边上，多出来的力矩变成绕这条边的角加速度，脚开始滚动，机器人开始翻倒。ZMP 条件只管法向力的单向性（\(f_z\ge0\)）；切向力的限制是另一个独立的条件，即 \(\|\mathbf f_t\|\le\mu f_z\)，另外还有绕竖直轴的摩擦力矩（偏航）。ZMP 在脚内，不保证不打滑。</p>
   </div>
   <div data-lang="en">
-    <p>A convex combination always lies in the convex hull of the contact points, so the <b>real CoP can never leave the support polygon</b>; on flat ground ZMP and CoP coincide. FIG 2's readout computes \(\sum x_if_{z,i}/\sum f_{z,i}\) and the ZMP formula above independently and shows their difference, which is round-off. If a motion "needs" a ZMP outside the polygon, that point is only a <b>fictitious ZMP</b>: the real CoP sits on the edge, the leftover moment turns into angular acceleration about that edge, the foot starts to roll, and the robot starts to tip. The ZMP condition only encodes the one-sidedness of the normal force (\(f_z\ge0\)); limits on tangential force are a separate, independent condition, \(\|\mathbf f_t\|\le\mu f_z\), plus a friction limit on the moment about the vertical axis (yaw). A ZMP inside the foot does not guarantee that the foot does not slip.</p>
+    <p>A convex combination always lies in the convex hull of the contact points, so the <b>real CoP can never leave the support polygon</b>; on flat ground ZMP and CoP coincide. FIG 2's readout evaluates both \(\sum x_if_{z,i}/\sum f_{z,i}\) and the ZMP formula above (with \(\dot H\) taken as the moment of the foot forces about the COM): the two are algebraically equivalent, so their difference is round-off, a check that formula and code agree rather than an independent measurement. If a motion "needs" a ZMP outside the polygon, that point is only a <b>fictitious ZMP</b>: the real CoP sits on the edge, the leftover moment turns into angular acceleration about that edge, the foot starts to roll, and the robot starts to tip. The ZMP condition only encodes the one-sidedness of the normal force (\(f_z\ge0\)); limits on tangential force are a separate, independent condition, \(\|\mathbf f_t\|\le\mu f_z\), plus a friction limit on the moment about the vertical axis (yaw). A ZMP inside the foot does not guarantee that the foot does not slip.</p>
   </div>
 
   <h3><span data-lang="zh">捕获点（DCM）与步长规划</span><span data-lang="en">The capture point (DCM) and step planning</span></h3>
@@ -411,8 +411,8 @@
     <div class="fig-row" style="padding:12px 16px;border-top:1px solid var(--border);display:grid;gap:8px"><div class="readout" id="g-read"></div></div>
     <div class="fig-controls" id="g-controls"></div>
     <figcaption class="fig-cap">
-      <span data-lang="zh">四只脚用红（左前 LF）、绿（右前 RF）、蓝（左后 LH）、紫（右后 RH）区分。相位是脚落地时刻在周期中的位置（相对 LF，各步态的数值为示意值，真实步态随速度连续变化）。左下图里红色背景表示此刻着地的脚少于 3 条，没有二维的支撑多边形。躯干速度 \(v=S f/\beta\)，其中步幅 \(S=0.3\) m 固定，髋高取 \(\ell=0.5\) m，弗劳德数 \(\mathrm{Fr}=v^2/(g\ell)\)。</span>
-      <span data-lang="en">Feet are colored red (left front LF), green (right front RF), blue (left hind LH) and purple (right hind RH). The phase is the position in the cycle at which the foot touches down (relative to LF; the values per gait are illustrative, as real gaits change continuously with speed). A red background in the lower-left plot marks instants with fewer than 3 feet down, when there is no 2D support polygon. The trunk speed is \(v=S f/\beta\) with fixed stride \(S=0.3\) m and hip height \(\ell=0.5\) m, and the Froude number is \(\mathrm{Fr}=v^2/(g\ell)\).</span>
+      <span data-lang="zh">四只脚用红（左前 LF）、绿（右前 RF）、蓝（左后 LH）、紫（右后 RH）区分。相位是脚落地时刻在周期中的位置（相对 LF，各步态的数值为示意值，真实步态随速度连续变化）。左下图里红色背景表示此刻着地的脚少于 3 条，没有二维的支撑多边形。躯干速度 \(v=S f/\beta\)，其中支撑行程 \(S=0.3\) m 固定（脚在支撑相内相对躯干扫过的距离；一个周期的步幅是 \(v/f=S/\beta\)），髋高取 \(\ell=0.5\) m，弗劳德数 \(\mathrm{Fr}=v^2/(g\ell)\)。</span>
+      <span data-lang="en">Feet are colored red (left front LF), green (right front RF), blue (left hind LH) and purple (right hind RH). The phase is the position in the cycle at which the foot touches down (relative to LF; the values per gait are illustrative, as real gaits change continuously with speed). A red background in the lower-left plot marks instants with fewer than 3 feet down, when there is no 2D support polygon. The trunk speed is \(v=S f/\beta\) with fixed stance stroke \(S=0.3\) m (how far a foot sweeps relative to the trunk during stance; the stride per cycle is \(v/f=S/\beta\)) and hip height \(\ell=0.5\) m, and the Froude number is \(\mathrm{Fr}=v^2/(g\ell)\).</span>
     </figcaption>
   </figure>
   <ul class="tasks">
@@ -436,8 +436,8 @@
   </div>
   <div class="callout pitfall">
     <div class="ct"><span data-lang="zh">误区 2：到处套用 LIPM</span><span data-lang="en">Pitfall 2: applying the LIPM everywhere</span></div>
-    <p data-lang="zh">四条假设：集中质量、恒高度、无质量腿、\(\dot H\approx0\)，在真实机器人上都只是近似。腿重（占整机质量的 20% 以上并非罕见）而且摆得快时，摆动腿的惯性力会明显影响质心；快步行走和跑步需要大幅度的竖直运动，恒高度假设失效；全身（手臂、躯干）摆动产生的角动量变化 \(\dot H\) 会在 ZMP 公式里多出 \(\dot H/(mg)\) 一项，所以人形机器人才会摆臂来抵消偏航角动量。LIPM 适合做规划的"骨架"，之后要用全身模型去修正。</p>
-    <p data-lang="en">Its four assumptions (point mass, constant height, massless legs, \(\dot H\approx0\)) are only approximations on real robots. When the legs are heavy (over 20% of the total mass is not unusual) and swing fast, their inertial forces visibly disturb the COM; fast walking and running need large vertical motion, which breaks the constant-height assumption; and angular momentum change \(\dot H\) from the trunk and arms adds a term \(\dot H/(mg)\) to the ZMP formula, which is why humanoids swing their arms to cancel yaw angular momentum. The LIPM is a good planning "skeleton"; a whole-body model must correct it afterwards.</p>
+    <p data-lang="zh">四条假设：集中质量、恒高度、无质量腿、\(\dot H\approx0\)，在真实机器人上都只是近似。腿重（占整机质量的 20% 以上并非罕见）而且摆得快时，摆动腿的惯性力会明显影响质心；快步行走和跑步需要大幅度的竖直运动，恒高度假设失效；全身（手臂、躯干）的俯仰、侧滚角动量变化 \(\dot H\) 会在 ZMP 公式里多出 \(\dot H/(mg)\) 一项；另外，摆动腿还会产生绕竖直轴的偏航角动量，只能靠脚底的摩擦力矩抵抗，人形机器人摆臂正是为了抵消这部分偏航角动量。LIPM 适合做规划的"骨架"，之后要用全身模型去修正。</p>
+    <p data-lang="en">Its four assumptions (point mass, constant height, massless legs, \(\dot H\approx0\)) are only approximations on real robots. When the legs are heavy (over 20% of the total mass is not unusual) and swing fast, their inertial forces visibly disturb the COM; fast walking and running need large vertical motion, which breaks the constant-height assumption; pitch and roll angular momentum change \(\dot H\) from the trunk and arms adds a term \(\dot H/(mg)\) to the ZMP formula; separately, the swinging legs create yaw angular momentum that only the feet's friction torque can resist, and humanoids swing their arms to cancel that yaw angular momentum. The LIPM is a good planning "skeleton"; a whole-body model must correct it afterwards.</p>
   </div>
   <div class="callout pitfall">
     <div class="ct"><span data-lang="zh">误区 3：忘记摩擦</span><span data-lang="en">Pitfall 3: forgetting friction</span></div>
@@ -501,7 +501,7 @@
       <button class="opt"><span data-lang="zh">摩擦锥变大，保证不滑动</span><span data-lang="en">The friction cone grows and prevents sliding</span></button>
       <button class="opt"><span data-lang="zh">机器人会向后倒，因为 ZMP 在前面</span><span data-lang="en">The robot falls backward because the ZMP is in front</span></button>
     </div>
-    <div class="explain"><span data-lang="zh">真实压力中心是法向力的加权平均，不可能在脚外。需要的 ZMP 在外面，意味着给定的 \(\ddot x\) 在不转动的条件下无法实现；多出的力矩 \(\dot H\neq0\) 使机器人绕脚尖前倾。（选项 4 方向也不对：ZMP 在前面表示机器人在向前倾，需要更大的前向力矩。）</span><span data-lang="en">The real center of pressure is a weighted average of normal forces and cannot be outside the foot. A required ZMP outside means the given \(\ddot x\) cannot be realized without rotation; the extra moment \(\dot H\neq0\) pitches the robot forward about the toe. (Option 4 has the direction wrong too: a ZMP ahead of the foot means the robot is pitching forward.)</span></div>
+    <div class="explain"><span data-lang="zh">真实压力中心是法向力的加权平均，不可能在脚外。需要的 ZMP 在外面，意味着给定的 \(\ddot x\) 在不转动的条件下无法实现；多出的力矩 \(\dot H\neq0\) 使机器人绕脚尖前倾。（选项 D 方向也不对：ZMP 在前面表示机器人在向前倾，需要更大的前向力矩。）</span><span data-lang="en">The real center of pressure is a weighted average of normal forces and cannot be outside the foot. A required ZMP outside means the given \(\ddot x\) cannot be realized without rotation; the extra moment \(\dot H\neq0\) pitches the robot forward about the toe. (Option D has the direction wrong too: a ZMP ahead of the foot means the robot is pitching forward.)</span></div>
   </div>
 
   <div class="quiz" data-answer="3">

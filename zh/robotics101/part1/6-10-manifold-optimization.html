@@ -137,12 +137,12 @@
       </div>
     </div>
     <figcaption class="fig-cap">
-      <span data-lang="zh">紫色点是数据 \(\theta_i\)，橙色点是当前估计 \(\theta\)，三者都可拖动。蓝色直线是 \(\theta\) 处的切线，紫色小点是各数据点的 \(\operatorname{Log}_\theta\)（沿圆弧的有向弧长，被"展开"到切线上）。橙色箭头是它们的平均；沿圆弧走过去（Exp）得到橙色实心点，沿切线走再投影（归一化）得到空心点。灰色 \(\times\) 是平面质心，绿色是它投影回圆的"弦平均"。按"迭代一步"看估计如何走向测地平均。注意圆上的测地代价可以有好几个局部极小，走到哪个取决于估计的起点。</span>
+      <span data-lang="zh">紫色点是数据 \(\theta_i\)，橙色点是当前估计 \(\theta\)，三者都可拖动。青色直线是 \(\theta\) 处的切线，紫色小点是各数据点的 \(\operatorname{Log}_\theta\)（沿圆弧的有向弧长，被"展开"到切线上）。橙色箭头是它们的平均；沿圆弧走过去（Exp）得到橙色实心点，沿切线走再投影（归一化）得到空心点。灰色 \(\times\) 是平面质心，绿色是它投影回圆的"弦平均"。按"迭代一步"看估计如何走向测地平均（在圆上 \(\operatorname{Log}\) 保持弧长，所以只要没有数据点越过 \(\theta\) 的对点，一步就正好落在测地平均上）。注意圆上的测地代价可以有好几个局部极小，走到哪个取决于估计的起点。</span>
       
     </figcaption>
   </figure>
   <ul class="tasks">
-    <li data-task="ci-iter"><span><span data-lang="zh">连续按"迭代一步"，直到估计停在测地平均上（箭头缩到零）。</span></span></li>
+    <li data-task="ci-iter"><span><span data-lang="zh">按"迭代一步"：一般一步就落到测地平均上（若有数据点越过对点，则要多走几步）；再按一次，确认箭头已缩到零、估计不再移动。</span></span></li>
     <li data-task="ci-diff"><span><span data-lang="zh">拖动数据点，让"测地平均"和"弦平均"相差超过 \(8^\circ\)。数据点越不均匀，差别越大。</span></span></li>
     <li data-task="ci-flip"><span><span data-lang="zh">把两个数据点拖到几乎相对的位置（相差接近 \(180^\circ\)），再拖动估计：测地平均变得"不稳定"，这是流形上平均的固有限制。</span></span></li>
   </ul>
@@ -174,13 +174,13 @@
     </div>
     <div class="fig-controls" id="sp-controls"></div>
     <figcaption class="fig-cap">
-      <span data-lang="zh">黑线是 \(A\) 的三条特征轴（特征值 3、1.2、0.3：最小的是极小点，最大的是极大点，中间那个是鞍点）。橙色点是当前 \(\x\)；橙色箭头是欧氏梯度 \(A\x\)，紫色箭头是它在切平面上的投影，即黎曼梯度；半透明圆片是切平面。红色空心点是"不管约束，直接 \(\x-\eta\nabla f\)"落到的位置，它掉出了球面；蓝点是回缩之后的新迭代点。</span>
+      <span data-lang="zh">灰色细线是 \(A\) 的三条特征轴（特征值 3、1.2、0.3：最小的是极小点，最大的是极大点，中间那个是鞍点）。橙色点是当前 \(\x\)；橙色箭头是欧氏梯度 \(A\x\)，紫色箭头是它在切平面上的投影，即黎曼梯度；半透明圆片是切平面。红点是"不管约束，直接 \(\x-\eta\nabla f\)"落到的位置，它掉出了球面；蓝点是回缩之后的新迭代点。</span>
       
     </figcaption>
   </figure>
   <ul class="tasks">
     <li data-task="sp-run"><span><span data-lang="zh">按"运行"，看迭代点沿球面滑向最小特征向量。</span></span></li>
-    <li data-task="sp-saddle"><span><span data-lang="zh">按"从鞍点出发"再运行：黎曼梯度在鞍点处为零，迭代点要先"犹豫"一阵（直到数值误差把它推开），然后才滑向最小点。</span></span></li>
+    <li data-task="sp-saddle"><span><span data-lang="zh">按"从鞍点出发"再运行：黎曼梯度在鞍点处为零，迭代点要先"犹豫"一阵（起点故意偏离鞍点 \(10^{-3}\)，这点偏差每步放大，直到把它推开），然后才滑向最小点。</span></span></li>
   </ul>
 </section>
 
@@ -227,7 +227,7 @@
 <!-- ============ 5. MATH ============ -->
 <section class="step" id="math">
   <h2><span class="n">5</span><span data-lang="zh">再看数学</span></h2>
-  <p class="hl-hint"><span data-lang="zh">提示：把鼠标悬停在公式中带底色的符号上，FIG 3 里对应的元素会被高亮（增量 \(\boldsymbol\omega\)、指数回缩）。</span></p>
+  <p class="hl-hint"><span data-lang="zh">提示：把鼠标悬停在公式中带底色的符号上，图中对应的元素会被高亮（增量 \(\boldsymbol\omega\)：FIG 1 的"平均 Log"箭头；指数回缩：FIG 3 的估计坐标系；欧氏梯度与黎曼梯度：FIG 2 的两支箭头）。</span></p>
 
   <h3><span data-lang="zh">流形、切空间与回缩</span></h3>
   <div data-lang="zh">
@@ -243,7 +243,7 @@
     <p>对嵌在 \(\R^m\) 中的流形（如球面），黎曼梯度是欧氏梯度在切空间上的正交投影；对李群，则把"扰动后的函数"在 0 处求导：</p>
   </div>
   
-  <div class="math-card">$$ \operatorname{grad}f(\x)=\big(I-\x\x^\top\big)\nabla f(\x)\ \ (S^2),\qquad \operatorname{grad}f(R)=\frac{\partial f\big(R\,\Exp(\boldsymbol\omega)\big)}{\partial\boldsymbol\omega}\Big|_{\boldsymbol\omega=\mathbf 0}\in\R^3\ \ (\SO) $$</div>
+  <div class="math-card">$$ \hl{riem}{\operatorname{grad}f(\x)}=\big(I-\x\x^\top\big)\hl{euc}{\nabla f(\x)}\ \ (S^2),\qquad \operatorname{grad}f(R)=\frac{\partial f\big(R\,\Exp(\boldsymbol\omega)\big)}{\partial\boldsymbol\omega}\Big|_{\boldsymbol\omega=\mathbf 0}\in\R^3\ \ (\SO) $$</div>
   <p data-lang="zh">于是梯度下降变成 \(R_{k+1}=R_k\Exp(-\eta\operatorname{grad}f)\)。Gauss-Newton 也一样：残差对扰动线性化 \(\mathbf r(R\Exp(\boldsymbol\omega))\approx\mathbf r+J\boldsymbol\omega\)，解 \(J^\top J\boldsymbol\omega=-J^\top\mathbf r\) 得到 3 维（\(\SE\) 则是 6 维）增量，再回缩。<b>法方程的大小等于流形的维数，而不是矩阵元素的个数</b>：100 个 \(\SE\) 位姿的位姿图，固定第一个之后，正好是 \(6\times99\) 个未知数。</p>
   
 
@@ -277,7 +277,7 @@
       </div>
     </div>
     <figcaption class="fig-cap">
-      <span data-lang="zh">蓝点是地图，橙点是用当前位姿变换后的扫描，淡线是当前对应。"最近邻"是真正的 ICP；"已知对应"假定我们知道每个扫描点对应哪个地图点（一个更容易的、近似凸的问题）。"位姿误差"是用当前位姿与真实位姿变换同一批点后的平均距离。每一步的更新都是 \(T\leftarrow\Exp(\boldsymbol\delta)T\)。</span>
+      <span data-lang="zh">蓝点是地图，橙点是用当前位姿变换后的扫描，淡线是当前对应。"最近邻"是真正的 ICP；"已知对应"假定我们知道每个扫描点对应哪个地图点（一个更容易的、近似凸的问题）。"位姿误差"是用当前位姿与真实位姿变换同一批点后的均方根距离。每一步的更新都是 \(T\leftarrow\Exp(\boldsymbol\delta)T\)。</span>
       
     </figcaption>
   </figure>
@@ -308,7 +308,7 @@
   </div>
   <div class="callout pitfall">
     <div class="ct"><span data-lang="zh">误区 3：忽视流形上的"最远点"和多个极小</span></div>
-    <p data-lang="zh">FIG 1 里，估计位于两个相对数据点的正中时，两边的 \(\operatorname{Log}\) 恰好抵消，梯度为零，但那里是最大值而不是最小值。\(\SO\) 上若数据散布超过大约 \(90^\circ\)，Karcher 平均可能不唯一、迭代依赖初值。旋转平均实践中先用一个鲁棒的初值（如链式乘积或谱方法），再做局部流形优化。</p>
+    <p data-lang="zh">FIG 1 里，取两个靠得很近的数据点（如 \(170^\circ\) 与 \(-170^\circ\)），把估计放在它们中点的对面（\(0^\circ\)）：两边的 \(\operatorname{Log}\) 恰好抵消，梯度为零，但那里是最大值而不是最小值（见第 3 题）。若两个数据点正好相对，测地平均则不唯一（两个极小点，各距两点 \(90^\circ\)）。\(\SO\) 上若数据散布超过大约 \(90^\circ\)，Karcher 平均可能不唯一、迭代依赖初值。旋转平均实践中先求一个好的初值（沿生成树链式相乘，或为了鲁棒用谱方法 / 弦距松弛），再做局部流形优化。</p>
     
   </div>
   <div class="callout pitfall">
@@ -612,9 +612,10 @@ R101.onReady(function () {
         P.textPx('■ ' + nm, P.W - 90, 14 + 16 * k, { color: c, bold: true, size: 12 });
       });
     }
+    const gapStr = v => (v < 1e-12 ? '&lt; 1e-12' : v.toExponential(1));   // cost − f* can dip below 0 by rounding
     function sync() {
       const k = hE.length - 1, e = Re(eul), pitch = Math.asin(M.clamp(-e[2][0], -1, 1)) / DEG;
-      document.getElementById('so-read').innerHTML = T('迭代 ', 'iteration ') + '<b>' + k + '</b><br>' + T('欧拉角差距', 'Euler gap') + ' <b>' + hE[k].toExponential(1) + '</b><br>' + T('流形差距', 'manifold gap') + ' <b>' + hL[k].toExponential(1) + '</b><br>' + T('欧拉俯仰角', 'Euler pitch') + ' ' + M.fmt(pitch, 0) + '°' + (Math.abs(pitch) > 80 ? '<br><b style="color:var(--c-bad)">' + T('接近万向节锁', 'near gimbal lock') + '</b>' : '');
+      document.getElementById('so-read').innerHTML = T('迭代 ', 'iteration ') + '<b>' + k + '</b><br>' + T('欧拉角差距', 'Euler gap') + ' <b>' + gapStr(hE[k]) + '</b><br>' + T('流形差距', 'manifold gap') + ' <b>' + gapStr(hL[k]) + '</b><br>' + T('欧拉俯仰角', 'Euler pitch') + ' ' + M.fmt(pitch, 0) + '°' + (Math.abs(pitch) > 80 ? '<br><b style="color:var(--c-bad)">' + T('接近万向节锁', 'near gimbal lock') + '</b>' : '');
       if (touched && k >= 30) {
         if (truePitch >= 80 && hL[k] < 1e-8 && hE[k] > 1e-3) R101.done('so-gimbal');
         if (truePitch <= 5 && hE[k] < 1e-3 && hL[k] < 1e-8) R101.done('so-fine');
@@ -686,7 +687,7 @@ R101.onReady(function () {
     function sync() {
       if (!Tc) return;
       const e = poseErr(Tc), d = src.reduce((s, p, i) => { const u = apply(Tc, p); return s + Math.hypot(u[0] - matches[i][0], u[1] - matches[i][1]); }, 0) / src.length;
-      document.getElementById('ic-read').innerHTML = T('迭代 ', 'iteration ') + '<b>' + iters + '</b><br>θ = <b>' + M.fmt(Tc.th / DEG, 1) + '°</b>, t = (' + M.fmt(Tc.t[0], 2) + ', ' + M.fmt(Tc.t[1], 2) + ')<br>' + T('平均对应距离', 'mean match dist.') + ' <b>' + M.fmt(d, 3) + '</b><br>' + T('位姿误差', 'pose error') + ' <b>' + M.fmt(e, 3) + '</b><br><span class="small muted">' + T('真值', 'truth') + ': θ = ' + M.fmt(Ttrue.th / DEG, 1) + '°, t = (0.80, −0.50)</span>';
+      document.getElementById('ic-read').innerHTML = T('迭代 ', 'iteration ') + '<b>' + iters + '</b><br>θ = <b>' + M.fmt(wrap(Tc.th) / DEG, 1) + '°</b>, t = (' + M.fmt(Tc.t[0], 2) + ', ' + M.fmt(Tc.t[1], 2) + ')<br>' + T('平均对应距离', 'mean match dist.') + ' <b>' + M.fmt(d, 3) + '</b><br>' + T('位姿误差', 'pose error') + ' <b>' + M.fmt(e, 3) + '</b><br><span class="small muted">' + T('真值', 'truth') + ': θ = ' + M.fmt(Ttrue.th / DEG, 1) + '°, t = (0.80, −0.50)</span>';
       if (touched && iters >= 3) {
                 if (mode === 'nn' && e < 0.05) R101.done('ic-ok');
         if (mode === 'nn' && iters >= 20 && e > 0.3 && Math.abs(wrap(init.th - Ttrue.th)) > 80 * DEG) R101.done('ic-stuck');

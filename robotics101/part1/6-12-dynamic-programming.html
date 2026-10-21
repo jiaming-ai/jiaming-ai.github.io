@@ -155,15 +155,15 @@
     </div>
     <div class="fig-controls" id="gv-controls"></div>
     <figcaption class="fig-cap">
-      <span data-lang="zh">颜色越亮表示到目标的代价越小，数字是 \(V_k\)，小箭头是当前贪心动作，琥珀色粗线是起点 S 按最终 \(V\) 走出的最优路线。有黄色描边的格子是这一扫描里<b>刚刚变化</b>的格子：它们就是向外扩散的"波前"。"8 方向"允许走斜线（代价乘 \(\sqrt2\)）。</span>
-      <span data-lang="en">Brighter means smaller cost to the goal, numbers are \(V_k\), the small arrows are the current greedy actions, and the thick amber line is the optimal route from S following the final \(V\). Cells with a yellow outline are those that <b>just changed</b> in this sweep: they form the outward-moving "wavefront". "8-way" allows diagonal moves (cost times \(\sqrt2\)).</span>
+      <span data-lang="zh">蓝色越浓表示到目标的代价越小，数字是 \(V_k\)，小箭头是当前贪心动作，琥珀色粗线是起点 S 按最终 \(V\) 走出的最优路线。有琥珀色描边的格子是这一扫描里<b>刚刚变化</b>的格子：它们就是向外扩散的"波前"。"8 方向"允许走斜线（代价乘 \(\sqrt2\)）。</span>
+      <span data-lang="en">A more saturated blue means smaller cost to the goal, numbers are \(V_k\), the small arrows are the current greedy actions, and the thick amber line is the optimal route from S following the final \(V\). Cells with an amber outline are those that <b>just changed</b> in this sweep: they form the outward-moving "wavefront". "8-way" allows diagonal moves (cost times \(\sqrt2\)).</span>
     </figcaption>
   </figure>
   <div class="tasks-title"><span data-lang="zh">试一试</span><span data-lang="en">Try this</span></div>
   <ul class="tasks">
     <li data-task="dp-run"><span><span data-lang="zh">按"运行"，看波前从目标扩散到起点；记下它扩散到起点用了多少次扫描。</span><span data-lang="en">Press "Run" and watch the wavefront spread from the goal to the start; note how many sweeps it takes to reach the start.</span></span></li>
     <li data-task="dp-wall"><span><span data-lang="zh">用"墙"工具把最优路线上的一个通道堵死：最优路线立刻绕行，起点的 \(V\) 变大。</span><span data-lang="en">Use the "Wall" tool to block a passage on the optimal route: the route detours at once and the start's \(V\) grows.</span></span></li>
-    <li data-task="dp-mud"><span><span data-lang="zh">用"泥地"工具在最优路线上铺一块泥地：路线是穿过去还是绕过去，取决于绕路的代价是否小于 4。</span><span data-lang="en">Use the "Mud" tool to lay mud across the optimal route: whether the route crosses or avoids it depends on whether the detour costs less than 4 extra.</span></span></li>
+    <li data-task="dp-mud"><span><span data-lang="zh">用"泥地"工具在最优路线上铺一块泥地：路线是穿过去还是绕过去，取决于绕路多出的代价是否小于每块泥地多付的 3（4 减去普通格的 1）。</span><span data-lang="en">Use the "Mud" tool to lay mud across the optimal route: whether the route crosses or avoids it depends on whether the detour costs less than the 3 extra paid per mud cell (4 instead of 1).</span></span></li>
   </ul>
   <div class="callout key">
     <div class="ct"><span data-lang="zh">核心洞见</span><span data-lang="en">Key insight</span></div>
@@ -211,7 +211,7 @@
 <section class="step" id="stochastic">
   <h2><span class="n">4</span><span data-lang="zh">加入随机性：离悬崖远一点</span><span data-lang="en">Adding randomness: stay away from the cliff</span></h2>
   <div data-lang="zh">
-    <p>真实的机器人不是想走哪就走到哪：轮子打滑，风吹歪了无人机。设想"悬崖行走"：目标在右边，下面两排是悬崖（掉下去代价 100，游戏结束）。我们执行一个动作时，以概率 \(1-p\) 如愿以偿，以概率 \(p/2\) 各偏向左右两个垂直方向（"打滑"）。此时下一个状态是随机的，值迭代里的"邻居的 \(V\)"换成<b>期望</b>：</p>
+    <p>真实的机器人不是想走哪就走到哪：轮子打滑，风吹歪了无人机。设想"悬崖行走"：目标在右边，最下面一排是悬崖（掉下去代价 100，游戏结束）。我们执行一个动作时，以概率 \(1-p\) 如愿以偿，以概率 \(p/2\) 各偏向左右两个垂直方向（"打滑"）。此时下一个状态是随机的，值迭代里的"邻居的 \(V\)"换成<b>期望</b>：</p>
   </div>
   <div data-lang="en">
     <p>Real robots do not go exactly where told: wheels slip, wind pushes a drone sideways. Picture "cliff walking": the goal is on the right and the bottom row is a cliff (falling costs 100 and ends the episode). When we take an action, with probability \(1-p\) it works, and with probability \(p/2\) each it veers to one of the two perpendicular directions ("slip"). The next state is now random, and value iteration's "neighbour's \(V\)" becomes an <b>expectation</b>:</p>
@@ -239,7 +239,7 @@
     </figcaption>
   </figure>
   <ul class="tasks">
-    <li data-task="cl-switch"><span><span data-lang="zh">从 \(p=0\) 慢慢加大噪声，找到最优路线从紧贴悬崖<b>跳到</b>远离悬崖的那个 \(p\)（只有几个百分点）。</span><span data-lang="en">Start from \(p=0\) and raise the noise slowly: find the \(p\) at which the optimal route <b>jumps</b> from hugging the cliff to staying away (just a few percent).</span></span></li>
+    <li data-task="cl-switch"><span><span data-lang="zh">从 \(p=0\) 慢慢加大噪声，找到最优路线从紧贴悬崖<b>跳到</b>远离悬崖的那个 \(p\)（大约 1%）。</span><span data-lang="en">Start from \(p=0\) and raise the noise slowly: find the \(p\) at which the optimal route <b>jumps</b> from hugging the cliff to staying away (about 1%).</span></span></li>
     <li data-task="cl-naive"><span><span data-lang="zh">设 \(p=0.2\)，切到"天真策略"：它的期望代价和掉崖概率是最优策略的多少倍？</span><span data-lang="en">Set \(p=0.2\) and switch to the "naive policy": how many times larger are its expected cost and fall probability than the optimal policy's?</span></span></li>
   </ul>
   <div class="callout robot">
@@ -276,8 +276,8 @@
   <p data-lang="en">The derivation takes two steps: substitute \(V_{k+1}=\mathbf x^\top P_{k+1}\mathbf x\) into the Bellman equation; the inner \(\min_{\mathbf u}\) is a quadratic in \(\mathbf u\), and zeroing its derivative gives \(\mathbf u=-K_k\mathbf x\); substituting back yields the new quadratic form \(P_k\). For long horizons \(P_k\) converges to a constant \(P_\infty\) and the gain \(K\) stops changing (<b>steady-state LQR</b>, visible in FIG 4). It is one of the few cases where DP on a continuous space needs no discretization, and one of the most important results in control (Part IV).</p>
 
   <h3><span data-lang="zh">维数灾难</span><span data-lang="en">The curse of dimensionality</span></h3>
-  <p data-lang="zh">离散化的 DP 要存一张覆盖所有状态的表。每一维取 \(n\) 个格点、\(d\) 维状态，就有 \(n^d\) 个状态：\(n=100\)，\(d=2\) 是 \(10^4\)（FIG 1），\(d=6\)（比如一个 6 自由度机械臂的位置和速度各 3 维）就是 \(10^{12}\)。这就是 Bellman 所说的"维数灾难"，也是为什么机器人里的高维问题要用近似：线性二次（LQR）、在轨迹附近局部近似（DDP/iLQR）、或者用神经网络表示价值函数（深度强化学习）。</p>
-  <p data-lang="en">Discretized DP stores a table over all states. With \(n\) grid points per dimension and a \(d\)-dimensional state there are \(n^d\) states: \(n=100\), \(d=2\) is \(10^4\) (FIG 1); \(d=6\) (say the positions and velocities of a 3-joint arm) is \(10^{12}\). This is Bellman's "curse of dimensionality", and the reason high-dimensional robotics problems use approximations: linear-quadratic (LQR), local approximation around a trajectory (DDP/iLQR), or a neural network for the value function (deep reinforcement learning).</p>
+  <p data-lang="zh">离散化的 DP 要存一张覆盖所有状态的表。每一维取 \(n\) 个格点、\(d\) 维状态，就有 \(n^d\) 个状态：\(n=100\)，\(d=2\) 是 \(10^4\)（FIG 1 只有 \(12\times8\) 格），\(d=6\)（比如一个 3 关节机械臂的位置和速度各 3 维）就是 \(10^{12}\)。这就是 Bellman 所说的"维数灾难"，也是为什么机器人里的高维问题要用近似：线性二次（LQR）、在轨迹附近局部近似（DDP/iLQR）、或者用神经网络表示价值函数（深度强化学习）。</p>
+  <p data-lang="en">Discretized DP stores a table over all states. With \(n\) grid points per dimension and a \(d\)-dimensional state there are \(n^d\) states: \(n=100\), \(d=2\) is \(10^4\) (FIG 1 has only \(12\times8\) cells); \(d=6\) (say the positions and velocities of a 3-joint arm) is \(10^{12}\). This is Bellman's "curse of dimensionality", and the reason high-dimensional robotics problems use approximations: linear-quadratic (LQR), local approximation around a trajectory (DDP/iLQR), or a neural network for the value function (deep reinforcement learning).</p>
 </section>
 
 <!-- ============ 6. ROBOTICS: LQR ============ -->
@@ -305,13 +305,13 @@
     </div>
     <div class="fig-controls" id="lq-controls"></div>
     <figcaption class="fig-cap">
-      <span data-lang="zh">左：相平面（横轴位置 \(p\)，纵轴速度 \(v\)），紫色椭圆是 \(V_0\) 的等值线，通过 \(\mathbf x_0\) 的那条加粗；琥珀色是有限时域最优反馈（时变 \(K_k\)）的闭环轨迹，青色虚线是稳态增益 \(K_\infty\) 的轨迹。右：增益的两个分量 \(K_k=(k_p,k_v)\)：离终点很远时它们是常数（等于稳态 LQR），只在接近终点的最后几步才变化。\(r\) 越大，控制越"吝啬"，价值函数椭圆越扁，轨迹越慢。</span>
-      <span data-lang="en">Left: the phase plane (horizontal \(p\), vertical \(v\)); purple ellipses are level sets of \(V_0\), the one through \(\mathbf x_0\) bold; amber is the closed-loop trajectory of the finite-horizon optimal feedback (time-varying \(K_k\)), the dashed cyan one uses the steady-state gain \(K_\infty\). Right: the two components of the gain \(K_k=(k_p,k_v)\): far from the end they are constant (the steady-state LQR) and change only in the last few steps. The larger \(r\), the "stingier" the control, the flatter the value ellipses and the slower the trajectory.</span>
+      <span data-lang="zh">左：相平面（横轴位置 \(p\)，纵轴速度 \(v\)），紫色椭圆是 \(V_0\) 的等值线，通过 \(\mathbf x_0\) 的那条加粗；琥珀色是有限时域最优反馈（时变 \(K_k\)）的闭环轨迹，青色虚线是稳态增益 \(K_\infty\) 的轨迹。右：增益的两个分量 \(K_k=(k_p,k_v)\)：离终点很远时它们是常数（等于稳态 LQR），只在接近终点的最后几步才变化。\(r\) 越大，控制越"吝啬"，同一个 \(\mathbf x_0\) 的剩余代价越大（椭圆收紧）并且椭圆向速度轴倾斜，轨迹越慢。</span>
+      <span data-lang="en">Left: the phase plane (horizontal \(p\), vertical \(v\)); purple ellipses are level sets of \(V_0\), the one through \(\mathbf x_0\) bold; amber is the closed-loop trajectory of the finite-horizon optimal feedback (time-varying \(K_k\)), the dashed cyan one uses the steady-state gain \(K_\infty\). Right: the two components of the gain \(K_k=(k_p,k_v)\): far from the end they are constant (the steady-state LQR) and change only in the last few steps. The larger \(r\), the "stingier" the control: the remaining cost of a given \(\mathbf x_0\) grows (the ellipses tighten) and the ellipses tilt toward the velocity axis, and the trajectory slows.</span>
     </figcaption>
   </figure>
   <ul class="tasks">
     <li data-task="lq-drag"><span><span data-lang="zh">拖动 \(\mathbf x_0\)：轨迹形状变了吗？价值 \(V_0(\mathbf x_0)\) 随 \(\mathbf x_0\) 怎么变？（二次增长：把 \(\mathbf x_0\) 放大一倍，\(V_0\) 变成 4 倍。）</span><span data-lang="en">Drag \(\mathbf x_0\): does the trajectory shape change? How does \(V_0(\mathbf x_0)\) vary? (Quadratically: doubling \(\mathbf x_0\) multiplies \(V_0\) by 4.)</span></span></li>
-    <li data-task="lq-r"><span><span data-lang="zh">把 \(r\) 从 0.01 拖到 10：增益 \(K\) 变小，轨迹变慢，椭圆变扁。</span><span data-lang="en">Drag \(r\) from 0.01 to 10: the gain \(K\) shrinks, the trajectory slows, and the ellipses flatten.</span></span></li>
+    <li data-task="lq-r"><span><span data-lang="zh">把 \(r\) 从 0.01 拖到 10：增益 \(K\) 变小，轨迹变慢，椭圆收紧并转向速度轴。</span><span data-lang="en">Drag \(r\) from 0.01 to 10: the gain \(K\) shrinks, the trajectory slows, and the ellipses tighten and tilt toward the velocity axis.</span></span></li>
     <li data-task="lq-N"><span><span data-lang="zh">把时域 \(N\) 缩到 5：增益不再是常数，整条轨迹的 \(K_k\) 都随时间变化；加长 \(N\)，开头部分的 \(K_k\) 趋于稳态。</span><span data-lang="en">Shrink the horizon \(N\) to 5: the gain is no longer constant and \(K_k\) varies along the whole trajectory; lengthen \(N\) and the early \(K_k\) settle to the steady state.</span></span></li>
   </ul>
   <div class="callout robot">
@@ -452,7 +452,7 @@ R101.onReady(function () {
     const grid = Array.from({ length: NR }, () => new Array(NC).fill(0));   // 0 free, 1 wall, 2 mud
     for (let r = 0; r <= 5; r++) grid[r][4] = 1;
     for (let r = 2; r <= 7; r++) grid[r][8] = 1;
-    let goal = [10, 6], start = [1, 1], tool = 'wall', k = 0, Vs = [], diag = false, timer = null, touched = false, baseV = null, painted = { wall: false, mud: false };
+    let goal = [10, 6], start = [1, 1], tool = 'wall', k = 0, Vs = [], diag = false, timer = null, touched = false, strokeV = null, strokeTool = null;
     const ccost = (c, r) => (grid[r][c] === 2 ? 4 : 1);
     const MV = () => (diag ? [[1, 0, 1], [-1, 0, 1], [0, 1, 1], [0, -1, 1], [1, 1, Math.SQRT2], [1, -1, Math.SQRT2], [-1, 1, Math.SQRT2], [-1, -1, Math.SQRT2]] : [[1, 0, 1], [-1, 0, 1], [0, 1, 1], [0, -1, 1]]);
     function nbrs(c, r) {
@@ -486,7 +486,7 @@ R101.onReady(function () {
     }
     const P = new R101.Plane2D('#gv-canvas', {
       heightFn: w => Math.round(w * NR / NC) + 4, draw, dragEmpty: true, noScroll: true,
-      onPointerDown: w => paint(w), onPointerDrag: w => paint(w)
+      onPointerDown: w => { const v = Vs.length ? Vs[Kmax()][start[1]][start[0]] : INF; strokeV = v < INF / 2 ? v : null; strokeTool = tool; paint(w); }, onPointerDrag: w => paint(w)
     });
     P.handle({ pos: () => [start[0] + 0.5, start[1] + 0.5], color: 'v', r: 16, snap: w => [Math.floor(M.clamp(w[0], 0, NC - 0.01)) + 0.5, Math.floor(M.clamp(w[1], 0, NR - 0.01)) + 0.5], set: w => { const c = Math.floor(w[0]), r = Math.floor(w[1]); if (grid[r] && grid[r][c] !== 1) start = [c, r]; } });
     function paint(w) {
@@ -496,8 +496,8 @@ R101.onReady(function () {
       if (c === start[0] && r === start[1] && tool !== 'goal') return;
       touched = true;
       if (tool === 'goal') { if (grid[r][c] === 1) return; goal = [c, r]; }
-      else if (tool === 'wall') { grid[r][c] = 1; painted.wall = true; }
-      else if (tool === 'mud') { grid[r][c] = 2; painted.mud = true; }
+      else if (tool === 'wall') { grid[r][c] = 1; }
+      else if (tool === 'mud') { grid[r][c] = 2; }
       else grid[r][c] = 0;
       recompute(); k = Math.min(k, Kmax()); P.invalidate(); sync();
     }
@@ -512,12 +512,12 @@ R101.onReady(function () {
         const v = V[r][c];
         if (v >= INF / 2) P.poly(poly, { fill: 'axis', fillAlpha: 0.06 });
         else P.poly(poly, { fill: 'k', fillAlpha: 0.12 + 0.62 * (1 - v / vmax) });
-        if (t === 2) P.poly(poly, { fill: 'v', fillAlpha: 0.32, stroke: 'v', width: 1, dash: [3, 3] });
-        if (k > 0 && v < INF / 2 && Math.abs(v - Vp[r][c]) > 1e-9) P.poly(rectPoly(c, r, 0.07), { stroke: 'v', width: 2.4 });
+        if (t === 2) P.poly(poly, { fill: 'v', fillAlpha: R101.hl === 'step' ? 0.55 : 0.32, stroke: 'v', width: R101.hl === 'step' ? 2.5 : 1, dash: [3, 3] });
+        if (k > 0 && v < INF / 2 && Math.abs(v - Vp[r][c]) > 1e-9) P.poly(rectPoly(c, r, 0.07), { stroke: 'v', width: R101.hl === 'cost' ? 4 : 2.4 });
         if (v < INF / 2 && !(c === goal[0] && r === goal[1])) {
-          if (big) P.text(String(Math.round(v * 10) / 10), [c + 0.5, r + 0.28], { size: 10, align: 'center', alpha: 0.85 });
+          if (big) P.text(String(Math.round(v * 10) / 10), [c + 0.5, r + 0.28], { size: R101.hl === 'cost' ? 12 : 10, bold: R101.hl === 'cost', align: 'center', alpha: 0.85 });
           const n = policy(V, c, r);
-          if (n) { const a = [c + 0.5, r + 0.62], b = [c + 0.5 + (n[0] - c) * 0.3, r + 0.62 + (n[1] - r) * 0.3]; P.arrow(a, b, { color: 'text', width: 1.6, head: 7, alpha: 0.7 }); }
+          if (n) { const a = [c + 0.5, r + 0.62], b = [c + 0.5 + (n[0] - c) * 0.3, r + 0.62 + (n[1] - r) * 0.3]; P.arrow(a, b, { color: 'text', width: R101.hl === 'step' ? 3 : 1.6, head: 7, alpha: 0.7 }); }
         }
       }
       P.circle([goal[0] + 0.5, goal[1] + 0.5], 0.36, { color: 'j', width: 3 }); P.text('G', [goal[0] + 0.5, goal[1] + 0.5], { align: 'center', color: 'j', bold: true, size: 14 });
@@ -526,12 +526,12 @@ R101.onReady(function () {
     }
     function sync() {
       const fin = Vs[Kmax()], v0 = fin[start[1]][start[0]], reach = v0 < INF / 2, cur = Vs[Math.min(k, Kmax())][start[1]][start[0]];
-      if (baseV == null && reach) baseV = v0;
       document.getElementById('gv-read').innerHTML = T('扫描次数 k', 'sweep k') + ' = <b>' + k + '</b> / ' + Kmax() + '<br>' + T('起点最终 V(S) ', 'final V(S) ') + '<b>' + (reach ? M.fmt(v0, 1) : '∞') + '</b><br>' + T('第 k 次的 V_k(S) ', 'V_k(S) at sweep k ') + (cur >= INF / 2 ? '∞' : '<b>' + M.fmt(cur, 1) + '</b>') + (reach ? '' : '<br><b style="color:var(--c-bad)">' + T('目标不可达', 'goal unreachable') + '</b>');
       R101.tex(document.getElementById('gv-tex'), 'V_{k+1}(s)=\\min_a\\,[c(s\')+V_k(s\')]');
-      if (touched && reach && baseV != null) {
-        if (painted.wall && v0 > baseV + 1e-9) R101.done('dp-wall');
-        if (painted.mud && v0 > baseV + 1e-9) R101.done('dp-mud');
+      // compare with V(S) recorded at the start of the current paint stroke
+      if (touched && reach && strokeV != null) {
+        if (strokeTool === 'wall' && v0 > strokeV + 1e-9) R101.done('dp-wall');
+        if (strokeTool === 'mud' && v0 > strokeV + 1e-9) R101.done('dp-mud');
       }
       kSl && kSl.set(k);
     }

@@ -121,7 +121,7 @@
   <h2><span class="n">2</span><span data-lang="zh">直觉：弦在曲线之上</span></h2>
   <div data-lang="zh">
     <p>取函数曲线上任意两点，连一条线段（<b>弦</b>）。如果无论你取哪两点，弦<b>都不会钻到曲线下面</b>，这个函数就是凸的：它像一个碗，向上"兜住"每一条弦。只要有<b>一对</b>点，弦钻到了曲线下面，就说明那里有个"凸起"，凸性被破坏。</p>
-    <p>这个看似平淡的性质威力巨大。假设碗里有两个"谷底"，它们之间的弦必须在曲线之上（或重合）；可两个谷底都是最低值 \(m\)，弦的高度恰好是 \(m\)，而曲线又不可能低于 \(m\)，于是两点之间的曲线被夹住，处处等于 \(m\)：两个谷底其实是同一片平地。<b>凸函数不可能有彼此孤立的两个局部最小值。</b>先亲手试试弦测试。</p>
+    <p>这个看似平淡的性质威力巨大。假设碗里有两个"谷底"，它们之间的弦必须在曲线之上（或重合）；可两个谷底都是最低值 \(m\)，弦的高度恰好是 \(m\)，而曲线又不可能低于 \(m\)，于是两点之间的曲线被夹住，处处等于 \(m\)：两个谷底其实是同一片平地。如果两个谷底一高一低，弦从高的那个谷底出发就向下倾斜，紧挨着它的曲线也被压到它的高度之下，它根本不是局部最小（第 7 节给出严格证明）。<b>凸函数不可能有彼此孤立的两个局部最小值。</b>先亲手试试弦测试。</p>
   </div>
   
 </section>
@@ -129,7 +129,7 @@
 <!-- ============ 3. PLAY: 1D chord ============ -->
 <section class="step" id="play">
   <h2><span class="n">3</span><span data-lang="zh">动手玩：弦测试</span></h2>
-  <p data-lang="zh">选一个函数，拖动曲线上的两个点 A、B。弦在曲线<span class="cj">之上</span>的部分填绿色，钻到曲线<span class="ci">之下</span>的部分填红色。滑块 \(\theta\) 在弦上取一点，对比 \(f(\theta a+(1-\theta)b)\) 与弦的高度 \(\theta f(a)+(1-\theta)f(b)\)。"全面扫描"会测试 1000 对点，告诉你有多大比例的弦违反了凸性。</p>
+  <p data-lang="zh">选一个函数，拖动曲线上的两个点 A、B。弦在曲线<span class="cj">之上</span>的部分填绿色，钻到曲线<span class="ci">之下</span>的部分填红色。滑块 \(\theta\) 在弦上取一点，对比 \(f(\theta a+(1-\theta)b)\) 与弦的高度 \(\theta f(a)+(1-\theta)f(b)\)。"全面扫描"会测试 780 对点（区间上 40 个点两两配对），告诉你有多大比例的弦违反了凸性。</p>
   
 
   <figure class="fig" id="fig-chord">
@@ -247,7 +247,7 @@
     </figcaption>
   </figure>
   <ul class="tasks">
-    <li data-task="rosen"><span><span data-lang="zh">在 <b>Rosenbrock</b> 上放 A、B，使剖面<b>钻到弦之下</b>（它只有一个谷底，却不是凸的）。</span></span></li>
+    <li data-task="rosen"><span><span data-lang="zh">在 <b>Rosenbrock</b> 上放 A、B，使剖面<b>鼓到弦之上</b>（它只有一个谷底，却不是凸的）。</span></span></li>
     <li data-task="lse"><span><span data-lang="zh">在 log-sum-exp 上随便拖拽 A、B：剖面永远在弦下面，红色区域也不出现。</span></span></li>
   </ul>
 </section>
@@ -317,7 +317,7 @@
   </ul>
   <div class="callout robot">
     <div class="ct"><span data-lang="zh">真实系统里</span></div>
-    <p data-lang="zh">这解释了机器人领域的一个普遍现象：<b>"把不凸的部分藏到凸的外面"</b>。解 IK 时通常先在关节空间做一次非凸迭代，再在<b>每一步里</b>解一个凸的线性化子问题（雅可比 \(J\) 把问题局部变成线性最小二乘，<a href="6-6-newton-gauss-newton.html">6.6</a>、<a href="6-9-nonlinear-least-squares.html">6.9</a> 节）。全身控制则更进一步：在<b>加速度</b>层面，动力学对力矩 \(\boldsymbol\tau\) 与加速度 \(\ddot{\mathbf q}\) 是线性的，于是整个问题是一个凸 QP（<a href="6-8-lp-qp.html">6.8</a> 节、第 IV 部分），能在 1 kHz 下保证有解。凸与不凸，常常取决于你选了哪个变量。</p>
+    <p data-lang="zh">这解释了机器人领域的一个普遍现象：<b>"把不凸的部分藏到凸的外面"</b>。解 IK 时通常先在关节空间做一次非凸迭代，再在<b>每一步里</b>解一个凸的线性化子问题（雅可比 \(J\) 把问题局部变成线性最小二乘，<a href="6-6-newton-gauss-newton.html">6.6</a>、<a href="6-9-nonlinear-least-squares.html">6.9</a> 节）。全身控制则更进一步：在<b>加速度</b>层面，动力学对力矩 \(\boldsymbol\tau\) 与加速度 \(\ddot{\mathbf q}\) 是线性的，于是整个问题是一个凸 QP（<a href="6-8-lp-qp.html">6.8</a> 节、第 IV 部分）：只要约束可行，求解器就能在 1 kHz 下可靠地给出全局最优解。凸与不凸，常常取决于你选了哪个变量。</p>
     
   </div>
 </section>

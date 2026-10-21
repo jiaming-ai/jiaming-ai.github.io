@@ -422,7 +422,7 @@
   </div>
   <div class="callout robot">
     <div class="ct"><span data-lang="zh">真实系统里</span></div>
-    <p data-lang="zh">ROS 的 <code>tf2</code> 把整个机器人表示成一棵坐标系树，查询"相机在地图里的位姿"，就是沿树把一串变换连乘（并在需要反向走时取逆）。机械臂的正运动学也是同一件事：每个关节一个矩阵，从底座乘到末端（3.1 节、5.3 节）。把关节角写进变量名，再把链写成 <code>R_world_cam = R_world_base @ R_base_head @ R_head_cam</code>，下标能接龙就基本不会错。</p>
+    <p data-lang="zh">ROS 的 <code>tf2</code> 把整个机器人表示成一棵坐标系树，查询"相机在地图里的位姿"，就是沿树把一串变换连乘（并在需要反向走时取逆）。机械臂的正运动学也是同一件事：每个关节一个矩阵，从底座乘到末端（5.3 节、5.10 节）。把关节角写进变量名，再把链写成 <code>R_world_cam = R_world_base @ R_base_head @ R_head_cam</code>，下标能接龙就基本不会错。</p>
     
   </div>
 </section>
@@ -469,7 +469,7 @@
       <button class="opt">\(\begin{bmatrix}2&6\\1&4\end{bmatrix}\)</button>
       <button class="opt">\(\begin{bmatrix}2&0\\0&1\end{bmatrix}\)</button>
     </div>
-    <div class="explain"><span data-lang="zh">按列算：第 1 列是 \(A\) 乘 \(B\) 的第 1 列 \((1,0)\)，得 \((2,1)\)；第 2 列是 \(A\) 乘 \((3,1)\)，即 \(3\,(2,1) + 1\,(0,1) = (6,4)\)。所以 \(AB = \begin{bmatrix}2&6\\1&4\end{bmatrix}\)。第一个选项是 \(BA\)，第二个是 \(A+B\)，第四个是逐元素相乘（NumPy 的 <code>*</code>）。</span></div>
+    <div class="explain"><span data-lang="zh">按列算：第 1 列是 \(A\) 乘 \(B\) 的第 1 列 \((1,0)\)，得 \((2,1)\)；第 2 列是 \(A\) 乘 \((3,1)\)，即 \(3\,(2,1) + 1\,(0,1) = (6,4)\)。所以 \(AB = \begin{bmatrix}2&6\\1&4\end{bmatrix}\)。选项 A 是 \(BA\)，选项 B 是 \(A+B\)，选项 D 是逐元素相乘（NumPy 的 <code>*</code>）。</span></div>
   </div>
 
   <div class="quiz" data-answer="0">
@@ -480,7 +480,7 @@
       <button class="opt"><span data-lang="zh">î → (2, 0)，ĵ → (0, 1)</span></button>
       <button class="opt"><span data-lang="zh">î → (0, 2)，ĵ → (−2, 0)</span></button>
     </div>
-    <div class="explain"><span data-lang="zh">追踪：<span class="ci">î</span> 先被拉成 \((2,0)\)，再转 90° 成 \((0,2)\)；<span class="cj">ĵ</span> 先保持 \((0,1)\)，再转成 \((-1,0)\)。所以 \(AB = \begin{bmatrix}0&-1\\2&0\end{bmatrix}\)。选项二是反过来的 \(BA\)（先转再拉：\((0,1)\) 被拉后不变，\((-1,0)\) 被拉成 \((-2,0)\)）。</span></div>
+    <div class="explain"><span data-lang="zh">追踪：<span class="ci">î</span> 先被拉成 \((2,0)\)，再转 90° 成 \((0,2)\)；<span class="cj">ĵ</span> 先保持 \((0,1)\)，再转成 \((-1,0)\)。所以 \(AB = \begin{bmatrix}0&-1\\2&0\end{bmatrix}\)。选项 B 是反过来的 \(BA\)（先转再拉：\((0,1)\) 被拉后不变，\((-1,0)\) 被拉成 \((-2,0)\)）。</span></div>
   </div>
 
   <div class="quiz" data-answer="3">
@@ -491,7 +491,7 @@
       <button class="opt">\({}^{H}R_{C}\;{}^{B}R_{H}\;{}^{W}R_{B}\)</button>
       <button class="opt">\({}^{W}R_{B}\;{}^{B}R_{H}\;{}^{H}R_{C}\)</button>
     </div>
-    <div class="explain"><span data-lang="zh">相邻下标要能约掉：\({}^{W}R_{B}\,{}^{B}R_{H}\,{}^{H}R_{C} = {}^{W}R_{C}\)，把 C 坐标送到 W 坐标。选项二是从世界到相机的方向（\({}^{C}R_{W}\)，即上式的逆），选项一、三的下标接不上。</span></div>
+    <div class="explain"><span data-lang="zh">相邻下标要能约掉：\({}^{W}R_{B}\,{}^{B}R_{H}\,{}^{H}R_{C} = {}^{W}R_{C}\)，把 C 坐标送到 W 坐标。选项 B 是从世界到相机的方向（\({}^{C}R_{W}\)，即上式的逆），选项 A、C的下标接不上。</span></div>
   </div>
 
   <div class="quiz" data-answer="1">
@@ -727,7 +727,7 @@ R101.onReady(function () {
       truth = Math.random() < 0.5 ? 'AB' : 'BA';
       target = truth === 'AB' ? M.mul(a[2], b[2]) : M.mul(b[2], a[2]);
       answered = false;
-      msg.innerHTML = L('提示：算一算 AB 的第 1 列 A(Bî)，和紫色的 î 对得上吗？', 'Hint: compute the first column of AB, A(Bî). Does it match the purple î?');
+      msg.innerHTML = L('提示：算一算 AB 的第 1 列 A(Bî)，和紫色网格里红色的 î 对得上吗？', 'Hint: compute the first column of AB, A(Bî). Does it match the red î of the purple grid?');
       show(); P.invalidate();
     }
     function answer(g) {
@@ -739,8 +739,8 @@ R101.onReady(function () {
       const [f, s] = truth === 'AB' ? [b, a] : [a, b];
       const nf = truth === 'AB' ? 'B' : 'A', ns = truth === 'AB' ? 'A' : 'B';
       const u = colOf(f[2], 0), w = M.mv(s[2], u);
-      const why = L(`${truth} 是先 ${nf} 后 ${ns}：${nf} 把 î 送到 ${pt(u)}，${ns} 再把它送到 ${pt(w)}。这正是紫色的 î。青色虚线是另一种顺序。`,
-        `${truth} means ${nf} first, then ${ns}: ${nf} sends î to ${pt(u)}, then ${ns} sends that to ${pt(w)}. That is the purple î. The cyan dashed grid is the other order.`);
+      const why = L(`${truth} 是先 ${nf} 后 ${ns}：${nf} 把 î 送到 ${pt(u)}，${ns} 再把它送到 ${pt(w)}。这正是紫色网格里红色的 î。青色虚线是另一种顺序。`,
+        `${truth} means ${nf} first, then ${ns}: ${nf} sends î to ${pt(u)}, then ${ns} sends that to ${pt(w)}. That is the red î of the purple grid. The cyan dashed grid is the other order.`);
       msg.innerHTML = `<b style="color:var(--c-${ok ? 'good' : 'bad'})">${ok ? L('答对了！', 'Correct!') : L('不对。', 'Not quite.')}</b> ${why}`;
       show(); P.invalidate();
     }

@@ -222,10 +222,10 @@
 
   <h3><span data-lang="zh">小游戏：够到目标</span><span data-lang="en">Mini-game: reach the target</span></h3>
   <div data-lang="zh">
-    <p>机器人每一步只能走两种固定的位移：琥珀色的 \(\cv{\mathbf d_1}\) 或青色的 \(\cx{\mathbf d_2}\)，可以前进，也可以后退。点按钮，把一段段位移<b>首尾相接</b>，让白点停在紫色的目标 \(\cw{T}\) 上。淡青色的小点是所有"整数份 \(\mathbf d_1\) 加整数份 \(\mathbf d_2\)"能到的位置，目标一定在其中。试试用最少的步数。</p>
+    <p>机器人每一步只能走两种固定的位移：琥珀色的 \(\cv{\mathbf d_1}\) 或青色的 \(\cx{\mathbf d_2}\)，可以前进，也可以后退。点按钮，把一段段位移<b>首尾相接</b>，让代表机器人的大圆点停在紫色的目标 \(\cw{T}\) 上。淡青色的小点是所有"整数份 \(\mathbf d_1\) 加整数份 \(\mathbf d_2\)"能到的位置，目标一定在其中。试试用最少的步数。</p>
   </div>
   <div data-lang="en">
-    <p>The robot can only take two fixed displacements per move: the amber \(\cv{\mathbf d_1}\) or the cyan \(\cx{\mathbf d_2}\), forward or backward. Press the buttons to chain the moves <b>tip to tail</b> until the white dot sits on the purple target \(\cw{T}\). The faint cyan dots mark every position reachable as "a whole number of \(\mathbf d_1\) plus a whole number of \(\mathbf d_2\)"; the target is always one of them. Try to use as few moves as possible.</p>
+    <p>The robot can only take two fixed displacements per move: the amber \(\cv{\mathbf d_1}\) or the cyan \(\cx{\mathbf d_2}\), forward or backward. Press the buttons to chain the moves <b>tip to tail</b> until the large dot (the robot) sits on the purple target \(\cw{T}\). The faint cyan dots mark every position reachable as "a whole number of \(\mathbf d_1\) plus a whole number of \(\mathbf d_2\)"; the target is always one of them. Try to use as few moves as possible.</p>
   </div>
   <figure class="fig" id="fig-game">
     <div class="fig-head"><span class="fig-kind">FIG 3</span><span class="fig-title"><span data-lang="zh">够到目标</span><span data-lang="en">Reach the target</span></span><span class="spacer"></span><span class="readout" id="game-score"></span></div>
@@ -239,8 +239,8 @@
       </div>
     </div>
     <figcaption class="fig-cap">
-      <span data-lang="zh">每个目标都有唯一的最短走法（两个步向量方向不同，所以组合方式只有一种）。用最少的步数命中，会得到"最短"的标记。</span>
-      <span data-lang="en">Every target has exactly one shortest route (the two step vectors point in different directions, so each point has only one recipe). Hit it in the fewest moves and you earn the "shortest" tag.</span>
+      <span data-lang="zh">每个目标都有唯一的最短配方：走几次 \(\mathbf d_1\)、几次 \(\mathbf d_2\) 是确定的（两个步向量方向不同，所以组合方式只有一种），先走哪一步则随你。用最少的步数命中，会得到"最短"的标记。</span>
+      <span data-lang="en">Every target has exactly one shortest recipe: how many \(\mathbf d_1\) steps and how many \(\mathbf d_2\) steps is fixed (the two step vectors point in different directions, so each point has only one recipe), while the order of the steps is up to you. Hit it in the fewest moves and you earn the "shortest" tag.</span>
     </figcaption>
   </figure>
   <ul class="tasks"><li data-task="game3"><span><span data-lang="zh">命中 3 个目标。</span><span data-lang="en">Hit 3 targets.</span></span></li></ul>
@@ -258,7 +258,7 @@
       <li><b>向量 + 向量 = 向量</b>（位移接位移）；</li>
       <li><b>点 + 点 = 没有意义</b>：结果会随原点而变。</li>
     </ul>
-    <p>下面的图里，杯子 \(P\) 和盒子 \(Q\) 固定在桌上，你可以拖动<b>原点 \(O\)</b>（青色），也可以拖动 \(P\)、\(Q\)。网格是以 \(O\) 为原点画的坐标纸，右侧显示 \(P\)、\(Q\) 在这套坐标下的读数。</p>
+    <p>下面的图里，杯子 \(P\) 和盒子 \(Q\) 放在桌上，拖动<b>原点 \(O\)</b>（青色）时它们原地不动；你也可以单独拖动 \(P\)、\(Q\)。网格是以 \(O\) 为原点画的坐标纸，右侧显示 \(P\)、\(Q\) 在这套坐标下的读数。</p>
   </div>
   <div data-lang="en">
     <p>Something has quietly held so far: the origin sat in the middle of the picture. In real systems the origin is a choice: the world frame may start in a corner of the room or at the robot's base. Change the origin and the same cup gets different coordinates. The cup did not move; the ruler did.</p>
@@ -269,7 +269,7 @@
       <li><b>vector + vector = vector</b> (a displacement followed by a displacement);</li>
       <li><b>point + point = meaningless</b>: the answer changes with the origin.</li>
     </ul>
-    <p>In the figure, the cup \(P\) and the box \(Q\) are fixed on the table. Drag the <b>origin \(O\)</b> (cyan), or drag \(P\) and \(Q\). The grid is graph paper drawn from \(O\), and the side panel shows the readings of \(P\) and \(Q\) in that frame.</p>
+    <p>In the figure, the cup \(P\) and the box \(Q\) sit on the table and stay put while you drag the <b>origin \(O\)</b> (cyan); you can also drag \(P\) and \(Q\) themselves. The grid is graph paper drawn from \(O\), and the side panel shows the readings of \(P\) and \(Q\) in that frame.</p>
   </div>
 
   <figure class="fig bleed" id="fig-points">
@@ -453,8 +453,8 @@
     </div>
     <div class="fig-controls" id="dr-controls"></div>
     <figcaption class="fig-cap">
-      <span data-lang="zh">白色虚线是总位移 \(\sum\mathbf s_i\)，它连接起点和真实终点，与中间怎么走无关。红色箭头是估计终点相对真实终点的误差，它等于各步噪声之和。</span>
-      <span data-lang="en">The white dashed arrow is the total displacement \(\sum\mathbf s_i\): it joins the start to the true end and does not care how the path wandered in between. The red arrow is the estimated end relative to the true end; it equals the sum of the per-step noises.</span>
+      <span data-lang="zh">不带颜色的虚线箭头是总位移 \(\sum\mathbf s_i\)，它连接起点和真实终点，与中间怎么走无关。红色箭头是估计终点相对真实终点的误差，它等于各步噪声之和。</span>
+      <span data-lang="en">The uncoloured dashed arrow is the total displacement \(\sum\mathbf s_i\): it joins the start to the true end and does not care how the path wandered in between. The red arrow is the estimated end relative to the true end; it equals the sum of the per-step noises.</span>
     </figcaption>
   </figure>
   <ul class="tasks">

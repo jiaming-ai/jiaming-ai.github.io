@@ -167,7 +167,7 @@
     </div>
     <div class="fig-row" style="padding:12px 16px;border-top:1px solid var(--border)"><div class="katex-live" id="sec-tex"></div><div class="readout" id="sec-read" style="margin-top:6px"></div></div>
     <figcaption class="fig-cap">
-      <span data-lang="zh">拖动 A 或 B（紫色割线、黄色切线）。右图里紫色曲线是 \(q(h)\)，黄色虚线是 \(f'(a)\)，空心点标出 \(h=0\) 处"缺失"的那一点：\(q(0)\) 是 \(0/0\)，没有定义，但左右极限可以存在。\(|x|\) 在 \(a=0\) 处左极限是 −1、右极限是 +1，二者不等，极限不存在。</span>
+      <span data-lang="zh">拖动 A 或 B（紫色割线、黄色切线）。右图里紫色曲线是 \(q(h)\)，黄色虚线是 \(f'(a)\)，空心点标出 \(h=0\) 处"缺失"的那一点：\(q(0)\) 是 \(0/0\)，没有定义，但左右极限可以存在。\(|x|\) 在 \(a=0\) 处左极限是 −1、右极限是 +1（两个空心点），二者不等，极限不存在，所以这时不画切线。</span>
       
     </figcaption>
   </figure>
@@ -190,7 +190,7 @@
     </div>
     <div class="fig-row" style="padding:12px 16px;border-top:1px solid var(--border)"><div class="katex-live" id="err-tex"></div><div class="readout" id="err-read" style="margin-top:6px"></div></div>
     <figcaption class="fig-cap">
-      <span data-lang="zh">拖动黄点（\(x_0\)）和紫点（\(x_0+\delta\)）。青色曲线是真实误差；紫色虚线是理论上界 \(\tfrac12|f''|\,\delta^2\)，斜率为 2。\(\delta\) 缩小一半，光滑函数的误差缩小到约 1/4；\(|x|\) 在尖角处则只缩小一半，斜率为 1，说明那里没有好的线性近似。</span>
+      <span data-lang="zh">拖动黄点（\(x_0\)）和紫点（\(x_0+\delta\)）。青色曲线是真实误差；紫色虚线是理论估计（误差主项）\(\tfrac12|f''|\,\delta^2\)，斜率为 2。\(\delta\) 缩小一半，光滑函数的误差缩小到约 1/4；\(|x|\) 在尖角处没有切线（图中换成一条斜率为 0 的灰色参考线），误差只缩小一半，斜率为 1，说明那里没有好的线性近似。</span>
       
     </figcaption>
   </figure>
@@ -478,14 +478,15 @@ R101.onReady(function () {
   (function () {
     let key = 'cubic', a = 0.6, h = 1.3, anim = null, seenL = false, seenR = false;
     const P = new R101.Plane2D('#sec-canvas', { height: 380, view: { cx: 0.4, cy: 0, span: 5.2 }, draw, onChange: sync });
-    const Q = new R101.Plane2D('#sec-q', { height: 380, draw: drawQ });
+    const Q = new R101.Plane2D('#sec-q', { height: 380, draw: drawQ, onChange: sync });
     const q = hh => (FN[key].f(a + hh) - FN[key].f(a)) / hh;
     const dfa = () => FN[key].df(a);
+    const isCorner = () => key === 'abs' && a === 0;   // |x| at 0: no tangent, f'(0) does not exist
     function draw(P) {
       const f = FN[key].f, b = P.bounds(), hl = R101.hl, fa = f(a), fb = f(a + h), s = q(h), d = dfa();
       P.grid({ color: 'grid', axisColor: 'grid-2' });
       P.path(sample(f, b.xmin, b.xmax, 300), { color: 'x', width: 2.6 });
-      P.line([b.xmin, fa + d * (b.xmin - a)], [b.xmax, fa + d * (b.xmax - a)], { color: 'v', width: hl === 'tan' ? 4 : 2, dash: [7, 5] });
+      if (!isCorner()) P.line([b.xmin, fa + d * (b.xmin - a)], [b.xmax, fa + d * (b.xmax - a)], { color: 'v', width: hl === 'tan' ? 4 : 2, dash: [7, 5] });
       P.line([b.xmin, fa + s * (b.xmin - a)], [b.xmax, fa + s * (b.xmax - a)], { color: 'w', width: hl === 'sec' ? 4.5 : 2.4 });
       // run and rise
       P.line([a, fa], [a + h, fa], { color: 'i', width: hl === 'dx' ? 5 : 2.4, dash: hl === 'dx' ? null : [5, 4] });
@@ -510,11 +511,10 @@ R101.onReady(function () {
       for (let i = 0; i <= 200; i++) { const hh = -2 + 1.99 * i / 200; left.push(m.pt([hh, q(hh)])); const hr = 0.01 + 1.99 * i / 200; right.push(m.pt([hr, q(hr)])); }
       Q.path(left, { color: 'w', width: 2.4 });
       Q.path(right, { color: 'w', width: 2.4 });
-      Q.line(m.pt([-2, dfa()]), m.pt([2, dfa()]), { color: 'v', width: 1.8, dash: [6, 5] });
+      if (!isCorner()) Q.line(m.pt([-2, dfa()]), m.pt([2, dfa()]), { color: 'v', width: 1.8, dash: [6, 5] });
       Q.unclip();
-      // limit marker at h = 0
-      const lim = m.pt([0, dfa()]);
-      Q.point(lim, { color: 'canvas', r: 6, stroke: 'v', strokeWidth: 2.4 });
+      // limit marker at h = 0 (at the corner of |x|: the two one-sided limits −1 and +1)
+      (isCorner() ? [-1, 1] : [dfa()]).forEach(v => Q.point(m.pt([0, v]), { color: 'canvas', r: 6, stroke: 'v', strokeWidth: 2.4 }));
       // current h
       const cur = m.pt([h, q(h)]);
       Q.line(m.pt([h, lo - pad]), m.pt([h, hi + pad]), { color: 'w', width: 1, dash: [3, 4], alpha: 0.7 });
@@ -533,8 +533,8 @@ R101.onReady(function () {
     const tex = document.getElementById('sec-tex'), read = document.getElementById('sec-read');
     function sync() {
       const f = FN[key].f, s = q(h), d = dfa();
-      R101.tex(tex, `q(h)=\\frac{f(a+h)-f(a)}{h}=\\frac{${M.tex(f(a + h) - f(a), 4)}}{${M.tex(h, 4)}}=\\cw{${M.tex(s, 4)}}\\qquad f'(a)=\\cv{${M.tex(d, 4)}}`);
-      read.innerHTML = `a = <b>${M.fmt(a, 2)}</b> · h = <b>${Math.abs(h) < 0.1 ? h.toExponential(1).replace('-', '−') : M.fmt(h, 3)}</b> · ${L('差距', 'gap')} |q − f′| = <b>${Math.abs(s - d) < 0.01 ? Math.abs(s - d).toExponential(1) : M.fmt(Math.abs(s - d), 3)}</b>`;
+      R101.tex(tex, `q(h)=\\frac{f(a+h)-f(a)}{h}=\\frac{${M.tex(f(a + h) - f(a), 4)}}{${M.tex(h, 4)}}=\\cw{${M.tex(s, 4)}}\\qquad f'(a)` + (isCorner() ? `\\ \\text{${t('不存在', 'does not exist')}}` : `=\\cv{${M.tex(d, 4)}}`));
+      read.innerHTML = `a = <b>${M.fmt(a, 2)}</b> · h = <b>${Math.abs(h) < 0.1 ? h.toExponential(1).replace('-', '−') : M.fmt(h, 3)}</b> · ${L('差距', 'gap')} |q − f′| = <b>${isCorner() ? '—' : Math.abs(s - d) < 0.01 ? Math.abs(s - d).toExponential(1) : M.fmt(Math.abs(s - d), 3)}</b>`;
       if (Math.abs(h) < 0.01 && key !== 'abs') R101.done('limit');
       if (key === 'abs' && Math.abs(a) < 0.03 && Math.abs(h) < 0.05) { if (h < 0) seenL = true; else seenR = true; if (seenL && seenR) R101.done('nolimit'); }
       P.invalidate(); Q.invalidate();
@@ -554,7 +554,8 @@ R101.onReady(function () {
       const f = FN[key].f, df = FN[key].df, b = P.bounds(), fa = f(a), lin = a + dl;
       P.grid({ color: 'grid', axisColor: 'grid-2' });
       P.path(sample(f, b.xmin, b.xmax, 300), { color: 'x', width: 2.6 });
-      P.line([b.xmin, fa + df(a) * (b.xmin - a)], [b.xmax, fa + df(a) * (b.xmax - a)], { color: 'v', width: 2, dash: [7, 5] });
+      const corner = key === 'abs' && a === 0;   // no tangent at the corner: show the slope-0 reference line in a neutral colour
+      P.line([b.xmin, fa + df(a) * (b.xmin - a)], [b.xmax, fa + df(a) * (b.xmax - a)], { color: corner ? 'text-2' : 'v', width: corner ? 1.4 : 2, dash: [7, 5] });
       const yl = fa + df(a) * dl, yt = f(lin);
       P.line([lin, yl], [lin, yt], { color: 'bad', width: 4 });
       P.point([a, fa], { color: 'v', r: 6, stroke: 'canvas', strokeWidth: 2 });
@@ -593,7 +594,7 @@ R101.onReady(function () {
   (function () {
     let key = 'sin', x0 = 0.8;
     const P = new R101.Plane2D('#dg-f', { height: 340, draw: drawF, onChange: sync });
-    const Q = new R101.Plane2D('#dg-df', { height: 340, draw: drawD });
+    const Q = new R101.Plane2D('#dg-df', { height: 340, draw: drawD, onChange: sync });
     const XR = [-3.4, 3.4];
     const yrng = () => { const a = FN[key].f, ys = sample(a, XR[0], XR[1], 200).map(p => p[1]); return [Math.min(...ys) - 0.5, Math.max(...ys) + 0.5]; };
     const drng = () => { const a = FN[key].df, ys = sample(a, XR[0], XR[1], 200).map(p => p[1]); return [Math.min(...ys, -1.2) - 0.3, Math.max(...ys, 1.2) + 0.3]; };
@@ -671,7 +672,8 @@ R101.onReady(function () {
         `${L('噪声量级 ≈ q/(kΔt)/√6', 'noise ≈ q/(kΔt)/√6')} = <b>${M.fmt(noise, 3)}</b> rad/s<br>` +
         `${L('滞后', 'lag')} ≈ <b>${mode === 'causal' ? M.fmt(k * dt / 2, 3) : '0'}</b> s<br>` +
         `RMS ${L('误差', 'error')} = <b style="color:var(--c-${rms < 0.06 ? 'good' : rms > 0.2 ? 'bad' : 'v'})">${M.fmt(rms, 3)}</b> rad/s`;
-      R101.tex(tex, `\\hat\\omega_n=\\frac{\\theta_n-\\theta_{n-${k}}}{${k}\\cdot ${dt}}`);
+      const kk = Math.max(1, Math.ceil(k / 2));
+      R101.tex(tex, mode === 'causal' ? `\\hat\\omega_n=\\frac{\\theta_n-\\theta_{n-${k}}}{${k}\\cdot ${dt}}` : `\\hat\\omega_n=\\frac{\\theta_{n+${kk}}-\\theta_{n-${kk}}}{${2 * kk}\\cdot ${dt}}`);
       if (mode === 'causal' && k === 1 && rms > 0.2) R101.done('spiky');
       if (mode === 'causal' && bits <= 10 && rms < 0.065) R101.done('good');
       P.invalidate();

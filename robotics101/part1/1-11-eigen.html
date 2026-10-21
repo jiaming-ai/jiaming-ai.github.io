@@ -177,8 +177,8 @@
     </div>
     <div class="fig-controls"><div class="katex-live" id="f1-tex" style="flex:1 1 280px"></div><span class="readout" id="f1-read" style="flex:1 1 220px"></span></div>
     <figcaption class="fig-cap">
-      <span data-lang="zh">紫色虚线是这个矩阵真正的特征方向。注意三种矩阵的曲线：第一个矩阵穿过 0 两次（两条特征线）；旋转的曲线是一条不碰 0 的水平线（没有特征线，每个向量都被转了同样的角）；剪切的曲线只在 0° 处轻轻碰一下（只有一条特征线）。</span>
-      <span data-lang="en">The purple dashed lines are the matrix's true eigen-directions. Compare the three curves: the first matrix crosses 0 twice (two eigen-lines); the rotation gives a flat line that never touches 0 (no eigen-lines: every vector is turned by the same angle); the shear only grazes 0 at 0° (just one eigen-line).</span>
+      <span data-lang="zh">紫色虚线是这个矩阵真正的特征方向。注意三种矩阵的曲线：第一个矩阵的曲线在两条线上回到 0：0°（与 180° 是同一条线）和 135°（两条特征线）；旋转的曲线是一条不碰 0 的水平线（没有特征线，每个向量都被转了同样的角）；剪切的曲线只在 0°/180° 这一条线上轻轻碰到 0，不穿过（只有一条特征线）。</span>
+      <span data-lang="en">The purple dashed lines are the matrix's true eigen-directions. Compare the three curves: the first matrix returns to 0 on two lines, 0° (the same line as 180°) and 135° (two eigen-lines); the rotation gives a flat line that never touches 0 (no eigen-lines: every vector is turned by the same angle); the shear only grazes 0, without crossing, on the 0°/180° line (just one eigen-line).</span>
     </figcaption>
   </figure>
   <ul class="tasks">
@@ -303,7 +303,7 @@
       <li>不同特征值对应的特征向量一定<b>互相垂直</b>。</li>
     </ol>
     <p>所以它们总能写成 \(A = Q\Lambda Q^\top\)：先用 \(Q^\top\) 把特征向量转到坐标轴上，再沿坐标轴拉伸（\(\Lambda\) 是对角矩阵，对角线上是特征值），最后用 \(Q\) 转回来。这里的 \(Q\) 是 1.10 节的正交矩阵，它的列就是特征向量。单位圆变成椭圆，椭圆的两根轴恰好就是特征向量，半轴长就是 \(|\lambda_i|\)。</p>
-    <p>左图是一个对称矩阵：拖动阶段滑块，看圆被转、拉、转回的过程；拖动椭圆轴端点的圆圈可以改变特征值和方向。右图是同一个矩阵加上一点“旋转成分”：\(N = S + tK\)，其中 \(K=\begin{bmatrix}0&1\\-1&0\end{bmatrix}\)。\(N\) 不再对称，看看椭圆的轴还是不是特征向量。</p>
+    <p>左图是一个对称矩阵：拖动阶段滑块，看圆被转、拉、转回的过程；拖动椭圆轴端点的圆圈可以改变特征值和方向。右图是同一个矩阵加上一点“旋转成分”：\(N = S + tJ\)，其中 \(J=\begin{bmatrix}0&1\\-1&0\end{bmatrix}\)。\(N\) 不再对称，看看椭圆的轴还是不是特征向量。</p>
   </div>
   <div data-lang="en">
     <p>Matrices with \(A = A^\top\) (mirror-symmetric across the diagonal) are everywhere in robotics: covariance matrices, inertia matrices, Hessians (Lesson 3.5), and the \(A^\top A\) that Lesson 1.12 will use. They come with two wonderful guarantees:</p>
@@ -312,14 +312,14 @@
       <li>Eigenvectors for different eigenvalues are always <b>perpendicular</b>.</li>
     </ol>
     <p>So they can always be written \(A = Q\Lambda Q^\top\): first \(Q^\top\) turns the eigenvectors onto the coordinate axes, then a stretch along the axes (\(\Lambda\) is diagonal, with the eigenvalues on its diagonal), then \(Q\) turns everything back. Here \(Q\) is an orthogonal matrix from Lesson 1.10 whose columns are the eigenvectors. The unit circle becomes an ellipse whose two axes are exactly the eigenvectors, with semi-axis lengths \(|\lambda_i|\).</p>
-    <p>The left plot is a symmetric matrix: scrub the stage slider to watch the circle rotate, stretch and rotate back; drag the rings at the ends of the ellipse axes to change the eigenvalues and direction. The right plot is the same matrix plus a bit of "rotation": \(N = S + tK\) with \(K=\begin{bmatrix}0&1\\-1&0\end{bmatrix}\). \(N\) is no longer symmetric; see whether the ellipse's axes are still its eigenvectors.</p>
+    <p>The left plot is a symmetric matrix: scrub the stage slider to watch the circle rotate, stretch and rotate back; drag the rings at the ends of the ellipse axes to change the eigenvalues and direction. The right plot is the same matrix plus a bit of "rotation": \(N = S + tJ\) with \(J=\begin{bmatrix}0&1\\-1&0\end{bmatrix}\). \(N\) is no longer symmetric; see whether the ellipse's axes are still its eigenvectors.</p>
   </div>
 
   <figure class="fig bleed" id="fig-sym">
     <div class="fig-head"><span class="fig-kind">FIG 4</span><span class="fig-title"><span data-lang="zh">对称 vs. 非对称</span><span data-lang="en">Symmetric vs. non-symmetric</span></span><span class="spacer"></span><span class="readout" id="sym-stage-name"></span></div>
     <div class="fig-body two">
       <div class="canvas-wrap" id="sym-left"><span class="overlay-label"><span data-lang="zh">对称 S = QΛQᵀ</span><span data-lang="en">symmetric S = QΛQᵀ</span></span></div>
-      <div class="canvas-wrap" id="sym-right"><span class="overlay-label"><span data-lang="zh">非对称 N = S + tK</span><span data-lang="en">non-symmetric N = S + tK</span></span></div>
+      <div class="canvas-wrap" id="sym-right"><span class="overlay-label"><span data-lang="zh">非对称 N = S + tJ</span><span data-lang="en">non-symmetric N = S + tJ</span></span></div>
     </div>
     <div class="fig-body two" style="border-top:1px solid var(--border)">
       <div class="fig-side" style="border:0"><div class="katex-live" id="sym-tex-l"></div><div class="readout" id="sym-read-l"></div></div>
@@ -387,7 +387,7 @@
   <div class="table-wrap">
   <table class="compare">
     <tr><th style="white-space:nowrap">\(\Delta\)</th><th><span data-lang="zh">特征值</span><span data-lang="en">Eigenvalues</span></th><th><span data-lang="zh">特征线</span><span data-lang="en">Eigen-lines</span></th><th><span data-lang="zh">例子</span><span data-lang="en">Example</span></th></tr>
-    <tr><td style="white-space:nowrap">\(\Delta&gt;0\)</td><td><span data-lang="zh">两个不同的实数</span><span data-lang="en">two distinct real numbers</span></td><td><span data-lang="zh">两条</span><span data-lang="en">two</span></td><td><span data-lang="zh">缩放、对称、镜像、投影</span><span data-lang="en">scale, symmetric, reflection, projection</span></td></tr>
+    <tr><td style="white-space:nowrap">\(\Delta&gt;0\)</td><td><span data-lang="zh">两个不同的实数</span><span data-lang="en">two distinct real numbers</span></td><td><span data-lang="zh">两条</span><span data-lang="en">two</span></td><td><span data-lang="zh">非均匀缩放、对称（非数量矩阵）、镜像、投影</span><span data-lang="en">non-uniform scale, symmetric (non-scalar), reflection, projection</span></td></tr>
     <tr><td style="white-space:nowrap">\(\Delta=0\)</td><td><span data-lang="zh">一个重根</span><span data-lang="en">one repeated root</span></td><td><span data-lang="zh">两种可能：\(A=\lambda I\)（每个方向都是）；或只有<b>一条</b>（缺陷矩阵）</span><span data-lang="en">two possibilities: \(A=\lambda I\) (every direction), or just <b>one</b> (a defective matrix)</span></td><td><span data-lang="zh">单位矩阵；剪切</span><span data-lang="en">identity; shear</span></td></tr>
     <tr><td style="white-space:nowrap">\(\Delta&lt;0\)</td><td><span data-lang="zh">一对共轭复数 \(a\pm bi\)</span><span data-lang="en">a complex pair \(a\pm bi\)</span></td><td><span data-lang="zh">没有实特征线</span><span data-lang="en">no real eigen-line</span></td><td><span data-lang="zh">旋转</span><span data-lang="en">rotation</span></td></tr>
   </table>
@@ -449,8 +449,8 @@
     <p>A unit-mass cart with position \(p\) and velocity \(v\) is pulled back to the origin by PD control: force \(u=-k_p\,p-k_d\,v\) (a spring \(k_p\) plus a damper \(k_d\)). The controller runs once every \(\Delta t\) seconds, and we discretize with semi-implicit Euler: update the velocity first, then update the position with the <b>new</b> velocity:</p>
   </div>
   <div class="math-card">$$ v^{+} = v + \Delta t\,(-k_p\,p - k_d\,v), \qquad p^{+} = p + \Delta t\, v^{+} . $$</div>
-  <p data-lang="zh">以 \(\mathbf x=(p,v)\) 为状态，这是 \(\mathbf x_{k+1}=(A-BK)\,\mathbf x_k\)，其中 \(A\) 是无控制时的动力学，\(BK\) 是反馈：</p>
-  <p data-lang="en">With state \(\mathbf x=(p,v)\) this is \(\mathbf x_{k+1}=(A-BK)\,\mathbf x_k\), where \(A\) is the uncontrolled dynamics and \(BK\) is the feedback:</p>
+  <p data-lang="zh">以 \(\mathbf x=(p,v)\) 为状态，这是 \(\mathbf x_{k+1}=(A-BK)\,\mathbf x_k\)，其中 \(A\) 是无控制时的动力学，\(BK\) 是反馈。注意：判断稳定性要看闭环矩阵 \(A-BK\) 的特征值，而不是 \(A\) 的（这个 \(A\) 的特征值是 1 和 1，本身就不稳定）：</p>
+  <p data-lang="en">With state \(\mathbf x=(p,v)\) this is \(\mathbf x_{k+1}=(A-BK)\,\mathbf x_k\), where \(A\) is the uncontrolled dynamics and \(BK\) is the feedback. Note: stability is read from the eigenvalues of the closed-loop matrix \(A-BK\), not of \(A\) (this \(A\) has eigenvalues 1 and 1 and is not stable on its own):</p>
   <div class="math-card">$$ A=\begin{bmatrix}1&\Delta t\\0&1\end{bmatrix},\quad B=\begin{bmatrix}\Delta t^2\\ \Delta t\end{bmatrix},\quad K=\begin{bmatrix}k_p&k_d\end{bmatrix}, $$
   $$ A-BK=\begin{bmatrix}1-\Delta t^2k_p & \Delta t\,(1-\Delta t\,k_d)\\ -\Delta t\,k_p & 1-\Delta t\,k_d\end{bmatrix}. $$</div>
   <div data-lang="zh">
@@ -510,13 +510,13 @@
     </div>
     <div class="fig-controls" id="ax-controls"></div>
     <figcaption class="fig-cap">
-      <span data-lang="zh">淡色是世界坐标系，亮色是转动后的坐标系 \(R\)。紫色轴是 \(R-I\) 的零空间，即特征值 1 的特征向量。红色虚线圆是 \(x\) 轴尖端绕轴走的圆，紫色弧是它实际转过的角 \(\theta\)。无论怎样组合三个角，转过之后<b>这条轴上的点都没有动</b>。拖动画面可以转动视角。</span>
-      <span data-lang="en">The faint frame is the world frame and the bright one is the rotated frame \(R\). The purple axis is the null space of \(R-I\), the eigenvector for eigenvalue 1. The red dashed circle is the path of the \(x\)-axis tip around the axis and the purple arc is the angle \(\theta\) it actually sweeps. However you combine the three angles, <b>points on this axis do not move</b>. Drag the view to orbit.</span>
+      <span data-lang="zh">半透明的细坐标轴是世界坐标系，标有 x′、y′、z′ 的粗坐标轴是转动后的坐标系 \(R\)。紫色轴是 \(R-I\) 的零空间，即特征值 1 的特征向量。红色虚线圆是 \(x\) 轴尖端绕轴走的圆，紫色弧是它实际转过的角 \(\theta\)。无论怎样组合三个角，转过之后<b>这条轴上的点都没有动</b>。拖动画面可以转动视角。</span>
+      <span data-lang="en">The thin translucent frame is the world frame and the thick one labelled x′, y′, z′ is the rotated frame \(R\). The purple axis is the null space of \(R-I\), the eigenvector for eigenvalue 1. The red dashed circle is the path of the \(x\)-axis tip around the axis and the purple arc is the angle \(\theta\) it actually sweeps. However you combine the three angles, <b>points on this axis do not move</b>. Drag the view to orbit.</span>
     </figcaption>
   </figure>
   <ul class="tasks">
     <li data-task="axis3"><span><span data-lang="zh">把三个欧拉角都设成非零（至少 15°），确认合成的旋转仍然只有<b>一条</b>紫色轴，且读数里 \(R\mathbf n=\mathbf n\)。</span><span data-lang="en">Set all three Euler angles nonzero (at least 15°) and confirm the composite is still <b>one</b> purple axis, with \(R\mathbf n=\mathbf n\) in the readout.</span></span></li>
-    <li data-task="axisz"><span><span data-lang="zh">让旋转轴恰好是<b>竖直的 z 轴</b>（转角大于 20°）。这需要哪两个角为 0？</span><span data-lang="en">Make the axis exactly the <b>vertical z-axis</b> (rotation angle above 20°). Which two angles must be zero?</span></span></li>
+    <li data-task="axisz"><span><span data-lang="zh">让旋转轴恰好是<b>竖直的 z 轴</b>（转角大于 20°）。可以把哪两个角设为 0 来做到？</span><span data-lang="en">Make the axis exactly the <b>vertical z-axis</b> (rotation angle above 20°). Which two angles can you set to zero to get it?</span></span></li>
   </ul>
 
   <div class="callout robot">
@@ -628,7 +628,7 @@
     <li>3Blue1Brown, <a href="https://www.3blue1brown.com/topics/linear-algebra" target="_blank" rel="noopener"><i>Essence of Linear Algebra</i></a> — <span data-lang="zh">第 14 章“特征向量与特征值”，以及第 15 章“计算特征值的一个小技巧”（本课用到的迹与行列式心算法）</span><span data-lang="en">Ch. 14 "Eigenvectors and eigenvalues" and Ch. 15 "A quick trick for computing eigenvalues" (the trace-and-determinant shortcut used here)</span></li>
     <li>G. Strang, <i>Introduction to Linear Algebra</i>, Ch. 6 — <span data-lang="zh">特征值与特征向量（对角化、对称矩阵、稳定性）</span><span data-lang="en">Eigenvalues and eigenvectors (diagonalization, symmetric matrices, stability)</span></li>
     <li>K. J. Åström &amp; R. M. Murray, <i>Feedback Systems</i>, Ch. 5–6 — <span data-lang="zh">线性系统与状态反馈：特征值如何决定稳定性与响应</span><span data-lang="en">Linear systems and state feedback: how eigenvalues determine stability and response</span></li>
-    <li>J. Ström et al., <a href="http://immersivemath.com/ila/" target="_blank" rel="noopener"><i>Immersive Linear Algebra</i></a> — <span data-lang="zh">特征值与特征向量一章，带交互插图</span><span data-lang="en">The chapter on eigenvalues and eigenvectors, with interactive illustrations</span></li>
+    <li>J. Ström et al., <a href="https://immersivemath.com/ila/" target="_blank" rel="noopener"><i>Immersive Linear Algebra</i></a> — <span data-lang="zh">特征值与特征向量一章，带交互插图</span><span data-lang="en">The chapter on eigenvalues and eigenvectors, with interactive illustrations</span></li>
     <li>G. Strang, <a href="https://ocw.mit.edu/courses/18-06-linear-algebra-spring-2010/" target="_blank" rel="noopener">MIT 18.06 Linear Algebra</a> — <span data-lang="zh">第 21–22 讲：特征值、对角化与矩阵的幂</span><span data-lang="en">Lectures 21–22: eigenvalues, diagonalization and powers of a matrix</span></li>
   </ul>
 </section>
@@ -673,6 +673,15 @@ R101.onReady(function () {
       rho: Math.max(Math.abs(e.values[0]), Math.abs(e.values[1])),
       defective: !scalar && Math.abs(e.values[0] - e.values[1]) < 1e-6
     };
+  }
+  // eigenvalue dot on a small complex-plane plot; clamped to the edge (hollow, "off scale") when it lies outside the view
+  function eigDot(P, p, col) {
+    const b = P.bounds(), mg = 0.18;
+    const q = [cl(p[0], b.xmin + mg, b.xmax - mg), cl(p[1], b.ymin + mg, b.ymax - mg)];
+    if (q[0] === p[0] && q[1] === p[1]) { P.point(p, { color: col, r: 6.5, stroke: 'canvas', strokeWidth: 2 }); return; }
+    P.point(q, { color: 'canvas', r: 6.5, stroke: col, strokeWidth: 2.5 });
+    P.text(R101.t('超出画面 λ = ', 'off scale λ = ') + f2(p[0]) + (Math.abs(p[1]) > 1e-9 ? (p[1] > 0 ? ' + ' : ' − ') + f2(Math.abs(p[1])) + 'i' : ''), q,
+      { color: col, bold: true, size: 11, align: q[0] > 0 ? 'right' : 'left', offset: [q[0] > 0 ? -10 : 10, q[1] > 0 ? 14 : -10] });
   }
   const eigText = e => e.complex ? `${f2(e.re)} ± ${f2(e.im)}i` : `${f2(e.values[0])}, ${f2(e.values[1])}`;
 
@@ -785,8 +794,8 @@ R101.onReady(function () {
       const reveal = showAns || hl === 'lam';
       P.grid({ color: 'grid', axisColor: 'grid-2' });
       P.circle([0, 0], 1, { color: 'grid-2', width: 1, dash: [4, 4] });
+      P.ellipse([0, 0], A, { color: 'x', width: 1.2, alpha: 0.4 });
       if (ring) {
-        P.ellipse([0, 0], A, { color: 'x', width: 1.2, alpha: 0.4 });
         for (let k = 0; k < 72; k++) {
           const t = k * TAU / 72, u = [Math.cos(t), Math.sin(t)], q = M.mv(A, u);
           let hit = false;
@@ -886,7 +895,7 @@ R101.onReady(function () {
       readEl.innerHTML = h;
       // tasks
       if (!e.complex && !e.scalar && near(A, [[2, 1], [1, 2]], 0.05) && marks.length >= 2) R101.done('sym2');
-      if (e.complex && e.im > 0.2) R101.done('noreal');
+      if (e.complex && e.im > 0.2 && sweepsDone >= 1) R101.done('noreal');
       if (marks.some(m => Math.abs(m.lam + 1) < 0.1)) R101.done('neg');
       if (e.defective && Math.abs(A[0][1]) + Math.abs(A[1][0]) > 0.2 && sweepsDone >= 1 && marks.length === 1) R101.done('shear1');
       P.invalidate();
@@ -964,7 +973,7 @@ R101.onReady(function () {
       const pts = e.complex ? [[e.re, e.im], [e.re, -e.im]] : [[e.values[0], 0], [e.values[1], 0]];
       pts.forEach(p => {
         const m = Math.hypot(p[0], p[1]);
-        P.point(p, { color: m < 0.995 ? 'good' : m > 1.005 ? 'bad' : 'v', r: 6.5, stroke: 'canvas', strokeWidth: 2 });
+        eigDot(P, p, m < 0.995 ? 'good' : m > 1.005 ? 'bad' : 'v');
       });
     }
 
@@ -980,7 +989,7 @@ R101.onReady(function () {
         : dom < 0 ? ['bad', '不稳定：沿主方向发散，每步翻到另一侧', 'unstable: runs away along the dominant direction, flipping sides each step']
           : ['bad', '不稳定：沿主方向发散', 'unstable: runs away along the dominant direction'];
       return e.complex ? ['v', '临界：在椭圆上永远转圈', 'marginal: circles on ellipses forever']
-        : e.defective ? ['v', '临界且缺陷：|λ| = 1 却缓慢线性漂走', 'marginal and defective: |λ| = 1 yet it drifts away linearly']
+        : e.defective ? ['bad', '不稳定（缺陷矩阵）：|λ| = 1 却线性漂走', 'unstable (defective): |λ| = 1 yet it drifts away linearly']
           : ['v', '临界：不衰减也不发散', 'marginal: neither decays nor blows up'];
     }
     function sync() {
@@ -1048,10 +1057,10 @@ R101.onReady(function () {
   /* ---------------- FIG 4: symmetric vs non-symmetric ---------------- */
   (function () {
     let th = 30 * RAD, l1 = 2.5, l2 = 1, t = 0.4, stage = 3, stageStop = null, sawLow = false, touchedT = false;
-    const K = [[0, 1], [-1, 0]];
+    const J = [[0, 1], [-1, 0]];
     const Qm = () => M.rot2(th);
     const S = () => M.mul(M.mul(Qm(), [[l1, 0], [0, l2]]), M.T(Qm()));
-    const Nm = () => M.madd(S(), M.mscale(K, t));
+    const Nm = () => M.madd(S(), M.mscale(J, t));
     function Tstage(s) {
       const Qt = M.rot2(-th);
       if (s <= 1) return M.rot2(-th * s);
@@ -1117,7 +1126,7 @@ R101.onReady(function () {
       const Sm = S(), N = Nm(), e = M.eig2(N), half = Math.abs(l1 - l2) / 2;
       R101.tex(texL, `S = Q\\Lambda Q^{\\top} = ${M.texMat(Sm)}`);
       readL.innerHTML = `λ = <b>${f2(l1)}, ${f2(l2)}</b> &nbsp;·&nbsp; ${L('特征向量夹角', 'angle between eigenvectors')} <b>90°</b>`;
-      R101.tex(texR, `N = S + tK = ${M.texMat(N)}`);
+      R101.tex(texR, `N = S + tJ = ${M.texMat(N)}`);
       let h = `t = <b>${f2(t)}</b>, ${L('特征值之差的一半', 'half the eigenvalue gap')} = <b>${f2(half)}</b><br>`;
       let devPerp = 0;
       if (e.complex) h += `λ = <b>${f2(e.re)} ± ${f2(e.im)}i</b><br><span style="color:var(--c-bad)">${L('|t| 超过了半个间隔：特征向量消失', '|t| exceeds the half-gap: the eigenvectors are gone')}</span>`;
@@ -1202,7 +1211,7 @@ R101.onReady(function () {
       const pts = e.complex ? [[e.re, e.im], [e.re, -e.im]] : [[e.values[0], 0], [e.values[1], 0]];
       pts.forEach(p => {
         const m = Math.hypot(p[0], p[1]);
-        P.point(p, { color: m < 0.995 ? 'good' : m > 1.0005 ? 'bad' : 'v', r: 6.5, stroke: 'canvas', strokeWidth: 2 });
+        eigDot(P, p, m < 0.9995 ? 'good' : m > 1.0005 ? 'bad' : 'v');
       });
     }
     function drawTime(P) {
@@ -1210,7 +1219,8 @@ R101.onReady(function () {
       const xa = b.xmin + 0.07 * W, xb = b.xmax - 0.03 * W, yc = (b.ymin + b.ymax) / 2 + 0.03 * H, ys = 0.36 * H / 1.5;
       const X = tt => xa + (xb - xa) * tt / T, Y = p => yc + p * ys;
       const e = eigInfo(Acl());
-      P.poly([[xa, Y(0.02)], [xb, Y(0.02)], [xb, Y(-0.02)], [xa, Y(-0.02)]], { fill: 'good', fillAlpha: 0.25 });
+      const bh = Math.max(0.02 * ys, 3 / P.scale);  // ±2% band, at least ±3 px so it stays visible
+      P.poly([[xa, yc + bh], [xb, yc + bh], [xb, yc - bh], [xa, yc - bh]], { fill: 'good', fillAlpha: 0.25 });
       [1, -1].forEach(p => P.line([xa, Y(p)], [xb, Y(p)], { color: 'grid-2', width: 1, dash: [3, 4] }));
       P.line([xa, yc], [xb, yc], { color: 'axis', width: 1.5 });
       P.line([xa, Y(1.5)], [xa, Y(-1.5)], { color: 'axis', width: 1.5 });

@@ -101,7 +101,7 @@
   </p>
   <div class="lesson-meta">
     <span class="chip"><span data-lang="zh">约 25 分钟</span><span data-lang="en">~25 min</span></span>
-    <span class="chip"><span data-lang="zh">前置：4.2 条件概率与贝叶斯 · 4.5 不确定性传播 · 4.6 最大似然与最大后验</span><span data-lang="en">Prereqs: 4.2 Conditional Probability &amp; Bayes · 4.5 Propagating Uncertainty · 4.6 MLE &amp; MAP</span></span>
+    <span class="chip"><span data-lang="zh">前置：<a href="4-2-bayes.html">4.2 条件概率与贝叶斯</a> · <a href="4-5-uncertainty-propagation.html">4.5 不确定性传播</a> · <a href="4-6-mle-map.html">4.6 最大似然与最大后验</a></span><span data-lang="en">Prereqs: <a href="4-2-bayes.html">4.2 Conditional Probability &amp; Bayes</a> · <a href="4-5-uncertainty-propagation.html">4.5 Propagating Uncertainty</a> · <a href="4-6-mle-map.html">4.6 MLE &amp; MAP</a></span></span>
     <span class="chip"><span data-lang="zh">3 个交互</span><span data-lang="en">3 interactives</span></span>
   </div>
   <ul class="toc-steps" id="step-toc"></ul>
@@ -155,21 +155,21 @@
     </div>
     <div class="fig-controls" id="bf-controls"></div>
     <figcaption class="fig-cap">
-      <span data-lang="zh">上方是走廊：<span class="cx">蓝色方块</span>是门，圆点机器人是<b>真实位置</b>（滤波器不知道，可以<b>拖动它</b>来"绑架"机器人）。下方柱子是信念：<span class="cx">青色</span> = 刚预测完，<span class="cv">黄色</span> = 刚更新完，灰色轮廓 = 上一步的信念。<span class="cw">紫色</span>小条是上一次读数给每格的似然 p(z | x)。按"左移 / 右移"做预测，按"感知"做更新。</span>
-      <span data-lang="en">The top strip is the corridor: <span class="cx">blue blocks</span> are doors and the dot is the robot's <b>true position</b> (which the filter does not know; <b>drag it</b> to "kidnap" the robot). The bars below are the belief: <span class="cx">cyan</span> = just predicted, <span class="cv">amber</span> = just updated, grey outline = the previous belief. The small <span class="cw">purple</span> bars are the likelihood p(z | x) that the last reading assigned to each cell. Press "Left / Right" to predict and "Sense" to update.</span>
+      <span data-lang="zh">上方是走廊：<span class="ck">蓝色方块</span>是门，圆点机器人是<b>真实位置</b>（滤波器不知道，可以<b>拖动它</b>来"绑架"机器人）。下方柱子是信念：<span class="cx">青色</span> = 刚预测完，<span class="cv">黄色</span> = 刚更新完，灰色轮廓 = 上一步的信念。<span class="cw">紫色</span>小条是上一次读数给每格的似然 p(z | x)。按"左移 / 右移"做预测，按"感知"做更新。</span>
+      <span data-lang="en">The top strip is the corridor: <span class="ck">blue blocks</span> are doors and the dot is the robot's <b>true position</b> (which the filter does not know; <b>drag it</b> to "kidnap" the robot). The bars below are the belief: <span class="cx">cyan</span> = just predicted, <span class="cv">amber</span> = just updated, grey outline = the previous belief. The small <span class="cw">purple</span> bars are the likelihood p(z | x) that the last reading assigned to each cell. Press "Left / Right" to predict and "Sense" to update.</span>
     </figcaption>
   </figure>
   <div class="tasks-title"><span data-lang="zh">试一试</span><span data-lang="en">Try this</span></div>
   <ul class="tasks">
-    <li data-task="bf-alias"><span><span data-lang="zh"><b>歧义</b>：重置后点一次"感知"，让信念出现两个相距 5 格以上、各自超过 0.2 的峰。</span><span data-lang="en"><b>Ambiguity</b>: after a reset press "Sense" once, and obtain two peaks at least 5 cells apart, each above 0.2.</span></span></li>
+    <li data-task="bf-alias"><span><span data-lang="zh"><b>歧义</b>：重置后点一次"感知"：信念出现好几个<b>一样高</b>、相距 5 格以上的峰（读到"门"时最明显：5 扇门各一个）。一次读数分不清是哪一处。</span><span data-lang="en"><b>Ambiguity</b>: after a reset press "Sense" once: the belief gets several <b>equally tall</b> peaks at least 5 cells apart (clearest on a "door" reading: one per door). One reading cannot tell which place it is.</span></span></li>
     <li data-task="bf-localize"><span><span data-lang="zh"><b>定位成功</b>：通过移动和感知，让真实位置那一格的概率超过 0.9。需要几步？</span><span data-lang="en"><b>Localize</b>: by moving and sensing, get the probability of the true cell above 0.9. How many steps did it take?</span></span></li>
     <li data-task="bf-kidnap"><span><span data-lang="zh"><b>绑架机器人</b>：定位成功后把机器人拖到 5 格以外，然后连续"感知"。滤波器多久才醒悟？（提示：它可能永远不会。）</span><span data-lang="en"><b>Kidnap the robot</b>: after localizing, drag it 5+ cells away and keep pressing "Sense". How long before the filter wakes up? (Hint: it may never.)</span></span></li>
   </ul>
 
   <div class="callout key">
     <div class="ct"><span data-lang="zh">核心洞见</span><span data-lang="en">Key insight</span></div>
-    <p data-lang="zh"><b>动作让你更糊涂，观测让你更清楚。</b>预测把分布抹开（熵增加），更新把它压尖（平均而言熵减少）。滤波器的工作就是在这两股力量之间保持诚实：既不假装知道得比实际多，也不把已经知道的东西忘掉。注意"归一化"不是装饰：没有它，相乘之后柱子的总和就不再是 1，也就不再是概率。</p>
-    <p data-lang="en"><b>Actions make you more confused, observations make you less.</b> Predict smears the distribution (entropy goes up); update sharpens it (entropy goes down, on average). The filter's job is to stay honest between these two forces: never pretend to know more than it does, never forget what it already knows. Normalization is not decoration: without it the bars no longer sum to 1 after the multiplication, so they stop being probabilities.</p>
+    <p data-lang="zh"><b>动作让你更糊涂，观测让你更清楚。</b>预测把分布抹开（在开阔处熵增加；例外是边界：撞到尽头的墙会把概率堆在一起，见 FIG 3），更新把它压尖（平均而言熵减少）。滤波器的工作就是在这两股力量之间保持诚实：既不假装知道得比实际多，也不把已经知道的东西忘掉。注意"归一化"不是装饰：没有它，相乘之后柱子的总和就不再是 1，也就不再是概率。</p>
+    <p data-lang="en"><b>Actions make you more confused, observations make you less.</b> Predict smears the distribution (entropy goes up in open space; the exception is a boundary: driving into the end wall piles the mass up, see FIG 3); update sharpens it (entropy goes down, on average). The filter's job is to stay honest between these two forces: never pretend to know more than it does, never forget what it already knows. Normalization is not decoration: without it the bars no longer sum to 1 after the multiplication, so they stop being probabilities.</p>
   </div>
 </section>
 
@@ -213,14 +213,14 @@
   <div class="tasks-title"><span data-lang="zh">试一试</span><span data-lang="en">Try this</span></div>
   <ul class="tasks">
     <li data-task="rep-agree"><span><span data-lang="zh">GPS 模式下交替移动与感知至少 3 次：看右边读数，卡尔曼高斯与网格的总变差距离应小于 0.02。<b>卡尔曼滤波就是贝叶斯滤波。</b></span><span data-lang="en">In GPS mode alternate move and sense at least 3 times: the readout should show a total-variation distance below 0.02 between the Kalman Gaussian and the grid. <b>The Kalman filter is the Bayes filter.</b></span></span></li>
-    <li data-task="rep-multi"><span><span data-lang="zh">切到<b>门探测器</b>，点「感知」直到读到「门」（读到「墙」就重置再试）：精确信念有三个峰，最佳单个高斯却把质量堆在两扇门之间的空地上（距离大于 0.3）。</span><span data-lang="en">Switch to the <b>door detector</b> and press Sense until it reads “door” (on “wall”, reset and retry): the exact belief has three peaks, while the best single Gaussian piles its mass in the empty space between doors (distance above 0.3).</span></span></li>
+    <li data-task="rep-multi"><span><span data-lang="zh">切到<b>门探测器</b>，点「感知」直到读到「门」（读到「墙」就重置再试）：精确信念有三个峰，最佳单个高斯却把质量堆在两扇门之间的空地上（两者的总变差距离大于 0.3）。</span><span data-lang="en">Switch to the <b>door detector</b> and press Sense until it reads “door” (on “wall”, reset and retry): the exact belief has three peaks, while the best single Gaussian piles its mass in the empty space between doors (total-variation distance above 0.3).</span></span></li>
   </ul>
 </section>
 
 <!-- ============ 4. MATH ============ -->
 <section class="step" id="math">
   <h2><span class="n">4</span><span data-lang="zh">再看数学</span><span data-lang="en">The math</span></h2>
-  <p class="hl-hint"><span data-lang="zh">提示：悬停下面公式中带底色的符号，FIG 1 与 FIG 2 中对应的信念会高亮。</span><span data-lang="en">Tip: hover the shaded symbols below and the matching belief in FIG 1 and FIG 2 lights up.</span></p>
+  <p class="hl-hint"><span data-lang="zh">提示：悬停下面公式中带底色的符号，FIG 1 中对应的部分会高亮（预测后的信念 \(\mathrm{bel}^-\)、更新后的信念 \(\mathrm{bel}\)、似然条、运动模型的转移概率）；FIG 2 中精确信念对应 \(\mathrm{bel}\)。</span><span data-lang="en">Tip: hover the shaded symbols below and the matching part of FIG 1 lights up (the predicted belief \(\mathrm{bel}^-\), the updated belief \(\mathrm{bel}\), the likelihood strip, the motion model's transition probabilities); in FIG 2 the exact belief lights up for \(\mathrm{bel}\).</span></p>
 
   <h3><span data-lang="zh">信念与两条假设</span><span data-lang="en">The belief and two assumptions</span></h3>
   <p data-lang="zh">记 \(x_k\) 为 \(k\) 时刻的状态，\(u_k\) 为控制，\(z_k\) 为测量。<b>信念</b>是"已知到目前为止所有控制和测量时，状态的分布"，更新前的那一版（只用到 \(k-1\) 时刻的测量）记作 \(\mathrm{bel}^-\)：</p>
@@ -348,7 +348,7 @@
       <button class="opt"><span data-lang="zh">预测增大熵，更新（平均而言）减小熵</span><span data-lang="en">predict raises entropy, update lowers it (on average)</span></button>
       <button class="opt"><span data-lang="zh">两步都不改变熵，只改变均值</span><span data-lang="en">neither changes entropy, only the mean</span></button>
     </div>
-    <div class="explain"><span data-lang="zh">运动带噪声，预测相当于把分布与噪声核卷积，总是更宽；观测带来信息，更新平均而言让分布更尖。"平均"二字不能省：遇到一个极出乎意料的读数，单次更新也可能让熵上升。</span><span data-lang="en">Motion is noisy, so predict convolves the distribution with a noise kernel and always widens it; observations carry information, so update sharpens it on average. "On average" matters: after a very surprising reading a single update can even raise the entropy.</span></div>
+    <div class="explain"><span data-lang="zh">运动带噪声，预测相当于把分布与噪声核卷积，在开阔处总是更宽（边界例外：墙会把越界的概率堆在最后一格，FIG 3 正是利用这一点）；观测带来信息，更新平均而言让分布更尖。"平均"二字不能省：遇到一个极出乎意料的读数，单次更新也可能让熵上升。</span><span data-lang="en">Motion is noisy, so predict convolves the distribution with a noise kernel and, in open space, always widens it (boundaries are the exception: a wall piles the overflowing mass into the last cell, which FIG 3 exploits); observations carry information, so update sharpens it on average. "On average" matters: after a very surprising reading a single update can even raise the entropy.</span></div>
   </div>
 
   <div class="quiz" data-answer="1">
@@ -441,7 +441,7 @@ R101.onReady(function () {
     for (let i = 0; i < N; i++) {
       const x = PL + i * CW;
       P.poly([[x, ty], [x + CW, ty], [x + CW, ty + th], [x, ty + th]], { stroke: 'grid-2', width: 1 });
-      if (isDoor(i)) P.poly([[x + CW * 0.2, ty + 2], [x + CW * 0.8, ty + 2], [x + CW * 0.8, ty + th * 0.85], [x + CW * 0.2, ty + th * 0.85]], { fill: 'x', fillAlpha: 0.55, stroke: 'x', width: 1.2 });
+      if (isDoor(i)) P.poly([[x + CW * 0.2, ty + 2], [x + CW * 0.8, ty + 2], [x + CW * 0.8, ty + th * 0.85], [x + CW * 0.2, ty + th * 0.85]], { fill: 'k', fillAlpha: 0.55, stroke: 'k', width: 1.2 });
     }
     const cx = PL + (pos + 0.5) * CW;
     P.point([cx, ty + th * 0.38], { color: 'text', r: Math.min(10, CW * 0.3), stroke: 'canvas', strokeWidth: 2 });
@@ -460,23 +460,31 @@ R101.onReady(function () {
     const P = new R101.Plane2D('#bf-canvas', { height: 330, draw });
     function draw(P) {
       pixelView(P);
-      const lay = layout(P), { PL, CW, ty, th, ly, yb, barH } = lay;
+      const lay = layout(P), { PL, CW, ty, th, ly, yb, barH } = lay, hl = R101.hl;
+      // formula hover: which drawn belief is bel^- (prior) and which is bel (post)?
+      const curOn = (hl === 'prior' && phase === 'prior') || (hl === 'post' && phase !== 'prior');
+      const ghostOn = (hl === 'prior' && phase === 'post') || (hl === 'post' && phase === 'prior');
       drawCorridor(P, lay, pos);
-      P.textPx(tr('走廊（门 = 蓝色块）', 'corridor (doors = blue blocks)'), PL + 2, 10, { size: 11, color: 'text-2' });
+      if (hl !== 'motion') P.textPx(tr('走廊（门 = 蓝色块）', 'corridor (doors = blue blocks)'), PL + 2, 10, { size: 11, color: 'text-2' });
       // likelihood strip
       if (lik) for (let i = 0; i < N; i++) {
         const x = PL + i * CW, h = 12 * lik[i] / Math.max(...lik);
-        P.poly([[x + 2, ly], [x + CW - 2, ly], [x + CW - 2, ly + h], [x + 2, ly + h]], { fill: 'w', fillAlpha: 0.75 });
+        P.poly([[x + 2, ly], [x + CW - 2, ly], [x + CW - 2, ly + h], [x + 2, ly + h]], { fill: 'w', fillAlpha: hl === 'sensor' ? 1 : 0.75, stroke: hl === 'sensor' ? 'w' : null, width: 2 });
       }
       if (lik) P.textPx('p(z|x)', PL + 2, P.H - ly - 18, { size: 10.5, color: 'w', bold: true });
+      if (hl === 'motion') {
+        // the motion model p(x | x', u) for the last (or a +1) command
+        const d = lastDir || 1, pu = (1 - pe) / 2;
+        P.textPx(`p(x|x′,u=${d > 0 ? '+1' : '−1'}):  ${d > 0 ? '+1' : '−1'} → ${M.fmt(pe, 2)} · 0 → ${M.fmt(pu, 2)} · ${d > 0 ? '+2' : '−2'} → ${M.fmt(pu, 2)}`, PL + 2, 10, { size: 11, color: 'w', bold: true });
+      }
       // baseline + bars
       P.line([PL, yb], [PL + N * CW, yb], { color: 'axis', width: 1.2 });
       const col = phase === 'prior' ? 'x' : 'v', sc = Math.max(0.3, Math.max(...bel));
       for (let i = 0; i < N; i++) {
         const x = PL + i * CW;
-        if (ghost) { const g = ghost[i] * barH / sc; P.poly([[x + 2, yb], [x + CW - 2, yb], [x + CW - 2, yb + g], [x + 2, yb + g]], { stroke: 'ghost', width: 1.2, dash: [3, 3] }); }
+        if (ghost) { const g = ghost[i] * barH / sc; P.poly([[x + 2, yb], [x + CW - 2, yb], [x + CW - 2, yb + g], [x + 2, yb + g]], { stroke: ghostOn ? (phase === 'prior' ? 'v' : 'x') : 'ghost', width: ghostOn ? 2.6 : 1.2, dash: [3, 3] }); }
         const h = bel[i] * barH / sc;
-        P.poly([[x + 3, yb], [x + CW - 3, yb], [x + CW - 3, yb + h], [x + 3, yb + h]], { fill: col, fillAlpha: 0.55, stroke: col, width: 1.5 });
+        P.poly([[x + 3, yb], [x + CW - 3, yb], [x + CW - 3, yb + h], [x + 3, yb + h]], { fill: col, fillAlpha: curOn ? 0.8 : 0.55, stroke: col, width: curOn ? 3 : 1.5 });
         P.textPx(String(i), x + CW / 2, P.H - yb + 11, { align: 'center', size: 10, color: 'text-2' });
         if (CW > 28 && bel[i] > 0.035) P.textPx(M.fmt(bel[i], 2), x + CW / 2, P.H - (yb + h) - 8, { align: 'center', size: 10.5, color: col, bold: true });
       }
@@ -485,7 +493,7 @@ R101.onReady(function () {
       P.textPx('▲', PL + (k + 0.5) * CW, P.H - yb + 24, { align: 'center', size: 9, color: col });
     }
     pixelView(P);
-    P.handle({ pos: () => { const l = layout(P); return [l.PL + (pos + 0.5) * l.CW, l.ty + l.th * 0.38]; }, color: 'k', r: 20,
+    P.handle({ pos: () => { const l = layout(P); return [l.PL + (pos + 0.5) * l.CW, l.ty + l.th * 0.38]; }, color: 'text', r: 20,
       start: () => { dragFrom = pos; },
       end: () => { if (Math.abs(pos - dragFrom) >= 5) kid = true; sync(); },
       set: p => { const l = layout(P); pos = M.clamp(Math.floor((p[0] - l.PL) / l.CW), 0, N - 1); } });
@@ -517,11 +525,12 @@ R101.onReady(function () {
       R101.tex(t1, `\\hl{prior}{\\mathrm{bel}^-}(x)=\\sum_{x'}\\hl{motion}{p(x\\mid x',u)}\\,\\hl{post}{\\mathrm{bel}}(x')\\;\\;[${lastDir === 0 ? '\\text{—}' : (lastDir > 0 ? 'u=+1' : 'u=-1')}]`);
       R101.tex(t2, `\\hl{post}{\\mathrm{bel}}(x)=\\eta\\,\\hl{sensor}{p(z\\mid x)}\\,\\hl{prior}{\\mathrm{bel}^-}(x)\\;\\;[${eta ? '\\eta=' + M.tex(eta, 2) : '\\text{—}'}]`);
       msg.innerHTML = phase === 'init' ? L('均匀信念：一无所知。先"感知"，或先走几步。', 'Uniform belief: nothing known. Try "Sense", or take a few steps first.')
-        : phase === 'prior' ? L('刚预测完：柱子平移并变矮变宽，熵增加了。', 'Just predicted: the bars shifted and flattened, entropy went up.')
+        : phase === 'prior' ? (ghost && H < ent(ghost) - 1e-9 ? L('刚预测完：越界的概率被墙堆进了最后一格，这一次熵反而减少了。', 'Just predicted: the wall piled the overflowing mass into the end cell, so this time the entropy went down.') : L('刚预测完：柱子平移并变矮变宽，熵增加了。', 'Just predicted: the bars shifted and flattened, entropy went up.'))
         : L(`读到"${lastZ === 'door' ? '门' : '墙'}"，更新后熵 ${M.fmt(H, 2)} bit。`, `Read "${lastZ}"; after the update the entropy is ${M.fmt(H, 2)} bit.`);
       // tasks
       if (phase === 'post') {
-        const peaks = []; for (let i = 0; i < N; i++) if (bel[i] > 0.2 && (i === 0 || bel[i] >= bel[i - 1]) && (i === N - 1 || bel[i] >= bel[i + 1])) peaks.push(i);
+        // equally tall local maxima (within 10% of the top) spread over the corridor = aliasing
+        const top = Math.max(...bel), peaks = []; for (let i = 0; i < N; i++) if (bel[i] >= 0.9 * top && (i === 0 || bel[i] >= bel[i - 1]) && (i === N - 1 || bel[i] >= bel[i + 1])) peaks.push(i);
         if (peaks.length >= 2 && peaks[peaks.length - 1] - peaks[0] >= 5) R101.done('bf-alias');
       }
       if (steps > 0 && bel[pos] > 0.9) R101.done('bf-localize');
@@ -613,7 +622,7 @@ R101.onReady(function () {
       q = box(P, 0, X1, -0.14 * ymax, ymax, [14, 14, 10, 8]);
       P.line(q(0, 0), q(X1, 0), { color: 'axis', width: 1.2 });
       for (let x = 0; x <= X1; x += 2) { const b = q(x, 0); P.line(b, [b[0], b[1] - 4], { color: 'axis', width: 1 }); P.text(x + (x === X1 ? ' m' : ''), b, { offset: [0, 13], align: 'center', size: 11, color: 'text-2' }); }
-      if (sensor === 'door') DOORS2.forEach(d => { const a = q(d - 0.3, -0.04 * ymax), b = q(d + 0.3, -0.11 * ymax); P.poly([a, [b[0], a[1]], b, [a[0], b[1]]], { fill: 'x', fillAlpha: 0.6, stroke: 'x', width: 1 }); });
+      if (sensor === 'door') DOORS2.forEach(d => { const a = q(d - 0.3, -0.04 * ymax), b = q(d + 0.3, -0.11 * ymax); P.poly([a, [b[0], a[1]], b, [a[0], b[1]]], { fill: 'k', fillAlpha: 0.6, stroke: 'k', width: 1 }); });
       // particle ticks
       parts.forEach(p => { const a = q(p, 0); P.line([a[0], a[1] - 3], [a[0], a[1] - 9], { color: 'w', width: 1, alpha: 0.35 }); });
       // exact grid
@@ -625,7 +634,7 @@ R101.onReady(function () {
       P.path(hp, { color: 'w', width: 1.4, alpha: 0.9 });
       // gaussian
       const cp = []; for (let i = 0; i <= 200; i++) { const x = X1 * i / 200; cp.push(q(x, gauss(x, g.m, Math.sqrt(g.v)))); }
-      P.path(cp, { color: 'x', width: hl === 'prior' ? 4 : 2.4, dash: [7, 4] });
+      P.path(cp, { color: 'x', width: 2.4, dash: [7, 4] });
       // truth and measurement
       P.line(q(xt, 0), q(xt, 0.95 * ymax), { color: 'text-2', width: 1.4, dash: [3, 5] });
       P.text(tr('真实位置', 'truth'), q(xt, 0.95 * ymax), { offset: [0, -8], align: 'center', size: 11, color: 'text-2' });

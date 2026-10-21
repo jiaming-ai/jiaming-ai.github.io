@@ -209,7 +209,7 @@
   <ul class="tasks">
     <li data-task="lock"><span><span data-lang="zh">把俯仰调到 \(\pm 90°\)（点预设），看红色转轴和蓝色转轴怎样重合。</span><span data-lang="en">Take pitch to \(\pm 90°\) (use the preset) and watch the red axis fall onto the blue one.</span></span></li>
     <li data-task="same"><span><span data-lang="zh">在俯仰 \(90°\) 处点"记下当前朝向"，再同时改变偏航和横滚（保持 \(\psi - \varphi\) 不变），让它们都和记下时相差 20° 以上，而朝向差保持在 1° 以内。两组完全不同的欧拉角，同一个朝向。</span><span data-lang="en">At pitch \(90°\) press "snapshot", then change yaw and roll together (keeping \(\psi - \varphi\) fixed) until both differ from the snapshot by over 20° while the orientation difference stays under 1°. Two very different sets of Euler angles, one orientation.</span></span></li>
-    <li data-task="near"><span><span data-lang="zh">把俯仰设到约 \(88°\)，再微调偏航 5°。注意"净转角"：在死锁附近，欧拉角的小变化会被放大或抵消，数值上很不稳。</span><span data-lang="en">Set pitch to about \(88°\) and nudge yaw by 5°. Watch the "net rotation": near the lock, small Euler changes get amplified or cancelled, which is numerically fragile.</span></span></li>
+    <li data-task="near"><span><span data-lang="zh">先在俯仰 \(0°\) 附近读一下"微调测试"的净转角（约 14°），再把俯仰设到约 \(88°\) 再读一次（只剩约 0.35°）：在死锁附近，偏航和横滚各改 10° 几乎完全抵消，欧拉角的大变化只对应很小的转动，数值上很不稳。</span><span data-lang="en">First read the nudge test's net rotation with pitch near \(0°\) (about 14°), then set pitch to about \(88°\) and read it again (only about 0.35°): near the lock, 10° changes in yaw and roll almost cancel, so large Euler changes map to tiny rotations, which is numerically fragile.</span></span></li>
   </ul>
 
   <h3><span data-lang="zh">另一个麻烦：双覆盖</span><span data-lang="en">Another wrinkle: the double cover</span></h3>
@@ -281,8 +281,8 @@
   <p class="hl-hint"><span data-lang="zh">提示：把鼠标悬停在公式中带底色的符号上，FIG 3 中对应的量会被高亮。</span><span data-lang="en">Tip: hover the highlighted symbols in the formulas; the matching quantity in FIG 3 lights up.</span></p>
 
   <h3><span data-lang="zh">欧拉角（ZYX，偏航-俯仰-横滚）</span><span data-lang="en">Euler angles (ZYX: yaw-pitch-roll)</span></h3>
-  <p data-lang="zh">\(R = R_z(\psi)\,R_y(\theta)\,R_x(\varphi)\)：先绕机体 \(x\) 转 \(\varphi\)，再绕 \(y\) 转 \(\theta\)，再绕 \(z\) 转 \(\psi\)（这是"内旋"的读法；等价的"外旋"读法是先绕世界 \(z\)，再绕世界 \(y\)，最后绕世界 \(x\)，顺序倒过来）。展开是</p>
-  <p data-lang="en">\(R = R_z(\psi)\,R_y(\theta)\,R_x(\varphi)\). Read as intrinsic rotations: roll by \(\varphi\) about the body \(x\), then pitch by \(\theta\), then yaw by \(\psi\) (the equivalent extrinsic reading uses the world axes in the opposite order). Expanded,</p>
+  <p data-lang="zh">\(R = R_z(\psi)\,R_y(\theta)\,R_x(\varphi)\)：先绕 \(z\) 转 \(\psi\)（偏航），再绕转过之后的新 \(y'\) 轴转 \(\theta\)（俯仰），最后绕新的 \(x''\) 轴转 \(\varphi\)（横滚）（这是"内旋"的读法，和 FIG 2 的万向节一致；等价的"外旋"读法是先绕世界 \(x\) 转 \(\varphi\)，再绕世界 \(y\) 转 \(\theta\)，最后绕世界 \(z\) 转 \(\psi\)，顺序倒过来）。展开是</p>
+  <p data-lang="en">\(R = R_z(\psi)\,R_y(\theta)\,R_x(\varphi)\). Read as intrinsic rotations: yaw by \(\psi\) about \(z\), then pitch by \(\theta\) about the new \(y'\), then roll by \(\varphi\) about the new \(x''\), exactly the gimbals of FIG 2 (the equivalent extrinsic reading is roll by \(\varphi\) about the world \(x\), then pitch by \(\theta\) about the world \(y\), then yaw by \(\psi\) about the world \(z\), the opposite order). Expanded,</p>
   <div class="math-card">$$ R = \begin{bmatrix} c_\psi c_\theta & c_\psi s_\theta s_\varphi - s_\psi c_\varphi & c_\psi s_\theta c_\varphi + s_\psi s_\varphi \\ s_\psi c_\theta & s_\psi s_\theta s_\varphi + c_\psi c_\varphi & s_\psi s_\theta c_\varphi - c_\psi s_\varphi \\ -s_\theta & c_\theta s_\varphi & c_\theta c_\varphi \end{bmatrix}, \qquad \theta = -\arcsin R_{31},\ \ \psi = \operatorname{atan2}(R_{21}, R_{11}),\ \ \varphi = \operatorname{atan2}(R_{32}, R_{33}). $$</div>
   <p data-lang="zh">当 \(\theta = \pm 90°\) 时 \(c_\theta = 0\)，矩阵第一列和最后一行只剩常数，其余元素只依赖 \(\varphi - \psi\)（\(\theta = +90°\)）或 \(\varphi + \psi\)（\(\theta = -90°\)），\(\psi\) 和 \(\varphi\) 无法分开。这就是死锁；上面的公式也在那里失效（\(R_{11} = R_{21} = 0\)），代码必须单独处理。同一个朝向的"三轴顺序"有 12 种（ZYX、ZYZ、XYZ……），"内旋 / 外旋"再翻一倍，所以<b>脱离约定谈欧拉角没有意义</b>。</p>
   <p data-lang="en">At \(\theta = \pm 90°\), \(c_\theta = 0\): the first column and last row become constants and every other entry depends only on \(\varphi - \psi\) (for \(\theta = +90°\)) or \(\varphi + \psi\) (for \(\theta = -90°\)); \(\psi\) and \(\varphi\) cannot be separated. That is the lock, and the extraction formulas above fail there (\(R_{11} = R_{21} = 0\)), so code must special-case it. There are 12 axis orders (ZYX, ZYZ, XYZ, …) and intrinsic/extrinsic doubles it again, so <b>Euler angles mean nothing without their convention</b>.</p>
@@ -345,8 +345,8 @@
     </div>
     <div class="fig-controls" id="a-ctl"></div>
     <figcaption class="fig-cap">
-      <span data-lang="zh">淡色机体是目标姿态，亮色机体是当前姿态，琥珀色曲线是机头走过的轨迹。控制律：\(\boldsymbol\omega = 2k\,\sigma\,\mathbf v_e\)，\(\sigma = \operatorname{sign}(w_e)\)（开启修正时）或恒为 1（关闭时）；积分用 \(q \leftarrow q\otimes\Exp(\boldsymbol\omega\,dt)\)（把旋转 \(\Exp(\boldsymbol\omega\,dt)\) 写成四元数）。"累计转角"是 \(\int\|\boldsymbol\omega\|dt\)。</span>
-      <span data-lang="en">The faint body is the target attitude, the bright one the current attitude, and the amber curve is the path of the nose. Control law: \(\boldsymbol\omega = 2k\,\sigma\,\mathbf v_e\) with \(\sigma = \operatorname{sign}(w_e)\) (fix on) or always 1 (fix off); integration is \(q \leftarrow q\otimes\Exp(\boldsymbol\omega\,dt)\) (the rotation \(\Exp(\boldsymbol\omega\,dt)\) written as a quaternion). "Total turned" is \(\int\|\boldsymbol\omega\|dt\).</span>
+      <span data-lang="zh">淡淡的<span class="cj">绿色</span>机体是目标姿态，<span class="cx">青色</span>机体是当前姿态，琥珀色曲线是机头走过的轨迹。控制律：\(\boldsymbol\omega = 2k\,\sigma\,\mathbf v_e\)，\(\sigma = \operatorname{sign}(w_e)\)（开启修正时）或恒为 1（关闭时）；积分用 \(q \leftarrow q\otimes\Exp(\boldsymbol\omega\,dt)\)（把旋转 \(\Exp(\boldsymbol\omega\,dt)\) 写成四元数）。"累计转角"是 \(\int\|\boldsymbol\omega\|dt\)。</span>
+      <span data-lang="en">The faint <span class="cj">green</span> body is the target attitude, the <span class="cx">cyan</span> one the current attitude, and the amber curve is the path of the nose. Control law: \(\boldsymbol\omega = 2k\,\sigma\,\mathbf v_e\) with \(\sigma = \operatorname{sign}(w_e)\) (fix on) or always 1 (fix off); integration is \(q \leftarrow q\otimes\Exp(\boldsymbol\omega\,dt)\) (the rotation \(\Exp(\boldsymbol\omega\,dt)\) written as a quaternion). "Total turned" is \(\int\|\boldsymbol\omega\|dt\).</span>
     </figcaption>
   </figure>
   <div class="tasks-title"><span data-lang="zh">试一试</span><span data-lang="en">Try this</span></div>
@@ -568,7 +568,7 @@ R101.onReady(function () {
   /* ================= FIG 2: gimbal lock ================= */
   (function () {
     const S = { yaw: 30, pitch: 40, roll: 20 };
-    let snap = null;
+    let snap = null, sawFlat = false;
     const V = new R101.View3D('#g-canvas', { height: 470, dist: 8.2, yaw: -0.7, pitch: 0.35, target: [0, 0, 0], draw });
     const frames = () => {
       const F1 = M.rotZ(S.yaw * D2R), F2 = M.mul(F1, M.rotY(S.pitch * D2R)), F3 = M.mul(F2, M.rotX(S.roll * D2R));
@@ -621,7 +621,8 @@ R101.onReady(function () {
       }
       rd.innerHTML = html;
       if (Math.abs(S.pitch) >= 89) R101.done('lock');
-      if (Math.abs(Math.abs(S.pitch) - 88) < 1.5 && Math.abs(S.yaw) > 0) R101.done('near');
+      if (Math.abs(S.pitch) <= 5) sawFlat = true;
+      if (sawFlat && Math.abs(Math.abs(S.pitch) - 88) < 1.5) R101.done('near');
       V.invalidate();
     }
     R101.on('lang', sync);

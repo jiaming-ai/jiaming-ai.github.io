@@ -125,7 +125,7 @@
     <p>怎么从零位图上读出 \(S_i\)？只需要两个信息：轴的方向 \(\hat{\boldsymbol\omega}_i\)（单位向量），和轴上任意一点 \(\mathbf q_i\)。5.6 节的螺旋参数公式反过来用：</p>
   </div>
   
-  <div class="math-card">$$ S_{\text{rev}} = \begin{bmatrix}\hl{w}{\cw{\hat{\boldsymbol\omega}}}\\ \hl{v}{-\hat{\boldsymbol\omega}\times\mathbf q}\end{bmatrix}, \qquad S_{\text{prismatic}} = \begin{bmatrix}\mathbf 0\\ \hat{\mathbf s}\end{bmatrix}, \qquad S_{\text{screw}} = \begin{bmatrix}\hat{\boldsymbol\omega}\\ -\hat{\boldsymbol\omega}\times\mathbf q + h\,\hat{\boldsymbol\omega}\end{bmatrix}. $$</div>
+  <div class="math-card">$$ S_{\text{rev}} = \begin{bmatrix}\hl{w}{\cw{\hat{\boldsymbol\omega}}}\\ \hl{v}{\cv{-\hat{\boldsymbol\omega}\times\mathbf q}}\end{bmatrix}, \qquad S_{\text{prismatic}} = \begin{bmatrix}\mathbf 0\\ \hat{\mathbf s}\end{bmatrix}, \qquad S_{\text{screw}} = \begin{bmatrix}\hat{\boldsymbol\omega}\\ -\hat{\boldsymbol\omega}\times\mathbf q + h\,\hat{\boldsymbol\omega}\end{bmatrix}. $$</div>
   <div data-lang="zh">
     <p>顺序仍是 \((\boldsymbol\omega,\mathbf v)\)。转动关节要求 \(\|\hat{\boldsymbol\omega}\| = 1\)，这样 \(\theta_i\) 的单位就是弧度；移动关节要求 \(\|\hat{\mathbf s}\|=1\)，\(\theta_i\) 的单位就是米。最容易搞错的是 \(\mathbf v = -\hat{\boldsymbol\omega}\times\mathbf q\) 这一项：\(\mathbf v\) 不是轴上的点的速度，而是"此刻恰好在世界原点的那个点"的速度（5.8 节）；轴离原点越远，\(\mathbf v\) 越大。下面的实验让你自己摆一根轴，看 \(S\) 怎么变。黄色箭头是世界原点那个点的速度 \(\mathbf v\)，紫色小球是点 \(\mathbf q\)，青色曲线是一个固定在运动物体上的测试点 \(\mathbf p\)（初始在 \((1.5,\,-0.6,\,0.8)\)）在 \(\Exp(sS)\) 下走过的路径。</p>
   </div>
@@ -178,7 +178,7 @@
     </div>
     <div class="fig-controls" id="r2-ctl"></div>
     <figcaption class="fig-cap">
-      <span data-lang="zh">淡虚线：零位 \(M\)。阶段 0 → 1：绕 \(S_2\)（紫点，零位时的肘部）转动第二根连杆 \(\theta_2\)；阶段 1 → 2：绕 \(S_1\)（原点）转动整条手臂 \(\theta_1\)。黄色曲线是末端走过的路径。注意：当阶段为 2 时，紫点 \(S_2\) 还留在零位的肘部，而真正的肘部（实心点）已经转到别处。</span>
+      <span data-lang="zh">淡虚线：零位 \(M\)。阶段 0 → 1：绕 \(S_2\)（紫点，零位时的肘部）转动第二根连杆 \(\theta_2\)；阶段 1 → 2：绕 \(S_1\)（原点）转动整条手臂 \(\theta_1\)。黄色曲线是末端走过的路径。注意：当阶段为 2 时，紫点 \(S_2\) 还留在零位的肘部，而真正的肘部（标着"真实肘部"的空心圆点）已经转到别处。</span>
       
     </figcaption>
   </figure>
@@ -202,6 +202,8 @@
     <tr><td>5</td><td><span data-lang="zh">腕 2</span></td><td>\((0,-1,0)\)</td><td>\((L_1+L_2,0,H)\)</td></tr>
     <tr><td>6</td><td><span data-lang="zh">腕 3</span></td><td>\((1,0,0)\)</td><td>\((L_1+L_2,0,H)\)</td></tr>
   </table></div>
+  <p data-lang="zh">FIG 3 里取 \(H=0.6\)、\(L_1=1.0\)、\(L_2=0.9\)；手腕中心之外还有一段长 \(L_3=0.35\) 的工具，所以零位末端位姿是 \(M=\text{Trans}(L_1+L_2+L_3,\,0,\,H)\)，朝向与世界系相同。</p>
+  
 
   <figure class="fig bleed" id="fig-arm">
     <div class="fig-head"><span class="fig-kind">FIG 3</span><span class="fig-title"><span data-lang="zh">6R 机械臂实验室：T(θ) = Exp(S₁θ₁) ⋯ Exp(S₆θ₆) M</span></span><span class="spacer"></span><span id="ar-seg"></span></div>
@@ -216,7 +218,7 @@
     <div class="fig-controls" id="ar-ctl-a"></div>
     <div class="fig-controls" id="ar-ctl-b"></div>
     <figcaption class="fig-cap">
-      <span data-lang="zh">淡色的臂是零位。紫色虚线是零位时的 6 根关节轴（它们<b>不</b>跟着连杆走，永远留在原地）。实心连杆由部分乘积 \(\prod_{j&lt;i}\Exp(S_j\theta_j)\) 把各关节点从零位搬到当前位置得到；末端坐标系是 \(T(\boldsymbol\theta)\)。"全部连杆坐标系"模式显示每个关节处的部分乘积 \(T_i = \prod_{j\le i}\Exp(S_j\theta_j)\,M_i\)。读数里同时用空间形式和机体形式计算 \(T\)，二者的差应为 \(10^{-16}\) 量级。</span>
+      <span data-lang="zh">淡色的臂是零位。紫色虚线是零位时的 6 根关节轴（它们<b>不</b>跟着连杆走，永远留在原地）。实心连杆由部分乘积 \(\prod_{j&lt;i}\Exp(S_j\theta_j)\) 把各关节点从零位搬到当前位置得到；末端坐标系是 \(T(\boldsymbol\theta)\)。"全部连杆坐标系"模式显示每个关节处的部分乘积 \(T_i = \prod_{j\le i}\Exp(S_j\theta_j)\,M_i\)，其中 \(M_i\) 是零位时放在关节点 \(\mathbf q_i\)、与世界系同向的坐标系。读数里同时用空间形式和机体形式计算 \(T\)，二者的差应为 \(10^{-16}\) 量级。</span>
       
     </figcaption>
   </figure>
@@ -265,7 +267,7 @@
   <p data-lang="zh">对 \(T(\boldsymbol\theta)\) 求导，第 \(i\) 个关节转动一点，等于对第 \(i\) 个因子的右边所有东西做一次左乘，用 5.8 节的结论，空间雅可比的第 \(i\) 列就是"关节 \(i\) 的轴，在当前位形下的样子"：</p>
   
   <div class="math-card">$$ J_s(\boldsymbol\theta) = \begin{bmatrix}S_1 & \operatorname{Ad}_{\Exp(S_1\theta_1)}S_2 & \operatorname{Ad}_{\Exp(S_1\theta_1)\Exp(S_2\theta_2)}S_3 & \cdots\end{bmatrix}, \qquad \hat{\boldsymbol\xi}_s = \dot TT^{-1} = J_s(\boldsymbol\theta)\,\dot{\boldsymbol\theta}. $$</div>
-  <p data-lang="zh">3.4 节会在此基础上讨论机器人雅可比的性质、奇异性和它的用法。</p>
+  <p data-lang="zh">3.4 节已经从几何上造出了同样的列（那里把线速度放在上面、角速度放在下面，与这里的 \((\boldsymbol\omega,\mathbf v)\) 顺序相反）；Part II 的 <a href="../part2/7-4-velocity-kinematics.html">7.4</a> 节会在此基础上讨论雅可比的性质、奇异性和它的用法。</p>
   
 </section>
 
@@ -287,7 +289,7 @@
     </div>
     <div class="fig-controls" id="ws-ctl"></div>
     <figcaption class="fig-cap">
-      <span data-lang="zh">每个点是一组随机关节角下的工具尖位置（共 1200 个）：红色在地面以下（\(z&lt;0\)），青色是低处，绿色是高处。黄色的臂是关节范围中点处的位形，网格是地面 \(z=0\)。把腰部范围拉到 0，云会收缩成一个竖直的平面切片。</span>
+      <span data-lang="zh">每个点是一组随机关节角下的工具尖位置（共 1200 个）：红色在地面以下（\(z&lt;0\)），青色是低处，绿色是高处。黄色的臂是关节范围中点处的位形，网格是地面 \(z=0\)。把腰部和手腕范围都拉到 0，云会收缩成一个竖直的平面切片（手腕转动会把工具尖带出这个平面）。</span>
       
     </figcaption>
   </figure>
@@ -298,7 +300,7 @@
   </ul>
   <div class="callout robot">
     <div class="ct"><span data-lang="zh">真实系统里</span></div>
-    <p data-lang="zh"><b>逆运动学</b>（Part II）迭代求解 \(T(\boldsymbol\theta) = T_{\text{goal}}\)，每一步都要调用 FK 和上面的雅可比。<b>碰撞检测</b>把每个连杆的几何体放到 \(T_i(\boldsymbol\theta)\) 上。<b>标定</b>要把测量到的末端位姿与 FK 的预测比较，反过来调整 \(S_i\) 和 \(M\)：PoE 中每个关节只有 6 个数，最适合做这种参数辨识。<b>运动规划</b>（MoveIt、OMPL 等）在关节空间里采样，用 FK 把采样转到笛卡尔空间检查约束。URDF/SDF 里的关节原点和轴，加上 Pinocchio、KDL 这类库里的 FK 实现，本质上都是在算同一个乘积。</p>
+    <p data-lang="zh"><b>逆运动学</b>（Part II）迭代求解 \(T(\boldsymbol\theta) = T_{\text{goal}}\)，每一步都要调用 FK 和上面的雅可比。<b>碰撞检测</b>把每个连杆的几何体放到 \(T_i(\boldsymbol\theta)\) 上。<b>标定</b>要把测量到的末端位姿与 FK 的预测比较，反过来调整 \(S_i\) 和 \(M\)：PoE 的参数随几何误差平滑变化，相邻轴平行时也不会像 DH 那样出现奇异（一个微小的偏差就让 DH 参数跳变），因此很适合做这种参数辨识。<b>运动规划</b>（MoveIt、OMPL 等）在关节空间里采样，用 FK 把采样转到笛卡尔空间检查约束。URDF/SDF 里的关节原点和轴，加上 Pinocchio、KDL 这类库里的 FK 实现，本质上都是在算同一个乘积。</p>
     
   </div>
 </section>

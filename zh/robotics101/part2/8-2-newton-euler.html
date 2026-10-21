@@ -121,10 +121,10 @@
 <section class="step" id="why">
   <h2><span class="n">1</span><span data-lang="zh">为什么机器人需要它</span></h2>
   <div data-lang="zh">
-    <p>8.1 节用拉格朗日方程得到了动力学方程 \(M(\boldsymbol\theta)\ddot{\boldsymbol\theta}+C(\boldsymbol\theta,\dot{\boldsymbol\theta})\dot{\boldsymbol\theta}+\mathbf g(\boldsymbol\theta)=\boldsymbol\tau\)。真实的机器人软件需要的是它的两种"算法形式"：</p>
+    <p>8.1 节用拉格朗日方程得到了动力学方程 \(M(\mathbf q)\ddot{\mathbf q}+C(\mathbf q,\dot{\mathbf q})\dot{\mathbf q}+\mathbf g(\mathbf q)=\boldsymbol\tau\)（第 8 章始终用 \(\mathbf q=(\theta_1,\dots,\theta_n)\) 表示关节坐标，偏置项记作 \(\mathbf b=C\dot{\mathbf q}+\mathbf g\)）。真实的机器人软件需要的是它的两种"算法形式"：</p>
     <ul>
-      <li><b>逆动力学</b> \(\boldsymbol\tau=\mathrm{ID}(\boldsymbol\theta,\dot{\boldsymbol\theta},\ddot{\boldsymbol\theta})\)：给定想要的运动，算出需要的力矩。力矩前馈、计算力矩控制（Part IV）、重力补偿、从关节电流估计接触力，用的都是它。</li>
-      <li><b>正动力学</b> \(\ddot{\boldsymbol\theta}=\mathrm{FD}(\boldsymbol\theta,\dot{\boldsymbol\theta},\boldsymbol\tau)\)：给定力矩，算出机器人会怎么动。物理仿真器每个时间步都在积分它。</li>
+      <li><b>逆动力学</b> \(\boldsymbol\tau=\mathrm{ID}(\mathbf q,\dot{\mathbf q},\ddot{\mathbf q})\)：给定想要的运动，算出需要的力矩。力矩前馈、计算力矩控制（Part IV）、重力补偿、从关节电流估计接触力，用的都是它。</li>
+      <li><b>正动力学</b> \(\ddot{\mathbf q}=\mathrm{FD}(\mathbf q,\dot{\mathbf q},\boldsymbol\tau)\)：给定力矩，算出机器人会怎么动。物理仿真器每个时间步都在积分它。</li>
     </ul>
     <p>7 自由度的机械臂要在 1 kHz 下算，30 多个自由度的人形机器人也一样。对一个 6 轴机械臂手推拉格朗日方程，\(M\)、\(C\) 的符号展开已经要写满好几页；自由度再多，项数增长得更快，没有人会把它们手抄进控制器。<b>递推牛顿-欧拉算法</b>（Luh–Walker–Paul，1980）的特点是：没有任何符号展开，每根连杆只做固定次数的向量运算，所以总计算量是 \(O(n)\)。</p>
     <p>它的思想朴素到几乎是常识：每根连杆都是一个刚体，刚体满足 \(\mathbf F=m\mathbf a\) 和欧拉方程；连杆之间的相互作用力只通过关节传递。于是<b>先向外传运动，再向内传力</b>，一趟就算完。</p>
@@ -222,7 +222,7 @@
 
   <h3><span data-lang="zh">递推 = 拉格朗日？</span></h3>
   <div data-lang="zh">
-    <p>牛顿-欧拉从"力平衡"出发，拉格朗日从"能量"出发，两条路没有共同的中间步骤，却应当给出同一个 \(\boldsymbol\tau\)。FIG 3 把它们放在一起比：一边是 RNEA 的递推结果，另一边是<b>完全独立</b>写成的 \(M(\boldsymbol\theta)\ddot{\boldsymbol\theta}+C(\boldsymbol\theta,\dot{\boldsymbol\theta})\dot{\boldsymbol\theta}+\mathbf g(\boldsymbol\theta)\)，其中 \(M=\sum_i\big(m_iJ_{c_i}^\top J_{c_i}+I_iJ_{\omega_i}^\top J_{\omega_i}\big)\)（质心雅可比，8.3 节详细讲）、\(C\) 由 \(M\) 的偏导数（Christoffel 符号）得到、\(\mathbf g=\sum_i m_iJ_{c_i}^\top(0,g)^\top\)。右图把力矩拆成三块：惯性 \(M\ddot{\boldsymbol\theta}\)、速度项 \(C\dot{\boldsymbol\theta}\)、重力 \(\mathbf g\)，三块首尾相接，应当恰好落在 RNEA 的琥珀色菱形上。两连杆时还会和 8.1 节的闭式解比较。</p>
+    <p>牛顿-欧拉从"力平衡"出发，拉格朗日从"能量"出发，两条路没有共同的中间步骤，却应当给出同一个 \(\boldsymbol\tau\)。FIG 3 把它们放在一起比：一边是 RNEA 的递推结果，另一边是<b>完全独立</b>写成的 \(M(\mathbf q)\ddot{\mathbf q}+C(\mathbf q,\dot{\mathbf q})\dot{\mathbf q}+\mathbf g(\mathbf q)\)，其中 \(M=\sum_i\big(m_iJ_{c_i}^\top J_{c_i}+I_iJ_{\omega_i}^\top J_{\omega_i}\big)\)（质心雅可比，8.3 节详细讲）、\(C\) 由 \(M\) 的偏导数（Christoffel 符号）得到、\(\mathbf g=\sum_i m_iJ_{c_i}^\top(0,g)^\top\)。右图把力矩拆成三块：惯性 \(M\ddot{\mathbf q}\)、速度项 \(C\dot{\mathbf q}\)、重力 \(\mathbf g\)，三块首尾相接，应当恰好落在 RNEA 的琥珀色菱形上。两连杆时还会和 8.1 节的闭式解比较。</p>
   </div>
   
 
@@ -235,7 +235,7 @@
     <div class="fig-row" style="padding:12px 16px;border-top:1px solid var(--border);display:grid;gap:8px"><div class="katex-live" id="c-tex"></div><div class="readout" id="c-read"></div></div>
     <div class="fig-controls" id="c-controls"></div>
     <figcaption class="fig-cap">
-      <span data-lang="zh">右图每行一个关节：红色是 \(M\ddot{\boldsymbol\theta}\)，紫色是 \(C\dot{\boldsymbol\theta}\)，蓝色是 \(\mathbf g\)，沿水平方向（N·m）首尾相接；琥珀色菱形是 RNEA 给出的 \(\tau_i\)。"最大差"是 RNEA 与独立拉格朗日计算之间的最大绝对误差，只来自浮点舍入。"随机状态"每次随机抽取 \(\boldsymbol\theta,\dot{\boldsymbol\theta},\ddot{\boldsymbol\theta}\)。</span>
+      <span data-lang="zh">右图每行一个关节：红色是 \(M\ddot{\mathbf q}\)，紫色是 \(C\dot{\mathbf q}\)，蓝色是 \(\mathbf g\)，沿水平方向（N·m）首尾相接；琥珀色菱形是 RNEA 给出的 \(\tau_i\)。"最大差"是 RNEA 与独立拉格朗日计算之间的最大绝对误差，只来自浮点舍入。"随机状态"每次随机抽取 \(\mathbf q,\dot{\mathbf q},\ddot{\mathbf q}\)。</span>
       
     </figcaption>
   </figure>
@@ -246,19 +246,19 @@
 
   <h3><span data-lang="zh">用 RNEA 一列一列地造出质量矩阵</span></h3>
   <div data-lang="zh">
-    <p>RNEA 是 \(\boldsymbol\tau\) 的黑盒，而 \(\boldsymbol\tau=M\ddot{\boldsymbol\theta}+\mathbf b\)，其中 \(\mathbf b=C\dot{\boldsymbol\theta}+\mathbf g\) 与 \(\ddot{\boldsymbol\theta}\) 无关。令 \(\dot{\boldsymbol\theta}=0\)，再令 \(\ddot{\boldsymbol\theta}=\mathbf e_j\)（只有关节 \(j\) 单位加速），有 \(\mathrm{RNEA}(\boldsymbol\theta,0,\mathbf e_j)=M\mathbf e_j+\mathbf g\)，也就是 \(M\) 的第 \(j\) 列加上重力项；再算一次 \(\mathrm{RNEA}(\boldsymbol\theta,0,0)=\mathbf g\)，相减：</p>
+    <p>RNEA 是 \(\boldsymbol\tau\) 的黑盒，而 \(\boldsymbol\tau=M\ddot{\mathbf q}+\mathbf b\)，其中 \(\mathbf b=C\dot{\mathbf q}+\mathbf g\) 与 \(\ddot{\mathbf q}\) 无关。令 \(\dot{\mathbf q}=0\)，再令 \(\ddot{\mathbf q}=\mathbf e_j\)（只有关节 \(j\) 单位加速），有 \(\mathrm{RNEA}(\mathbf q,0,\mathbf e_j)=M\mathbf e_j+\mathbf g\)，也就是 \(M\) 的第 \(j\) 列加上重力项；再算一次 \(\mathrm{RNEA}(\mathbf q,0,0)=\mathbf g\)，相减：</p>
   </div>
   
   <div class="math-card">
-  $$ M(\boldsymbol\theta)\,\mathbf e_j \;=\; \mathrm{RNEA}(\boldsymbol\theta,\,0,\,\mathbf e_j)\;-\;\mathrm{RNEA}(\boldsymbol\theta,\,0,\,0),\qquad j=1,\dots,n. $$
+  $$ M(\mathbf q)\,\mathbf e_j \;=\; \mathrm{RNEA}(\mathbf q,\,0,\,\mathbf e_j)\;-\;\mathrm{RNEA}(\mathbf q,\,0,\,0),\qquad j=1,\dots,n. $$
   </div>
   <div data-lang="zh">
-    <p>这就是 Walker–Orin（1982）的想法：用 \(n\) 次（关掉重力就只要 \(n\) 次，开着重力是 \(n+1\) 次）\(O(n)\) 的 RNEA 调用拼出 \(M\)，再解线性方程 \(M\ddot{\boldsymbol\theta}=\boldsymbol\tau-\mathbf b\)，就得到正动力学，其中 \(\mathbf b=\mathrm{RNEA}(\boldsymbol\theta,\dot{\boldsymbol\theta},0)\)。FIG 4 一列一列地做这件事。</p>
+    <p>这就是 Walker–Orin（1982）的想法：用 \(n\) 次（关掉重力就只要 \(n\) 次，开着重力是 \(n+1\) 次）\(O(n)\) 的 RNEA 调用拼出 \(M\)，再解线性方程 \(M\ddot{\mathbf q}=\boldsymbol\tau-\mathbf b\)，就得到正动力学，其中 \(\mathbf b=\mathrm{RNEA}(\mathbf q,\dot{\mathbf q},0)\)。FIG 4 一列一列地做这件事。</p>
   </div>
   
 
   <figure class="fig bleed" id="fig-cols">
-    <div class="fig-head"><span class="fig-kind">FIG 4</span><span class="fig-title"><span data-lang="zh">逐列拼出 \(M(\boldsymbol\theta)\)</span></span><span class="spacer"></span><span id="d-seg"></span></div>
+    <div class="fig-head"><span class="fig-kind">FIG 4</span><span class="fig-title"><span data-lang="zh">逐列拼出 \(M(\mathbf q)\)</span></span><span class="spacer"></span><span id="d-seg"></span></div>
     <div class="fig-body split">
       <div class="canvas-wrap" id="d-canvas"></div>
       <div class="fig-side">
@@ -282,7 +282,7 @@
 
   <div class="callout view">
     <div class="ct"><span data-lang="zh">一个思想，几种看法</span></div>
-    <p data-lang="zh"><b>力的视角</b>：每根连杆受力平衡，力沿着链向内累加（RNEA）。<b>能量的视角</b>：写出总动能 \(T=\tfrac12\dot{\boldsymbol\theta}^\top M\dot{\boldsymbol\theta}\) 和势能，求导（拉格朗日，8.1 节）。<b>矩阵的视角</b>：同一个映射 \((\boldsymbol\theta,\dot{\boldsymbol\theta},\ddot{\boldsymbol\theta})\mapsto\boldsymbol\tau\)，对 \(\ddot{\boldsymbol\theta}\) 是仿射的，斜率就是 \(M\)。<b>计算的视角</b>：RNEA 是一个"黑盒函数"，有了函数就能用有限次调用恢复出 \(M\)，这是现代库（Pinocchio、RBDL、Drake）里"一个核心，多个接口"的设计原因。</p>
+    <p data-lang="zh"><b>力的视角</b>：每根连杆受力平衡，力沿着链向内累加（RNEA）。<b>能量的视角</b>：写出总动能 \(T=\tfrac12\dot{\mathbf q}^\top M\dot{\mathbf q}\) 和势能，求导（拉格朗日，8.1 节）。<b>矩阵的视角</b>：同一个映射 \((\mathbf q,\dot{\mathbf q},\ddot{\mathbf q})\mapsto\boldsymbol\tau\)，对 \(\ddot{\mathbf q}\) 是仿射的，斜率就是 \(M\)。<b>计算的视角</b>：RNEA 是一个"黑盒函数"，有了函数就能用有限次调用恢复出 \(M\)，这是现代库（Pinocchio、RBDL、Drake）里"一个核心，多个接口"的设计原因。</p>
     
   </div>
 </section>
@@ -324,7 +324,7 @@
 
   <h3><span data-lang="zh">空间版本（Modern Robotics 的写法）</span></h3>
   <div data-lang="zh">
-    <p>三维里角速度、速度、力、力矩都是三维向量，惯量是 \(3\times3\) 矩阵。把它们成对地装进 6 维向量，递推就和平面版长得一样了。约定（与全课一致）：twist \(\mathcal V=(\boldsymbol\omega,\mathbf v)\) <b>角部分在前</b>，wrench \(\mathcal F=(\boldsymbol\mu,\mathbf f)\) <b>力矩在前</b>。坐标系 \(\{0\}\) 固定在基座；\(\{i\}\) 固定在连杆 \(i\) 上，原点在它的质心；\(M_{i-1,i}\) 是零位 (\(\boldsymbol\theta=0\)) 时 \(\{i\}\) 相对 \(\{i-1\}\) 的位姿；\(\mathcal A_i\) 是关节 \(i\) 的螺旋轴<b>在 \(\{i\}\) 系中</b>的表示（5.10 节的 \(S_i\) 经 \(\mathrm{Ad}_{M_{0,i}^{-1}}\) 变到 \(\{i\}\) 中）。则</p>
+    <p>三维里角速度、速度、力、力矩都是三维向量，惯量是 \(3\times3\) 矩阵。把它们成对地装进 6 维向量，递推就和平面版长得一样了。约定（与全课一致）：twist \(\mathcal V=(\boldsymbol\omega,\mathbf v)\) <b>角部分在前</b>，wrench \(\mathcal F=(\boldsymbol\mu,\mathbf f)\) <b>力矩在前</b>。坐标系 \(\{0\}\) 固定在基座；\(\{i\}\) 固定在连杆 \(i\) 上，原点在它的质心；\(M_{i-1,i}\) 是零位 (\(\mathbf q=0\)) 时 \(\{i\}\) 相对 \(\{i-1\}\) 的位姿；\(\mathcal A_i\) 是关节 \(i\) 的螺旋轴<b>在 \(\{i\}\) 系中</b>的表示（5.10 节的 \(S_i\) 经 \(\mathrm{Ad}_{M_{0,i}^{-1}}\) 变到 \(\{i\}\) 中）。则</p>
   </div>
   
   <div class="math-card">
@@ -348,7 +348,7 @@
       <li><b>\(\tau_i=\mathcal F_i^\top\mathcal A_i\)</b>：电机沿螺旋轴做功，\(\tau_i\dot\theta_i=\mathcal F_i^\top(\mathcal A_i\dot\theta_i)\)。</li>
     </ul>
     <p><b>数值核对。</b>我们把平面三连杆臂嵌入三维（转轴沿 \(z\)，连杆沿 \(x\) 放置，\(\mathcal A_i=(0,0,1,\,0,\,l_i/2,\,0)\)，\(\mathcal I_i=\mathrm{diag}(0,0,m_il_i^2/12)\)，平面运动只用到 \(zz\) 分量），随机抽取 300 个状态和手爪力，空间递推与平面递推的 \(\boldsymbol\tau\) 在 \(3\times10^{-14}\) 内一致；平面递推又与独立的拉格朗日公式（FIG 3）在同样的量级内一致。</p>
-    <p><b>树与浮动基座。</b>树结构只要把"上一根"换成"父连杆"，向后一步对所有子连杆的 \(\mathrm{Ad}^\top\mathcal F\) 求和。8.3 节会看到 \(M(\boldsymbol\theta)=\sum_iJ_i^\top\mathcal G_iJ_i\)（\(J_i\) 是连杆 \(i\) 质心系的体雅可比）。</p>
+    <p><b>树与浮动基座。</b>树结构只要把"上一根"换成"父连杆"，向后一步对所有子连杆的 \(\mathrm{Ad}^\top\mathcal F\) 求和。8.3 节会看到 \(M(\mathbf q)=\sum_iJ_i^\top\mathcal G_iJ_i\)（\(J_i\) 是连杆 \(i\) 质心系的体雅可比）。</p>
   </div>
   
 
@@ -364,7 +364,7 @@
   <h2><span class="n">6</span><span data-lang="zh">机器人中的它：仿真与计算量</span></h2>
   <h3><span data-lang="zh">用 RNEA 做正动力学：让三连杆臂掉下来</span></h3>
   <div data-lang="zh">
-    <p>仿真需要的是正动力学。把 FIG 4 的办法接上 2.5 节的 ODE 积分：每个时间步里，先用 RNEA 算出偏置项 \(\mathbf b=\mathrm{RNEA}(\boldsymbol\theta,\dot{\boldsymbol\theta},0)=C\dot{\boldsymbol\theta}+\mathbf g\)，再逐列拼出 \(M\)，解 \(M\ddot{\boldsymbol\theta}=\boldsymbol\tau-\mathbf b\)，然后用四阶 Runge–Kutta 积分。电机不出力（\(\boldsymbol\tau=0\)，可加粘性摩擦 \(-b\dot{\boldsymbol\theta}\)），手臂在重力下自由摆动。无摩擦的保守系统总能量 \(E=T+V\) 应当不变，漂移的大小反映积分器的误差，是对整个动力学模型和积分器的一次体检。</p>
+    <p>仿真需要的是正动力学。把 FIG 4 的办法接上 2.5 节的 ODE 积分：每个时间步里，先用 RNEA 算出偏置项 \(\mathbf b=\mathrm{RNEA}(\mathbf q,\dot{\mathbf q},0)=C\dot{\mathbf q}+\mathbf g\)，再逐列拼出 \(M\)，解 \(M\ddot{\mathbf q}=\boldsymbol\tau-\mathbf b\)，然后用四阶 Runge–Kutta 积分。电机不出力（\(\boldsymbol\tau=0\)，可加粘性摩擦 \(-b\dot{\mathbf q}\)），手臂在重力下自由摆动。无摩擦的保守系统总能量 \(E=T+V\) 应当不变，漂移的大小反映积分器的误差，是对整个动力学模型和积分器的一次体检。</p>
   </div>
   
 
@@ -377,7 +377,7 @@
     <div class="fig-row" style="padding:12px 16px;border-top:1px solid var(--border);display:grid;gap:8px"><div class="katex-live" id="s-tex"></div><div class="readout" id="s-read"></div></div>
     <div class="fig-controls" id="s-controls"></div>
     <figcaption class="fig-cap">
-      <span data-lang="zh">拖动关节圆圈摆出初始姿态（只能在时间为 0 时拖动），点"放手"开始仿真。右图：动能 \(T\)（红）、势能 \(V\)（蓝，以基座高度为 0）、总能量 \(E\)（琥珀色）。读数里的"漂移"是 \(\max|E-E_0|/|E_0|\)（仅在 \(b=0\) 时有意义）。步长 \(\Delta t\) 是积分步长；第 3 根杆很轻、转动惯量只有 0.08 kg·m²，对步长最敏感。</span>
+      <span data-lang="zh">拖动关节圆圈摆出初始姿态（只能在时间为 0 时拖动），点"放手"开始仿真。右图：动能 \(T\)（红）、势能 \(V\)（蓝，以基座高度为 0）、总能量 \(E\)（琥珀色）。读数里的"漂移"是 \(\max|E-E_0|/|E_0|\)（仅在 \(b=0\) 时有意义）。步长 \(\Delta t\) 是积分步长；第 3 根杆很轻，绕质心的转动惯量只有 0.021 kg·m²，对步长最敏感。</span>
       
     </figcaption>
   </figure>
@@ -388,7 +388,7 @@
 
   <h3><span data-lang="zh">为什么不直接用拉格朗日公式？计算量</span></h3>
   <div data-lang="zh">
-    <p>FIG 6 数出了这一页上几种实现的乘加次数（把每个 <code style="overflow-wrap:anywhere">rnea</code>、<code style="overflow-wrap:anywhere">lagr</code> 内部的标量运算累加起来，这是一个<b>计数模型</b>，不是计时 benchmark；真实库的常数项完全不同，但增长的阶不变）。四条线：① RNEA 求逆动力学；② 调用 \(n\) 次 RNEA 拼出 \(M\)；③ 在 ② 基础上再解线性方程，得到正动力学；④ 先显式算 \(M\)、\(\partial M/\partial\boldsymbol\theta\)、\(C\)、\(\mathbf g\)，再相乘求逆动力学。④ 的阶是 \(n^4\)（单独算 \(M\) 是 \(n^3\)），①是 \(n\)。链越长，差距越大。</p>
+    <p>FIG 6 数出了这一页上几种实现的乘加次数（把每个 <code style="overflow-wrap:anywhere">rnea</code>、<code style="overflow-wrap:anywhere">lagr</code> 内部的标量运算累加起来，这是一个<b>计数模型</b>，不是计时 benchmark；真实库的常数项完全不同，但增长的阶不变）。四条线：① RNEA 求逆动力学；② 调用 \(n\) 次 RNEA 拼出 \(M\)；③ 在 ② 基础上再解线性方程，得到正动力学；④ 先显式算 \(M\)、\(\partial M/\partial\mathbf q\)、\(C\)、\(\mathbf g\)，再相乘求逆动力学。④ 的阶是 \(n^4\)（单独算 \(M\) 是 \(n^3\)），①是 \(n\)。链越长，差距越大。</p>
   </div>
   
 
@@ -410,7 +410,7 @@
 
   <div class="callout robot">
     <div class="ct"><span data-lang="zh">真实系统里</span></div>
-    <p data-lang="zh"><b>软件库</b>：Pinocchio（<code style="overflow-wrap:anywhere">rnea</code>、<code style="overflow-wrap:anywhere">crba</code>、<code style="overflow-wrap:anywhere">aba</code>）、RBDL、KDL（<code style="overflow-wrap:anywhere">ChainIdSolver_RNE</code>）、Drake（<code style="overflow-wrap:anywhere">MultibodyPlant::CalcInverseDynamics</code>）、MuJoCo（<code style="overflow-wrap:anywhere">mj_inverse</code> 内部用 RNE）。它们的核心就是本节的算法，只是用更精细的空间代数和树结构实现。<b>正动力学</b>：Walker–Orin 的做法是 \(O(n^3)\)（要解线性方程）；Featherstone 的<b>关节体算法 (ABA)</b> 用"关节体惯量"把链从末端向基座逐级吸收，正动力学也是 \(O(n)\)，这是仿真大型机器人的标准算法；组合刚体算法 (CRBA) 则是求 \(M\) 的常用方法。<b>控制</b>：计算力矩控制和逆动力学前馈每个周期调用一次 RNEA（Franka 等机器人的库提供质量矩阵、科氏力、重力项）；<b>参数辨识</b>：RNEA 对惯性参数是线性的，\(\boldsymbol\tau=Y(\boldsymbol\theta,\dot{\boldsymbol\theta},\ddot{\boldsymbol\theta})\boldsymbol\pi\)，用激励轨迹的数据做最小二乘（Atkeson–An–Hollerbach，1986）；真实机器人的质量、质心位置、惯量从来不会准确知道，还有转子惯量、齿轮摩擦和线缆的影响（<a href="9-4-actuators-sensors.html">9.4</a> 节），所以模型算出的 \(\boldsymbol\tau\) 总有偏差，这也是反馈和自适应存在的理由。</p>
+    <p data-lang="zh"><b>软件库</b>：Pinocchio（<code style="overflow-wrap:anywhere">rnea</code>、<code style="overflow-wrap:anywhere">crba</code>、<code style="overflow-wrap:anywhere">aba</code>）、RBDL、KDL（<code style="overflow-wrap:anywhere">ChainIdSolver_RNE</code>）、Drake（<code style="overflow-wrap:anywhere">MultibodyPlant::CalcInverseDynamics</code>）、MuJoCo（<code style="overflow-wrap:anywhere">mj_inverse</code> 内部用 RNE）。它们的核心就是本节的算法，只是用更精细的空间代数和树结构实现。<b>正动力学</b>：Walker–Orin 的做法是 \(O(n^3)\)（要解线性方程）；Featherstone 的<b>关节体算法 (ABA)</b> 用"关节体惯量"把链从末端向基座逐级吸收，正动力学也是 \(O(n)\)，这是仿真大型机器人的标准算法；组合刚体算法 (CRBA) 则是求 \(M\) 的常用方法。<b>控制</b>：计算力矩控制和逆动力学前馈每个周期调用一次 RNEA（Franka 等机器人的库提供质量矩阵、科氏力、重力项）；<b>参数辨识</b>：RNEA 对惯性参数是线性的，\(\boldsymbol\tau=Y(\mathbf q,\dot{\mathbf q},\ddot{\mathbf q})\boldsymbol\pi\)，用激励轨迹的数据做最小二乘（Atkeson–An–Hollerbach，1986）；真实机器人的质量、质心位置、惯量从来不会准确知道，还有转子惯量、齿轮摩擦和线缆的影响（<a href="9-4-actuators-sensors.html">9.4</a> 节），所以模型算出的 \(\boldsymbol\tau\) 总有偏差，这也是反馈和自适应存在的理由。</p>
     
   </div>
 </section>
@@ -425,7 +425,7 @@
   </div>
   <div class="callout pitfall">
     <div class="ct"><span data-lang="zh">误区 2：重力符号错了，或者算了两遍</span></div>
-    <p data-lang="zh">重力技巧是令基座加速度 \(\dot{\mathcal V}_0=(\mathbf 0,-\mathbf g)\)，\(\mathbf g\) 是重力<b>加速度向量</b>（指向下），所以 \(\dot{\mathcal V}_0\) 指向<b>上</b>。符号取反，机器人就像在天花板上受力。另一个常见错误是：已经用了基座加速度技巧，又在每根连杆上加了一次 \(m_i\mathbf g\)，重力项变成两倍。把 \(\boldsymbol\theta\) 全部置零、\(\dot{\boldsymbol\theta}=\ddot{\boldsymbol\theta}=0\)，水平杆的 \(\tau\) 应当是 \(+mgl/2\)（FIG 2），用它做自检。</p>
+    <p data-lang="zh">重力技巧是令基座加速度 \(\dot{\mathcal V}_0=(\mathbf 0,-\mathbf g)\)，\(\mathbf g\) 是重力<b>加速度向量</b>（指向下），所以 \(\dot{\mathcal V}_0\) 指向<b>上</b>。符号取反，机器人就像在天花板上受力。另一个常见错误是：已经用了基座加速度技巧，又在每根连杆上加了一次 \(m_i\mathbf g\)，重力项变成两倍。把 \(\mathbf q\) 全部置零、\(\dot{\mathbf q}=\ddot{\mathbf q}=0\)，水平杆的 \(\tau\) 应当是 \(+mgl/2\)（FIG 2），用它做自检。</p>
     
   </div>
   <div class="callout pitfall">
@@ -440,7 +440,7 @@
   </div>
   <div class="callout pitfall">
     <div class="ct"><span data-lang="zh">误区 5：模型的 \(\tau\) 不是电机该出的力矩</span></div>
-    <p data-lang="zh">RNEA 给的是<b>关节轴上</b>需要的力矩，在刚体、理想关节、参数准确的前提下。真实的电机还要克服转子惯量（乘以减速比的平方）、齿轮和轴承的摩擦、线缆的拉力，传动还有弹性。把 RNEA 直接作为电流指令的前馈，通常有 5%–20% 的力矩误差，所以必须有反馈（Part IV），并常常辨识摩擦和转子惯量。</p>
+    <p data-lang="zh">RNEA 给的是<b>关节轴上</b>需要的力矩，在刚体、理想关节、参数准确的前提下。真实的电机还要克服转子惯量（乘以减速比的平方）、齿轮和轴承的摩擦、线缆的拉力，传动还有弹性。把 RNEA 直接作为电流指令的前馈，通常会留下百分之几到几十的力矩误差，所以必须有反馈（Part IV），并常常辨识摩擦和转子惯量。</p>
     
   </div>
 </section>
@@ -472,14 +472,14 @@
   </div>
 
   <div class="quiz" data-answer="1">
-    <div class="q"><span data-lang="zh">3. 一个 6 自由度机械臂，在关掉重力的情况下，要用 RNEA 拼出完整的 \(6\times6\) 质量矩阵 \(M(\boldsymbol\theta)\)，最少要调用几次 RNEA？</span></div>
+    <div class="q"><span data-lang="zh">3. 一个 6 自由度机械臂，在关掉重力的情况下，要用 RNEA 拼出完整的 \(6\times6\) 质量矩阵 \(M(\mathbf q)\)，最少要调用几次 RNEA？</span></div>
     <div class="opts">
       <button class="opt">1</button>
       <button class="opt">6</button>
       <button class="opt">36</button>
       <button class="opt">720</button>
     </div>
-    <div class="explain"><span data-lang="zh">每次调用令 \(\dot{\boldsymbol\theta}=0\)、\(\ddot{\boldsymbol\theta}=\mathbf e_j\)，得到 \(M\) 的一整列。需要 6 列，所以 6 次。开着重力时，每次要减去 \(\mathrm{RNEA}(\boldsymbol\theta,0,0)\)，共 7 次。每次是 \(O(n)\)，总共 \(O(n^2)\)。利用 \(M\) 的对称性可以少算，CRBA 就是这样把 \(O(n^2)\) 做得更紧。</span></div>
+    <div class="explain"><span data-lang="zh">每次调用令 \(\dot{\mathbf q}=0\)、\(\ddot{\mathbf q}=\mathbf e_j\)，得到 \(M\) 的一整列。需要 6 列，所以 6 次。开着重力时，每次要减去 \(\mathrm{RNEA}(\mathbf q,0,0)\)，共 7 次。每次是 \(O(n)\)，总共 \(O(n^2)\)。利用 \(M\) 的对称性可以少算，CRBA 就是这样把 \(O(n^2)\) 做得更紧。</span></div>
   </div>
 
   <div class="quiz" data-answer="2">
@@ -490,18 +490,18 @@
       <button class="opt">\((0,0,0,\;0,0,+9.81)\)</button>
       <button class="opt">\((0,0,0,\;0,0,0)\)</button>
     </div>
-    <div class="explain"><span data-lang="zh">\(\dot{\mathcal V}_0=(\mathbf 0,-\mathbf g)=(0,0,0,\,0,0,+9.81)\)：线加速度部分（后三个分量）向上。第二个选项把重力放进了角加速度部分，选项 1 的符号反了。</span></div>
+    <div class="explain"><span data-lang="zh">\(\dot{\mathcal V}_0=(\mathbf 0,-\mathbf g)=(0,0,0,\,0,0,+9.81)\)：线加速度部分（后三个分量）向上。选项 B 把重力放进了角加速度部分，选项 A 的符号反了。</span></div>
   </div>
 
   <div class="quiz" data-answer="0">
-    <div class="q"><span data-lang="zh">5. 做正动力学时，先调用 \(\mathrm{RNEA}(\boldsymbol\theta,\dot{\boldsymbol\theta},0)\)，它得到的是什么？</span></div>
+    <div class="q"><span data-lang="zh">5. 做正动力学时，先调用 \(\mathrm{RNEA}(\mathbf q,\dot{\mathbf q},0)\)，它得到的是什么？</span></div>
     <div class="opts">
-      <button class="opt"><span data-lang="zh">偏置项 \(C(\boldsymbol\theta,\dot{\boldsymbol\theta})\dot{\boldsymbol\theta}+\mathbf g(\boldsymbol\theta)\)：科氏/向心力加重力</span></button>
-      <button class="opt"><span data-lang="zh">质量矩阵 \(M(\boldsymbol\theta)\)</span></button>
-      <button class="opt"><span data-lang="zh">只有重力项 \(\mathbf g(\boldsymbol\theta)\)</span></button>
-      <button class="opt"><span data-lang="zh">加速度 \(\ddot{\boldsymbol\theta}\)</span></button>
+      <button class="opt"><span data-lang="zh">偏置项 \(C(\mathbf q,\dot{\mathbf q})\dot{\mathbf q}+\mathbf g(\mathbf q)\)：科氏/向心力加重力</span></button>
+      <button class="opt"><span data-lang="zh">质量矩阵 \(M(\mathbf q)\)</span></button>
+      <button class="opt"><span data-lang="zh">只有重力项 \(\mathbf g(\mathbf q)\)</span></button>
+      <button class="opt"><span data-lang="zh">加速度 \(\ddot{\mathbf q}\)</span></button>
     </div>
-    <div class="explain"><span data-lang="zh">\(\boldsymbol\tau=M\ddot{\boldsymbol\theta}+\mathbf b\)，令 \(\ddot{\boldsymbol\theta}=0\) 就只剩 \(\mathbf b=C\dot{\boldsymbol\theta}+\mathbf g\)。若再令 \(\dot{\boldsymbol\theta}=0\)，才只剩下 \(\mathbf g\)（选项 3）。然后解 \(M\ddot{\boldsymbol\theta}=\boldsymbol\tau-\mathbf b\) 得到加速度。</span></div>
+    <div class="explain"><span data-lang="zh">\(\boldsymbol\tau=M\ddot{\mathbf q}+\mathbf b\)，令 \(\ddot{\mathbf q}=0\) 就只剩 \(\mathbf b=C\dot{\mathbf q}+\mathbf g\)。若再令 \(\dot{\mathbf q}=0\)，才只剩下 \(\mathbf g\)（选项 C）。然后解 \(M\ddot{\mathbf q}=\boldsymbol\tau-\mathbf b\) 得到加速度。</span></div>
   </div>
 </section>
 
@@ -906,7 +906,7 @@ R101.onReady(function () {
     function sync() {
       cmp = compute();
       const n = cmp.n, err = maxAbsDiff(cmp.a, cmp.sum); lastErr = err;
-      R101.tex(tex, T`\boldsymbol\tau_{\text{RNEA}} = ${M.texVec(cmp.a)} ,\quad M\ddot{\boldsymbol\theta}+C\dot{\boldsymbol\theta}+\mathbf g = ${M.texVec(cmp.Mq, 2)}+${M.texVec(cmp.cq, 2)}+${M.texVec(cmp.g, 2)} = ${M.texVec(cmp.sum)}`);
+      R101.tex(tex, T`\boldsymbol\tau_{\text{RNEA}} = ${M.texVec(cmp.a)} ,\quad M\ddot{\mathbf q}+C\dot{\mathbf q}+\mathbf g = ${M.texVec(cmp.Mq, 2)}+${M.texVec(cmp.cq, 2)}+${M.texVec(cmp.g, 2)} = ${M.texVec(cmp.sum)}`);
       read.innerHTML = `${L('最大差', 'Max difference')} |τ<sub>RNEA</sub> − (Mθ̈ + Cθ̇ + g)| = <b style="color:var(--c-${err < 1e-9 ? 'good' : 'bad'})">${sci(err)}</b> N·m` +
         (cmp.c2 ? `<br>${L('与 8.1 节的两连杆闭式解之差', 'vs. the closed-form 2R of Lesson 8.1')}: <b>${sci(maxAbsDiff(cmp.a, cmp.c2))}</b> N·m` : '');
       if (!grav && Math.max.apply(null, st.qdd.map(Math.abs)) < 1e-9 && M.norm(cmp.a) > 0.3) done('bias');
@@ -948,7 +948,7 @@ R101.onReady(function () {
       const mat = T`\begin{bmatrix}` + [0, 1, 2].map(i => [0, 1, 2].map(j => cell(i, j)).join(' & ')).join(' \\\\ ') + T`\end{bmatrix}`;
       R101.tex(tex, T`\begin{aligned}
         \boldsymbol\tau(\mathbf e_${col + 1}) &= ${vf(te)}\\
-        \mathbf g(\boldsymbol\theta) &= ${vf(g0)}\\
+        \mathbf g(\mathbf q) &= ${vf(g0)}\\
         M\mathbf e_${col + 1} &= ${CN[col]}{${vf(colv)}}\\
         M &= ${mat}
         \end{aligned}`);
@@ -970,7 +970,7 @@ R101.onReady(function () {
   (function () {
     const Q0 = [0.2, 0.3, 0.3];
     const st = { n: 3, q: Q0.slice() };
-    let qd = [0, 0, 0], t = 0, E0 = 0, drift = 0, dt = 0.01, damp = 0, playing = false, hist = [], trail = [], note = '';
+    let qd = [0, 0, 0], t = 0, E0 = 0, drift = 0, dt = 0.004, acc = 0, damp = 0, playing = false, hist = [], trail = [], note = '';
     const P = new R101.Plane2D('#s-canvas', { heightFn: hFn(0.95), view: { cx: 0.3, cy: 0.0, span: 4.6 }, draw });
     addArmHandles(P, st);
     P.handles.forEach(h => { const s0 = h.set; h.set = p => { if (t === 0 && !playing) { s0(p); resetState(false); } }; });
@@ -982,7 +982,7 @@ R101.onReady(function () {
       return { T: T0, V, E: T0 + V };
     };
     function resetState(keepQ) {
-      playing = false; t = 0; qd = [0, 0, 0]; hist = []; trail = []; drift = 0; note = '';
+      playing = false; t = 0; acc = 0; qd = [0, 0, 0]; hist = []; trail = []; drift = 0; note = '';
       const e = energy(st.q, qd); E0 = e.E; hist.push([0, e.T, e.V, e.E]); sync();
     }
     const tauOf = v => v.map(x => -damp * x);
@@ -992,12 +992,13 @@ R101.onReady(function () {
       const comb = (a, b, c, d) => a.map((_, i) => (a[i] + 2 * b[i] + 2 * c[i] + d[i]) * h / 6);
       return { q: M.add(q, comb(k1.dq, k2.dq, k3.dq, k4.dq)), v: M.add(v, comb(k1.dv, k2.dv, k3.dv, k4.dv)) };
     }
+    // fixed integration step dt, independent of the frame rate: real time accumulates and is spent in whole steps
     function advance(span) {
-      let left = span;
-      while (left > 1e-9) {
-        const h = Math.min(dt, left), s = rk4(st.q, qd, h);
-        st.q = s.q; qd = s.v; t += h; left -= h;
-        if (!isFinite(M.norm(qd)) || M.norm(qd) > 1e4) { note = L('数值发散：步长太大。', 'Numerical blow-up: the step is too large.'); playing = false; break; }
+      acc += span;
+      while (acc >= dt - 1e-12) {
+        const h = dt, s = rk4(st.q, qd, h);
+        st.q = s.q; qd = s.v; t += h; acc -= h;
+        if (!isFinite(M.norm(qd)) || M.norm(qd) > 1e4) { note = L('数值发散：步长太大。', 'Numerical blow-up: the step is too large.'); playing = false; acc = 0; break; }
         const e = energy(st.q, qd); if (damp === 0) drift = Math.max(drift, Math.abs(e.E - E0) / Math.abs(E0));
         const last = hist[hist.length - 1];
         if (t - last[0] >= 0.02 - 1e-9 || hist.length < 2) hist.push([t, e.T, e.V, e.E]);
@@ -1042,7 +1043,7 @@ R101.onReady(function () {
     ui.slider(ctr, { zh: '粘性摩擦 b', en: 'viscous friction b', min: 0, max: 2, step: 0.05, value: damp, onInput: v => { damp = v; if (v > 0) drift = 0; E0 = energy(st.q, qd).E; sync(); } });
     function sync() {
       const e = energy(st.q, qd);
-      R101.tex(tex, T`\ddot{\boldsymbol\theta}=M^{-1}\big(\boldsymbol\tau-\mathrm{RNEA}(\boldsymbol\theta,\dot{\boldsymbol\theta},0)\big),\quad \boldsymbol\tau=-b\,\dot{\boldsymbol\theta}`);
+      R101.tex(tex, T`\ddot{\mathbf q}=M^{-1}\big(\boldsymbol\tau-\mathrm{RNEA}(\mathbf q,\dot{\mathbf q},0)\big),\quad \boldsymbol\tau=-b\,\dot{\mathbf q}`);
       read.innerHTML = `t = <b>${M.fmt(t, 2)}</b> s · T = ${M.fmt(e.T, 2)} J · V = ${M.fmt(e.V, 2)} J · E = <b>${M.fmt(e.E, 3)}</b> J<br>` +
         (damp === 0 ? `${L('能量漂移', 'energy drift')} max|E−E₀|/|E₀| = <b style="color:var(--c-${drift < 0.01 ? 'good' : 'bad'})">${sci(drift)}</b> · Δt = ${M.fmt(dt, 3)} s` : `${L('有摩擦：能量不守恒，E 单调下降。', 'With friction energy is not conserved: E decreases.')}`) +
         (note ? `<br><span style="color:var(--c-bad)">${note}</span>` : '');

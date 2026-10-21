@@ -208,15 +208,15 @@
     </div>
     <div class="fig-controls" id="ar-controls"></div>
     <figcaption class="fig-cap">
-      <span data-lang="zh">蓝点是本代的样本（精英或权重大的用亮色/大点），橙色粗点是当前均值，紫色轨迹是均值的历史，紫色椭圆是当前的采样分布（1 个标准差）。"Rastrigin"有上百个局部最小，"不连续"地形里有一块高台（圆盘）把起点和终点隔开，其中 \(|x-2.4|+|y-1.6|\) 的尖点是 L1 的"V 形谷"，有限差分在高台边缘会得到巨大且误导的梯度。</span>
-      <span data-lang="en">Blue dots are this generation's samples (elites or heavy-weight ones are brighter/larger), the big amber dot is the current mean, the purple trail is the mean's history, and the purple ellipse is the current sampling distribution (one standard deviation). "Rastrigin" has dozens of local minima; the "Discontinuous" terrain has a raised plateau (a disc) between start and goal, with an L1 "V-shaped valley" at \(|x-2.4|+|y-1.6|\); finite differences at the plateau's edge give huge, misleading gradients.</span>
+      <span data-lang="zh">蓝点是本代的样本（精英或权重大的点更大、更不透明），橙色粗点是当前均值，紫色轨迹是均值的历史，紫色椭圆是当前的采样分布（1 个标准差）。"Rastrigin"有上百个局部最小，"不连续"地形里有一块高台（圆盘）把起点和终点隔开，其中 \(|x-2.4|+|y-1.6|\) 的尖点是 L1 的"V 形谷"，有限差分在高台边缘会得到巨大且误导的梯度。</span>
+      <span data-lang="en">Blue dots are this generation's samples (elites or heavy-weight ones are larger and more opaque), the big amber dot is the current mean, the purple trail is the mean's history, and the purple ellipse is the current sampling distribution (one standard deviation). "Rastrigin" has over a hundred local minima; the "Discontinuous" terrain has a raised plateau (a disc) between start and goal, with an L1 "V-shaped valley" at \(|x-2.4|+|y-1.6|\); finite differences at the plateau's edge give huge, misleading gradients.</span>
     </figcaption>
   </figure>
   <div class="tasks-title"><span data-lang="zh">试一试</span><span data-lang="en">Try this</span></div>
   <ul class="tasks">
     <li data-task="ar-gd"><span><span data-lang="zh">在 <b>Rastrigin</b> 上从默认起点运行<b>梯度下降</b>：它很快停在最近的局部最小，再也不动。</span><span data-lang="en">On <b>Rastrigin</b>, run <b>gradient descent</b> from the default start: it quickly parks in the nearest local minimum and never moves again.</span></span></li>
     <li data-task="ar-cma"><span><span data-lang="zh">在同一地形上运行 <b>CMA-ES</b>（样本数默认 30）：它越过无数个小坑，找到全局最小 \((0,0)\)（最好代价低于 0.05）。若样本数太少，会怎样？</span><span data-lang="en">On the same terrain run <b>CMA-ES</b> (default population 30): it hops over countless small pits and finds the global minimum \((0,0)\) (best cost below 0.05). What if the population is too small?</span></span></li>
-    <li data-task="ar-cliff"><span><span data-lang="zh">切到"不连续"地形，运行 <b>MPPI</b> 或 <b>CEM</b>，把最好代价压到 0.1 以下，而梯度下降做不到。</span><span data-lang="en">Switch to the "Discontinuous" terrain and run <b>MPPI</b> or <b>CEM</b> to get the best cost below 0.1, which gradient descent cannot.</span></span></li>
+    <li data-task="ar-cliff"><span><span data-lang="zh">切到"不连续"地形，运行 <b>MPPI</b>，把最好代价压到 0.1 以下，而梯度下降做不到。再试 <b>CEM</b>：默认设置下它的方差很快塌缩，停在半路（误区 3），要把样本数和 \(\sigma\) 调大才行。</span><span data-lang="en">Switch to the "Discontinuous" terrain and run <b>MPPI</b> to get the best cost below 0.1, which gradient descent cannot. Then try <b>CEM</b>: with the default settings its variance collapses and it stalls halfway (Pitfall 3) unless you raise the population and \(\sigma\).</span></span></li>
   </ul>
   <div class="callout key">
     <div class="ct"><span data-lang="zh">核心洞见</span><span data-lang="en">Key insight</span></div>
@@ -240,7 +240,7 @@
   <h3><span data-lang="zh">加权平均：CEM 与 MPPI</span><span data-lang="en">Weighted averaging: CEM and MPPI</span></h3>
   <p data-lang="zh">设样本 \(\x_i\sim\mathcal N(\mathbf m,\Sigma)\)，代价 \(f_i=f(\x_i)\)。它们共用同一个更新形式：</p>
   <p data-lang="en">With samples \(\x_i\sim\mathcal N(\mathbf m,\Sigma)\) and costs \(f_i=f(\x_i)\), both share one update form:</p>
-  <div class="math-card">$$ \mathbf m'=\sum_i \hl{w}{\bar w_i}\,\x_i,\qquad \bar w_i=\frac{w_i}{\sum_jw_j},\qquad w_i=\begin{cases}\mathbb 1[\,f_i\ \text{among best }\rho N\,] & \text{CEM}\\[2pt] \exp\!\big(-(f_i-f_{\min})/\hl{lam}{\lambda}\big) & \text{MPPI}\end{cases} $$</div>
+  <div class="math-card">$$ \hl{mean}{\mathbf m'}=\sum_i \hl{w}{\bar w_i}\,\x_i,\qquad \bar w_i=\frac{w_i}{\sum_jw_j},\qquad w_i=\begin{cases}\mathbb 1[\,f_i\ \text{among best }\rho N\,] & \text{CEM}\\[2pt] \exp\!\big(-(f_i-f_{\min})/\hl{lam}{\lambda}\big) & \text{MPPI}\end{cases} $$</div>
   <p data-lang="zh">MPPI 的权重是 \(\exp(-f/\lambda)\) 的重要性采样：把目标分布取为 \(q^\star(\x)\propto p(\x)e^{-f(\x)/\lambda}\)（"低代价的地方概率更大"），\(\mathbf m'\) 就是 \(q^\star\) 的均值，用样本估计。把它代入上面的高斯恒等式可得，当 \(f\) 在样本云内变化不大时</p>
   <p data-lang="en">MPPI's weights are importance sampling with \(\exp(-f/\lambda)\): take the target distribution \(q^\star(\x)\propto p(\x)e^{-f(\x)/\lambda}\) ("more probability where cost is low"); \(\mathbf m'\) is then the mean of \(q^\star\), estimated from the samples. Combining with the Gaussian identity above, when \(f\) varies little across the cloud,</p>
   <div class="math-card">$$ \mathbf m'-\mathbf m\ \approx\ -\frac{\sigma^2}{\lambda}\,\nabla f_\sigma(\mathbf m) $$</div>
@@ -260,11 +260,11 @@
   <h2><span class="n">5</span><span data-lang="zh">机器人中的它：MPPI 实时避障</span><span data-lang="en">In robotics: real-time obstacle avoidance with MPPI</span></h2>
   <div data-lang="zh">
     <p><b>MPPI</b>（Model Predictive Path Integral control，Williams 等）把 MPC（6.8 节）的"预测未来、选最好的控制序列、只执行第一个"和上面的采样更新结合起来：每个控制周期，在当前计划 \(U=(\mathbf u_0,\dots,\mathbf u_{H-1})\) 上加 \(K\) 份随机扰动，用模型把每一份往前仿真 \(H\) 步，得到总代价 \(S_k\)，按 \(\exp(-S_k/\lambda)\) 加权平均，更新计划，执行 \(\mathbf u_0\)，把计划向前平移一格，下个周期重来。</p>
-    <p>它不要求代价和动力学可导，所以可以直接用"撞了就罚 400"这种不连续代价，也可以用任何非线性动力学（轮式、四旋翼、带摩擦的接触）。下图是一个质点机器人（加速度控制）要穿过三个障碍物到达绿色目标。每条细线是一次 rollout，越亮权重越大（红色表示撞到了），琥珀色粗线是加权平均后的计划。<b>拖动目标或障碍物</b>，计划会实时重新规划。</p>
+    <p>它不要求代价和动力学可导，所以可以直接用"撞了就罚一个大数"这种不连续代价（下图里每步撞障罚 160），也可以用任何非线性动力学（轮式、四旋翼、带摩擦的接触）。下图是一个质点机器人（加速度控制）要穿过三个障碍物到达绿色目标。每条细线是一次 rollout，越不透明权重越大（红色表示撞到了），琥珀色粗线是加权平均后的计划。<b>拖动目标或障碍物</b>，计划会实时重新规划。</p>
   </div>
   <div data-lang="en">
     <p><b>MPPI</b> (Model Predictive Path Integral control, Williams et al.) combines the MPC idea of Lesson 6.8 ("predict the future, pick the best control sequence, execute only the first") with the sampling update above: each control cycle, add \(K\) random perturbations to the current plan \(U=(\mathbf u_0,\dots,\mathbf u_{H-1})\), simulate each forward \(H\) steps with the model to get a total cost \(S_k\), average with weights \(\exp(-S_k/\lambda)\), update the plan, execute \(\mathbf u_0\), shift the plan one step and repeat next cycle.</p>
-    <p>It needs neither differentiable costs nor differentiable dynamics, so it can use discontinuous costs like "hit = penalty 400" directly, with any nonlinear dynamics (wheeled, quadrotor, contact with friction). Below, a point-mass robot (acceleration control) must pass three obstacles to reach the green goal. Each thin line is one rollout, brighter for larger weight (red means a collision); the thick amber line is the weighted-average plan. <b>Drag the goal or an obstacle</b> and the plan re-optimizes in real time.</p>
+    <p>It needs neither differentiable costs nor differentiable dynamics, so it can use discontinuous costs like "hit = a large penalty" directly (160 per colliding step in the figure below), with any nonlinear dynamics (wheeled, quadrotor, contact with friction). Below, a point-mass robot (acceleration control) must pass three obstacles to reach the green goal. Each thin line is one rollout, more opaque for larger weight (red means a collision); the thick amber line is the weighted-average plan. <b>Drag the goal or an obstacle</b> and the plan re-optimizes in real time.</p>
   </div>
 
   <figure class="fig bleed" id="fig-mppi">
@@ -393,7 +393,7 @@
   </div>
 
   <div class="quiz" data-answer="1">
-    <div class="q"><span data-lang="zh">5. 为什么 MPPI 可以直接使用"碰到障碍物罚 400"这样的不连续代价？</span><span data-lang="en">5. Why can MPPI use a discontinuous cost like "hit an obstacle = penalty 400" directly?</span></div>
+    <div class="q"><span data-lang="zh">5. 为什么 MPPI 可以直接使用"碰到障碍物就罚一个大数"这样的不连续代价？</span><span data-lang="en">5. Why can MPPI use a discontinuous cost like "hit an obstacle = a large penalty" directly?</span></div>
     <div class="opts">
       <button class="opt"><span data-lang="zh">因为它内部先把代价光滑化为可导函数再求导</span><span data-lang="en">Because it first smooths the cost into a differentiable function and then differentiates</span></button>
       <button class="opt"><span data-lang="zh">因为它只需要每条 rollout 的代价数值，从不求导；平均权重天然地把带碰撞的 rollout 压低</span><span data-lang="en">Because it only needs the numerical cost of each rollout and never differentiates; the weighting naturally suppresses colliding rollouts</span></button>
@@ -558,7 +558,7 @@ R101.onReady(function () {
     function compute() {
       const xs = z.slice(0, N).map(v => mu + sg * v), fv = xs.map(f), fmin = Math.min(...fv); let w;
       if (mode === 'mppi') { const sd = Math.sqrt(fv.reduce((s, v) => s + (v - fv.reduce((a, b) => a + b, 0) / N) ** 2, 0) / N) + 1e-9; w = fv.map(v => Math.exp(-(v - fmin) / (lamT * sd))); }
-      else if (mode === 'cem') { const k = Math.max(2, Math.round(0.2 * N)), thr = fv.slice().sort((a, b) => a - b)[k - 1]; w = fv.map(v => (v <= thr ? 1 : 0)); }
+      else if (mode === 'cem') { const k = Math.max(2, Math.round(0.25 * N)), thr = fv.slice().sort((a, b) => a - b)[k - 1]; w = fv.map(v => (v <= thr ? 1 : 0)); }
       else w = fv.map(() => 1);
       const sw = w.reduce((a, b) => a + b, 0), mu2 = xs.reduce((s, x, i) => s + w[i] * x, 0) / sw, ess = sw * sw / w.reduce((s, v) => s + v * v, 0);
       return { xs, fv, w, sw, mu2, ess };
@@ -576,7 +576,7 @@ R101.onReady(function () {
       const C = compute(), wmax = Math.max(...C.w);
       C.xs.forEach((x, i) => {
         const wn = C.w[i] / wmax;
-        P.line([x, -2.35], [x, -2.35 + 1.5 * wn], { color: 'k', width: hlOn('w') ? 3 : 1.6, alpha: 0.7 });
+        P.line([x, -2.35], [x, -2.35 + 1.5 * wn], { color: 'k', width: hlOn('w') || hlOn('lam') ? 3 : 1.6, alpha: 0.7 });
         P.point([x, YS * C.fv[i]], { color: 'k', r: 2 + 6 * Math.sqrt(wn), alpha: 0.35 + 0.55 * wn });
       });
       P.line([mu, -2.9], [mu, 3.2], { color: 'v', width: 1, alpha: 0.4, dash: [3, 4] });
@@ -677,7 +677,7 @@ R101.onReady(function () {
       if (!touched) return;
       if (land === 'rastrigin' && algo === 'gd' && finished && best > 0.5) R101.done('ar-gd');
       if (land === 'rastrigin' && algo === 'cma' && best < 0.05) R101.done('ar-cma');
-      if (land === 'cliff' && (algo === 'mppi' || algo === 'cem') && best < 0.1) R101.done('ar-cliff');
+      if (land === 'cliff' && algo === 'mppi' && best < 0.1) R101.done('ar-cliff');
     }
     const P = new R101.Plane2D('#ar-canvas', { heightFn: w => (w < 560 ? 340 : 440), draw, onPointerDown: w => { touched = true; start = [M.clamp(w[0], -5, 5), M.clamp(w[1], -5, 5)]; curves = {}; init(); } });
     function draw(P) {
@@ -731,7 +731,7 @@ R101.onReady(function () {
   (function () {
     const H = 25, dt = 0.1, UMAX = 8, VMAX = 3.2;
     let K = 64, sgu = 2.4, lamT = 0.3, goal = [5, 3], obs = [{ c: [-1.6, -0.3], r: 1.0 }, { c: [0.8, 1.4], r: 1.0 }, { c: [2.9, -0.2], r: 0.9 }];
-    let p, v, U, rollouts = [], planPts = [], trail = [], timer = null, tsim = 0, hits = 0, inHit = false, hitPts = [], touched = false, reached = false, dragged = false, running = false, rand = M.rng(9), lastDist = 0;
+    let p, v, U, rollouts = [], planPts = [], trail = [], timer = null, tsim = 0, hits = 0, inHit = false, hitPts = [], touched = false, reached = false, dragged = false, obsMoved = false, running = false, rand = M.rng(9), lastDist = 0;
     const MARG = 0.25;
     function resetSim() {
       stop(); p = [-5.5, -3]; v = [0, 0]; U = Array.from({ length: H }, () => [0, 0]); trail = [p.slice()]; tsim = 0; hits = 0; inHit = false; hitPts = []; reached = false; rollouts = []; planPts = []; P.invalidate(); sync();
@@ -778,9 +778,9 @@ R101.onReady(function () {
       if (dragged && running && tsim > 1) { /* handled in onChange */ }
       P.invalidate(); sync();
     }
-    const P = new R101.Plane2D('#mp-canvas', { heightFn: w => (w < 560 ? 340 : 440), draw, onChange: () => { if (running) { dragged = true; R101.done('mp-drag'); } if (!running) { rollouts = []; planPts = []; } sync(); } });
+    const P = new R101.Plane2D('#mp-canvas', { heightFn: w => (w < 560 ? 340 : 440), draw, onChange: () => { if (running && obsMoved) { dragged = true; R101.done('mp-drag'); } obsMoved = false; if (!running) { rollouts = []; planPts = []; } sync(); } });
     P.handle({ pos: () => goal, set: w => { goal = [M.clamp(w[0], -6.3, 6.3), M.clamp(w[1], -4.2, 4.2)]; }, color: 'j', r: 18 });
-    obs.forEach((o, i) => P.handle({ pos: () => o.c, set: w => { o.c = [M.clamp(w[0], -6.3, 6.3), M.clamp(w[1], -4.2, 4.2)]; }, color: 'bad', r: 20 }));
+    obs.forEach((o, i) => P.handle({ pos: () => o.c, set: w => { o.c = [M.clamp(w[0], -6.3, 6.3), M.clamp(w[1], -4.2, 4.2)]; obsMoved = true; }, color: 'bad', r: 20 }));
     function draw(P) {
       fitView(P, 0, 0, 14.4, 9.6);
       P.grid({ step: 1, alpha: 0.4 });
@@ -853,7 +853,7 @@ R101.onReady(function () {
       document.getElementById('dm-read').innerHTML = 'd = 2 → 64<br><span style="color:var(--c-i)">FD-GD</span>: ' + first.fd + ' → <b>' + last.fd + '</b> (×' + M.fmt(last.fd / first.fd, 0) + ')<br><span style="color:var(--c-k)">(1+1)-ES</span>: ' + first.es + ' → <b>' + last.es + '</b> (×' + M.fmt(last.es / first.es, 0) + ')<br><span style="color:var(--c-j)">GD</span>: ' + first.ad + ' → <b>' + last.ad + '</b> (×' + M.fmt(last.ad / first.ad, 1) + ')<br>' + T('维度增大 32 倍', 'dimension grows ×32');
     }
     ui.button(document.getElementById('dm-btns'), { zh: '运行', en: 'Run', cls: 'primary sm', onClick: run });
-    slider(document.getElementById('dm-controls'), { zh: '条件数 κ', en: 'condition number κ', min: 1, max: 100, step: 1, value: kappa, fmt: v => String(v), onInput: v => { kappa = v; run(); } });
+    slider(document.getElementById('dm-controls'), { zh: '条件数 κ', en: 'condition number κ', min: 5, max: 100, step: 1, value: kappa, fmt: v => String(v), onInput: v => { kappa = v; run(); } });
     R101.on('lang', sync);
     sync();
   })();

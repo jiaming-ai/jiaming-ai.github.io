@@ -225,7 +225,7 @@
     <div class="fig-controls" style="gap:6px 28px"><div class="readout" id="tc-read"></div></div>
     <div class="fig-controls" id="tc-controls"></div>
     <figcaption class="fig-cap">
-      <span data-lang="zh">矩阵里每个小方格的亮度与元素绝对值的对数成正比（暗：接近 0 或为零）。可以看到打靶法的元素范围从 1 一直到 \(a^{N-1}\)，而配点法的所有非零元素都是 \(1\)、\(-a\)、\(-1\) 这样的数量级。右下读数里的条件数是真实算出来的：打靶法的 \(\Gamma^\top\Gamma\)（把 \(\mathbf x\) 当作要跟踪的目标时的 Hessian），和配点法约束雅可比 \(C\) 的 \(CC^\top\)。</span>
+      <span data-lang="zh">矩阵里每个小方格的颜色浓淡（不透明度）与元素绝对值的对数成正比（越淡越接近 0，空白为零）。可以看到打靶法的元素范围从 1 一直到 \(a^{N-1}\)，而配点法的所有非零元素都是 \(1\)、\(-a\)、\(-1\) 这样的数量级。右下读数里的条件数是真实算出来的：打靶法的 \(\Gamma^\top\Gamma\)（\(\Gamma=\partial\mathbf x/\partial\mathbf u\) 是左边的矩阵；把 \(\mathbf x\) 当作要跟踪的目标时的 Hessian），和配点法约束雅可比 \(C\) 的 \(CC^\top\)。</span>
       
     </figcaption>
   </figure>
@@ -270,9 +270,9 @@
   
 
   <h3><span data-lang="zh">带动力学的转录</span></h3>
-  <p data-lang="zh">配点法的一个常用形式（梯形）：在每个区间要求</p>
+  <p data-lang="zh">配点法的一个常用形式（梯形）。这里动力学写成连续时间的 \(\dot{\mathbf x}=f_c(\mathbf x,\mathbf u)\)（前面的 \(f\) 是离散一步的映射），在每个区间要求</p>
   
-  <div class="math-card">$$ \mathbf c_k=\mathbf x_{k+1}-\mathbf x_k-\frac h2\Big(f(\mathbf x_k,\mathbf u_k)+f(\mathbf x_{k+1},\mathbf u_{k+1})\Big)=\mathbf 0,\qquad k=0,\dots,N-1 $$</div>
+  <div class="math-card">$$ \mathbf c_k=\mathbf x_{k+1}-\mathbf x_k-\frac h2\Big(f_c(\mathbf x_k,\mathbf u_k)+f_c(\mathbf x_{k+1},\mathbf u_{k+1})\Big)=\mathbf 0,\qquad k=0,\dots,N-1 $$</div>
   <p data-lang="zh">问题成为"代价 + 一堆等式 / 不等式约束"的非线性规划，用 6.7 节的 Lagrange 乘子和 KKT 条件、再加上 SQP 或内点法求解。每个 \(\mathbf c_k\) 只含 \(\mathbf x_k,\mathbf x_{k+1}\)，约束雅可比是带状的（FIG 3 右）。</p>
   
 </section>
@@ -282,7 +282,7 @@
   <h2><span class="n">6</span><span data-lang="zh">机器人中的它：两连杆机械臂绕过障碍物</span></h2>
   <div data-lang="zh">
     <p>机械臂的轨迹住在<b>关节空间</b>里：路点 \(\mathbf q_k=(q_{1},q_{2})_k\) 是关节角。平滑项在关节空间里算（关节速度的平方和），障碍项在<b>工作空间</b>里算：沿两个连杆取一串采样点，用正运动学 \(\mathrm{FK}\) 得到它们的位置，再算到障碍物的距离。碰撞项对 \(\mathbf q\) 的梯度要穿过正运动学，等于一次雅可比（3.3、3.4 节）；下面直接用数值微分得到，求解器是 CHOMP 式的预条件下降。</p>
-    <p>拖动<b>起点和终点</b>（这是末端执行器的位置，下面用解析逆运动学换成关节角）和<b>障碍物</b>。关节空间里的直线插值会让机械臂的某个连杆扫过障碍物；优化之后，机械臂的中间姿态被"推"开，末端沿一条绕开障碍物的路径运动。淡色的是 16 个路点上的姿态，琥珀色的是末端轨迹。</p>
+    <p>拖动<b>起点和终点</b>（这是末端执行器的位置，下面用解析逆运动学换成关节角）和<b>障碍物</b>。关节空间里的直线插值会让机械臂的某个连杆扫过障碍物；优化之后，机械臂的中间姿态被"推"开，末端沿一条绕开障碍物的路径运动。淡色的是中间 15 个路点上的姿态，琥珀色的是末端轨迹。</p>
   </div>
   
 
@@ -299,7 +299,7 @@
     </div>
     <div class="fig-controls" id="am-controls"></div>
     <figcaption class="fig-cap">
-      <span data-lang="zh">绿色臂是起始姿态，蓝色臂是目标姿态，浅色的是中间 14 个路点的姿态（与障碍物间隙为负的姿态会变红）。障碍项对每个连杆上的 7 个采样点检查。右图：两个关节角随路点序号的变化，虚线是初始的线性插值。</span>
+      <span data-lang="zh">绿色臂是起始姿态，蓝色臂是目标姿态，浅色的是中间 15 个路点的姿态（与障碍物间隙为负的姿态会变红）。障碍项检查两根连杆上共 7 个采样点。右图：两个关节角随路点序号的变化，虚线是初始的线性插值。</span>
       
     </figcaption>
   </figure>
@@ -335,7 +335,7 @@
   </div>
   <div class="callout pitfall">
     <div class="ct"><span data-lang="zh">误区 4：轨迹不满足动力学，却当成可执行</span></div>
-    <p data-lang="zh">本课前三个图的"轨迹"只有几何。要执行，必须按机器人的速度、加速度、力矩限制重新参数化时间，或者在优化里直接加入动力学约束（FIG 3 的转录）。不稳定系统（倒立摆、四旋翼）还要用反馈（LQR、MPC）去跟踪优化出的轨迹，而不是开环播放。</p>
+    <p data-lang="zh">本课 FIG 1、FIG 2 和 FIG 4 的"轨迹"只有几何。要执行，必须按机器人的速度、加速度、力矩限制重新参数化时间，或者在优化里直接加入动力学约束（FIG 3 的转录）。不稳定系统（倒立摆、四旋翼）还要用反馈（LQR、MPC）去跟踪优化出的轨迹，而不是开环播放。</p>
     
   </div>
 </section>
@@ -534,7 +534,7 @@ R101.onReady(function () {
     const N = 30, Mf = N - 1, R = N;   // velocity residual rows
     let ws = 1, wo = 40, eps = 0.8, s = [-5, -2.5], g = [5, 2.5];
     const obs = [{ c: [-2, -0.6], r: 1.0 }, { c: [0.5, 0.8], r: 1.0 }, { c: [2.8, 1.0], r: 0.9 }];
-    let Ks, A, Ainv, runs = {}, timer = null, touched = false, gdIts = 0;
+    let Ks, A, Ainv, runs = {}, timer = null, touched = false, gdIts = 0, endMoved = false, obsSince = false, ranOnce = false;
     const KEYS = ['gd', 'chomp', 'gn'], COL = { gd: 'i', chomp: 'j', gn: 'k' };
     function build() {
       Ks = Array.from({ length: R }, () => new Array(Mf).fill(0));
@@ -585,11 +585,15 @@ R101.onReady(function () {
       P.invalidate(); PC.invalidate(); sync();
     }
     function stop() { if (timer) { clearInterval(timer); timer = null; } }
-    function run(keep) { if (!keep) reset(false); else { stop(); KEYS.forEach(k => { runs[k].hist = [parts(runs[k].x).tot]; }); } touched = true; let n = 0; timer = setInterval(() => { iter(); if (++n >= 60) stop(); }, 90); }
-    const P = new R101.Plane2D('#rc-canvas', { heightFn: w => (w < 560 ? 320 : 420), draw, onChange: () => { touched = true; reset(false); } });
-    P.handle({ pos: () => s, set: w => { s = [M.clamp(w[0], -6, 6), M.clamp(w[1], -4, 4)]; }, color: 'j', r: 16 });
-    P.handle({ pos: () => g, set: w => { g = [M.clamp(w[0], -6, 6), M.clamp(w[1], -4, 4)]; }, color: 'k', r: 16 });
-    obs.forEach(o => P.handle({ pos: () => o.c, set: w => { o.c = [M.clamp(w[0], -5.5, 5.5), M.clamp(w[1], -3.8, 3.8)]; }, color: 'bad', r: 22 }));
+    function run(keep) { if (keep && ranOnce && obsSince) R101.done('rc-move'); ranOnce = true; obsSince = false; if (!keep) reset(false); else { stop(); KEYS.forEach(k => { runs[k].hist = [parts(runs[k].x).tot]; }); } touched = true; let n = 0; timer = setInterval(() => { iter(); if (++n >= 60) stop(); }, 90); }
+    const P = new R101.Plane2D('#rc-canvas', { heightFn: w => (w < 560 ? 320 : 420), draw, onChange: () => {
+      touched = true;
+      // moving an endpoint invalidates the trajectories; moving an obstacle keeps them (warm start)
+      if (endMoved) { endMoved = false; reset(false); } else { P.invalidate(); PC.invalidate(); sync(); }
+    } });
+    P.handle({ pos: () => s, set: w => { s = [M.clamp(w[0], -6, 6), M.clamp(w[1], -4, 4)]; endMoved = true; }, color: 'j', r: 16 });
+    P.handle({ pos: () => g, set: w => { g = [M.clamp(w[0], -6, 6), M.clamp(w[1], -4, 4)]; endMoved = true; }, color: 'k', r: 16 });
+    obs.forEach(o => P.handle({ pos: () => o.c, set: w => { o.c = [M.clamp(w[0], -5.5, 5.5), M.clamp(w[1], -3.8, 3.8)]; obsSince = true; }, color: 'bad', r: 22 }));
     const pts = x => { const p = [s]; for (let k = 0; k < Mf; k++) p.push([x[k], x[Mf + k]]); p.push(g); return p; };
     function draw(P) {
       fitView(P, 0, 0, 13.4, 9.0);
@@ -624,7 +628,7 @@ R101.onReady(function () {
     slider(ctr, { zh: '平滑权重 w_s', en: 'smoothness w_s', min: 0.2, max: 5, step: 0.05, value: ws, fmt: v => M.fmt(v, 2), onInput: v => { ws = v; reset(false); } });
     const b = document.getElementById('rc-btns');
     ui.button(b, { zh: '运行', en: 'Run', cls: 'primary sm', onClick: () => run(false) });
-    ui.button(b, { zh: '运行（保留轨迹）', en: 'Run (keep trajectory)', cls: 'sm', onClick: () => { run(true); R101.done('rc-move'); } });
+    ui.button(b, { zh: '运行（保留轨迹）', en: 'Run (keep trajectory)', cls: 'sm', onClick: () => run(true) });
     ui.button(b, { zh: '单步', en: 'Step', cls: 'sm', onClick: () => { touched = true; iter(); } });
     ui.button(b, { zh: '重置', en: 'Reset', cls: 'sm', onClick: () => reset(false) });
     R101.on('lang', sync);

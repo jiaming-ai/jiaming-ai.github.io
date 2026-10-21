@@ -108,7 +108,7 @@
   <div class="eyebrow"><span data-lang="zh">Part II · 第 8 章 动力学 · 8.1</span></div>
   <h1><span data-lang="zh">拉格朗日动力学</span></h1>
   <p class="lede">
-    <span data-lang="zh">运动学只回答"关节在这里，手爪在哪里"；动力学回答"关节出这么大力矩，机器人<b>怎么加速</b>"。要仿真一台机器人，或者让电机去跟踪轨迹，你都需要它的运动方程。用牛顿定律逐个连杆列受力，关节处的约束力会让方程迅速变得又长又乱；拉格朗日的办法只用<b>两个标量——动能和势能</b>，约束力从头到尾不出现。本节从"自然选择作用量驻定的路径"出发，在单摆、平面 2R 机械臂、倒立摆小车上推出同一个方程 \(M(q)\ddot q + C(q,\dot q)\dot q + g(q)=\tau\)，并看它如何驱动计算力矩控制。</span>
+    <span data-lang="zh">运动学只回答"关节在这里，手爪在哪里"；动力学回答"关节出这么大力矩，机器人<b>怎么加速</b>"。要仿真一台机器人，或者让电机去跟踪轨迹，你都需要它的运动方程。用牛顿定律逐个连杆列受力，关节处的约束力会让方程迅速变得又长又乱；拉格朗日的办法只用<b>两个标量——动能和势能</b>，约束力从头到尾不出现。本节从"自然选择作用量驻定的路径"出发，在单摆、平面 2R 机械臂、倒立摆小车上推出同一个方程 \(M(\mathbf q)\ddot{\mathbf q} + C(\mathbf q,\dot{\mathbf q})\dot{\mathbf q} + \mathbf g(\mathbf q)=\boldsymbol\tau\)，并看它如何驱动计算力矩控制。</span>
     
   </p>
   <div class="lesson-meta">
@@ -123,11 +123,11 @@
 <section class="step" id="why">
   <h2><span class="n">1</span><span data-lang="zh">为什么机器人需要它</span></h2>
   <div data-lang="zh">
-    <p>前面所有关于机械臂的内容都是"位置层面"的：关节角 \(q\) 给定，手爪在哪里（7.3），速度怎么传递（3.4），静止时力怎么传递（\(\tau=J^\top F\)）。可电机给的是<b>力矩</b>，不是位置。只要你想做下面这些事，就必须知道"力矩 \(\tau\) 会产生什么加速度 \(\ddot q\)"：</p>
+    <p>前面所有关于机械臂的内容都是"位置层面"的：关节角 \(\mathbf q\) 给定，手爪在哪里（7.3），速度怎么传递（3.4），静止时力怎么传递（\(\boldsymbol\tau=J^\top F\)）。可电机给的是<b>力矩</b>，不是位置。只要你想做下面这些事，就必须知道"力矩 \(\boldsymbol\tau\) 会产生什么加速度 \(\ddot{\mathbf q}\)"：</p>
     <ul>
-      <li><b>仿真</b>：MuJoCo、Isaac、Drake、Pinocchio 每一个时间步都在算 \(\ddot q = M^{-1}(\tau - C\dot q - g)\)，再积分（2.5 节）。强化学习的训练环境本质上就是这个方程。</li>
+      <li><b>仿真</b>：MuJoCo、Isaac、Drake、Pinocchio 每一个时间步都在算 \(\ddot{\mathbf q} = M^{-1}(\boldsymbol\tau - C\dot{\mathbf q} - \mathbf g)\)，再积分（2.5 节）。强化学习的训练环境本质上就是这个方程。</li>
       <li><b>力矩控制</b>：计算力矩、阻抗控制、重力补偿、人机共融的力控机械臂，全都用模型预测"需要多大力矩才能产生这个加速度"（逆动力学）。</li>
-      <li><b>系统辨识与故障诊断</b>：从测得的 \((q,\dot q,\ddot q,\tau)\) 反推质量、质心、惯量。</li>
+      <li><b>系统辨识与故障诊断</b>：从测得的 \((\mathbf q,\dot{\mathbf q},\ddot{\mathbf q},\boldsymbol\tau)\) 反推质量、质心、惯量。</li>
       <li><b>轨迹优化与 MPC</b>（Part IV）：把方程当作约束，决定"最省能量的路径"。</li>
     </ul>
     <p>怎样得到这个方程？牛顿的办法是对每一块刚体写 \(F=ma\)，再把关节处的约束力一个一个消去，连杆一多就是一场灾难。拉格朗日的办法换了个视角：<b>选好描述构型的独立变量（广义坐标，7.1 节），写出整个系统的动能 \(T\) 和势能 \(V\)，然后做一次机械的求导</b>。约束力不做功，所以它们根本不会出现。</p>
@@ -217,13 +217,13 @@
 
   <h3><span data-lang="zh">平面 2R 机械臂：质量矩阵、科氏力与重力</span></h3>
   <div data-lang="zh">
-    <p>两根均匀杆：\(m_1=2\) kg，\(l_1=1\) m；\(m_2=1.5\) kg，\(l_2=0.8\) m；质心在杆中点，\(l_{c}=l/2\)，绕质心的转动惯量 \(I=ml^2/12\)。角度 \(\theta_1\) 从水平的 \(+x\) 轴量起，\(\theta_2\) 是相对第一根杆的角度，重力沿 \(-y\)。两个关节力矩 \(\tau_1,\tau_2\)。同样的做法：写 \(T\) 与 \(V\)，对 \(\theta_1,\theta_2\) 各做一次欧拉–拉格朗日，结果整理成</p>
+    <p>两根均匀杆：\(m_1=2\) kg，\(l_1=1\) m；\(m_2=1.5\) kg，\(l_2=0.8\) m；质心在杆中点，\(l_{c}=l/2\)，绕质心的转动惯量 \(I=ml^2/12\)。角度 \(\theta_1\) 从水平的 \(+x\) 轴量起，\(\theta_2\) 是相对第一根杆的角度，重力沿 \(-y\)。两个关节力矩 \(\tau_1,\tau_2\)。把它们收成向量：\(\mathbf q=(\theta_1,\theta_2)\)，\(\boldsymbol\tau=(\tau_1,\tau_2)\)。同样的做法：写 \(T\) 与 \(V\)，对 \(\theta_1,\theta_2\) 各做一次欧拉–拉格朗日，结果整理成</p>
   </div>
   
   <div class="math-card">
-  $$ \hl{M}{\cx{M(q)}\,\ddot q} \;+\; \hl{C}{\cx{C(q,\dot q)\,\dot q}} \;+\; \hl{g}{\cv{g(q)}} \;+\; b\dot q \;=\; \hl{tau}{\cw{\tau}} . $$
+  $$ \hl{M}{\cx{M(\mathbf q)}\,\ddot{\mathbf q}} \;+\; \hl{C}{\cx{C(\mathbf q,\dot{\mathbf q})\,\dot{\mathbf q}}} \;+\; \hl{g}{\cv{\mathbf g(\mathbf q)}} \;+\; b\dot{\mathbf q} \;=\; \hl{tau}{\cw{\boldsymbol\tau}} . $$
   </div>
-  <div data-lang="zh"><p><b>颜色表示每一项的来源</b>：青色来自<b>动能</b>（质量矩阵 \(M\) 和科氏/离心项 \(C\dot q\)），琥珀色来自<b>势能</b>（重力 \(g\)），紫色是外部输入（力矩）。把鼠标悬停在公式的各项上，图里会高亮对应的物理量。下图是完整的仿真器：给两个力矩，开关重力，选积分器和步长，右图是能量守恒的检验。</p></div>
+  <div data-lang="zh"><p><b>颜色表示每一项的来源</b>：青色来自<b>动能</b>（质量矩阵 \(M\) 和科氏/离心项 \(C\dot{\mathbf q}\)），琥珀色来自<b>势能</b>（重力 \(\mathbf g\)），紫色是外部输入（力矩）。把鼠标悬停在公式的各项上，图里会高亮对应的物理量。下图是完整的仿真器：给两个力矩，开关重力，选积分器和步长，右图是能量守恒的检验。</p></div>
   
 
   <figure class="fig bleed" id="fig-arm">
@@ -235,25 +235,25 @@
     <div class="fig-lower"><div class="katex-live" id="r-tex"></div><div><div class="eb" id="r-bars"></div><div class="readout" id="r-read" style="margin-top:8px"></div></div></div>
     <div class="fig-controls" id="r-controls"></div>
     <figcaption class="fig-cap">
-      <span data-lang="zh">拖动肘部和末端的圆圈设定初始姿态（拖动时暂停）。公式里青色是 \(M\ddot q\) 与 \(C\dot q\)，琥珀色是 \(g\)，紫色是 \(\tau\)。右图：功–能原理 \(\dot E=\tau^\top\dot q-b\|\dot q\|^2\) 的账本，琥珀色是 \(E(t)-E(0)\)，紫色是积分得到的外力功 \(W(t)\)，两条线之差就是数值积分误差，读数里显示。\(\tau=0\)、\(b=0\) 时 \(E\) 应当恒定。</span>
+      <span data-lang="zh">拖动肘部和末端的圆圈设定初始姿态（拖动时暂停）。公式里青色是 \(M\ddot{\mathbf q}\) 与 \(C\dot{\mathbf q}\)，琥珀色是 \(\mathbf g\)，紫色是 \(\boldsymbol\tau\)。右图：功–能原理 \(\dot E=\boldsymbol\tau^\top\dot{\mathbf q}-b\|\dot{\mathbf q}\|^2\) 的账本，琥珀色是 \(E(t)-E(0)\)，紫色是积分得到的外力功 \(W(t)\)，两条线之差就是数值积分误差，读数里显示。\(\boldsymbol\tau=0\)、\(b=0\) 时 \(E\) 应当恒定。</span>
       
     </figcaption>
   </figure>
   <div class="tasks-title"><span data-lang="zh">试一试</span></div>
   <ul class="tasks">
-    <li data-task="arm-euler"><span><span data-lang="zh">令 \(\tau=0\)、\(b=0\)、开重力，选<b>显式欧拉</b>、\(h=10\) ms，点"跑 10 秒"：能量误差超过 2 J。真实系统不会无缘无故多出能量，这是积分器造出来的。</span></span></li>
+    <li data-task="arm-euler"><span><span data-lang="zh">令 \(\boldsymbol\tau=0\)、\(b=0\)、开重力，选<b>显式欧拉</b>、\(h=10\) ms，点"跑 10 秒"：能量误差超过 2 J。真实系统不会无缘无故多出能量，这是积分器造出来的。</span></span></li>
     <li data-task="arm-rk4"><span><span data-lang="zh">换成 <b>RK4</b>，把 \(h\) 降到 2 ms 以下，跑满 10 秒：能量误差小于 \(10^{-4}\) J。</span></span></li>
-    <li data-task="arm-hold"><span><span data-lang="zh">拖一个姿态，开重力，点"τ = g(q) 保持"：手臂静止 3 秒不动。想一想：为什么保持不动所需的力矩只和 \(g(q)\) 有关？（试试拖到水平伸直，\(\tau_1\) 有多大？）</span></span></li>
+    <li data-task="arm-hold"><span><span data-lang="zh">拖一个姿态，开重力，点"τ = g(q) 保持"：手臂静止 3 秒不动。想一想：为什么保持不动所需的力矩只和 \(\mathbf g(\mathbf q)\) 有关？（试试拖到水平伸直，\(\tau_1\) 有多大？）</span></span></li>
   </ul>
   <div class="callout view">
     <div class="ct"><span data-lang="zh">一个方程，三种读法</span></div>
-    <p data-lang="zh"><b>惯性</b>：\(M(q)\) 描述"推动这个姿态下的手臂有多费劲"，伸直时 \(M_{11}\) 大（质量离轴远），折起时小；\(M_{12}\) 说明加速关节 2 会反过来拽关节 1。<b>速度耦合</b>：\(C\dot q\) 在静止时为零，转得越快越大：离心项（\(\dot\theta_i^2\)）把手臂往外甩，科氏项（\(\dot\theta_1\dot\theta_2\)）让两个关节互相"拖拽"。它们不做功。<b>位置</b>：\(g(q)\) 只依赖姿态，是保持不动需要的力矩，完全不依赖速度。</p>
+    <p data-lang="zh"><b>惯性</b>：\(M(\mathbf q)\) 描述"推动这个姿态下的手臂有多费劲"，伸直时 \(M_{11}\) 大（质量离轴远），折起时小；\(M_{12}\) 说明加速关节 2 会反过来拽关节 1。<b>速度耦合</b>：\(C\dot{\mathbf q}\) 在静止时为零，转得越快越大：离心项（\(\dot\theta_i^2\)）把手臂往外甩，科氏项（\(\dot\theta_1\dot\theta_2\)）让两个关节互相"拖拽"。它们不改变总能量：\(C\dot{\mathbf q}\) 的功率 \(\dot{\mathbf q}^\top C\dot{\mathbf q}\) 一般不为零，但恰好被 \(M(\mathbf q)\) 变化带来的动能变化抵消（第 5 节性质 2：\(\dot M-2C\) 反对称）。<b>位置</b>：\(\mathbf g(\mathbf q)\) 只依赖姿态，是保持不动需要的力矩，完全不依赖速度。</p>
     
   </div>
 
   <h3><span data-lang="zh">倒立摆小车：欠驱动</span></h3>
   <div data-lang="zh">
-    <p>小车（质量 \(M_c\)）沿水平导轨滑动，摆杆（长 \(l\)，端点质量 \(m\)，角度 \(\theta\) 从竖直向上量起）铰接在车上。<b>两个自由度</b> \((x,\theta)\)，但<b>只有一个驱动</b>：只能推小车，没有电机直接转动摆杆。这叫<b>欠驱动</b>（7.1 节的自由度 vs. 驱动数）。拉格朗日框架处理它毫无困难，只是右端的广义力 \(\tau=(F,0)\)，第二项为零。下图把"能不能同时指定两个加速度"画了出来：右边平面的横轴是小车加速度 \(\ddot x\)，纵轴是摆杆角加速度 \(\ddot\theta\)，<b>当前状态下，无论推多大的力 \(F\)，能到达的 \((\ddot x,\ddot\theta)\) 只落在一条直线上</b>。</p>
+    <p>小车（质量 \(M_c\)）沿水平导轨滑动，摆杆（长 \(l\)，端点质量 \(m\)，角度 \(\theta\) 从竖直向上量起）铰接在车上。<b>两个自由度</b> \((x,\theta)\)，但<b>只有一个驱动</b>：只能推小车，没有电机直接转动摆杆。这叫<b>欠驱动</b>（7.1 节的自由度 vs. 驱动数）。拉格朗日框架处理它毫无困难，只是右端的广义力 \(\boldsymbol\tau=(F,0)\)，第二项为零。下图把"能不能同时指定两个加速度"画了出来：右边平面的横轴是小车加速度 \(\ddot x\)，纵轴是摆杆角加速度 \(\ddot\theta\)，<b>当前状态下，无论推多大的力 \(F\)，能到达的 \((\ddot x,\ddot\theta)\) 只落在一条直线上</b>。</p>
   </div>
   
 
@@ -282,11 +282,11 @@
 <!-- ============ 5. MATH ============ -->
 <section class="step" id="math">
   <h2><span class="n">5</span><span data-lang="zh">再看数学</span></h2>
-  <p class="hl-hint"><span data-lang="zh">提示：把鼠标悬停在公式中带底色的符号上（\(M\)、\(C\dot q\)、\(g\)、\(\tau\)、\(T\)、\(V\)），FIG 3 中对应的物理量会被高亮。</span></p>
+  <p class="hl-hint"><span data-lang="zh">提示：把鼠标悬停在公式中带底色的符号上（\(M\)、\(C\dot{\mathbf q}\)、\(\mathbf g\)、\(\boldsymbol\tau\)、\(T\)、\(V\)），FIG 3 中对应的物理量会被高亮。</span></p>
 
   <h3><span data-lang="zh">广义坐标与动能</span></h3>
   <div data-lang="zh">
-    <p>取 \(n\) 个<b>独立</b>变量 \(q=(q_1,\dots,q_n)\) 描述整个机器人的构型（7.1 节的自由度个数，7.2 节的构型空间），这就是<b>广义坐标</b>。关节角、滑动关节的位移都可以做广义坐标。用了它们，刚性连接和铰链带来的约束就已经"吃掉"了：不再有约束力要处理。</p>
+    <p>取 \(n\) 个<b>独立</b>变量 \(\mathbf q=(q_1,\dots,q_n)\) 描述整个机器人的构型（7.1 节的自由度个数，7.2 节的构型空间），这就是<b>广义坐标</b>。关节角、滑动关节的位移都可以做广义坐标。用了它们，刚性连接和铰链带来的约束就已经"吃掉"了：不再有约束力要处理。</p>
     <p>先看一块刚体。设质心速度为 \(v_c\)，角速度为 \(\omega\)，绕质心的转动惯量为 \(I\)（平面情形，三维时是惯量张量，\(\tfrac12\omega^\top I_c\,\omega\)）。把刚体分成质点 \(dm\)，每个质点的速度是 \(v=v_c+\omega\times r\)（\(r\) 是相对质心的位置）：</p>
   </div>
   
@@ -294,37 +294,37 @@
   $$ T_{\text{link}}=\int\tfrac12\|v_c+\omega\times r\|^2dm = \tfrac12 m\|v_c\|^2 + v_c\cdot\Big(\omega\times\underbrace{\int r\,dm}_{=\,0}\Big) + \tfrac12\underbrace{\int\|r\|^2dm}_{I}\,\omega^2 = \tfrac12 m\|v_c\|^2+\tfrac12 I\omega^2 . $$
   </div>
   <div data-lang="zh">
-    <p>中间项为零，因为 \(r\) 是从质心量起的（\(\int r\,dm=0\)）。这就是"平动动能 + 转动动能"，也是常见的第一个坑：<b>忘记转动惯量项</b>。每个连杆的 \(v_c\) 和 \(\omega\) 都是 \(\dot q\) 的线性函数，系数正是 3.4 节的雅可比（质心的雅可比，也是"杠杆臂转 90°"）：\(v_{ci}=J_{vi}(q)\dot q\)，\(\omega_i=J_{\omega i}(q)\dot q\)。把所有连杆加起来：</p>
+    <p>中间项为零，因为 \(r\) 是从质心量起的（\(\int r\,dm=0\)）。这就是"平动动能 + 转动动能"，也是常见的第一个坑：<b>忘记转动惯量项</b>。每个连杆的 \(v_c\) 和 \(\omega\) 都是 \(\dot{\mathbf q}\) 的线性函数，系数正是 3.4 节的雅可比（质心的雅可比，也是"杠杆臂转 90°"）：\(v_{ci}=J_{vi}(\mathbf q)\dot{\mathbf q}\)，\(\omega_i=J_{\omega i}(\mathbf q)\dot{\mathbf q}\)。把所有连杆加起来：</p>
   </div>
   
   <div class="math-card">
-  $$ \hl{T}{T} = \tfrac12\,\dot q^\top M(q)\,\dot q,\qquad M(q)=\sum_{i=1}^n\Big(m_i\,J_{vi}^\top J_{vi}+J_{\omega i}^\top I_i\,J_{\omega i}\Big),\qquad \hl{V}{V}=\sum_i m_i\,g\,h_i(q). $$
+  $$ \hl{T}{T} = \tfrac12\,\dot{\mathbf q}^\top M(\mathbf q)\,\dot{\mathbf q},\qquad M(\mathbf q)=\sum_{i=1}^n\Big(m_i\,J_{vi}^\top J_{vi}+J_{\omega i}^\top I_i\,J_{\omega i}\Big),\qquad \hl{V}{V}=\sum_i m_i\,g\,h_i(\mathbf q). $$
   </div>
-  <div data-lang="zh"><p>\(T\) 是 \(\dot q\) 的<b>二次型</b>（3.5 节），\(M=\partial^2T/\partial\dot q^2\) 正是它的 Hessian，称为<b>质量矩阵</b>（惯量矩阵）。因为对任何 \(\dot q\ne0\) 都有 \(T&gt;0\)，\(M\) 是对称正定的，永远可逆，这是"给力矩就能解出加速度"的根本原因。\(V\) 只依赖 \(q\)，\(h_i\) 是质心的高度。</p></div>
+  <div data-lang="zh"><p>\(T\) 是 \(\dot{\mathbf q}\) 的<b>二次型</b>（3.5 节），\(M=\partial^2T/\partial\dot{\mathbf q}^2\) 正是它的 Hessian，称为<b>质量矩阵</b>（惯量矩阵）。因为对任何 \(\dot{\mathbf q}\ne0\) 都有 \(T&gt;0\)，\(M\) 是对称正定的，永远可逆，这是"给力矩就能解出加速度"的根本原因。\(V\) 只依赖 \(q\)，\(h_i\) 是质心的高度。</p></div>
   
 
   <h3><span data-lang="zh">欧拉–拉格朗日方程与广义力</span></h3>
-  <div data-lang="zh"><p>设 \(\mathcal L=T-V\)，真实运动使 \(S=\int\mathcal L\,dt\) 驻定。取一个满足 \(\delta q(0)=\delta q(T)=0\) 的变分 \(\delta q(t)\)（FIG 1 中的扰动 \(\eta\)），一阶变化为</p></div>
+  <div data-lang="zh"><p>设 \(\mathcal L=T-V\)，真实运动使 \(S=\int\mathcal L\,dt\) 驻定。取一个满足 \(\delta\mathbf q(0)=\delta\mathbf q(T)=0\) 的变分 \(\delta\mathbf q(t)\)（FIG 1 中的扰动 \(\eta\)），一阶变化为</p></div>
   
   <div class="math-card">
-  $$ \delta S=\int_0^T\Big(\frac{\partial\mathcal L}{\partial q}\,\delta q+\frac{\partial\mathcal L}{\partial\dot q}\,\delta\dot q\Big)dt=\underbrace{\Big[\frac{\partial\mathcal L}{\partial\dot q}\delta q\Big]_0^T}_{=\,0}+\int_0^T\Big(\frac{\partial\mathcal L}{\partial q}-\frac{d}{dt}\frac{\partial\mathcal L}{\partial\dot q}\Big)\delta q\,dt . $$
+  $$ \delta S=\int_0^T\Big(\frac{\partial\mathcal L}{\partial \mathbf q}\,\delta\mathbf q+\frac{\partial\mathcal L}{\partial\dot{\mathbf q}}\,\delta\dot{\mathbf q}\Big)dt=\underbrace{\Big[\frac{\partial\mathcal L}{\partial\dot{\mathbf q}}\delta\mathbf q\Big]_0^T}_{=\,0}+\int_0^T\Big(\frac{\partial\mathcal L}{\partial \mathbf q}-\frac{d}{dt}\frac{\partial\mathcal L}{\partial\dot{\mathbf q}}\Big)\delta\mathbf q\,dt . $$
   </div>
-  <div data-lang="zh"><p>对任意 \(\delta q\) 都为零，被积函数必须恒为零。若还有不来自势能的力（电机力矩、摩擦、手爪受的外力），用虚功原理：它们在虚位移 \(\delta q\) 上做的功是 \(Q^\top\delta q\)，其中 \(Q_i=\sum_k F_k\cdot\partial r_k/\partial q_i\) 称为<b>广义力</b>。关节力矩直接就是 \(Q_i=\tau_i\)；手爪上的力 \(F\) 的广义力就是 \(J^\top F\)，正是 3.4 节的力–力矩对偶。于是</p></div>
+  <div data-lang="zh"><p>对任意 \(\delta\mathbf q\) 都为零，被积函数必须恒为零。若还有不来自势能的力（电机力矩、摩擦、手爪受的外力），用虚功原理：它们在虚位移 \(\delta\mathbf q\) 上做的功是 \(Q^\top\delta\mathbf q\)，其中 \(Q_i=\sum_k F_k\cdot\partial r_k/\partial q_i\) 称为<b>广义力</b>。关节力矩直接就是 \(Q_i=\tau_i\)；手爪上的力 \(F\) 的广义力就是 \(J^\top F\)，正是 3.4 节的力–力矩对偶。于是</p></div>
   
   <div class="math-card">
-  $$ \frac{d}{dt}\frac{\partial\mathcal L}{\partial\dot q_i}-\frac{\partial\mathcal L}{\partial q_i}=Q_i,\qquad i=1,\dots,n,\qquad Q=\hl{tau}{\tau}-b\dot q+J^\top F_{\text{ext}} . $$
+  $$ \frac{d}{dt}\frac{\partial\mathcal L}{\partial\dot q_i}-\frac{\partial\mathcal L}{\partial q_i}=Q_i,\qquad i=1,\dots,n,\qquad Q=\hl{tau}{\boldsymbol\tau}-b\dot{\mathbf q}+J^\top F_{\text{ext}} . $$
   </div>
 
   <h3><span data-lang="zh">从欧拉–拉格朗日到操作臂方程</span></h3>
-  <div data-lang="zh"><p>把 \(T=\tfrac12\dot q^\top M(q)\dot q\) 代入。每一项都是一步机械的求导：</p></div>
+  <div data-lang="zh"><p>把 \(T=\tfrac12\dot{\mathbf q}^\top M(\mathbf q)\dot{\mathbf q}\) 代入。每一项都是一步机械的求导：</p></div>
   
   <div class="math-card">
-  $$ \frac{\partial\mathcal L}{\partial\dot q}=M\dot q,\qquad \frac{d}{dt}\frac{\partial\mathcal L}{\partial\dot q}=M\ddot q+\hl{C}{\dot M\,\dot q},\qquad \frac{\partial\mathcal L}{\partial q_i}=\tfrac12\dot q^\top\frac{\partial M}{\partial q_i}\dot q-\frac{\partial V}{\partial q_i}. $$
+  $$ \frac{\partial\mathcal L}{\partial\dot{\mathbf q}}=M\dot{\mathbf q},\qquad \frac{d}{dt}\frac{\partial\mathcal L}{\partial\dot{\mathbf q}}=M\ddot{\mathbf q}+\dot M\,\dot{\mathbf q},\qquad \frac{\partial\mathcal L}{\partial q_i}=\tfrac12\dot{\mathbf q}^\top\frac{\partial M}{\partial q_i}\dot{\mathbf q}-\frac{\partial V}{\partial q_i}. $$
   </div>
-  <div data-lang="zh"><p>注意第二项的 \(\dot M\dot q\)：因为 \(M\) 依赖 \(q\)，对时间求导时必须多出这一项（常见错误之一）。它和 \(\tfrac12\dot q^\top\partial_{q_i}M\,\dot q\) 合并，得到 \(C(q,\dot q)\dot q\)；分量形式是 <b>Christoffel 符号</b>：</p></div>
+  <div data-lang="zh"><p>注意第二项的 \(\dot M\dot{\mathbf q}\)：因为 \(M\) 依赖 \(\mathbf q\)，对时间求导时必须多出这一项（常见错误之一）。它和 \(\tfrac12\dot{\mathbf q}^\top\partial_{q_i}M\,\dot{\mathbf q}\) 合并，得到 \(C(\mathbf q,\dot{\mathbf q})\dot{\mathbf q}\)；分量形式是 <b>Christoffel 符号</b>：</p></div>
   
   <div class="math-card">
-  $$ \underbrace{M(q)\ddot q}_{\text{inertia}}+\underbrace{C(q,\dot q)\dot q}_{\text{Coriolis / centrifugal}}+\underbrace{g(q)}_{\partial V/\partial q}=\tau-b\dot q,\qquad C_{ij}=\sum_k c_{ijk}\dot q_k,\quad c_{ijk}=\tfrac12\Big(\frac{\partial M_{ij}}{\partial q_k}+\frac{\partial M_{ik}}{\partial q_j}-\frac{\partial M_{jk}}{\partial q_i}\Big). $$
+  $$ \underbrace{M(\mathbf q)\ddot{\mathbf q}}_{\text{inertia}}+\underbrace{C(\mathbf q,\dot{\mathbf q})\dot{\mathbf q}}_{\text{Coriolis / centrifugal}}+\underbrace{\mathbf g(\mathbf q)}_{\partial V/\partial \mathbf q}=\boldsymbol\tau-b\dot{\mathbf q},\qquad C_{ij}=\sum_k c_{ijk}\dot q_k,\quad c_{ijk}=\tfrac12\Big(\frac{\partial M_{ij}}{\partial q_k}+\frac{\partial M_{ik}}{\partial q_j}-\frac{\partial M_{jk}}{\partial q_i}\Big). $$
   </div>
 
   <h3><span data-lang="zh">平面 2R 的显式形式</span></h3>
@@ -335,7 +335,7 @@
   \cx{M_{11}}&=m_1l_{c1}^2+I_1+m_2\big(l_1^2+l_{c2}^2+2l_1l_{c2}\cos\theta_2\big)+I_2, & \cx{M_{12}}&=m_2\big(l_{c2}^2+l_1l_{c2}\cos\theta_2\big)+I_2, \\
   \cx{M_{22}}&=m_2l_{c2}^2+I_2, & h&=m_2l_1l_{c2}\sin\theta_2,
   \end{aligned}$$
-  $$ \cx{C\dot q}=\begin{bmatrix}-h\dot\theta_2 & -h(\dot\theta_1+\dot\theta_2)\\ h\dot\theta_1 & 0\end{bmatrix}\!\begin{bmatrix}\dot\theta_1\\\dot\theta_2\end{bmatrix}=\begin{bmatrix}-h\,(2\dot\theta_1\dot\theta_2+\dot\theta_2^2)\\ h\,\dot\theta_1^2\end{bmatrix},\qquad \cv{g}=\begin{bmatrix}(m_1l_{c1}+m_2l_1)\,g\cos\theta_1+m_2l_{c2}\,g\cos(\theta_1+\theta_2)\\ m_2l_{c2}\,g\cos(\theta_1+\theta_2)\end{bmatrix}. $$
+  $$ \cx{C\dot{\mathbf q}}=\begin{bmatrix}-h\dot\theta_2 & -h(\dot\theta_1+\dot\theta_2)\\ h\dot\theta_1 & 0\end{bmatrix}\!\begin{bmatrix}\dot\theta_1\\\dot\theta_2\end{bmatrix}=\begin{bmatrix}-h\,(2\dot\theta_1\dot\theta_2+\dot\theta_2^2)\\ h\,\dot\theta_1^2\end{bmatrix},\qquad \cv{\mathbf g}=\begin{bmatrix}(m_1l_{c1}+m_2l_1)\,g\cos\theta_1+m_2l_{c2}\,g\cos(\theta_1+\theta_2)\\ m_2l_{c2}\,g\cos(\theta_1+\theta_2)\end{bmatrix}. $$
   </div>
   <div data-lang="zh"><p>这些公式已经用暴力数值微分的欧拉–拉格朗日做过核对（随机姿态、速度、力矩，加速度吻合到 \(10^{-5}\) 量级，即有限差分的精度）。FIG 3 的读数里用的就是它们。几点观察：\(M_{12}\ne0\) 且依赖 \(\theta_2\)，所以两关节的惯性耦合；\(g_1\) 里的 \(\cos\) 来自"\(\theta\) 从水平量起"，水平伸直时重力力臂最大；\(C\) 的所有元素都含 \(h\propto\sin\theta_2\)，臂完全伸直或折回（\(\theta_2=0,\pi\)）时科氏力消失。</p></div>
   
@@ -343,33 +343,33 @@
   <h3><span data-lang="zh">三个重要性质</span></h3>
   <div data-lang="zh">
     <ol>
-      <li><b>\(M\) 对称正定</b>，所以正动力学 \(\ddot q=M^{-1}(\tau-C\dot q-g-b\dot q)\) 总有唯一解。</li>
-      <li><b>\(\dot M-2C\) 是反对称的</b>（\(C\) 取 Christoffel 形式时）。于是 \(\dot q^\top(\dot M-2C)\dot q=0\)，对 \(T\) 求导得 \(\dot T=\dot q^\top(\tau-g-b\dot q)\)；再加上 \(\dot V=\dot q^\top g\)，总能量 \(E=T+V\) 满足 \(\dot E=\dot q^\top\tau-b\|\dot q\|^2\)：<b>能量的变化等于外力做的功</b>。这是 FIG 3 右图的账本，也是基于<b>无源性</b>的控制证明稳定性的出发点。我们数值验证了 \(\dot M-2C\) 的反对称（残差 \(\sim10^{-10}\)）。注意只有 \(C\dot q\) 这个乘积是唯一的，\(C\) 本身不唯一，反对称性依赖于 Christoffel 的选择。</li>
-      <li><b>对动力学参数线性</b>：存在回归矩阵 \(Y(q,\dot q,\ddot q)\)，使 \(\tau=Y\,\pi\)，\(\pi\) 是质量、一阶矩、惯量等组成的参数向量。这是系统辨识的基础：用足够多的测量点做最小二乘（1.13 节）。</li>
+      <li><b>\(M\) 对称正定</b>，所以正动力学 \(\ddot{\mathbf q}=M^{-1}(\boldsymbol\tau-C\dot{\mathbf q}-\mathbf g-b\dot{\mathbf q})\) 总有唯一解。</li>
+      <li><b>\(\dot M-2C\) 是反对称的</b>（\(C\) 取 Christoffel 形式时）。于是 \(\dot{\mathbf q}^\top(\dot M-2C)\dot{\mathbf q}=0\)，对 \(T\) 求导得 \(\dot T=\dot{\mathbf q}^\top(\boldsymbol\tau-\mathbf g-b\dot{\mathbf q})\)；再加上 \(\dot V=\dot{\mathbf q}^\top\mathbf g\)，总能量 \(E=T+V\) 满足 \(\dot E=\dot{\mathbf q}^\top\boldsymbol\tau-b\|\dot{\mathbf q}\|^2\)：<b>能量的变化等于外力做的功</b>。这是 FIG 3 右图的账本，也是基于<b>无源性</b>的控制证明稳定性的出发点。我们数值验证了 \(\dot M-2C\) 的反对称（残差 \(\sim10^{-10}\)）。注意只有 \(C\dot{\mathbf q}\) 这个乘积是唯一的，\(C\) 本身不唯一，反对称性依赖于 Christoffel 的选择。</li>
+      <li><b>对动力学参数线性</b>：存在回归矩阵 \(Y(\mathbf q,\dot{\mathbf q},\ddot{\mathbf q})\)，使 \(\boldsymbol\tau=Y\,\pi\)，\(\pi\) 是质量、一阶矩、惯量等组成的参数向量。这是系统辨识的基础：用足够多的测量点做最小二乘（1.13 节）。</li>
     </ol>
   </div>
   
 
   <h3><span data-lang="zh">正动力学与逆动力学</span></h3>
   <div class="math-card">
-  $$ \underbrace{\ddot q=M(q)^{-1}\big(\tau-C(q,\dot q)\dot q-g(q)\big)}_{\text{forward dynamics: simulation}},\qquad \underbrace{\tau=M(q)\,\ddot q_{d}+C(q,\dot q)\dot q+g(q)}_{\text{inverse dynamics: control, identification}} . $$
+  $$ \underbrace{\ddot{\mathbf q}=M(\mathbf q)^{-1}\big(\boldsymbol\tau-C(\mathbf q,\dot{\mathbf q})\dot{\mathbf q}-\mathbf g(\mathbf q)\big)}_{\text{forward dynamics: simulation}},\qquad \underbrace{\boldsymbol\tau=M(\mathbf q)\,\ddot{\mathbf q}_{d}+C(\mathbf q,\dot{\mathbf q})\dot{\mathbf q}+\mathbf g(\mathbf q)}_{\text{inverse dynamics: control, identification}} . $$
   </div>
-  <div data-lang="zh"><p>正动力学"给力矩求加速度"，用于仿真（再积分，2.5 节）；逆动力学"给想要的加速度求力矩"，用于控制。FIG 3 的 \(\tau=g(q)\) 保持按钮，就是 \(\ddot q_d=0,\dot q=0\) 的逆动力学。对 \(n\ge3\) 的机械臂，手推符号式的拉格朗日表达式爆炸式地变长（每多一个自由度，项数成倍增加），实用的算法是 8.2 节的牛顿–欧拉递推（逆动力学，\(O(n)\)）和 8.3 节的质量矩阵算法；数值上 \(M\) 常用复合刚体算法（CRBA）直接构造。</p></div>
+  <div data-lang="zh"><p>正动力学"给力矩求加速度"，用于仿真（再积分，2.5 节）；逆动力学"给想要的加速度求力矩"，用于控制。FIG 3 的 \(\boldsymbol\tau=\mathbf g(\mathbf q)\) 保持按钮，就是 \(\ddot{\mathbf q}_d=0,\dot{\mathbf q}=0\) 的逆动力学。对 \(n\ge3\) 的机械臂，手推符号式的拉格朗日表达式爆炸式地变长（每多一个自由度，项数成倍增加），实用的算法是 8.2 节的牛顿–欧拉递推（逆动力学，\(O(n)\)）和 8.3 节的质量矩阵算法；数值上 \(M\) 常用复合刚体算法（CRBA）直接构造。</p></div>
   
 
   <h3><span data-lang="zh">倒立摆小车的方程</span></h3>
-  <div data-lang="zh"><p>广义坐标 \(q=(x,\theta)\)，\(\theta\) 从竖直向上量起。摆杆端点的位置是 \((x+l\sin\theta,\ l\cos\theta)\)。</p></div>
+  <div data-lang="zh"><p>广义坐标 \(\mathbf q=(x,\theta)\)，\(\theta\) 从竖直向上量起。摆杆端点的位置是 \((x+l\sin\theta,\ l\cos\theta)\)。</p></div>
   
   <div class="math-card">
   $$ T=\tfrac12(M_c+m)\dot x^2+ml\cos\theta\,\dot x\dot\theta+\tfrac12ml^2\dot\theta^2,\quad V=mgl\cos\theta;\qquad \begin{aligned}(M_c+m)\ddot x+ml\cos\theta\,\ddot\theta-ml\sin\theta\,\dot\theta^2&=F,\\ ml\cos\theta\,\ddot x+ml^2\ddot\theta-mgl\sin\theta&=0.\end{aligned} $$
   </div>
-  <div data-lang="zh"><p>写成矩阵形式 \(M(q)\ddot q+C\dot q+g=B\,u\)，输入矩阵 \(B=(1,0)^\top\)。若 \(B\) 是 \(n\times n\) 可逆矩阵，系统是<b>全驱动</b>，任何 \(\ddot q\) 都能通过逆动力学实现（FIG 3 的 2R 机械臂）；这里 \(B\) 的秩是 1，小于 \(n=2\)，所以欠驱动。第二个方程里没有 \(F\)，它就是 FIG 4 右图直线的来源。</p></div>
+  <div data-lang="zh"><p>写成矩阵形式 \(M(\mathbf q)\ddot{\mathbf q}+C\dot{\mathbf q}+\mathbf g=B\,u\)，输入矩阵 \(B=(1,0)^\top\)。若 \(B\) 是 \(n\times n\) 可逆矩阵，系统是<b>全驱动</b>，任何 \(\ddot{\mathbf q}\) 都能通过逆动力学实现（FIG 3 的 2R 机械臂）；这里 \(B\) 的秩是 1，小于 \(n=2\)，所以欠驱动。第二个方程里没有 \(F\)，它就是 FIG 4 右图直线的来源。</p></div>
   
 
   <h3><span data-lang="zh">指向别处：哈密顿量与约束</span></h3>
   <div data-lang="zh">
-    <p><b>哈密顿形式</b>：令广义动量 \(p=\partial\mathcal L/\partial\dot q=M\dot q\)，哈密顿量 \(H=\tfrac12p^\top M^{-1}p+V(q)\)（能量），运动方程变成一阶的 \(\dot q=\partial H/\partial p\)，\(\dot p=-\partial H/\partial q+Q\)。它是辛积分器、端口哈密顿控制的出发点，但对机器人入门，二阶形式更直接。</p>
-    <p><b>约束</b>：闭链机构（并联机器人、四连杆）和接触（脚踩地面）带有约束 \(\phi(q)=0\)。若保留冗余坐标，约束力又回来了：\(M\ddot q+C\dot q+g=\tau+A(q)^\top\lambda\)，\(A=\partial\phi/\partial q\)，<b>拉格朗日乘子</b> \(\lambda\) 就是约束力，由 \(A\ddot q+\dot A\dot q=0\) 一并解出。8.4 节的接触就是这个套路，并加上"不等式"（只能推，不能拉）。所以"约束力从不出现"精确地说是：<b>选了满足约束的独立坐标后</b>。</p>
+    <p><b>哈密顿形式</b>：令广义动量 \(p=\partial\mathcal L/\partial\dot{\mathbf q}=M\dot{\mathbf q}\)，哈密顿量 \(H=\tfrac12p^\top M^{-1}p+V(\mathbf q)\)（能量），运动方程变成一阶的 \(\dot{\mathbf q}=\partial H/\partial p\)，\(\dot p=-\partial H/\partial \mathbf q+Q\)。它是辛积分器、端口哈密顿控制的出发点，但对机器人入门，二阶形式更直接。</p>
+    <p><b>约束</b>：闭链机构（并联机器人、四连杆）和接触（脚踩地面）带有约束 \(\phi(\mathbf q)=0\)。若保留冗余坐标，约束力又回来了：\(M\ddot{\mathbf q}+C\dot{\mathbf q}+\mathbf g=\boldsymbol\tau+A(\mathbf q)^\top\lambda\)，\(A=\partial\phi/\partial\mathbf q\)，<b>拉格朗日乘子</b> \(\lambda\) 就是约束力，由 \(A\ddot{\mathbf q}+\dot A\dot{\mathbf q}=0\) 一并解出。8.4 节的接触就是这个套路，并加上"不等式"（只能推，不能拉）。所以"约束力从不出现"精确地说是：<b>选了满足约束的独立坐标后</b>。</p>
   </div>
   
 </section>
@@ -378,10 +378,10 @@
 <section class="step" id="robotics">
   <h2><span class="n">6</span><span data-lang="zh">机器人中的它：计算力矩控制</span></h2>
   <div data-lang="zh">
-    <p>让 2R 机械臂跟踪一条关节轨迹 \(q_d(t)\)。最朴素的是对每个关节做 PD：\(\tau=K_p e+K_d\dot e\)（\(e=q_d-q\)），可手臂自重要吃掉一部分力矩，快速运动时惯性耦合和科氏力又会引起误差。用动力学模型可以逐级改进：</p>
+    <p>让 2R 机械臂跟踪一条关节轨迹 \(\mathbf q_d(t)\)。最朴素的是对每个关节做 PD：\(\boldsymbol\tau=K_p e+K_d\dot e\)（\(e=\mathbf q_d-\mathbf q\)），可手臂自重要吃掉一部分力矩，快速运动时惯性耦合和科氏力又会引起误差。用动力学模型可以逐级改进：</p>
     <ul>
-      <li><b>PD + 重力补偿</b>：\(\tau=K_pe+K_d\dot e+\hat g(q)\)，抵消静态的重力。</li>
-      <li><b>计算力矩</b>（又叫反馈线性化）：\(\tau=\hat M(q)\big(\ddot q_d+K_d\dot e+K_pe\big)+\hat C(q,\dot q)\dot q+\hat g(q)\)。模型完美时，把它代入 \(M\ddot q+C\dot q+g=\tau\)，得到 \(\ddot e+K_d\dot e+K_pe=0\)：误差满足一条<b>与姿态无关的线性方程</b>，非线性被逆动力学抵消了。</li>
+      <li><b>PD + 重力补偿</b>：\(\boldsymbol\tau=K_pe+K_d\dot e+\hat{\mathbf g}(\mathbf q)\)，抵消静态的重力。</li>
+      <li><b>计算力矩</b>（又叫反馈线性化）：\(\boldsymbol\tau=\hat M(\mathbf q)\big(\ddot{\mathbf q}_d+K_d\dot e+K_pe\big)+\hat C(\mathbf q,\dot{\mathbf q})\dot{\mathbf q}+\hat{\mathbf g}(\mathbf q)\)。模型完美时，把它代入 \(M\ddot{\mathbf q}+C\dot{\mathbf q}+\mathbf g=\boldsymbol\tau\)，得到 \(\ddot e+K_d\dot e+K_pe=0\)：误差满足一条<b>与姿态无关的线性方程</b>，非线性被逆动力学抵消了。</li>
     </ul>
     <p>下面三条控制器同时跟踪同一条轨迹（紫色虚线是目标）。控制律以 500 Hz 运行（零阶保持）。"模型误差"让控制器使用的质量与真实值差 \(\pm\) 若干个百分点，"未建模负载"是手爪抓了一个控制器<b>不知道</b>的物体（质量加在末端）。</p>
   </div>
@@ -396,7 +396,7 @@
     <div class="fig-lower"><div class="katex-live" id="t-tex"></div><div class="readout" id="t-read"></div></div>
     <div class="fig-controls" id="t-controls"></div>
     <figcaption class="fig-cap">
-      <span data-lang="zh">红：PD（\(K_p=150\)，\(K_d=20\)）；青：PD + 重力补偿；绿：计算力矩（\(K_p=150\)，\(K_d=20\)，作用在加速度上）。目标 \(q_d(t)\) 是两个关节的正弦（频率 2.2、3.0 rad/s）。读数是最近约 2 秒的均方根误差（弧度）。改变滑块会让仿真重新开始。</span>
+      <span data-lang="zh">红：PD（\(K_p=150\)，\(K_d=20\)）；青：PD + 重力补偿；绿：计算力矩（\(K_p=150\)，\(K_d=20\)，作用在加速度上）。目标 \(\mathbf q_d(t)\) 是两个关节的正弦（频率 2.2、3.0 rad/s）。读数是最近约 2 秒的均方根误差（弧度）。改变滑块会让仿真重新开始。</span>
       
     </figcaption>
   </figure>
@@ -407,7 +407,7 @@
   </ul>
   <div class="callout robot">
     <div class="ct"><span data-lang="zh">真实系统里</span></div>
-    <p data-lang="zh"><b>仿真器</b>：MuJoCo 和 Drake 用广义坐标（及约束）建模，每步算质量矩阵（MuJoCo 中是 CRB 类算法）并求解正动力学；Isaac Sim / PhysX 的 articulation 同样是 reduced-coordinate 的 Featherstone 类算法；Pinocchio 提供 RNEA（逆动力学）、CRBA（质量矩阵）、ABA（正动力学）及其解析导数，是轨迹优化和 MPC 的常用后端。<b>控制</b>：Franka Emika、KUKA LBR 等力矩控制机械臂内置重力与惯量补偿，所谓"手拖示教"就是把 \(\tau=g(q)\)（加摩擦补偿）施加到关节上；计算力矩、阻抗控制（Part IV）、全身控制里的 \(M\)、\(h=C\dot q+g\) 都来自这个方程。<b>辨识</b>：沿激励轨迹采集 \((q,\dot q,\ddot q,\tau)\)，用回归形式 \(\tau=Y\pi\) 最小二乘求惯性参数。<b>为什么模型误差重要</b>：实机上负载、电缆、减速器摩擦、关节柔性都不在刚体模型里，FIG 5 里的未建模负载就是缩影；工程上靠高增益反馈、自适应或鲁棒控制、学习残差模型来补。</p>
+    <p data-lang="zh"><b>仿真器</b>：MuJoCo 和 Drake 用广义坐标（及约束）建模，每步算质量矩阵（MuJoCo 中是 CRB 类算法）并求解正动力学；Isaac Sim / PhysX 的 articulation 同样是 reduced-coordinate 的 Featherstone 类算法；Pinocchio 提供 RNEA（逆动力学）、CRBA（质量矩阵）、ABA（正动力学）及其解析导数，是轨迹优化和 MPC 的常用后端。<b>控制</b>：Franka Emika、KUKA LBR 等力矩控制机械臂内置重力与惯量补偿，所谓"手拖示教"就是把 \(\boldsymbol\tau=\mathbf g(\mathbf q)\)（加摩擦补偿）施加到关节上；计算力矩、阻抗控制（Part IV）、全身控制里的 \(M\) 与偏置项 \(\mathbf b=C\dot{\mathbf q}+\mathbf g\)（与阻尼系数 \(b\) 无关）都来自这个方程。<b>辨识</b>：沿激励轨迹采集 \((\mathbf q,\dot{\mathbf q},\ddot{\mathbf q},\boldsymbol\tau)\)，用回归形式 \(\boldsymbol\tau=Y\pi\) 最小二乘求惯性参数。<b>为什么模型误差重要</b>：实机上负载、电缆、减速器摩擦、关节柔性都不在刚体模型里，FIG 5 里的未建模负载就是缩影；工程上靠高增益反馈、自适应或鲁棒控制、学习残差模型来补。</p>
     
   </div>
 </section>
@@ -416,8 +416,8 @@
 <section class="step" id="pitfalls">
   <h2><span class="n">7</span><span data-lang="zh">常见误区</span></h2>
   <div class="callout pitfall">
-    <div class="ct"><span data-lang="zh">误区 1：对 \(M\dot q\) 求导时忘了 \(\dot M\)</span></div>
-    <p data-lang="zh">\(\tfrac{d}{dt}(M(q)\dot q)=M\ddot q+\dot M\dot q\)，\(\dot M=\sum_k\tfrac{\partial M}{\partial q_k}\dot q_k\) 一般不为零。丢掉它（以及 \(\partial T/\partial q\)）等于丢掉整个 \(C\dot q\)：慢速时误差小，仿真看着没问题；转快了，离心力和科氏力消失，能量也不再守恒。在 FIG 3 里用手臂高速甩动，对比"有 \(C\)"和"无 \(C\)"的直觉：没有它手臂不会向外甩。</p>
+    <div class="ct"><span data-lang="zh">误区 1：对 \(M\dot{\mathbf q}\) 求导时忘了 \(\dot M\)</span></div>
+    <p data-lang="zh">\(\tfrac{d}{dt}(M(\mathbf q)\dot{\mathbf q})=M\ddot{\mathbf q}+\dot M\dot{\mathbf q}\)，\(\dot M=\sum_k\tfrac{\partial M}{\partial q_k}\dot q_k\) 一般不为零。丢掉它（以及 \(\partial T/\partial\mathbf q\)）等于丢掉整个 \(C\dot{\mathbf q}\)：慢速时误差小，仿真看着没问题；转快了，离心力和科氏力消失，能量也不再守恒。在 FIG 3 里用手臂高速甩动，对比"有 \(C\)"和"无 \(C\)"的直觉：没有它手臂不会向外甩。</p>
     
   </div>
   <div class="callout pitfall">
@@ -427,17 +427,17 @@
   </div>
   <div class="callout pitfall">
     <div class="ct"><span data-lang="zh">误区 3：角度约定和坐标选择</span></div>
-    <p data-lang="zh">本节的 2R 从<b>水平</b>量角，\(g_1\propto\cos\theta_1\)；如果从<b>竖直</b>量（摆那样），\(\cos\) 变成 \(\sin\)，零位也不同。\(\theta_2\) 取相对角还是绝对角，\(M_{12}\)、\(C\) 的形式都不同。URDF、DH、厂商手册各有各的零位和正方向，把别人的 \(M(q)\) 套到自己的坐标上之前要先对齐。另外广义坐标本身可能不是好坐标：用欧拉角描述三维姿态，在万向节锁处 \(M\) 变成奇异的，尽管刚体并没有任何问题（5.2 节）。</p>
+    <p data-lang="zh">本节的 2R 从<b>水平</b>量角，\(g_1\propto\cos\theta_1\)；如果从<b>竖直</b>量（摆那样），\(\cos\) 变成 \(\sin\)，零位也不同。\(\theta_2\) 取相对角还是绝对角，\(M_{12}\)、\(C\) 的形式都不同。URDF、DH、厂商手册各有各的零位和正方向，把别人的 \(M(\mathbf q)\) 套到自己的坐标上之前要先对齐。另外广义坐标本身可能不是好坐标：用欧拉角描述三维姿态，在万向节锁处 \(M\) 变成奇异的，尽管刚体并没有任何问题（5.2 节）。</p>
     
   </div>
   <div class="callout pitfall">
     <div class="ct"><span data-lang="zh">误区 4：把非保守力放进 \(V\)，或忘了传动比</span></div>
-    <p data-lang="zh">摩擦、电机力矩、接触力不是某个 \(V(q)\) 的梯度，只能作为<b>广义力</b>出现在方程右边（FIG 2、3 的 \(\tau-b\dot q\)）。把它们塞进 \(V\) 会让"能量守恒"的检验失去意义。另一个现实问题是减速器：传动比 \(N\) 的关节，电机转子的惯量折算到关节侧是 \(N^2I_m\)，常常和连杆自身的惯量同量级甚至更大，必须加到 \(M\) 的对角线上；电机力矩也要乘以 \(N\) 才是关节力矩。</p>
+    <p data-lang="zh">摩擦、电机力矩、接触力不是某个 \(V(\mathbf q)\) 的梯度，只能作为<b>广义力</b>出现在方程右边（FIG 2、3 的 \(\boldsymbol\tau-b\dot{\mathbf q}\)）。把它们塞进 \(V\) 会让"能量守恒"的检验失去意义。另一个现实问题是减速器：传动比 \(N\) 的关节，电机转子的惯量折算到关节侧是 \(N^2I_m\)，常常和连杆自身的惯量同量级甚至更大，必须加到 \(M\) 的对角线上；电机力矩也要乘以 \(N\) 才是关节力矩。</p>
     
   </div>
   <div class="callout pitfall">
     <div class="ct"><span data-lang="zh">误区 5：积分器和步长</span></div>
-    <p data-lang="zh">方程是对的，仿真仍可能是错的。FIG 3 里显式欧拉在 \(\tau=0,b=0\) 时凭空"生成"几十焦耳的能量；RK4 在小步长下好得多，但步长一大同样漂移。并不是所有"看起来更高级"的积分器都更好：对 \(M\) 依赖 \(q\) 的机械系统，半隐式欧拉并不是辛的，在我们的 2R 试验里同样会漂移（所以本图没有提供它）。接触、摩擦让方程变<b>刚性</b>，机器人仿真器因此常用隐式或半隐式、小步长的专用方法。控制器自己以固定频率（几百到一千赫兹）采样，力矩在一个周期内是常数，也是一种离散化，FIG 5 就是这样做的。</p>
+    <p data-lang="zh">方程是对的，仿真仍可能是错的。FIG 3 里显式欧拉在 \(\boldsymbol\tau=0,b=0\) 时凭空"生成"几十焦耳的能量；RK4 在小步长下好得多，但步长一大同样漂移。并不是所有"看起来更高级"的积分器都更好：对 \(M\) 依赖 \(q\) 的机械系统，半隐式欧拉并不是辛的，在我们的 2R 试验里同样会漂移（所以本图没有提供它）。接触、摩擦让方程变<b>刚性</b>，机器人仿真器因此常用隐式或半隐式、小步长的专用方法。控制器自己以固定频率（几百到一千赫兹）采样，力矩在一个周期内是常数，也是一种离散化，FIG 5 就是这样做的。</p>
     
   </div>
 </section>
@@ -476,7 +476,7 @@
       <button class="opt">(14.7, 5.9) N·m</button>
       <button class="opt">(0, 0) N·m</button>
     </div>
-    <div class="explain"><span data-lang="zh">静止时 \(\dot q=\ddot q=0\)，只剩 \(\tau=g(q)\)。\(\theta=0\) 时 \(\cos=1\)：\(\tau_1=(m_1l_{c1}+m_2l_1+m_2l_{c2})g=(1+1.5+0.6)\cdot9.81=30.4\)；\(\tau_2=m_2l_{c2}g=1.5\cdot0.4\cdot9.81=5.9\)。直观检查：关节 2 只托住第二根杆的重量，力臂 0.4 m。</span></div>
+    <div class="explain"><span data-lang="zh">静止时 \(\dot{\mathbf q}=\ddot{\mathbf q}=0\)，只剩 \(\boldsymbol\tau=\mathbf g(\mathbf q)\)。\(\theta=0\) 时 \(\cos=1\)：\(\tau_1=(m_1l_{c1}+m_2l_1+m_2l_{c2})g=(1+1.5+0.6)\cdot9.81=30.4\)；\(\tau_2=m_2l_{c2}g=1.5\cdot0.4\cdot9.81=5.9\)。直观检查：关节 2 只托住第二根杆的重量，力臂 0.4 m。</span></div>
   </div>
 
   <div class="quiz" data-answer="3">
@@ -491,14 +491,14 @@
   </div>
 
   <div class="quiz" data-answer="2">
-    <div class="q"><span data-lang="zh">5. 模型完美时，计算力矩 \(\tau=M(q)(\ddot q_d+K_d\dot e+K_pe)+C\dot q+g\) 使闭环误差满足什么方程？</span></div>
+    <div class="q"><span data-lang="zh">5. 模型完美时，计算力矩 \(\boldsymbol\tau=M(\mathbf q)(\ddot{\mathbf q}_d+K_d\dot e+K_pe)+C\dot{\mathbf q}+\mathbf g\) 使闭环误差满足什么方程？</span></div>
     <div class="opts">
-      <button class="opt">\(M(q)\ddot e+C\dot e+K_pe=0\)</button>
+      <button class="opt">\(M(\mathbf q)\ddot e+C\dot e+K_pe=0\)</button>
       <button class="opt">\(\ddot e=0\)</button>
       <button class="opt">\(\ddot e+K_d\dot e+K_pe=0\)</button>
-      <button class="opt">\(\dot e+K_pe=g(q)\)</button>
+      <button class="opt">\(\dot e+K_pe=\mathbf g(\mathbf q)\)</button>
     </div>
-    <div class="explain"><span data-lang="zh">代入 \(M\ddot q+C\dot q+g=\tau\) 得 \(M\ddot q=M(\ddot q_d+K_d\dot e+K_pe)\)，两边乘 \(M^{-1}\)（\(M\) 正定，可逆）：\(\ddot q_d-\ddot q=-K_d\dot e-K_pe\)，即 \(\ddot e+K_d\dot e+K_pe=0\)。选 \(K_p,K_d\) 就是选一个线性二阶系统的极点（2.5 节）。模型不完美时这个结论不再成立（FIG 5）。</span></div>
+    <div class="explain"><span data-lang="zh">代入 \(M\ddot{\mathbf q}+C\dot{\mathbf q}+\mathbf g=\boldsymbol\tau\) 得 \(M\ddot{\mathbf q}=M(\ddot{\mathbf q}_d+K_d\dot e+K_pe)\)，两边乘 \(M^{-1}\)（\(M\) 正定，可逆）：\(\ddot{\mathbf q}_d-\ddot{\mathbf q}=-K_d\dot e-K_pe\)，即 \(\ddot e+K_d\dot e+K_pe=0\)。选 \(K_p,K_d\) 就是选一个线性二阶系统的极点（2.5 节）。模型不完美时这个结论不再成立（FIG 5）。</span></div>
   </div>
 </section>
 
@@ -904,13 +904,20 @@ function stepSys(sys, y, h, method) {
       P.point([0, 0], { color: 'canvas', r: 7, stroke: 'i', strokeWidth: 2.8 });
       P.point(a.j, { color: 'canvas', r: 7, stroke: 'j', strokeWidth: 2.8 });
       P.point(a.tip, { color: 'v', r: 5 });
-      if (hl === 'C' || hl === 'T') {
+      // joint-torque arcs (same drawing for τ and for the C q̇ term): radius rr around each joint, angle span ∝ |torque|
+      const arcs = (tq, col, rr) => [[[0, 0], tq[0], y[0]], [a.j, tq[1], y[0] + y[1]]].forEach(([c, t, base]) => { if (Math.abs(t) < 0.05) return; const sg = t > 0 ? 1 : -1, span = M.clamp(Math.abs(t) / 25, 0.15, 1) * 2.4, pa = []; for (let i = 0; i <= 24; i++) { const ang = -span / 2 * sg + sg * span * i / 24 + base; pa.push([c[0] + rr * Math.cos(ang), c[1] + rr * Math.sin(ang)]); } P.path(pa, { color: col, width: 5 }); const e = pa[24], p2 = pa[23]; P.arrow(p2, [e[0] + (e[0] - p2[0]) * 0.6, e[1] + (e[1] - p2[1]) * 0.6], { color: col, width: 4, head: 11 }); });
+      if (hl === 'T') {   // kinetic energy: the center-of-mass velocities
         const w1 = y[2], w2 = y[2] + y[3];
         const v1 = [-p.lc1 * Math.sin(y[0]) * w1, p.lc1 * Math.cos(y[0]) * w1], v2 = [-p.l1 * Math.sin(y[0]) * w1 - p.lc2 * Math.sin(y[0] + y[1]) * w2, p.l1 * Math.cos(y[0]) * w1 + p.lc2 * Math.cos(y[0] + y[1]) * w2];
         P.arrow(a.c1, M.add(a.c1, M.scale(v1, 0.3)), { color: 'x', width: 4.5 }); P.arrow(a.c2, M.add(a.c2, M.scale(v2, 0.3)), { color: 'x', width: 4.5 });
       }
+      if (hl === 'C' || hl === 'T') {   // the Coriolis/centrifugal term C q̇ as joint torques; it vanishes at rest
+        const cq = armCv(p, [y[0], y[1]], [y[2], y[3]]);
+        if (Math.abs(cq[0]) < 0.05 && Math.abs(cq[1]) < 0.05) { if (hl === 'C') P.text(R101.t('静止时 Cq̇ = 0', 'at rest Cq̇ = 0'), [0, -0.55], { color: 'x', bold: true, size: 13, align: 'center' }); }
+        else arcs(cq, 'x', 0.45);
+      }
       if ((hl === 'g' || hl === 'V') && grav) [[a.c1, p.m1], [a.c2, p.m2]].forEach(([c, mm]) => P.arrow(c, [c[0], c[1] - mm * G * 0.035], { color: 'v', width: 5 }));
-      if (hl === 'tau') [[[0, 0], tau[0]], [a.j, tau[1]]].forEach(([c, t]) => { if (Math.abs(t) < 0.05) return; const sg = t > 0 ? 1 : -1, span = M.clamp(Math.abs(t) / 25, 0.15, 1) * 2.4, pa = []; for (let i = 0; i <= 24; i++) { const ang = -span / 2 * sg + sg * span * i / 24 + (c === a.j ? y[0] + y[1] : y[0]) + 0; pa.push([c[0] + 0.3 * Math.cos(ang), c[1] + 0.3 * Math.sin(ang)]); } P.path(pa, { color: 'w', width: 5 }); const e = pa[24], p2 = pa[23]; P.arrow(p2, [e[0] + (e[0] - p2[0]) * 0.6, e[1] + (e[1] - p2[1]) * 0.6], { color: 'w', width: 4, head: 11 }); });
+      if (hl === 'tau') arcs(tau, 'w', 0.3);
       if (blown) P.text(R101.t('数值发散', 'numerical blow-up'), [0, 1.9], { color: 'bad', bold: true, size: 15, align: 'center' });
     }
     function drawChart(Q) {
@@ -1029,7 +1036,7 @@ function stepSys(sys, y, h, method) {
     const bl = ui.button(ctr, { zh: '◀ 推', en: '◀ push' }), br = ui.button(ctr, { zh: '推 ▶', en: 'push ▶' });
     [[bl, -1], [br, 1]].forEach(([b, d]) => { b.classList.add('hold'); b.addEventListener('pointerdown', e => { btnDir = d; b.setPointerCapture && b.setPointerCapture(e.pointerId); e.preventDefault(); }); ['pointerup', 'pointercancel', 'pointerleave'].forEach(ev => b.addEventListener(ev, () => { if (btnDir === d) btnDir = 0; })); });
     ui.seg(ctr, [{ value: '0', zh: '自动平衡 关', en: 'auto-balance off' }, { value: '1', zh: '开', en: 'on' }], '0', v => { assist = v === '1'; });
-    const slF = ui.slider(ctr, { zh: '恒力 F (N)', en: 'constant force F (N)', min: -20, max: 20, step: 0.5, value: 0, onInput: v => { Fs = v; if (v >= 15) posUsed = true; if (v <= -15) negUsed = true; if (posUsed && negUsed && !assist) done('cp-line'); sync(); } });
+    const slF = ui.slider(ctr, { zh: '恒力 F (N)', en: 'constant force F (N)', min: -20, max: 20, step: 0.5, value: 0, onInput: v => { Fs = v; if (v >= 15) posUsed = true; if (v <= -15) negUsed = true; if (posUsed && negUsed && !assist) done('cp-line'); Fcur = force(); sync(); } });
     const tex = document.getElementById('c-tex'), read = document.getElementById('c-read');
     function sync() {
       const q = [y[0], y[1]], v = [y[2], y[3]], a = cpAccel(q, v, [Fcur]), th = wrapPi(y[1]);
@@ -1112,7 +1119,7 @@ function stepSys(sys, y, h, method) {
     const bt = document.getElementById('t-btns');
     playBtn(bt, ctl);
     ui.button(bt, { zh: '复位', en: 'Reset', onClick: reset });
-    R101.tex(texEl, `\\begin{aligned} &\\ci{\\tau=K_pe+K_d\\dot e}\\\\ &\\cx{\\tau=K_pe+K_d\\dot e+\\hat g(q)}\\\\ &\\cj{\\tau=\\hat M(q)\\big(\\ddot q_d+K_d\\dot e+K_pe\\big)+\\hat C(q,\\dot q)\\dot q+\\hat g(q)} \\end{aligned}`);
+    R101.tex(texEl, `\\begin{aligned} &\\ci{\\boldsymbol\\tau=K_pe+K_d\\dot e}\\\\ &\\cx{\\boldsymbol\\tau=K_pe+K_d\\dot e+\\hat{\\mathbf g}(\\mathbf q)}\\\\ &\\cj{\\boldsymbol\\tau=\\hat M(\\mathbf q)\\big(\\ddot{\\mathbf q}_d+K_d\\dot e+K_pe\\big)+\\hat C(\\mathbf q,\\dot{\\mathbf q})\\dot{\\mathbf q}+\\hat{\\mathbf g}(\\mathbf q)} \\end{aligned}`);
     function sync() {
       const r = ms.map(Math.sqrt);
       read.innerHTML = [0, 1, 2].map(k => `<span style="color:var(--c-${COL[k]})"><b>${NAMES[k]}</b></span> ${L('均方根误差', 'RMS error')} <b>${sci(r[k])}</b> rad`).join('<br>') + `<br>t = ${M.fmt(simT, 1)} s · ${L('真实负载', 'payload')} ${M.fmt(payload, 1)} kg · ${L('模型误差', 'model error')} ${merr}%`;

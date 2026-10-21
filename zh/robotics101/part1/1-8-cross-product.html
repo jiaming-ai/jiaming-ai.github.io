@@ -159,7 +159,7 @@
 <!-- ============ 3. PLAY ============ -->
 <section class="step" id="play">
   <h2><span class="n">3</span><span data-lang="zh">动手玩：三维叉积实验室</span></h2>
-  <p data-lang="zh">用下面六个滑块摆放 <span class="cx">a</span> 和 <span class="cw">b</span>：每个向量由方位角（绕 z 轴转）、仰角（离开水平面）和长度决定。右边是实时读数，下方是逐分量的计算。也可以点一个预设，或者显示灰色虚线的 <span class="cv">b × a</span>。</p>
+  <p data-lang="zh">用下面六个滑块摆放 <span class="cx">a</span> 和 <span class="cw">b</span>：每个向量由方位角（绕 z 轴转）、仰角（离开水平面）和长度决定。右边是实时读数，下方是逐分量的计算。也可以点一个预设，或者显示琥珀色虚线的 <span class="cv">b × a</span>。</p>
   
 
   <figure class="fig bleed" id="fig-lab">
@@ -240,7 +240,7 @@
       </div>
     </div>
     <figcaption class="fig-cap">
-      <span data-lang="zh">每个拐角处的弧线表示"相对于直行，往哪边拐了多少"。绿色是左转（叉积为正），红色是右转（叉积为负），灰色是几乎直行。数值是 u × v，它同时也是以 u、v 为边的平行四边形面积，所以急转弯的数值大，缓弯的数值小。</span>
+      <span data-lang="zh">每个拐角处的弧线表示"相对于直行，往哪边拐了多少"。绿色是左转（叉积为正），红色是右转（叉积为负），灰色是几乎直行。数值是 u × v，它同时也是以 u、v 为边的平行四边形面积 \(\lVert\mathbf u\rVert\lVert\mathbf v\rVert\sin\alpha\)（α 是拐过的角度）：路段越长、拐角越接近 90°，数值越大；缓弯和几乎掉头的急弯数值都小，所以判断左右只看符号。</span>
       
     </figcaption>
   </figure>
@@ -285,7 +285,7 @@
     </div>
     <div class="fig-body" style="border-top:1px solid var(--border)"><div class="fig-side" style="border:0"><div class="katex-live" id="hat-pow-tex"></div><div class="readout" id="hat-pow-read"></div></div></div>
     <figcaption class="fig-cap">
-      <span data-lang="zh">上方：矩阵乘向量与叉积给出同一个结果。下方：选择 1、2、3 次幂，程序算出矩阵幂，并和右边的公式逐项比较。切到"归一化 â"再选 3 次幂，就是 5.6 节要用的 \(K^3=-K\)。</span>
+      <span data-lang="zh">上方：矩阵乘向量与叉积给出同一个结果。下方：选第一项检查斜对称（转置等于取负）；选 2 次或 3 次幂，程序算出矩阵幂，并和公式逐项比较。切到"归一化 â"再选 3 次幂，就是 5.6 节要用的 \(K^3=-K\)。</span>
       
     </figcaption>
   </figure>
@@ -342,9 +342,9 @@
   
 
   <h3><span data-lang="zh">三重积：体积</span></h3>
-  <div class="math-card">$$ \mathbf a\cdot(\mathbf b\times\mathbf c) \;=\; \det\begin{bmatrix}\mathbf a & \mathbf b & \mathbf c\end{bmatrix} \;=\; \text{signed volume of the parallelepiped spanned by }\mathbf a,\mathbf b,\mathbf c. $$</div>
+  <div class="math-card">$$ \mathbf a\cdot(\mathbf b\times\mathbf c) \;=\; \det\begin{bmatrix}\mathbf a & \mathbf b & \mathbf c\end{bmatrix} \;=\; \pm\,V_{\mathbf a,\mathbf b,\mathbf c}. $$</div>
   <div data-lang="zh">
-    <p>\(\mathbf b\times\mathbf c\) 的长度是底面积，方向垂直于底面；再和 \(\mathbf a\) 点积，就是 \(\mathbf a\) 在垂直方向的分量（高）乘底面积，即体积。正负号反映 \((\mathbf a,\mathbf b,\mathbf c)\) 是不是右手系，这就是 1.5 节说的三维行列式。例：\(\mathbf a=(1,0,0)\)，\(\mathbf b=(1,2,0)\)，\(\mathbf c=(1,1,3)\)，则 \(\mathbf b\times\mathbf c=(6,-3,-1)\)，\(\mathbf a\cdot(\mathbf b\times\mathbf c)=6\)；矩阵是上三角的，行列式 \(1\cdot2\cdot3=6\)，一致。</p>
+    <p>其中 \(V_{\mathbf a,\mathbf b,\mathbf c}\) 是 \(\mathbf a,\mathbf b,\mathbf c\) 张成的平行六面体的体积，三重积是带符号的体积。\(\mathbf b\times\mathbf c\) 的长度是底面积，方向垂直于底面；再和 \(\mathbf a\) 点积，就是 \(\mathbf a\) 在垂直方向的分量（高）乘底面积，即体积。正负号反映 \((\mathbf a,\mathbf b,\mathbf c)\) 是不是右手系，这就是 1.5 节说的三维行列式。例：\(\mathbf a=(1,0,0)\)，\(\mathbf b=(1,2,0)\)，\(\mathbf c=(1,1,3)\)，则 \(\mathbf b\times\mathbf c=(6,-3,-1)\)，\(\mathbf a\cdot(\mathbf b\times\mathbf c)=6\)；矩阵是上三角的，行列式 \(1\cdot2\cdot3=6\)，一致。</p>
   </div>
   
 
@@ -403,9 +403,9 @@
     <p>点云里取相邻三点 \(p_1,p_2,p_3\)，两条边的叉积垂直于它们所在的平面：</p>
   </div>
   
-  <div class="math-card">$$ \mathbf n = \frac{(p_2-p_1)\times(p_3-p_1)}{\lVert(p_2-p_1)\times(p_3-p_1)\rVert}, \qquad \text{area} = \tfrac12\lVert(p_2-p_1)\times(p_3-p_1)\rVert. $$</div>
+  <div class="math-card">$$ \mathbf N = (p_2-p_1)\times(p_3-p_1), \qquad \mathbf n = \frac{\mathbf N}{\lVert\mathbf N\rVert}, \qquad A_\triangle = \tfrac12\lVert\mathbf N\rVert. $$</div>
   <div data-lang="zh">
-    <p>三角形的面积顺手就有了（平行四边形的一半）。下面给三个点加一点测量噪声，看噪声怎么影响法向量。深色的 <span class="cv">琥珀色箭头</span> 是无噪声的法向量，青色小点是 36 次加噪后的单位法向量的尖端。</p>
+    <p>未归一化的 \(\mathbf N\) 顺手给出三角形的面积 \(A_\triangle\)（平行四边形的一半）。下面给三个点加一点测量噪声，看噪声怎么影响法向量。深色的 <span class="cv">琥珀色箭头</span> 是无噪声的法向量，青色小点是 36 次加噪后的单位法向量的尖端。</p>
   </div>
   
 
@@ -417,7 +417,7 @@
     </div>
     <div class="fig-controls" id="nm-ctrl"></div>
     <figcaption class="fig-cap">
-      <span data-lang="zh">三个点各加标准差 0.03 的随机偏移。三角形胖的时候，36 个法向量几乎重合；把它压扁（三点接近一条直线），\(\lVert\mathbf n\rVert\)（面积）变小，噪声被放大，法向量四散，甚至翻到另一面。箭头 1→2→3 是点的顺序：交换 2 和 3 的顺序，法向量就翻向另一侧。</span>
+      <span data-lang="zh">三个点各加标准差 0.03 的随机偏移。三角形胖的时候，36 个法向量几乎重合；把它压扁（三点接近一条直线），\(\lVert\mathbf N\rVert\)（两倍面积）变小，噪声被放大，法向量四散，甚至翻到另一面。箭头 1→2→3 是点的顺序：交换 2 和 3 的顺序，法向量就翻向另一侧。</span>
       
     </figcaption>
   </figure>
@@ -428,7 +428,7 @@
 
   <div class="callout robot">
     <div class="ct"><span data-lang="zh">真实系统里</span></div>
-    <p data-lang="zh">点云库一般取一个点的 20 个左右近邻，用 PCA（1.12 节）拟合平面，取最小奇异方向作法向量：它用了所有点，比三点叉积稳得多。叉积仍然用在网格里：给每个三角面算法向量，顶点法向量取周围面的加权平均（面积就是权重，\(\lVert\mathbf n\rVert\) 本来就带着）。法向量的符号需要统一：常见做法是和朝向传感器的向量点乘，为负就翻转。</p>
+    <p data-lang="zh">点云库一般取一个点的 20 个左右近邻，用 PCA（1.12 节）拟合平面，取最小奇异方向作法向量：它用了所有点，比三点叉积稳得多。叉积仍然用在网格里：给每个三角面算法向量，顶点法向量取周围面的加权平均（面积就是权重，未归一化的 \(\mathbf N\) 本来就带着）。法向量的符号需要统一：常见做法是和朝向传感器的向量点乘，为负就翻转。</p>
     
   </div>
 </section>
@@ -514,7 +514,7 @@
     <div class="q"><span data-lang="zh">5. 用三个几乎在一条直线上的点估计平面法向量，结果很不稳定。最直接的原因是？</span></div>
     <div class="opts">
       <button class="opt"><span data-lang="zh">叉积只在三个点不共线时才有定义</span></button>
-      <button class="opt"><span data-lang="zh">\(\lVert\mathbf n\rVert=\lVert\mathbf a\rVert\lVert\mathbf b\rVert\sin\theta\) 很小，噪声相对被放大，方向主要由噪声决定</span></button>
+      <button class="opt"><span data-lang="zh">\(\lVert\mathbf N\rVert=\lVert\mathbf a\rVert\lVert\mathbf b\rVert\sin\theta\) 很小，噪声相对被放大，方向主要由噪声决定</span></button>
       <button class="opt"><span data-lang="zh">叉积不满足结合律</span></button>
       <button class="opt"><span data-lang="zh">右手定则在这种情况下失效</span></button>
     </div>
@@ -725,7 +725,7 @@ R101.onReady(function () {
       R101.tex(tex, `\\cv{a_1b_2-a_2b_1} = \\det\\begin{bmatrix} \\cx{${t(a[0])}} & \\cw{${t(b[0])}} \\\\ \\cx{${t(a[1])}} & \\cw{${t(b[1])}} \\end{bmatrix} = \\cv{${t(s)}}`);
       const eps = 0.05, side = Math.abs(s) < eps ? L('共线（面积为 0）', 'collinear (zero area)') : s > 0 ? L('b 在 a 的<b style="color:var(--c-good)">左边</b>（逆时针）', 'b is <b style="color:var(--c-good)">left</b> of a (counter-clockwise)') : L('b 在 a 的<b style="color:var(--c-bad)">右边</b>（顺时针）', 'b is <b style="color:var(--c-bad)">right</b> of a (clockwise)');
       const th = na > 1e-6 && nb > 1e-6 ? Math.atan2(s, dot(a, b)) / D2R : 0;
-      read.innerHTML = `${side}<br>signed θ = <b>${M.fmt(th, 1)}°</b><br>‖a‖‖b‖ sin θ = <b>${f2(na * nb * Math.sin(th * D2R))}</b>`;
+      read.innerHTML = `${side}<br>${L('有向角', 'signed')} θ = <b>${M.fmt(th, 1)}°</b><br>‖a‖‖b‖ sin θ = <b>${f2(na * nb * Math.sin(th * D2R))}</b>`;
       if (user === true) {
         if (s > 1) R101.done('left');
         if (s < -1) R101.done('right');
@@ -746,7 +746,8 @@ R101.onReady(function () {
     const P = new R101.Plane2D('#turn-canvas', { height: 430, view: { span: 8 }, draw, onChange: sync });
     const turn = (p0, p1, p2) => {
       const u = sub(p1, p0), v = sub(p2, p1), c = cross2(u, v), s = c / (norm(u) * norm(v) || 1);
-      return { u, v, c, s, kind: Math.abs(s) < 0.06 ? 'S' : c > 0 ? 'L' : 'R' };
+      // 'S' only for a near-straight continuation; a near U-turn (dot < 0) keeps the sign of c
+      return { u, v, c, s, kind: Math.abs(s) < 0.06 && dot(u, v) > 0 ? 'S' : c >= 0 ? 'L' : 'R' };
     };
     const corners = () => { const out = []; for (let i = 1; i < W.length - 1; i++) out.push(turn(W[i - 1], W[i], W[i + 1])); return out; };
     const kcol = k => (k === 'L' ? 'good' : k === 'R' ? 'bad' : 'text-2');
@@ -949,7 +950,7 @@ R101.onReady(function () {
         const rm = scale(r, S), tt = tau(), nF = norm(F), d = nF > 1e-9 ? Math.abs(tt) / nF : 0;
         R101.tex(tex, `\\cv{\\tau} = r_xF_y - r_yF_x = (${t(rm[0])})(${t(F[1])}) - (${t(rm[1])})(${t(F[0])}) = \\cv{${t(tt)}}`);
         read.innerHTML = `r = (${f2(rm[0])}, ${f2(rm[1])}) m<br>F = (${f2(F[0])}, ${f2(F[1])}) N, ‖F‖ = ${f2(nF)} N<br>τ = <b>${tt >= 0 ? '+' : '−'}${f2(Math.abs(tt))} N·m</b> ${tt > 0.005 ? L('逆时针', 'counter-clockwise') : tt < -0.005 ? L('顺时针', 'clockwise') : L('零', 'zero')}<br>${L('力臂', 'lever arm')} d = ${f2(d)} m, ‖F‖·d = ${f2(nF * d)}`;
-        if (nF >= 3 && Math.abs(tt) <= 0.05 * norm(rm) * nF) R101.done('zerotorque');
+        if (nF >= 3 && norm(rm) >= 0.1 && Math.abs(tt) <= 0.05 * norm(rm) * nF) R101.done('zerotorque');
       } else {
         const rm = scale(rs, S), v = vel(rs), nv = norm(v);
         R101.tex(tex, `\\cv{\\mathbf v} = \\boldsymbol\\omega\\times\\mathbf r = \\omega\\begin{bmatrix}-r_y\\\\ r_x\\end{bmatrix} = \\cv{\\begin{bmatrix}${t(v[0])}\\\\${t(v[1])}\\end{bmatrix}}`);
@@ -997,7 +998,7 @@ R101.onReady(function () {
     const read = document.getElementById('nm-read');
     function sync() {
       const s = stats(), area = s.len / 2;
-      read.innerHTML = `${L('三角形面积', 'area')} ½‖n‖ = <b>${f2(area)}</b><br>n̂ = (${s.u0.map(f2).join(', ')})<br>${L('法向量朝', 'normal points')} <b>${s.u0[2] > 0 ? L('上', 'up') : L('下', 'down')}</b><br>${L('加噪后平均误差', 'mean error under noise')} = <b style="color:var(--c-${s.err > 15 ? 'bad' : 'good'})">${M.fmt(s.err, 1)}°</b>`;
+      read.innerHTML = `${L('三角形面积', 'area')} ½‖N‖ = <b>${f2(area)}</b><br>n = (${s.u0.map(f2).join(', ')})<br>${L('法向量朝', 'normal points')} <b>${s.u0[2] > 0 ? L('上', 'up') : L('下', 'down')}</b><br>${L('加噪后平均误差', 'mean error under noise')} = <b style="color:var(--c-${s.err > 15 ? 'bad' : 'good'})">${M.fmt(s.err, 1)}°</b>`;
       if (s.err > 15) R101.done('sliver');
       if (swapped && s.u0[2] < 0) R101.done('flipnormal');
       V.invalidate();

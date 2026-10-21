@@ -238,8 +238,8 @@
       </div>
     </div>
     <figcaption class="fig-cap">
-      <span data-lang="zh">淡色网格是原来的格点，亮色是当前的像。琥珀色点是 b 的像，白点是 b 的原位置（可拖动）。切到 \(I-P\)，平面被压到<b>垂直</b>于 u 的那条直线上。两种情况下，作用第二次都不会再移动任何点，这就是 \(P^2=P\)。</span>
-      <span data-lang="en">The faint grid is the original lattice and the bright one is the current image. The amber dot is the image of b; the white dot is b's original position (draggable). Switch to \(I-P\) and the plane is squashed onto the line <b>perpendicular</b> to u. In both cases a second application moves nothing further: that is \(P^2=P\).</span>
+      <span data-lang="zh">淡色网格是原来的格点，亮色是当前的像。琥珀色点是 b 的像，不带颜色的普通圆点是 b 的原位置（可拖动）。切到 \(I-P\)，平面被压到<b>垂直</b>于 u 的那条直线上。两种情况下，作用第二次都不会再移动任何点，这就是 \(P^2=P\)。</span>
+      <span data-lang="en">The faint grid is the original lattice and the bright one is the current image. The amber dot is the image of b; the plain, uncoloured dot is b's original position (draggable). Switch to \(I-P\) and the plane is squashed onto the line <b>perpendicular</b> to u. In both cases a second application moves nothing further: that is \(P^2=P\).</span>
     </figcaption>
   </figure>
   <ul class="tasks">
@@ -304,7 +304,7 @@
 
   <div class="callout key">
     <div class="ct"><span data-lang="zh">核心洞见</span><span data-lang="en">Key insight</span></div>
-    <p data-lang="zh"><b>基向量互相垂直，投影就能一个方向一个方向地分开算。</b>每个 \(\mathbf q_i\) 只管自己那条线，互不干扰，把各个投影加起来就行。如果基向量不互相垂直，一个方向上的分量会"漏"到另一个方向里，这个简单的加法就不对了（本节末尾的误区 3 会让你亲眼看到）。所以我们想要<b>正交基</b>。手里只有一组斜着的基怎么办？用 Gram–Schmidt 把它们掰正。</p>
+    <p data-lang="zh"><b>基向量互相垂直，投影就能一个方向一个方向地分开算。</b>每个 \(\mathbf q_i\) 只管自己那条线，互不干扰，把各个投影加起来就行。如果基向量不互相垂直，一个方向上的分量会"漏"到另一个方向里，这个简单的加法就不对了（第 8 节的误区 3 会让你亲眼看到）。所以我们想要<b>正交基</b>。手里只有一组斜着的基怎么办？用 Gram–Schmidt 把它们掰正。</p>
     <p data-lang="en"><b>When the basis vectors are perpendicular, projection can be computed one direction at a time.</b> Each \(\mathbf q_i\) minds its own line and does not disturb the others, so you just add the projections. If the basis vectors are not perpendicular, the component along one direction "leaks" into the other and this simple sum is wrong (Pitfall 3 below lets you see it happen). That is why we want an <b>orthonormal basis</b>. What if all we have is a slanted pair? Gram–Schmidt straightens it.</p>
   </div>
 
@@ -351,7 +351,7 @@
 <!-- ============ 6. MATH ============ -->
 <section class="step" id="math">
   <h2><span class="n">6</span><span data-lang="zh">再看数学</span><span data-lang="en">The math</span></h2>
-  <p class="hl-hint"><span data-lang="zh">提示：把鼠标悬停在公式中带底色的符号上，FIG 2、FIG 3、FIG 4 中对应的元素会被加粗。</span><span data-lang="en">Tip: hover the highlighted symbols in the formulas; the matching element in FIG 2, FIG 3 or FIG 4 is thickened.</span></p>
+  <p class="hl-hint"><span data-lang="zh">提示：把鼠标悬停在公式中带底色的符号上，FIG 2、FIG 3、FIG 4、FIG 5 中对应的元素会被加粗。</span><span data-lang="en">Tip: hover the highlighted symbols in the formulas; the matching element in FIG 2, FIG 3, FIG 4 or FIG 5 is thickened.</span></p>
 
   <h3><span data-lang="zh">投影到一条直线：从"残差垂直"推出公式</span><span data-lang="en">Projection onto a line: from "the residual is perpendicular"</span></h3>
   <p data-lang="zh">直线上的点都写成 \(t\,\mathbf u\)。投影 \(\mathbf p=t\,\mathbf u\) 的残差 \(\mathbf e=\mathbf b-t\,\mathbf u\) 要垂直于 \(\mathbf u\)，也就是点积为零：</p>
@@ -446,8 +446,8 @@
     </div>
     <div class="fig-controls" id="pa-controls"></div>
     <figcaption class="fig-cap">
-      <span data-lang="zh">灰色空心圆是每一段上的候选最近点（虚线连到机器人），赢的那一段变成青色，它的最近点是琥珀色实心点。机器人身后的淡黄色是已走过的进度。点"出发"，机器人会按 Stanley 式的控制律自己开：转向 = 航向误差 − arctan(k · 横向误差 / 速度)。把增益 k 调到 0 看看，只对齐航向、不管横向误差，会怎样？</span>
-      <span data-lang="en">Hollow gray circles are each segment's candidate closest point (dashed lines to the robot). The winning segment turns cyan and its closest point is the solid amber dot. The pale amber behind the robot is the progress made. Press "Drive" and the robot steers itself with a Stanley-style law: steering = heading error − arctan(k · cross-track error / speed). Set the gain k to 0 and see what happens when it aligns its heading but ignores the lateral error.</span>
+      <span data-lang="zh">灰色空心圆是每一段上的候选最近点（虚线连到机器人），赢的那一段变成青色，它的最近点是琥珀色实心点。路径上从起点到 c 的那段淡琥珀色是沿路进度。点"出发"，机器人会按 Stanley 式的控制律自己开：转向 = 航向误差 − arctan(k · 横向误差 / 速度)。把增益 k 调到 0 看看，只对齐航向、不管横向误差，会怎样？</span>
+      <span data-lang="en">Hollow gray circles are each segment's candidate closest point (dashed lines to the robot). The winning segment turns cyan and its closest point is the solid amber dot. The pale amber band along the path from the start up to c is the along-track progress. Press "Drive" and the robot steers itself with a Stanley-style law: steering = heading error − arctan(k · cross-track error / speed). Set the gain k to 0 and see what happens when it aligns its heading but ignores the lateral error.</span>
     </figcaption>
   </figure>
   <ul class="tasks">
@@ -489,7 +489,7 @@
     </div>
     <div class="fig-controls" id="fr-controls"></div>
     <figcaption class="fig-cap">
-      <span data-lang="zh">箭头是总力 \(\mathbf F\)（作用在表面上，从接触点指出；绿色表示粘住，红色表示打滑）。它在表面上的投影 \(f_t\)（琥珀色）和垂直于表面的残差 \(f_n\)（紫色虚线）正好是 1.9 节的投影与残差，表面这条线就是"那条直线"。青色楔形是摩擦锥：箭头尖落在锥内，接触粘住；落在锥外，打滑。</span>
+      <span data-lang="zh">箭头是总力 \(\mathbf F\)（作用在表面上，从接触点指出；绿色表示粘住，红色表示打滑）。它在表面上的投影 \(f_t\)（琥珀色）和垂直于表面的残差 \(f_n\)（紫色虚线）正好是本节的投影与残差，表面这条线就是"那条直线"。青色楔形是摩擦锥：箭头尖落在锥内，接触粘住；落在锥外，打滑。</span>
       <span data-lang="en">The arrow is the total force \(\mathbf F\) (acting on the surface, drawn from the contact point; green means it sticks, red that it slips). Its projection onto the surface, \(f_t\) (amber), and the residual perpendicular to the surface, \(f_n\) (dashed purple), are exactly this lesson's projection and residual, with the surface as "the line". The cyan wedge is the friction cone: with the arrow tip inside the cone the contact sticks; outside, it slips.</span>
     </figcaption>
   </figure>
@@ -502,7 +502,7 @@
 
   <div class="callout robot">
     <div class="ct"><span data-lang="zh">真实系统里</span><span data-lang="en">In real systems</span></div>
-    <p data-lang="zh">抓取规划把每个接触点的摩擦锥当作约束：手指施加的力必须落在锥里，抓取才稳。三维里锥是圆锥，常被近似成四棱锥，好让条件变成线性不等式（1.9 节的法向分量加上几个线性约束），交给二次规划去解（6.8 节）。Lynch &amp; Park 第 12 章对此有完整讨论。</p>
+    <p data-lang="zh">抓取规划把每个接触点的摩擦锥当作约束：手指施加的力必须落在锥里，抓取才稳。三维里锥是圆锥，常被近似成四棱锥，好让条件变成线性不等式（本节的法向分量加上几个线性约束），交给二次规划去解（6.8 节）。Lynch &amp; Park 第 12 章对此有完整讨论。</p>
     <p data-lang="en">Grasp planners treat each contact's friction cone as a constraint: the force a finger applies must lie inside the cone for the grasp to hold. In 3D the cone is round and is often approximated by a pyramid so the condition becomes linear inequalities (this lesson's normal component plus a few linear constraints) that a quadratic program can handle (Lesson 6.8). Chapter 12 of Lynch &amp; Park discusses this fully.</p>
   </div>
 </section>
@@ -534,16 +534,16 @@
         </div>
       </div>
       <figcaption class="fig-cap">
-        <span data-lang="zh">青色是 \(\mathbf u_1,\mathbf u_2\)，各自的投影 \(\mathbf p_1,\mathbf p_2\) 是琥珀色虚线。红色箭头是它们的和 \(\mathbf p_1+\mathbf p_2\)，白色是真正该得到的 \(\mathbf b\)。两个基向量成直角时，红箭头才会盖住白箭头。夹角越小，重复计算越多，和就越长。</span>
-        <span data-lang="en">Cyan are \(\mathbf u_1,\mathbf u_2\), and their projections \(\mathbf p_1,\mathbf p_2\) are the dashed amber segments. The red arrow is their sum \(\mathbf p_1+\mathbf p_2\) and white is the \(\mathbf b\) we should get. The red arrow covers the white one only when the basis vectors meet at a right angle. The smaller the angle, the more is counted twice and the longer the sum.</span>
+        <span data-lang="zh">青色是 \(\mathbf u_1,\mathbf u_2\)，各自的投影 \(\mathbf p_1,\mathbf p_2\) 是琥珀色虚线。红色箭头是它们的和 \(\mathbf p_1+\mathbf p_2\)，不带颜色的普通箭头是真正该得到的 \(\mathbf b\)。两个基向量成直角时，红箭头才会盖住 \(\mathbf b\)。夹角离 90° 越远，和通常偏离 \(\mathbf b\) 越多，可能太长，也可能太短。</span>
+        <span data-lang="en">Cyan are \(\mathbf u_1,\mathbf u_2\), and their projections \(\mathbf p_1,\mathbf p_2\) are the dashed amber segments. The red arrow is their sum \(\mathbf p_1+\mathbf p_2\) and the plain, uncoloured arrow is the \(\mathbf b\) we should get. The red arrow covers \(\mathbf b\) only when the basis vectors meet at a right angle. The further the angle is from 90°, the further the sum usually lands from \(\mathbf b\), sometimes too long, sometimes too short.</span>
       </figcaption>
     </figure>
     <ul class="tasks" style="margin-bottom:4px"><li data-task="orthosum"><span><span data-lang="zh">让两个基向量垂直，使"和"与 \(\mathbf b\) 重合（误差小于 0.1）。</span><span data-lang="en">Make the two basis vectors perpendicular so the "sum" coincides with \(\mathbf b\) (error below 0.1).</span></span></li></ul>
   </div>
   <div class="callout pitfall">
     <div class="ct"><span data-lang="zh">误区 4：经典 Gram–Schmidt 在数值上会丢失正交性</span><span data-lang="en">Pitfall 4: classical Gram–Schmidt loses orthogonality numerically</span></div>
-    <p data-lang="zh">上面的公式对精确算术是对的，但在浮点数里，当输入向量几乎共线时，相减会抵消掉几乎所有有效数字，剩下的是舍入误差，于是 \(\mathbf q_k\) 不再垂直于前面的向量。取四行三列的矩阵，第一行全是 1，下面是对角线上为 \(\varepsilon=10^{-8}\) 的 \(3\times3\) 矩阵（Läuchli 矩阵）：经典 Gram–Schmidt 算出 \(\mathbf q_2\cdot\mathbf q_3=0.5\)，完全不垂直；改良版 (modified) Gram–Schmidt 把每次减法立刻用在更新后的向量上，误差约 \(10^{-8}\)；Householder QR（<code>numpy.linalg.qr</code> 用的方法）约 \(10^{-16}\)。实际代码请用 QR 库函数，不要手写经典 Gram–Schmidt。</p>
-    <p data-lang="en">The formulas are right in exact arithmetic, but in floating point, when the input vectors are nearly collinear, the subtraction cancels almost all significant digits and what is left is rounding error, so \(\mathbf q_k\) is no longer perpendicular to the earlier vectors. Take the 4-by-3 Läuchli matrix: a first row of ones above a \(3\times3\) diagonal with \(\varepsilon=10^{-8}\). Classical Gram–Schmidt gives \(\mathbf q_2\cdot\mathbf q_3=0.5\), nowhere near perpendicular; modified Gram–Schmidt, which applies each subtraction to the already-updated vector, gets about \(10^{-8}\); Householder QR (what <code>numpy.linalg.qr</code> uses) about \(10^{-16}\). In real code call a QR routine rather than hand-writing classical Gram–Schmidt.</p>
+    <p data-lang="zh">上面的公式对精确算术是对的，但在浮点数里，当输入向量几乎共线时，相减会抵消掉几乎所有有效数字，剩下的是舍入误差，于是 \(\mathbf q_k\) 不再垂直于前面的向量。取四行三列的矩阵，第一行全是 1，下面是对角线上为 \(\varepsilon=10^{-8}\) 的 \(3\times3\) 矩阵（Läuchli 矩阵）：经典 Gram–Schmidt 算出 \(\mathbf q_2\cdot\mathbf q_3=0.5\)，完全不垂直；改良版 (modified) Gram–Schmidt 把每次减法立刻用在更新后的向量上，最差的 \(|\mathbf q_i\cdot\mathbf q_j|\)（\(i\ne j\)）约为 \(10^{-8}\)；Householder QR（<code>numpy.linalg.qr</code> 用的方法）约 \(10^{-16}\)。实际代码请用 QR 库函数，不要手写经典 Gram–Schmidt。</p>
+    <p data-lang="en">The formulas are right in exact arithmetic, but in floating point, when the input vectors are nearly collinear, the subtraction cancels almost all significant digits and what is left is rounding error, so \(\mathbf q_k\) is no longer perpendicular to the earlier vectors. Take the 4-by-3 Läuchli matrix: a first row of ones above a \(3\times3\) diagonal with \(\varepsilon=10^{-8}\). Classical Gram–Schmidt gives \(\mathbf q_2\cdot\mathbf q_3=0.5\), nowhere near perpendicular; modified Gram–Schmidt, which applies each subtraction to the already-updated vector, keeps the worst \(|\mathbf q_i\cdot\mathbf q_j|\) (\(i\ne j\)) at about \(10^{-8}\); Householder QR (what <code>numpy.linalg.qr</code> uses) about \(10^{-16}\). In real code call a QR routine rather than hand-writing classical Gram–Schmidt.</p>
   </div>
   <div class="callout pitfall">
     <div class="ct"><span data-lang="zh">误区 5：以为投影可以"撤销"</span><span data-lang="en">Pitfall 5: thinking a projection can be undone</span></div>
@@ -919,6 +919,7 @@ R101.onReady(function () {
   /* ---------------- FIG 5: Gram-Schmidt stepper ---------------- */
   (function () {
     let v1 = [2.6, 0.4], v2 = [1.4, 2.3], stage = 1;
+    const seen = new Set([1]); // stages visited, for the gs4 task
     const P = new R101.Plane2D('#gs-canvas', { height: 400, view: { span: 7 }, draw, onChange: sync });
     function calc() {
       const q1 = M.normalize(v1), p = proj(v1, v2), w = sub(v2, p), W = nrm(w);
@@ -957,7 +958,7 @@ R101.onReady(function () {
     ui.seg(document.getElementById('gs-seg'), [
       { value: 1, zh: '① 给定', en: '① Given' }, { value: 2, zh: '② 保留 v₁', en: '② Keep v₁' },
       { value: 3, zh: '③ 减投影', en: '③ Subtract' }, { value: 4, zh: '④ 单位化', en: '④ Normalise' }
-    ], stage, v => { stage = v; sync(); });
+    ], stage, v => { stage = v; seen.add(v); sync(); });
     const texEl = document.getElementById('gs-tex'), read = document.getElementById('gs-read');
     function sync() {
       const C = calc();
@@ -974,7 +975,7 @@ R101.onReady(function () {
       }
       R101.tex(texEl, tex);
       read.innerHTML = info + (stage >= 3 && C.W <= 0.05 ? `<br><b style="color:var(--c-bad)">${L('w = 0：无法单位化', 'w = 0: cannot normalise')}</b>` : '');
-      if (stage === 4 && C.W > 0.3) R101.done('gs4');
+      if (stage === 4 && seen.size === 4 && C.W > 0.3) R101.done('gs4');
       if (stage >= 3 && C.W < 0.05 && nrm(v2) > 0.5) R101.done('gsdep');
       P.invalidate();
     }

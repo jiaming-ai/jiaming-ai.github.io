@@ -145,14 +145,14 @@
     <div class="fig-controls" id="wf-controls"></div>
     <div class="fig-controls"><span class="readout" id="wf-read"></span></div>
     <figcaption class="fig-cap">
-      <span data-lang="zh">右图的横条：绿色是满足 Armijo 的 \(\alpha\) 区间，蓝色是满足（强）曲率条件的区间，两者的交集（加粗）就是 Wolfe 区间。拖动右图的黄点（或左图的起点）改变 \(\alpha\)。"回溯"从最右端 \(\alpha_0\) 开始，每次减半，直到满足 Armijo：红叉是被拒绝的试探，绿勾是被接受的步长。工程中常用 \(c_1=10^{-4}\)，\(c_2=0.9\)（拟牛顿）；这里把 \(c_1\) 默认设大，以便看清直线。</span>
+      <span data-lang="zh">右图底部的三行横条，自下而上：绿色是满足 Armijo 的 \(\alpha\) 区间，蓝色是满足（强）曲率条件的区间，最上面一行是两者的交集，即 Wolfe 区间（左图射线上也用粗绿段标出）。拖动右图的黄点改变 \(\alpha\)；拖动左图的起点 \(\x_k\) 则换一条射线。"回溯"从最右端 \(\alpha_0\) 开始，每次减半，直到满足 Armijo：红叉是被拒绝的试探，绿勾是被接受的步长。工程中常用 \(c_1=10^{-4}\)，\(c_2=0.9\)（拟牛顿）；这里把 \(c_1\) 默认设大，以便看清直线。</span>
       
     </figcaption>
   </figure>
   <div class="tasks-title"><span data-lang="zh">试一试</span></div>
   <ul class="tasks">
     <li data-task="short"><span><span data-lang="zh">找一个满足 Armijo、却<b>不满足</b>曲率条件的 \(\alpha\)（提示：非常小的步长）。它为什么没有用？</span></span></li>
-    <li data-task="wolfe"><span><span data-lang="zh">把 \(\alpha\) 放进 Wolfe 区间（粗绿条）。再把 \(c_2\) 调小到 0.1：区间变窄了还是变宽了？</span></span></li>
+    <li data-task="wolfe"><span><span data-lang="zh">把 \(\alpha\) 放进 Wolfe 区间（右图三行横条中最上面、标着"Wolfe"的那一行，也是左图射线上的粗绿段）。再把 \(c_2\) 调小到 0.15 左右（它必须大于 \(c_1\)）：区间变窄了还是变宽了？</span></span></li>
     <li data-task="bt"><span><span data-lang="zh">点"回溯"，数一数被拒绝了几次，再换一个起点重来。</span></span></li>
   </ul>
   <div class="callout key">
@@ -253,7 +253,7 @@
     </figcaption>
   </figure>
   <ul class="tasks">
-    <li data-task="ros"><span><span data-lang="zh">在 Rosenbrock 上让三者都跑完：GD + 回溯要几百步，Newton 与信赖域只要二十来步。</span></span></li>
+    <li data-task="ros"><span><span data-lang="zh">在 Rosenbrock 上让三者都跑完：GD + 回溯 400 步都到不了，Newton 与信赖域只要二十来步。</span></span></li>
     <li data-task="stuck"><span><span data-lang="zh">在"鞍"地形里：GD 和 Newton 都停在鞍点 \((0,0)\)（梯度为零，但 \(f-f^\star=0.25\)），信赖域沿负曲率方向逃出，落入 \((0,\pm1)\)。</span></span></li>
   </ul>
 </section>
@@ -679,8 +679,8 @@ R101.onReady(function () {
     const hb = document.getElementById('wf-btns');
     ui.button(hb, { zh: '回溯', en: 'Backtrack', cls: 'sm primary', onClick: backtrack });
     const ctr = document.getElementById('wf-controls');
-    ui.slider(ctr, Object.assign(logSlider(1e-4, 0.9), { zh: 'c₁（Armijo）', en: 'c₁ (Armijo)', step: 0.005, value: Math.log10(c1), fmt: v => { const x = Math.pow(10, v); return x < 0.01 ? x.toExponential(0).replace('-', '−') : x.toFixed(2); }, onInput: v => { user = true; c1 = Math.pow(10, v); if (c2 < c1) c2 = Math.min(0.99, c1 + 0.01); stopBt(); sync(); } }));
-    ui.slider(ctr, { zh: 'c₂（曲率）', en: 'c₂ (curvature)', min: 0.02, max: 0.99, step: 0.01, value: c2, onInput: v => { user = true; c2 = v; stopBt(); sync(); } });
+    ui.slider(ctr, Object.assign(logSlider(1e-4, 0.9), { zh: 'c₁（Armijo）', en: 'c₁ (Armijo)', step: 0.005, value: Math.log10(c1), fmt: v => { const x = Math.pow(10, v); return x < 0.01 ? x.toExponential(0).replace('-', '−') : x.toFixed(2); }, onInput: v => { user = true; c1 = Math.pow(10, v); if (c2 <= c1) { c2 = Math.min(0.99, c1 + 0.01); c2Sl.set(c2); } stopBt(); sync(); } }));
+    const c2Sl = ui.slider(ctr, { zh: 'c₂（曲率）', en: 'c₂ (curvature)', min: 0.02, max: 0.99, step: 0.01, value: c2, onInput: v => { user = true; c2 = v; if (c2 <= c1) { c2 = Math.min(0.99, c1 + 0.01); c2Sl.set(c2); } stopBt(); sync(); } });
     R101.on('lang', sync);
     setup(); sync();
   })();
@@ -965,7 +965,7 @@ R101.onReady(function () {
     const runBtn = ui.button(hb, { zh: '⏸ 暂停', en: '⏸ Pause', cls: 'sm primary', onClick: () => { running = !running; syncBtn(); } });
     function syncBtn() { runBtn.innerHTML = running ? L('⏸ 暂停', '⏸ Pause') : L('▶ 运行', '▶ Run'); }
     ui.button(hb, { zh: '重新开始', en: 'Restart', cls: 'sm', onClick: reset });
-    ui.slider(document.getElementById('ik-controls'), Object.assign(logSlider(0.03, 1.5), { zh: '每周期最大关节转角 Δmax (rad)', en: 'max joint turn per cycle Δmax (rad)', step: 0.005, value: Math.log10(Dmax), fmt: v => Math.pow(10, v).toFixed(2), onInput: v => { Dmax = Math.pow(10, v); reset(); } }));
+    ui.slider(document.getElementById('ik-controls'), Object.assign(logSlider(0.02, 1.5), { zh: '每周期最大关节转角 Δmax (rad)', en: 'max joint turn per cycle Δmax (rad)', step: 0.005, value: Math.log10(Dmax), fmt: v => Math.pow(10, v).toFixed(2), onInput: v => { Dmax = Math.pow(10, v); reset(); } }));
     const isVis = vis('fig-ikt'); let lastT = 0;
     reset();
     (function loop(now) { if (running && isVis() && status === 'run' && now - lastT > Math.max(30, 140 * Math.min(1, Dmax / 0.3))) { lastT = now; step(); sync(); if (status !== 'run') { running = false; syncBtn(); } } requestAnimationFrame(loop); })(0);

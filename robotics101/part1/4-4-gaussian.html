@@ -188,13 +188,13 @@
     </div>
     <div class="fig-controls" id="clt-controls"></div>
     <figcaption class="fig-cap">
-      <span data-lang="zh"><span class="cx">青色柱子</span>是 4000 次实验中"\(k\) 个独立变量之和（减去均值、除以 \(\sqrt{k}\,\sigma\)）"的直方图，<span class="cv">黄色曲线</span>是标准高斯。"最大差距"是经验分布函数与高斯 CDF 的最大差（Kolmogorov 距离），越小越像。小图是单个变量自己的分布。</span>
-      <span data-lang="en"><span class="cx">Cyan bars</span> are the histogram, over 4000 experiments, of "the sum of \(k\) independent variables (minus the mean, divided by \(\sqrt{k}\,\sigma\))"; the <span class="cv">amber curve</span> is the standard Gaussian. "Max gap" is the largest difference between the empirical distribution function and the Gaussian CDF (the Kolmogorov distance): smaller means more alike. The inset shows a single variable's own distribution.</span>
+      <span data-lang="zh"><span class="cx">青色柱子</span>是 4000 次实验中"\(k\) 个独立变量之和（减去均值、除以 \(\sqrt{k}\,\sigma\)）"的直方图，<span class="cv">黄色曲线</span>是标准高斯。"最大差距"是经验分布函数与高斯 CDF 的最大差（Kolmogorov 距离），越小越像。"硬币"之和只能取间隔 \(2/\sqrt{k}\) 的离散值，所以每个取值画一根柱，柱高 = 该取值的概率 ÷ 间隔（这样才能和密度曲线比较）。它的经验分布函数是台阶，"最大差距"因此不会低于最高那级台阶的一半。小图是单个变量自己的分布。</span>
+      <span data-lang="en"><span class="cx">Cyan bars</span> are the histogram, over 4000 experiments, of "the sum of \(k\) independent variables (minus the mean, divided by \(\sqrt{k}\,\sigma\))"; the <span class="cv">amber curve</span> is the standard Gaussian. "Max gap" is the largest difference between the empirical distribution function and the Gaussian CDF (the Kolmogorov distance): smaller means more alike. The coin sum only takes values \(2/\sqrt{k}\) apart, so each value gets one bar of height probability ÷ spacing (comparable with the density curve), and its empirical distribution function is a staircase, so its max gap cannot fall below half the tallest step. The inset shows a single variable's own distribution.</span>
     </figcaption>
   </figure>
   <div class="tasks-title"><span data-lang="zh">试一试</span><span data-lang="en">Try this</span></div>
   <ul class="tasks">
-    <li data-task="clt-coin"><span><span data-lang="zh">选"硬币"（只取 ±1，两个尖峰）：\(k = 1\) 时是两根针，把 \(k\) 加到 <b>10 以上</b>，针们长成了钟。</span><span data-lang="en">Pick "coin" (only ±1, two spikes): at \(k = 1\) it is two needles; push \(k\) to <b>10 or more</b> and they grow into a bell.</span></span></li>
+    <li data-task="clt-coin"><span><span data-lang="zh">选"硬币"（只取 ±1，两个尖峰）：\(k = 1\) 时是两根针，把 \(k\) 加到 <b>10 以上</b>，针的顶端连起来就贴着钟形曲线。</span><span data-lang="en">Pick "coin" (only ±1, two spikes): at \(k = 1\) it is two needles; push \(k\) to <b>10 or more</b> and the needle tips line up along the bell curve.</span></span></li>
     <li data-task="clt-skew"><span><span data-lang="zh">选"指数"（明显偏斜）：把 \(k\) 加到 <b>12 以上</b>，偏斜才大体消失。偏斜得越厉害的来源，需要的 \(k\) 越大。</span><span data-lang="en">Pick "exponential" (strongly skewed): raise \(k\) to <b>12 or more</b> before the skew mostly vanishes. The more skewed the source, the larger the \(k\) needed.</span></span></li>
   </ul>
 </section>
@@ -328,11 +328,11 @@
   <h2><span class="n">6</span><span data-lang="zh">机器人中的它：把两个传感器的估计融合起来</span><span data-lang="en">In robotics: fusing two sensors' estimates</span></h2>
   <div data-lang="zh">
     <p>一台机器人在一条长走廊里。<span class="cx">激光扫描匹配</span>很准地知道它离两侧墙有多远，却完全不知道自己沿走廊走到了哪里（沿走廊方向毫无特征）：它的不确定性椭圆是一条沿走廊的<b>长细条</b>。<span class="cw">Wi-Fi/GPS 定位</span>在各个方向都差不多，只是粗糙，是一个<b>大圆饼</b>。两者的乘积，也就是融合之后的信念，会是什么样？</p>
-    <p>答案是：垂直走廊的方向由激光说了算，沿走廊的方向由 Wi-Fi 说了算，结果是一个<b>小而圆</b>的椭圆，比任何一个传感器都小。拖动两个椭圆，并试试"垂直的两个长条"预设。右侧给出了两个估计的<b>分歧程度</b>（马氏距离的平方 \(z^2\)）和它的 p 值：如果两个传感器差得太远，这个 p 值会很小，说明至少有一个传感器出了问题，这正是卡尔曼滤波里"门限 (gating)"检验的原理。</p>
+    <p>答案是：垂直走廊的方向由激光说了算，沿走廊的方向由 Wi-Fi 说了算，结果是一个<b>小得多</b>的椭圆：垂直走廊方向和激光一样窄，沿走廊方向比 Wi-Fi 还紧，面积比任何一个传感器的都小。拖动两个椭圆，并试试"垂直的两个长条"预设。右侧给出了两个估计的<b>分歧程度</b>（马氏距离的平方 \(z^2\)）和它的 p 值：如果两个传感器差得太远，这个 p 值会很小，说明至少有一个传感器出了问题，这正是卡尔曼滤波里"门限 (gating)"检验的原理。</p>
   </div>
   <div data-lang="en">
     <p>A robot is in a long corridor. <span class="cx">Laser scan matching</span> knows precisely how far it is from the two walls but has no idea how far along the corridor it is (no features along the corridor): its uncertainty ellipse is a <b>long thin sliver</b> along the corridor. <span class="cw">Wi-Fi/GPS positioning</span> is similar in every direction, just coarse: a <b>big round disc</b>. What does their product, the fused belief, look like?</p>
-    <p>The answer: across the corridor the laser has the say, along the corridor Wi-Fi does, and the result is a <b>small round</b> ellipse smaller than either sensor's. Drag the two ellipses, and try the "two perpendicular slivers" preset. The sidebar shows how much the two estimates <b>disagree</b> (the squared Mahalanobis distance \(z^2\)) and its p-value: if the two sensors are too far apart this p-value is tiny, signalling that at least one is faulty. This is the principle of "gating" in Kalman filters.</p>
+    <p>The answer: across the corridor the laser has the say, along the corridor Wi-Fi does, and the result is a <b>much smaller</b> ellipse: as thin as the laser across the corridor, tighter than Wi-Fi along it, and smaller in area than either sensor's. Drag the two ellipses, and try the "two perpendicular slivers" preset. The sidebar shows how much the two estimates <b>disagree</b> (the squared Mahalanobis distance \(z^2\)) and its p-value: if the two sensors are too far apart this p-value is tiny, signalling that at least one is faulty. This is the principle of "gating" in Kalman filters.</p>
   </div>
 
   <figure class="fig bleed" id="fig-fuse2">
@@ -636,14 +636,19 @@ R101.onReady(function () {
     const P = new R101.Plane2D('#clt-canvas', { height: 340, draw });
     function hist(arr, x0, x1, nb) { const c = new Array(nb).fill(0), bw = (x1 - x0) / nb; arr.forEach(v => { if (v >= x0 && v < x1) c[Math.floor((v - x0) / bw)]++; }); return c.map(v => v / (arr.length * bw)); }
     function draw(P) {
-      const h = hist(zs, -4, 4, NBIN);
-      const ymax = Math.min(3, Math.max(0.55, Math.max.apply(null, h) * 1.12));
+      // bars [left edge, width, density]; the coin sum takes values 2/sqrt(k) apart: one bar per value, height = probability / spacing
+      let bars;
+      if (src === 'coin') {
+        const bwc = 2 / Math.sqrt(K), cnt = new Array(K + 1).fill(0);
+        zs.forEach(z => { cnt[Math.round((z * Math.sqrt(K) + K) / 2)]++; });
+        bars = cnt.map((c, j) => { const dw = Math.min(0.8 * bwc, 0.4); return [(2 * j - K) / Math.sqrt(K) - dw / 2, dw, c / (NS * bwc)]; }).filter(b => b[0] + b[1] > -4 && b[0] < 4);
+      } else bars = hist(zs, -4, 4, NBIN).map((v, j) => [-4 + j * 8 / NBIN, 8 / NBIN, v]);
+      const ymax = Math.min(3, Math.max(0.55, Math.max.apply(null, bars.map(b => b[2])) * 1.12));
       const q = box(P, -4, 4, 0, ymax, [30, 12, 10, 28]);
       const yt = ticks(0, ymax, 4);
       yt.out.forEach(y => { P.line(q(-4, y), q(4, y), { color: y === 0 ? 'axis' : 'grid', width: y === 0 ? 1.4 : 1 }); P.text(M.fmt(y, yt.dec), q(-4, y), { offset: [-4, 0], align: 'right', size: 10.5, color: 'text-2' }); });
       for (let x = -4; x <= 4; x += 2) P.text(String(x), q(x, 0), { offset: [0, 13], align: 'center', size: 10.5, color: 'text-2' });
-      const bw = 8 / NBIN;
-      h.forEach((v, j) => { if (!v) return; const a = -4 + j * bw, hh = Math.min(ymax, v); P.poly([q(a, 0), q(a + bw, 0), q(a + bw, hh), q(a, hh)], { fill: 'x', fillAlpha: 0.32, stroke: 'x', width: 1.1 }); });
+      bars.forEach(([a0, bw, v]) => { if (!v) return; const a = Math.max(-4, a0), b = Math.min(4, a0 + bw), hh = Math.min(ymax, v); P.poly([q(a, 0), q(b, 0), q(b, hh), q(a, hh)], { fill: 'x', fillAlpha: 0.32, stroke: 'x', width: 1.1 }); });
       const pts = []; for (let i = 0; i <= 200; i++) { const x = -4 + 8 * i / 200; pts.push(q(x, gauss(x, 0, 1))); }
       P.path(pts, { color: 'v', width: 3 });
       // inset: the single variable
@@ -660,6 +665,7 @@ R101.onReady(function () {
       R101.tex(tex, `Z_k = \\dfrac{\\sum_{i=1}^{${K}} X_i - ${K}\\mu}{\\sigma\\sqrt{${K}}} \\;\\to\\; \\mathcal N(0, 1)`);
       read.innerHTML = `k = <b>${K}</b><br>${L('最大差距 (KS)', 'max gap (KS)')} = <b class="cv">${M.fmt(ks, 3)}</b><br>${L('偏度', 'skewness')} = <b>${M.fmt(skew, 2)}</b>`;
       msg.innerHTML = K === 1 ? L('k = 1：就是这个来源本身的形状，一点也不像钟。', 'k = 1: just the source itself, nothing like a bell.')
+        : src === 'coin' ? L('硬币之和只取离散值：最大差距停在"半级台阶"附近，降得很慢。要看的是柱子的高度是否贴着黄色曲线。', 'The coin sum takes discrete values only: the max gap stalls near half a staircase step and falls slowly. Watch whether the bar heights hug the amber curve.')
         : ks < 0.03 ? L('已经非常像高斯了。', 'Very close to a Gaussian already.')
         : L('继续加大 k，钟形越来越清楚。', 'Increase k and the bell gets clearer.');
       if (touched && src === 'coin' && K >= 10) R101.done('clt-coin');

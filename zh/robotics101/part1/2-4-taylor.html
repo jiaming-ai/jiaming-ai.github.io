@@ -172,7 +172,7 @@
     </div>
     <div class="fig-controls" id="sa-controls"></div>
     <figcaption class="fig-cap">
-      <span data-lang="zh">水平虚线是 1% 误差线，竖线是你选的角度 \(\theta\)。阶数每升一阶，曲线整体下移一大截；但每条曲线在小角度处都下探到很低，在大角度处都会爬到 100%。</span>
+      <span data-lang="zh">水平虚线是 1% 误差线，竖线是你选的角度 \(\theta\)。阶数每升一阶，曲线整体下移一大截；但每条曲线都随角度迅速上升（\(\cos\theta\approx1\) 在 60° 处已达 100%）。</span>
       
     </figcaption>
   </figure>
@@ -219,7 +219,7 @@
     <div class="fig-controls" id="pd-controls"></div>
     <div class="fig-row" style="padding:12px 16px;border-top:1px solid var(--border)"><div class="katex-live" id="pd-tex"></div><div class="readout" id="pd-read" style="margin-top:6px"></div></div>
     <figcaption class="fig-cap">
-      <span data-lang="zh">青色：真实（非线性）的摆。紫色：线性化的摆。小摆角时两条曲线重合，大摆角时线性模型"走得太快"，几个周期之后相位差越来越大。</span>
+      <span data-lang="zh">青色：真实（非线性）的摆。紫色：线性化的摆。小摆角时两条曲线重合，大摆角时线性模型"走得太快"，几个周期之后相位差越来越大。"阻尼 c"给两个模型都加上 \(-c\dot\theta\) 项；有阻尼时不再显示周期，任务也要求 \(c=0\)。</span>
       
     </figcaption>
   </figure>
@@ -406,7 +406,7 @@ R101.onReady(function () {
       sin: { zh: 'sin x', en: 'sin x', f: Math.sin, d: (a, k) => Math.sin(a + k * Math.PI / 2), alim: [-4, 4], a: 0, px: 2.8, tex: '\\sin x' },
       exp: { zh: 'eˣ', en: 'eˣ', f: Math.exp, d: a => Math.exp(a), alim: [-3, 2], a: 0, px: 2, tex: 'e^x' },
       log: { zh: 'ln(1+x)', en: 'ln(1+x)', f: x => Math.log(1 + x), d: (a, k) => (k === 0 ? Math.log(1 + a) : (k % 2 ? 1 : -1) * fact(k - 1) / Math.pow(1 + a, k)), alim: [-0.8, 3], a: 0, px: 1.6, tex: '\\ln(1+x)', dom: [-0.995, 99] },
-      geo: { zh: '1/(1−x)', en: '1/(1−x)', f: x => 1 / (1 - x), d: (a, k) => fact(k) / Math.pow(1 - a, k), alim: [-3, 0.8], a: 0, px: -0.8, tex: '\\tfrac1{1-x}' }
+      geo: { zh: '1/(1−x)', en: '1/(1−x)', f: x => 1 / (1 - x), d: (a, k) => fact(k) / Math.pow(1 - a, k + 1), alim: [-3, 0.8], a: 0, px: -0.8, tex: '\\tfrac1{1-x}' }
     };
     let key = 'sin', a = 0, n = 3, px = 2.8;
     const P = new R101.Plane2D('#ty-canvas', { height: 360, draw });
@@ -633,7 +633,8 @@ R101.onReady(function () {
       const i = idx(), gap = (NL[i] - LI[i]) / D;
       let mx = 0; for (let k = 0; k < NL.length; k++) mx = Math.max(mx, Math.abs(NL[k] - LI[k]) / D);
       const T0 = 2 * Math.PI / w0;
-      R101.tex(tex, `\\ddot\\theta=-\\tfrac g\\ell\\sin\\theta\\ \\approx\\ -\\tfrac g\\ell\\theta,\\qquad T_{\\text{lin}}=2\\pi\\sqrt{\\ell/g}=${M.tex(T0, 3)}\\ \\text{s}`);
+      const dTerm = damp > 0 ? `-${M.tex(damp, 2)}\\dot\\theta` : '';
+      R101.tex(tex, `\\ddot\\theta=-\\tfrac g\\ell\\sin\\theta${dTerm}\\ \\approx\\ -\\tfrac g\\ell\\theta${dTerm},\\qquad T_{\\text{lin}}=2\\pi\\sqrt{\\ell/g}=${M.tex(T0, 3)}\\ \\text{s}`);
       read.innerHTML = `t = <b>${M.fmt(time, 2)}</b> s · ${L('此刻两者相差', 'gap now')} <b>${M.fmt(Math.abs(gap), 1)}°</b> · ${L('8 秒内最大差', 'max gap in 8 s')} <b>${M.fmt(mx, 1)}°</b><br>${L('真实周期', 'real period')} ≈ <b>${isFinite(periodNL) && damp === 0 ? M.fmt(periodNL, 3) + ' s' : '—'}</b> (${L('线性化', 'linear')} ${M.fmt(T0, 3)} s${isFinite(periodNL) && damp === 0 ? ', ' + M.fmt((periodNL / T0 - 1) * 100, 1) + '%' : ''})`;
       if (!light) {
         if (A <= 10 && mx < 0.5 && damp === 0) R101.done('small');

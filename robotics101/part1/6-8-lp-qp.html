@@ -111,13 +111,13 @@
 <section class="step" id="why">
   <h2><span class="n">1</span><span data-lang="zh">为什么机器人需要它</span><span data-lang="en">Why robots need this</span></h2>
   <div data-lang="zh">
-    <p>机器人的世界里到处是"不等式"：关节力矩不能超过电机上限，足底接触力必须落在摩擦锥里，夹爪的手指只能推、不能拉，末端不能撞到桌面。6.3 节的梯度下降对这些硬性界限无能为力，它只会在无约束的山坡上往下走。</p>
-    <p>好消息是，当目标是<b>二次函数</b>、约束是<b>线性不等式</b>时，问题就是一个<b>二次规划 (QP)</b>。它是凸的（6.2 节），没有局部最小值的烦恼，而且有成熟的求解器，规模几十到几百个变量时，几毫秒就能解完。于是一台人形机器人可以在 1 kHz 的控制回路里，每个周期解一次 QP 来决定所有关节的力矩；一个机械臂可以每 20 ms 解一次 MPC，让自己在速度、加速度和障碍的限制下贴着参考轨迹走。</p>
+    <p>机器人的世界里到处是"不等式"：关节力矩不能超过电机上限，足底接触力必须落在摩擦锥里，夹爪的手指只能推、不能拉，末端不能撞到桌面。<a href="6-3-gradient-descent.html">6.3</a> 节的梯度下降对这些硬性界限无能为力，它只会在无约束的山坡上往下走。</p>
+    <p>好消息是，当目标是<b>二次函数</b>、约束是<b>线性不等式</b>时，问题就是一个<b>二次规划 (QP)</b>。它是凸的（<a href="6-2-convexity.html">6.2</a> 节），没有局部最小值的烦恼，而且有成熟的求解器，规模几十到几百个变量时，几毫秒就能解完。于是一台人形机器人可以在 1 kHz 的控制回路里，每个周期解一次 QP 来决定所有关节的力矩；一个机械臂可以每 20 ms 解一次 MPC，让自己在速度、加速度和障碍的限制下贴着参考轨迹走。</p>
     <p>线性规划 (LP) 是 QP 去掉二次项后的特例。它的几何最干净，是理解"约束到底怎样决定最优解"的最好起点：先看 LP，再看 QP 多出来的那一点自由度。</p>
   </div>
   <div data-lang="en">
-    <p>A robot's world is full of inequalities: joint torques cannot exceed the motor limit, foot contact forces must lie in a friction cone, a gripper finger can only push and never pull, the end effector must not hit the table. The gradient descent of Lesson 6.3 knows nothing about such hard limits; it just walks downhill on an unconstrained slope.</p>
-    <p>The good news: when the objective is a <b>quadratic</b> and the constraints are <b>linear inequalities</b>, the problem is a <b>quadratic program (QP)</b>. It is convex (Lesson 6.2), so there are no local minima to fear, and mature solvers handle tens to hundreds of variables in milliseconds. A humanoid can therefore solve a QP every cycle of a 1 kHz control loop to pick all its joint torques; an arm can solve an MPC problem every 20 ms to track a reference while respecting velocity, acceleration and obstacle limits.</p>
+    <p>A robot's world is full of inequalities: joint torques cannot exceed the motor limit, foot contact forces must lie in a friction cone, a gripper finger can only push and never pull, the end effector must not hit the table. The gradient descent of Lesson <a href="6-3-gradient-descent.html">6.3</a> knows nothing about such hard limits; it just walks downhill on an unconstrained slope.</p>
+    <p>The good news: when the objective is a <b>quadratic</b> and the constraints are <b>linear inequalities</b>, the problem is a <b>quadratic program (QP)</b>. It is convex (Lesson <a href="6-2-convexity.html">6.2</a>), so there are no local minima to fear, and mature solvers handle tens to hundreds of variables in milliseconds. A humanoid can therefore solve a QP every cycle of a 1 kHz control loop to pick all its joint torques; an arm can solve an MPC problem every 20 ms to track a reference while respecting velocity, acceleration and obstacle limits.</p>
     <p>A linear program (LP) is the QP with the quadratic term removed. Its geometry is the cleanest there is, so it is the best place to learn how constraints decide the optimum: LP first, then the one extra degree of freedom a QP adds.</p>
   </div>
 </section>
@@ -145,8 +145,8 @@
       </div>
     </div>
     <figcaption class="fig-cap">
-      <span data-lang="zh">橙色箭头是"代价下降最快的方向" \(-\mathbf c\)，拖动箭头尖端改变它（接近某条边的法线时会吸附，此时整条边都是最优解）。紫色虚线是通过最优点的等值线 \(\mathbf c^\top\x = \text{const}\)。浅红色区域是被不等式排除的一侧。点击任意顶点可把它设为单纯形法的起点，再按"单纯形行走"：它只沿边从一个顶点走到相邻的、代价更低的顶点。</span>
-      <span data-lang="en">The amber arrow is the direction of steepest cost decrease, \(-\mathbf c\); drag its tip to change it (it snaps near an edge normal, where the whole edge is optimal). The dashed purple line is the level line \(\mathbf c^\top\x = \text{const}\) through the optimum. The light red regions are the sides excluded by the inequalities. Click any vertex to make it the simplex start, then press "Simplex walk": it only moves along edges, from a vertex to an adjacent vertex of lower cost.</span>
+      <span data-lang="zh">橙色箭头是"代价下降最快的方向" \(-\mathbf c\)，拖动箭头尖端改变它（接近某条边的法线时会吸附，此时整条边都是最优解）。紫色虚线是通过最优点的等值线 \(\mathbf c^\top\x = \text{const}\)。涂成红色阴影的区域是被不等式排除的一侧。点击任意顶点可把它设为单纯形法的起点，再按"单纯形行走"：它只沿边从一个顶点走到相邻的、代价更低的顶点。</span>
+      <span data-lang="en">The amber arrow is the direction of steepest cost decrease, \(-\mathbf c\); drag its tip to change it (it snaps near an edge normal, where the whole edge is optimal). The dashed purple line is the level line \(\mathbf c^\top\x = \text{const}\) through the optimum. The red-tinted regions are the sides excluded by the inequalities. Click any vertex to make it the simplex start, then press "Simplex walk": it only moves along edges, from a vertex to an adjacent vertex of lower cost.</span>
     </figcaption>
   </figure>
   <div class="tasks-title"><span data-lang="zh">试一试</span><span data-lang="en">Try this</span></div>
@@ -168,11 +168,11 @@
   <h2><span class="n">3</span><span data-lang="zh">二次规划：最优解离开了角</span><span data-lang="en">Quadratic programming: the optimum leaves the corner</span></h2>
   <div data-lang="zh">
     <p>把线性目标换成凸二次函数，等值线从平行直线变成<b>椭圆</b>，中心 \(\mathbf p\) 是不考虑约束时的最优点。如果 \(\mathbf p\) 恰好在可行域内部，约束全部"休眠"，答案就是 \(\mathbf p\) 本身；如果 \(\mathbf p\) 在域外，最优解是<b>最先碰到可行域的那个椭圆与可行域的接触点</b>，它可以落在边的中间，也可以落在顶点上。</p>
-    <p>6.7 节的 KKT 条件在这里有一幅很具体的"受力图"：在接触点 \(\x^\star\)，目标想把你拉向 \(\mathbf p\)（橙色，\(-\nabla f\)），被碰到的那几面"墙"各自把你推回来（紫色，大小 \(\lambda_i\)），平衡时两者之和为零。推力不能为负（墙只能推不能拉）：\(\lambda_i \ge 0\)。没碰到的墙不出力：\(\lambda_i = 0\)。这些<b>碰到的约束</b>叫作<b>有效约束 (active constraints)</b>。</p>
+    <p><a href="6-7-constrained.html">6.7</a> 节的 KKT 条件在这里有一幅很具体的"受力图"：在接触点 \(\x^\star\)，目标想把你拉向 \(\mathbf p\)（橙色，\(-\nabla f\)），被碰到的那几面"墙"各自把你推回来（紫色，大小 \(\lambda_i\)），平衡时两者之和为零。推力不能为负（墙只能推不能拉）：\(\lambda_i \ge 0\)。没碰到的墙不出力：\(\lambda_i = 0\)。这些<b>碰到的约束</b>叫作<b>有效约束 (active constraints)</b>。</p>
   </div>
   <div data-lang="en">
     <p>Replace the linear objective by a convex quadratic and the level sets turn from parallel lines into <b>ellipses</b> centered at \(\mathbf p\), the unconstrained optimum. If \(\mathbf p\) happens to be inside the feasible set, every constraint is "asleep" and the answer is \(\mathbf p\) itself. If \(\mathbf p\) is outside, the solution is the <b>point where the smallest ellipse first touches the feasible set</b>; it may sit in the middle of an edge or at a vertex.</p>
-    <p>The KKT conditions of Lesson 6.7 have a very concrete "free-body diagram" here. At the touching point \(\x^\star\) the objective pulls you toward \(\mathbf p\) (amber, \(-\nabla f\)), and each wall you touch pushes back (purple, magnitude \(\lambda_i\)); at balance they sum to zero. A wall can only push, never pull, so \(\lambda_i \ge 0\); a wall you do not touch exerts nothing, \(\lambda_i = 0\). The constraints you touch are the <b>active constraints</b>.</p>
+    <p>The KKT conditions of Lesson <a href="6-7-constrained.html">6.7</a> have a very concrete "free-body diagram" here. At the touching point \(\x^\star\) the objective pulls you toward \(\mathbf p\) (amber, \(-\nabla f\)), and each wall you touch pushes back (purple, magnitude \(\lambda_i\)); at balance they sum to zero. A wall can only push, never pull, so \(\lambda_i \ge 0\); a wall you do not touch exerts nothing, \(\lambda_i = 0\). The constraints you touch are the <b>active constraints</b>.</p>
   </div>
 
   <figure class="fig" id="fig-qp">
@@ -199,8 +199,8 @@
   </ul>
   <div class="callout view">
     <div class="ct"><span data-lang="zh">两种视角</span><span data-lang="en">Two views</span></div>
-    <p data-lang="zh"><b>几何视角</b>：解是椭圆与可行域的"首次接触点"，也是 \(\mathbf p\) 在 \(Q\) 度量下到可行域的<b>投影</b>（\(Q=I\) 时就是欧氏投影，1.9 节）。<b>力学视角</b>：解是各种力的平衡点，\(\lambda_i\) 是墙 \(i\) 出的力，也等于"把这面墙挪动一点，最优代价改变多少"（影子价格）。LP 只是其中的极端情形：椭圆被拉成无限宽，只剩下一个方向有区别。</p>
-    <p data-lang="en"><b>Geometric view</b>: the solution is the "first contact" of the ellipse and the feasible set; equivalently it is the <b>projection</b> of \(\mathbf p\) onto the feasible set in the \(Q\)-metric (the Euclidean projection of Lesson 1.9 when \(Q=I\)). <b>Mechanical view</b>: the solution is where the forces balance, and \(\lambda_i\) is the force of wall \(i\), which is also how much the optimal cost changes if you move that wall slightly (a shadow price). An LP is the extreme case: the ellipse stretched infinitely wide so only one direction matters.</p>
+    <p data-lang="zh"><b>几何视角</b>：解是椭圆与可行域的"首次接触点"，也是 \(\mathbf p\) 在 \(Q\) 度量下到可行域的<b>投影</b>（\(Q=I\) 时就是欧氏投影，<a href="1-9-projection.html">1.9</a> 节）。<b>力学视角</b>：解是各种力的平衡点，\(\lambda_i\) 是墙 \(i\) 出的力，也等于"把这面墙挪动一点，最优代价改变多少"（影子价格）。LP 只是其中的极端情形：椭圆被拉成无限宽，只剩下一个方向有区别。</p>
+    <p data-lang="en"><b>Geometric view</b>: the solution is the "first contact" of the ellipse and the feasible set; equivalently it is the <b>projection</b> of \(\mathbf p\) onto the feasible set in the \(Q\)-metric (the Euclidean projection of Lesson <a href="1-9-projection.html">1.9</a> when \(Q=I\)). <b>Mechanical view</b>: the solution is where the forces balance, and \(\lambda_i\) is the force of wall \(i\), which is also how much the optimal cost changes if you move that wall slightly (a shadow price). An LP is the extreme case: the ellipse stretched infinitely wide so only one direction matters.</p>
   </div>
 </section>
 
@@ -213,18 +213,18 @@
   <p data-lang="zh"><b>线性规划</b>：</p>
   <p data-lang="en"><b>Linear program</b>:</p>
   <div class="math-card">$$ \min_{\x\in\R^n}\ \hl{obj}{\mathbf c^\top\x} \quad\text{s.t.}\quad \hl{ineq}{A\x \le \mathbf b}, \quad C\x = \mathbf d $$</div>
-  <p data-lang="zh"><b>二次规划</b>：多一个二次项，其中 \(H\) 是对称半正定矩阵（\(H\succeq 0\)，问题才是凸的，6.2 节）：</p>
-  <p data-lang="en"><b>Quadratic program</b>: one extra quadratic term, where \(H\) is symmetric positive semidefinite (\(H\succeq 0\) makes the problem convex, Lesson 6.2):</p>
-  <div class="math-card">$$ \min_{\x\in\R^n}\ \tfrac12\,\x^\top \hl{hess}{H}\,\x + \mathbf g^\top\x \quad\text{s.t.}\quad A\x \le \mathbf b, \quad C\x = \mathbf d $$</div>
-  <p data-lang="zh">FIG 2 中 \(f=\tfrac12(\x-\mathbf p)^\top Q(\x-\mathbf p)\) 展开后正是 \(H=Q,\ \mathbf g=-Q\mathbf p\)（加一个不影响解的常数）。最常见的来源是<b>最小二乘</b>（1.13 节）：\(\tfrac12\|M\x-\mathbf y\|^2\) 展开得 \(H=M^\top M,\ \mathbf g=-M^\top\mathbf y\)。所以 QP 就是"带不等式约束的最小二乘"。</p>
-  <p data-lang="en">The \(f=\tfrac12(\x-\mathbf p)^\top Q(\x-\mathbf p)\) of FIG 2 expands to exactly \(H=Q,\ \mathbf g=-Q\mathbf p\) (plus a constant that does not change the minimizer). The most common source is <b>least squares</b> (Lesson 1.13): \(\tfrac12\|M\x-\mathbf y\|^2\) expands to \(H=M^\top M,\ \mathbf g=-M^\top\mathbf y\). A QP is least squares with inequality constraints.</p>
+  <p data-lang="zh"><b>二次规划</b>：多一个二次项，其中 \(H\) 是对称半正定矩阵（\(H\succeq 0\)，问题才是凸的，<a href="6-2-convexity.html">6.2</a> 节）：</p>
+  <p data-lang="en"><b>Quadratic program</b>: one extra quadratic term, where \(H\) is symmetric positive semidefinite (\(H\succeq 0\) makes the problem convex, Lesson <a href="6-2-convexity.html">6.2</a>):</p>
+  <div class="math-card">$$ \min_{\x\in\R^n}\ \tfrac12\,\x^\top H\,\x + \mathbf g^\top\x \quad\text{s.t.}\quad A\x \le \mathbf b, \quad C\x = \mathbf d $$</div>
+  <p data-lang="zh">FIG 2 中 \(f=\tfrac12(\x-\mathbf p)^\top Q(\x-\mathbf p)\) 展开后正是 \(H=Q,\ \mathbf g=-Q\mathbf p\)（加一个不影响解的常数）。最常见的来源是<b>最小二乘</b>（<a href="1-13-least-squares.html">1.13</a> 节）：\(\tfrac12\|M\x-\mathbf y\|^2\) 展开得 \(H=M^\top M,\ \mathbf g=-M^\top\mathbf y\)。所以 QP 就是"带不等式约束的最小二乘"。</p>
+  <p data-lang="en">The \(f=\tfrac12(\x-\mathbf p)^\top Q(\x-\mathbf p)\) of FIG 2 expands to exactly \(H=Q,\ \mathbf g=-Q\mathbf p\) (plus a constant that does not change the minimizer). The most common source is <b>least squares</b> (Lesson <a href="1-13-least-squares.html">1.13</a>): \(\tfrac12\|M\x-\mathbf y\|^2\) expands to \(H=M^\top M,\ \mathbf g=-M^\top\mathbf y\). A QP is least squares with inequality constraints.</p>
 
   <h3><span data-lang="zh">KKT 条件与有效集</span><span data-lang="en">KKT conditions and the active set</span></h3>
-  <p data-lang="zh">把 6.7 节的 KKT 条件用在 QP 上（只写不等式部分，记 \(\mathbf a_i^\top\) 为 \(A\) 的第 \(i\) 行）：</p>
-  <p data-lang="en">Apply the KKT conditions of Lesson 6.7 to a QP (inequality part only; \(\mathbf a_i^\top\) is row \(i\) of \(A\)):</p>
-  <div class="math-card">$$ H\x + \mathbf g + \sum_i \hl{lam}{\lambda_i}\,\mathbf a_i = \mathbf 0, \qquad A\x\le\mathbf b, \qquad \lambda_i \ge 0, \qquad \lambda_i\,(\mathbf a_i^\top\x - b_i)=0 $$</div>
-  <p data-lang="zh">第一式就是 FIG 2 的受力平衡：\(-\nabla f=\sum_i\lambda_i\mathbf a_i\)（拉力等于墙的推力之和）；最后一式叫<b>互补松弛</b>：墙要么没碰到（\(\mathbf a_i^\top\x&lt;b_i\)，则 \(\lambda_i=0\)），要么碰到了（等号成立，\(\lambda_i\) 可以大于 0）。</p>
-  <p data-lang="en">The first equation is the force balance of FIG 2: \(-\nabla f=\sum_i\lambda_i\mathbf a_i\) (pull equals the sum of wall pushes). The last one is <b>complementary slackness</b>: a wall is either untouched (\(\mathbf a_i^\top\x&lt;b_i\), so \(\lambda_i=0\)) or touched (equality holds and \(\lambda_i\) may be positive).</p>
+  <p data-lang="zh">把 <a href="6-7-constrained.html">6.7</a> 节的 KKT 条件用在 QP 上（只写不等式部分，记 \(\mathbf a_i^\top\) 为 \(A\) 的第 \(i\) 行）：</p>
+  <p data-lang="en">Apply the KKT conditions of Lesson <a href="6-7-constrained.html">6.7</a> to a QP (inequality part only; \(\mathbf a_i^\top\) is row \(i\) of \(A\)):</p>
+  <div class="math-card">$$ \hl{grad}{H\x + \mathbf g} + \sum_i \hl{lam}{\lambda_i}\,\mathbf a_i = \mathbf 0, \qquad A\x\le\mathbf b, \qquad \lambda_i \ge 0, \qquad \lambda_i\,(\mathbf a_i^\top\x - b_i)=0 $$</div>
+  <p data-lang="zh">第一式就是 FIG 2 的受力平衡：\(-\nabla f=\sum_i\lambda_i\mathbf a_i\)（拉力恰好被墙的推力 \(-\lambda_i\mathbf a_i\) 抵消）；最后一式叫<b>互补松弛</b>：墙要么没碰到（\(\mathbf a_i^\top\x&lt;b_i\)，则 \(\lambda_i=0\)），要么碰到了（等号成立，\(\lambda_i\) 可以大于 0）。</p>
+  <p data-lang="en">The first equation is the force balance of FIG 2: \(-\nabla f=\sum_i\lambda_i\mathbf a_i\) (the pull is exactly cancelled by the wall pushes \(-\lambda_i\mathbf a_i\)). The last one is <b>complementary slackness</b>: a wall is either untouched (\(\mathbf a_i^\top\x&lt;b_i\), so \(\lambda_i=0\)) or touched (equality holds and \(\lambda_i\) may be positive).</p>
   <p data-lang="zh"><b>有效集法</b>的想法：如果我们<b>猜对了</b>哪些约束有效（集合 \(W\)），问题就退化成只带等式约束的 QP，只需解一个线性方程组：</p>
   <p data-lang="en">The idea of the <b>active-set method</b>: if we <b>guess right</b> which constraints are active (the set \(W\)), the problem collapses to an equality-constrained QP, and that needs just one linear solve:</p>
   <div class="math-card">$$ \begin{bmatrix} H & A_W^\top \\ A_W & 0 \end{bmatrix} \begin{bmatrix} \x \\ \boldsymbol\lambda_W \end{bmatrix} = \begin{bmatrix} -\mathbf g \\ \mathbf b_W \end{bmatrix} $$</div>
@@ -267,14 +267,14 @@
     </div>
     <div class="fig-controls" id="gr-controls"></div>
     <figcaption class="fig-cap">
-      <span data-lang="zh">拖动圆周上的空心圆移动手指。橙色是外力（默认重力，向下），蓝色箭头是 QP 求出的接触力，浅色扇形是摩擦锥。每次拖动都在重新解一个 QP（OSQP 风格的 ADMM，400 次迭代）。若约束无法同时满足，约束违反量不会降为零，页面显示"无可行抓取"。</span>
-      <span data-lang="en">Drag the hollow circles around the rim to move the fingers. Amber is the external load (gravity by default, pointing down), blue arrows are the contact forces found by the QP, and the pale wedges are friction cones. Every drag re-solves a QP (OSQP-style ADMM, 400 iterations). If the constraints cannot all hold, the violation does not go to zero and the page reports "no feasible grasp".</span>
+      <span data-lang="zh">拖动圆周上的空心圆移动手指。橙色是外力（默认重力，向下），蓝色箭头是 QP 求出的接触力，青色扇形是摩擦锥。每次拖动都在重新解一个 QP（OSQP 风格的 ADMM，400 次迭代）。若约束无法同时满足，约束违反量不会降为零，页面显示"无可行抓取"。</span>
+      <span data-lang="en">Drag the hollow circles around the rim to move the fingers. Amber is the external load (gravity by default, pointing down), blue arrows are the contact forces found by the QP, and the cyan wedges are friction cones. Every drag re-solves a QP (OSQP-style ADMM, 400 iterations). If the constraints cannot all hold, the violation does not go to zero and the page reports "no feasible grasp".</span>
     </figcaption>
   </figure>
   <ul class="tasks">
-    <li data-task="gr-fail"><span><span data-lang="zh">用两个手指（默认对置），把摩擦系数 \(\mu\) 调小，直到<b>抓不住</b>。临界值大约是多少？（提示：每个手指要承担一半的重量。）</span><span data-lang="en">With two fingers (opposed by default), lower the friction coefficient \(\mu\) until the grasp <b>fails</b>. What is the critical value? (Hint: each finger carries half the weight.)</span></span></li>
+    <li data-task="gr-fail"><span><span data-lang="zh">用两个手指（默认对置），把摩擦系数 \(\mu\) 调小，直到<b>抓不住</b>。临界值大约是多少？（提示：外力大小为 1，默认 \(f_{\max}=6\)；每个手指的摩擦力要承担一半的重量，而法向力最多 \(f_{\max}\)。）</span><span data-lang="en">With two fingers (opposed by default), lower the friction coefficient \(\mu\) until the grasp <b>fails</b>. What is the critical value? (Hint: the load has magnitude 1 and \(f_{\max}=6\) by default; each finger's friction carries half the weight, while its normal force is at most \(f_{\max}\).)</span></span></li>
     <li data-task="gr-three"><span><span data-lang="zh">切换成三指，把 \(\mu\) 调到 0.1：现在<b>抓得住</b>了。哪个手指几乎没有出力？</span><span data-lang="en">Switch to three fingers with \(\mu=0.1\): the grasp <b>holds</b> now. Which finger is almost idle?</span></span></li>
-    <li data-task="gr-side"><span><span data-lang="zh">用两指，把外力方向转成水平：两个对置手指的法向力就能直接抵抗它，不再需要摩擦。</span><span data-lang="en">With two fingers, turn the load horizontal: the opposed normal forces resist it directly and friction is no longer needed.</span></span></li>
+    <li data-task="gr-side"><span><span data-lang="zh">用两指，把外力方向转成水平：外力所推向的那个手指只用法向力就能直接抵抗它，不再需要摩擦（另一个手指几乎不出力）。</span><span data-lang="en">With two fingers, turn the load horizontal: the finger the load pushes against resists it with a pure normal force, and friction is no longer needed (the other finger is almost idle).</span></span></li>
   </ul>
 
   <h3><span data-lang="zh">MPC：每个周期解一个 QP</span><span data-lang="en">MPC: one QP per control cycle</span></h3>
@@ -325,8 +325,8 @@
   </div>
   <div class="callout pitfall">
     <div class="ct"><span data-lang="zh">误区 2：\(H\) 不是半正定，却当 QP 用</span><span data-lang="en">Pitfall 2: using a QP solver when \(H\) is not positive semidefinite</span></div>
-    <p data-lang="zh">如果 \(H\) 有负特征值（比如由数值误差、或把 Hessian 近似写错造成），问题是<b>非凸</b>的：可能无界，也可能有多个局部最小。凸 QP 求解器遇到它可能报错、发散，或悄悄给出一个鞍点。排查办法是看 \(H\) 的最小特征值（1.11 节）；对最小二乘形式 \(M^\top M\) 则天然半正定，可以放心。</p>
-    <p data-lang="en">If \(H\) has a negative eigenvalue (from numerical error or a wrongly approximated Hessian) the problem is <b>nonconvex</b>: possibly unbounded, possibly with several local minima. A convex QP solver may error out, diverge, or quietly return a saddle point. Check the smallest eigenvalue of \(H\) (Lesson 1.11); an \(M^\top M\) from a least-squares form is positive semidefinite automatically.</p>
+    <p data-lang="zh">如果 \(H\) 有负特征值（比如由数值误差、或把 Hessian 近似写错造成），问题是<b>非凸</b>的：可能无界，也可能有多个局部最小。凸 QP 求解器遇到它可能报错、发散，或悄悄给出一个鞍点。排查办法是看 \(H\) 的最小特征值（<a href="1-11-eigen.html">1.11</a> 节）；对最小二乘形式 \(M^\top M\) 则天然半正定，可以放心。</p>
+    <p data-lang="en">If \(H\) has a negative eigenvalue (from numerical error or a wrongly approximated Hessian) the problem is <b>nonconvex</b>: possibly unbounded, possibly with several local minima. A convex QP solver may error out, diverge, or quietly return a saddle point. Check the smallest eigenvalue of \(H\) (Lesson <a href="1-11-eigen.html">1.11</a>); an \(M^\top M\) from a least-squares form is positive semidefinite automatically.</p>
   </div>
   <div class="callout pitfall">
     <div class="ct"><span data-lang="zh">误区 3：把有效约束当成"边界附近"</span><span data-lang="en">Pitfall 3: treating "active" as "near the boundary"</span></div>
@@ -335,8 +335,8 @@
   </div>
   <div class="callout pitfall">
     <div class="ct"><span data-lang="zh">误区 4：变量尺度悬殊，ADMM 收敛慢</span><span data-lang="en">Pitfall 4: wildly different scales make ADMM crawl</span></div>
-    <p data-lang="zh">ADMM 是一阶方法，和 6.3 节的梯度下降一样怕条件数。位置以米计、力以千牛计时，要先对变量和约束行做<b>缩放</b>（OSQP 内置了 Ruiz 平衡）。另外，ADMM 给的是中等精度解，约束违反量可能有 \(10^{-3}\)，对安全相关约束要留余量或做后处理。</p>
-    <p data-lang="en">ADMM is a first-order method and, like the gradient descent of Lesson 6.3, dislikes bad conditioning. If positions are in meters and forces in kilonewtons, <b>scale</b> variables and constraint rows first (OSQP does Ruiz equilibration internally). Also, ADMM returns a medium-accuracy answer whose constraint violation may be around \(10^{-3}\); for safety-critical constraints, leave a margin or polish the result.</p>
+    <p data-lang="zh">ADMM 是一阶方法，和 <a href="6-3-gradient-descent.html">6.3</a> 节的梯度下降一样怕条件数。位置以米计、力以千牛计时，要先对变量和约束行做<b>缩放</b>（OSQP 内置了 Ruiz 平衡）。另外，ADMM 给的是中等精度解，约束违反量可能有 \(10^{-3}\)，对安全相关约束要留余量或做后处理。</p>
+    <p data-lang="en">ADMM is a first-order method and, like the gradient descent of Lesson <a href="6-3-gradient-descent.html">6.3</a>, dislikes bad conditioning. If positions are in meters and forces in kilonewtons, <b>scale</b> variables and constraint rows first (OSQP does Ruiz equilibration internally). Also, ADMM returns a medium-accuracy answer whose constraint violation may be around \(10^{-3}\); for safety-critical constraints, leave a margin or polish the result.</p>
   </div>
 </section>
 
@@ -535,7 +535,7 @@ R101.onReady(function () {
     });
     P.handle({
       pos: () => [anchor[0] + AL * d[0], anchor[1] + AL * d[1]], color: 'v', r: 18,
-      set: w => { const u = M.normalize([w[0] - anchor[0], w[1] - anchor[1]]); d = u; },
+      set: w => { const u = M.normalize([w[0] - anchor[0], w[1] - anchor[1]]); d = u; sync(); },
       snap: w => {
         let u = M.normalize([w[0] - anchor[0], w[1] - anchor[1]]);
         const cs = cons(), vs = verts();
@@ -613,7 +613,7 @@ R101.onReady(function () {
       timer = setInterval(() => {
         const cur = walk.path[walk.path.length - 1];
         const nb = [(cur + 1) % n, (cur + n - 1) % n].sort((a, b) => cost(vs[a]) - cost(vs[b]))[0];
-        if (cost(vs[nb]) < cost(vs[cur]) - 1e-9) { walk.path.push(nb); P.invalidate(); }
+        if (cost(vs[nb]) < cost(vs[cur]) - 1e-9) { walk.path.push(nb); sync(); P.invalidate(); }
         else { stopWalk(); R101.done('lp-walk'); walk.done = true; sync(); P.invalidate(); }
       }, 650);
       P.invalidate();
@@ -632,7 +632,6 @@ R101.onReady(function () {
       }
       R101.tex(document.getElementById('lp-tex'), '\\min\\ \\mathbf c^\\top\\mathbf x,\\quad \\mathbf c=(' + M.tex(-d[0], 2) + ',\\,' + M.tex(-d[1], 2) + ')');
     }
-    setInterval(sync, 400);
     R101.on('lang', sync);
     sync(); check();
   })();
@@ -883,7 +882,7 @@ R101.onReady(function () {
       if (!plan) return;
       const nsat = plan.u.filter(u => Math.abs(u) > umax - 0.03).length;
       document.getElementById('mp-read').innerHTML = T('变量', 'variables') + ': <b>' + N + '</b><br>' + T('约束行', 'constraint rows') + ': <b>' + 2 * N + '</b><br>' + T('饱和的控制量', 'saturated inputs') + ': <b>' + nsat + '</b><br>' + T('约束违反量', 'violation') + ': ' + plan.viol.toExponential(1) + (running || ct > 0 ? '<br>' + T('闭环时间', 'closed-loop t') + ': <b>' + M.fmt(ct * dt, 1) + ' s</b>, p=' + M.fmt(cp, 2) : '');
-      R101.tex(document.getElementById('mp-tex'), '\\min_{u}\\sum_k (p_k-p_{\\rm ref})^2+r\\,u_k^2\\ \\ \\text{s.t.}\\ |u_k|\\le u_{\\max},\\ p_k\\le p_{\\max}');
+      R101.tex(document.getElementById('mp-tex'), '\\min_{u}\\sum_k \\big[(p_k-p_{\\rm ref})^2+r\\,u_k^2\\big]+q_v\\,v_N^2\\ \\ \\text{s.t.}\\ |u_k|\\le u_{\\max},\\ p_k\\le p_{\\max}');
       if (touched && ref > pmax + 0.4 && plan.ok && Math.abs(plan.pos[N] - pmax) < 0.15) R101.done('mp-wall');
     }
     R101.on('lang', sync);

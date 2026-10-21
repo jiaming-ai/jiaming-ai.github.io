@@ -121,7 +121,7 @@
 <section class="step" id="intuition">
   <h2><span class="n">2</span><span data-lang="zh">直觉：地球表面与"加不起来"的旋转</span></h2>
   <div data-lang="zh">
-    <p>地球表面是弯的，但你在城市里用平面地图就够了：小范围里，弯曲可以忽略。但如果你把"北京"和"旧金山"的经纬度<b>直接取平均</b>去找中点，得到的位置会落在地球<b>内部</b>：两点的连线（弦）穿过了地下。正确的中点要沿着球面走（测地线）。旋转的情形完全一样：旋转构成的空间是弯的，直接相加走的是"弦"，会穿出这个空间。</p>
+    <p>地球表面是弯的，但你在城市里用平面地图就够了：小范围里，弯曲可以忽略。但如果你把"北京"和"旧金山"的三维坐标 \((x, y, z)\)（以地心为原点）<b>直接取平均</b>去找中点，得到的位置会落在地球<b>内部</b>：两点的连线（弦）穿过了地下。正确的中点要沿着球面走（测地线）。旋转的情形完全一样：旋转构成的空间是弯的，直接相加走的是"弦"，会穿出这个空间。</p>
     <p>从最简单的平面旋转说起。每个平面旋转对应单位圆上的一个点 \((\cos\alpha, \sin\alpha)\)，旋转矩阵 \(R(\alpha)\) 的第一列就是这个点。下面拖动两个旋转 \(R_1\)、\(R_2\)，看看它们的"平均" \(\tfrac12(R_1 + R_2)\) 在哪里。</p>
   </div>
   
@@ -233,7 +233,7 @@
     </div>
     <div class="fig-controls" id="o-ctl"></div>
     <figcaption class="fig-cap">
-      <span data-lang="zh">青色点 \(z_i\) 是测量，琥珀点是它们的平均 \(\bar z\)（在圆内）。紫色轨迹：把圆当平面做普通梯度下降，每一步都离开了圆。绿色轨迹：在切线方向走步再贴回，始终在圆上，最后停在 \(\bar z\) 的方向。两条轨迹从同一个起点（白点，转角 0）出发。</span>
+      <span data-lang="zh">青色点 \(z_i\) 是测量，琥珀点是它们的平均 \(\bar z\)（在圆内）。紫色轨迹：把圆当平面做普通梯度下降，每一步都离开了圆。绿色轨迹：在切线方向走步再贴回，始终在圆上，最后停在 \(\bar z\) 的方向。两条轨迹从同一个起点（圆上 \((1, 0)\) 处的实心小点，转角 0）出发。</span>
       
     </figcaption>
   </figure>
@@ -290,7 +290,7 @@
     <tr><td>SO(2)</td><td><span data-lang="zh">圆</span></td><td>1</td><td><span data-lang="zh">是</span></td></tr>
     <tr><td>\(\SO\)</td><td><span data-lang="zh">半径 \(\pi\) 的球，表面对径点粘合</span></td><td>3</td><td><span data-lang="zh">否</span></td></tr>
     <tr><td>SE(2)</td><td><span data-lang="zh">圆 × 平面（乘法是"拧"在一起的）</span></td><td>3</td><td><span data-lang="zh">否</span></td></tr>
-    <tr><td>\(\SE\)</td><td>\(\SO \times \R^3\)</td><td>6</td><td><span data-lang="zh">否</span></td></tr>
+    <tr><td>\(\SE\)</td><td>\(\SO \times \R^3\)<span data-lang="zh">（乘法是"拧"在一起的）</span></td><td>6</td><td><span data-lang="zh">否</span></td></tr>
   </table></div>
 
   <h3><span data-lang="zh">单位元处的切空间：反对称矩阵</span></h3>
@@ -381,7 +381,7 @@
       <button class="opt"><span data-lang="zh">因为 \(\SO\) 对加法不封闭：和的列长度和夹角都会改变，行列式一般不是 1</span></button>
       <button class="opt"><span data-lang="zh">因为旋转矩阵可以交换</span></button>
     </div>
-    <div class="explain"><span data-lang="zh">矩阵加法当然有定义，但 \(\SO\) 是一个弯曲的集合，两个点的和（弦）不在集合里。例如 \(I + (-I) = 0\)。第三个选项也是错的：三维旋转一般不可交换。</span></div>
+    <div class="explain"><span data-lang="zh">矩阵加法当然有定义，但 \(\SO\) 是一个弯曲的集合，两个点的和（弦）不在集合里。例如 \(I + (-I) = 0\)。选项 C 也是错的：三维旋转一般不可交换。</span></div>
   </div>
 
   <div class="quiz" data-answer="2">
@@ -402,7 +402,7 @@
       <button class="opt"><span data-lang="zh">因为有 3 个坐标轴</span></button>
       <button class="opt"><span data-lang="zh">因为四元数有 4 个分量减 1</span></button>
     </div>
-    <div class="explain"><span data-lang="zh">第一项是定义性的算法；第三项虽然数字对（4 − 1 = 3），但它解释的是"单位四元数集合 \(S^3\) 的维数"，不是 \(R\T R = I\) 的计数，而且 \(S^3\) 只是 \(\SO\) 的双覆盖。</span></div>
+    <div class="explain"><span data-lang="zh">选项 A 是定义性的算法；选项 C 虽然数字对（4 − 1 = 3），但它解释的是"单位四元数集合 \(S^3\) 的维数"，不是 \(R\T R = I\) 的计数，而且 \(S^3\) 只是 \(\SO\) 的双覆盖。</span></div>
   </div>
 
   <div class="quiz" data-answer="1">

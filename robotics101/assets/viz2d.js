@@ -102,7 +102,7 @@
       if (pts.length < 2) return;
       const c = this.ctx;
       c.save();
-      c.strokeStyle = this.col(o.color || 'axis');
+      c.strokeStyle = this.col(o.color || o.stroke || 'axis');
       c.lineWidth = o.width || 1.5;
       c.globalAlpha = o.alpha != null ? o.alpha : 1;
       if (o.dash) c.setLineDash(o.dash);

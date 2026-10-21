@@ -195,8 +195,8 @@
     </div>
     <div class="fig-controls" id="k-ctl"></div>
     <figcaption class="fig-cap">
-      <span data-lang="zh">灰色是世界系 W，三角形是底盘系 B，青色扇形是相机系 C 的视野（±35°，6 米）。杯子在视野内时扇形变绿。位姿用 \((x, y, \theta)\) 表示：平面里的 \(R_{WB}\) 只由一个角 \(\theta\) 决定。选"错误顺序"会多画一个红色的 \(T_{BC}\,T_{WB}\)：乘反了，相机就跑到了别处。</span>
-      <span data-lang="en">Grey is the world frame W, the triangle is the base frame B, and the cyan wedge is the field of view of the camera frame C (±35°, 6 m); it turns green when the cup is inside. A pose is written \((x, y, \theta)\): in the plane \(R_{WB}\) is fixed by the single angle \(\theta\). "Wrong order" also draws a red \(T_{BC}\,T_{WB}\): multiply the wrong way round and the camera ends up somewhere else.</span>
+      <span data-lang="zh">原点处的小坐标系是世界系 W（标签为灰色），三角形是底盘系 B，青色扇形是相机系 C 的视野（±35°，6 米）。杯子在视野内时扇形变绿。位姿用 \((x, y, \theta)\) 表示：平面里的 \(R_{WB}\) 只由一个角 \(\theta\) 决定。选"错误顺序"会多画一个红色的 \(T_{BC}\,T_{WB}\)：乘反了，相机就跑到了别处。</span>
+      <span data-lang="en">The small frame at the origin (grey label) is the world frame W, the triangle is the base frame B, and the cyan wedge is the field of view of the camera frame C (±35°, 6 m); it turns green when the cup is inside. A pose is written \((x, y, \theta)\): in the plane \(R_{WB}\) is fixed by the single angle \(\theta\). "Wrong order" also draws a red \(T_{BC}\,T_{WB}\): multiply the wrong way round and the camera ends up somewhere else.</span>
     </figcaption>
   </figure>
   <div class="tasks-title"><span data-lang="zh">试一试</span><span data-lang="en">Try this</span></div>
@@ -233,8 +233,8 @@
     </div>
     <div class="fig-controls" id="o-ctl"></div>
     <figcaption class="fig-cap">
-      <span data-lang="zh">灰色是起点 A。琥珀色是右乘的结果 \(A\Delta\)（在 A 自己的坐标系里动），紫色是左乘的结果 \(\Delta A\)（在世界系里动）。用三个滑块设定 \(\Delta = (\Delta x, \Delta y, \Delta\theta)\)。当 A 在世界原点时两者重合，A 离原点越远差别越大。</span>
-      <span data-lang="en">Grey is the start A. Amber is the right-multiplied result \(A\Delta\) (moving in A's own frame) and purple the left-multiplied result \(\Delta A\) (moving in the world frame). Set \(\Delta = (\Delta x, \Delta y, \Delta\theta)\) with the three sliders. When A is at the world origin the two coincide; the farther A is from the origin, the more they differ.</span>
+      <span data-lang="zh">灰色是起点 A。琥珀色是右乘的结果 \(A\Delta\)（在 A 自己的坐标系里动），紫色是左乘的结果 \(\Delta A\)（在世界系里动）。用三个滑块设定 \(\Delta = (\Delta x, \Delta y, \Delta\theta)\)。当 A 是单位位姿（在世界原点、车头朝世界 \(+x\)）时两者重合；A 离原点越远、或车头偏得越多，差别越大。</span>
+      <span data-lang="en">Grey is the start A. Amber is the right-multiplied result \(A\Delta\) (moving in A's own frame) and purple the left-multiplied result \(\Delta A\) (moving in the world frame). Set \(\Delta = (\Delta x, \Delta y, \Delta\theta)\) with the three sliders. When A is the identity (at the world origin, facing world \(+x\)) the two coincide; the farther A is from the origin, or the more it is turned, the more they differ.</span>
     </figcaption>
   </figure>
   <div class="tasks-title"><span data-lang="zh">试一试</span><span data-lang="en">Try this</span></div>
@@ -288,7 +288,7 @@
   <h2><span class="n">5</span><span data-lang="zh">机器人中的它：移动操作机器人的 tf 树</span><span data-lang="en">In robotics: the tf tree of a mobile manipulator</span></h2>
   <div data-lang="zh">
     <p>下面是一台简化的移动操作机器人：底盘 B 在世界 W 里，头上装着相机 C，肩部 S、肘部 E、夹爪 G 组成一条手臂，桌上有一只杯子 O。树里每条边存一个相对父坐标系的位姿，其中底盘位姿来自里程计 / 定位，肩、肘位姿由关节角算出，杯子是（相机检测、世界系里固定的）一个静态位姿。</p>
-    <p>从下面选两个坐标系 A 和 B，页面会沿树找出路径，把边上的位姿连乘（或求逆）出 \(T_{AB}\)。抓取的核心是 \(T_{GO}\)：杯子在夹爪系里的位姿。它为 0 时手就在杯子上了。</p>
+    <p>从下面选两个坐标系 A 和 B，页面会沿树找出路径，把边上的位姿连乘（或求逆）出 \(T_{AB}\)。抓取的核心是 \(T_{GO}\)：杯子在夹爪系里的位姿。它的平移部分为 0 时，手就在杯子上了。</p>
   </div>
   <div data-lang="en">
     <p>Here is a simplified mobile manipulator: the base B in the world W, a camera C on its head, a shoulder S, elbow E and gripper G forming an arm, and a cup O on the table. Each edge of the tree stores a pose relative to the parent frame. The base pose comes from odometry or localisation, the shoulder and elbow poses are computed from the joint angles, and the cup is a static pose fixed in the world (as detected by the camera).</p>
@@ -338,8 +338,8 @@
   </div>
   <div class="callout pitfall">
     <div class="ct"><span data-lang="zh">误区 2：左乘右乘随便用</span><span data-lang="en">Pitfall 2: using left and right multiplication interchangeably</span></div>
-    <p data-lang="zh">"向前走 1 米"是在机器人自己的坐标系里说的，要<b>右乘</b>；"把整个机器人在世界里向东平移 1 米"是在世界系里说的，要<b>左乘</b>。只有机器人恰好在世界原点（或 \(\Delta\) 与 \(A\) 可交换）时，两者才相等（FIG 3）。判断办法：问一句，这个增量是谁的坐标系里的读数？</p>
-    <p data-lang="en">"Drive forward 1 m" is stated in the robot's own frame and needs a <b>right</b> multiplication; "shift the whole robot 1 m east in the world" is stated in the world frame and needs a <b>left</b> one. They agree only if the robot happens to sit at the world origin (or \(\Delta\) commutes with \(A\)) (FIG 3). To decide, ask: in whose frame is this increment expressed?</p>
+    <p data-lang="zh">"向前走 1 米"是在机器人自己的坐标系里说的，要<b>右乘</b>；"把整个机器人在世界里向东平移 1 米"是在世界系里说的，要<b>左乘</b>。只有机器人的位姿恰好是单位位姿（在世界原点、车头朝世界 \(+x\)），或 \(\Delta\) 与 \(A\) 可交换时，两者才相等（FIG 3）。判断办法：问一句，这个增量是谁的坐标系里的读数？</p>
+    <p data-lang="en">"Drive forward 1 m" is stated in the robot's own frame and needs a <b>right</b> multiplication; "shift the whole robot 1 m east in the world" is stated in the world frame and needs a <b>left</b> one. They agree only if the robot's pose happens to be the identity (at the world origin, facing world \(+x\)), or \(\Delta\) commutes with \(A\) (FIG 3). To decide, ask: in whose frame is this increment expressed?</p>
   </div>
   <div class="callout pitfall">
     <div class="ct"><span data-lang="zh">误区 3：以为所有"相机坐标系"都一样</span><span data-lang="en">Pitfall 3: assuming all "camera frames" are the same</span></div>
@@ -408,7 +408,7 @@
       <button class="opt"><span data-lang="zh">\(\Delta\,A\)，\(\Delta\) 是前进 1 米的位姿</span><span data-lang="en">\(\Delta\,A\), with \(\Delta\) the "forward 1 m" pose</span></button>
       <button class="opt"><span data-lang="zh">\(A^{-1}\Delta\)</span><span data-lang="en">\(A^{-1}\Delta\)</span></button>
     </div>
-    <div class="explain"><span data-lang="zh">增量是机器人自己坐标系里的读数，所以右乘：\(A\Delta\)。\(\Delta A\) 会让机器人沿世界 \(x\) 轴走 1 米，并且把位置绕世界原点转一转。</span><span data-lang="en">The increment is stated in the robot's own frame, so right-multiply: \(A\Delta\). \(\Delta A\) would move the robot 1 m along the world \(x\) axis and swing its position about the world origin.</span></div>
+    <div class="explain"><span data-lang="zh">增量是机器人自己坐标系里的读数，所以右乘：\(A\Delta\)。\(\Delta A\) 会让机器人沿世界 \(x\) 轴走 1 米，不管车头朝哪。</span><span data-lang="en">The increment is stated in the robot's own frame, so right-multiply: \(A\Delta\). \(\Delta A\) would move the robot 1 m along the world \(x\) axis, whichever way it faces.</span></div>
   </div>
 </section>
 

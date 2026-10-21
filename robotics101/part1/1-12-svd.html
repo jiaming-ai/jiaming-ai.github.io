@@ -221,8 +221,8 @@
     </div>
     <div class="fig-controls" id="lab-controls"></div>
     <figcaption class="fig-cap">
-      <span data-lang="zh">黄色箭头从 \(\cv{\mathbf v_1}\) 出发，在第 ① 步结束时正好躺在 x 轴上，第 ② 步被拉长到 \(\sigma_1\)，第 ③ 步转到 \(\sigma_1\cv{\mathbf u_1}\)；紫色箭头 \(\cw{\mathbf v_2}\) 同理。红绿箭头是 \(\ihat, \jhat\) 被带去的位置，最后正好是 \(A\) 的两列。下方公式里，\(U\) 的两列和 \(V^\top\) 的两行按同样的颜色标出。</span>
-      <span data-lang="en">The amber arrow starts as \(\cv{\mathbf v_1}\), lies exactly on the x-axis at the end of step ①, is stretched to length \(\sigma_1\) in step ②, and is turned onto \(\sigma_1\cv{\mathbf u_1}\) in step ③; the purple \(\cw{\mathbf v_2}\) does the same. The red and green arrows carry \(\ihat, \jhat\) along and end up as the two columns of \(A\). In the formula below, the columns of \(U\) and the rows of \(V^\top\) use the same colors.</span>
+      <span data-lang="zh">黄色箭头从 \(\cv{\mathbf v_1}\) 出发，在第 ① 步结束时正好躺在 x 轴上（图中标作 \(\mathbf e_1\)，即 x 方向的单位向量；\(\mathbf e_2\) 是 y 方向），第 ② 步被拉长到 \(\sigma_1\)，第 ③ 步转到 \(\sigma_1\cv{\mathbf u_1}\)；紫色箭头 \(\cw{\mathbf v_2}\) 同理。红绿箭头是 \(\ihat, \jhat\) 被带去的位置，最后正好是 \(A\) 的两列。下方公式里，\(U\) 的两列和 \(V^\top\) 的两行按同样的颜色标出。</span>
+      <span data-lang="en">The amber arrow starts as \(\cv{\mathbf v_1}\), lies exactly on the x-axis at the end of step ① (labelled \(\mathbf e_1\), the unit vector along x; \(\mathbf e_2\) is along y), is stretched to length \(\sigma_1\) in step ②, and is turned onto \(\sigma_1\cv{\mathbf u_1}\) in step ③; the purple \(\cw{\mathbf v_2}\) does the same. The red and green arrows carry \(\ihat, \jhat\) along and end up as the two columns of \(A\). In the formula below, the columns of \(U\) and the rows of \(V^\top\) use the same colors.</span>
     </figcaption>
   </figure>
 
@@ -337,9 +337,9 @@
   <h3><span data-lang="zh">定义</span><span data-lang="en">Definition</span></h3>
   <p data-lang="zh">任意一个 \(m\times n\) 的实矩阵 \(A\)（不必是方阵，不必可逆）都可以写成</p>
   <p data-lang="en">Any real \(m\times n\) matrix \(A\) (not necessarily square, not necessarily invertible) can be written as</p>
-  <div class="math-card">$$ A = \hl{U}{U}\,\hl{S}{\Sigma}\,\hl{Vt}{V^\top}, \qquad U \in \R^{m\times m},\;\; V\in\R^{n\times n} \text{ orthogonal},\qquad \Sigma = \operatorname{diag}(\sigma_1,\dots,\sigma_p) \in \R^{m\times n}, $$
+  <div class="math-card">$$ A = \hl{U}{U}\,\hl{S}{\Sigma}\,\hl{Vt}{V^\top}, \qquad U \in \R^{m\times m},\;\; V\in\R^{n\times n},\qquad \Sigma = \operatorname{diag}(\sigma_1,\dots,\sigma_p) \in \R^{m\times n}, $$
   $$ \sigma_1 \ge \sigma_2 \ge \dots \ge \sigma_p \ge 0, \qquad p = \min(m, n). $$</div>
-  <p data-lang="zh">\(U\) 和 \(V\) 是 1.10 节的正交矩阵：列向量两两垂直、长度为 1，作用是旋转（可能带镜像）。\(\Sigma\) 只在对角线上有数。把 \(AV = U\Sigma\) 一列一列地写出来，就回到了 FIG 1 的发现：</p>
+  <p data-lang="zh">其中 \(U\) 和 \(V\) 是 1.10 节的正交矩阵：列向量两两垂直、长度为 1，作用是旋转（可能带镜像）。\(\Sigma\) 只在对角线上有数。把 \(AV = U\Sigma\) 一列一列地写出来，就回到了 FIG 1 的发现：</p>
   <p data-lang="en">\(U\) and \(V\) are orthogonal matrices from Lesson 1.10: orthonormal columns, acting as rotations (possibly with a mirror). \(\Sigma\) has entries only on its diagonal. Write \(AV = U\Sigma\) one column at a time and you recover the discovery of FIG 1:</p>
   <div class="math-card">$$ A\,\hl{v1}{\cv{\mathbf v_1}} = \hl{s1}{\sigma_1}\,\hl{u1}{\cv{\mathbf u_1}}, \quad A\,\hl{v2}{\cw{\mathbf v_2}} = \hl{s2}{\sigma_2}\,\hl{u2}{\cw{\mathbf u_2}}, \quad \dots,\quad A\mathbf v_i = \sigma_i\mathbf u_i. $$</div>
 
@@ -451,8 +451,8 @@
   </div>
   <div class="callout robot">
     <div class="ct"><span data-lang="zh">真实系统里</span><span data-lang="en">In real systems</span></div>
-    <p data-lang="zh">Yoshikawa 可操作度 \(w = \sqrt{\det(JJ^\top)} = \sigma_1\sigma_2\cdots\) 常被用作运动规划的代价项，让机械臂远离奇异位形。实时逆运动学求解器会监控 \(\sigma_{\min}\)：它一变小，\(J^{-1}\) 就会要求巨大的关节速度，所以要改用<b>阻尼最小二乘</b>，把 \(1/\sigma\) 换成 \(\sigma/(\sigma^2+\lambda^2)\)（1.13 节和 3.6 节）。</p>
-    <p data-lang="en">Yoshikawa's manipulability \(w = \sqrt{\det(JJ^\top)} = \sigma_1\sigma_2\cdots\) is a common cost term in motion planning to keep an arm away from singularities. Real-time inverse kinematics solvers watch \(\sigma_{\min}\): as it shrinks, \(J^{-1}\) demands huge joint speeds, so they switch to <b>damped least squares</b>, replacing \(1/\sigma\) with \(\sigma/(\sigma^2+\lambda^2)\) (Lessons 1.13 and 3.6).</p>
+    <p data-lang="zh">Yoshikawa 可操作度 \(w = \sqrt{\det(JJ^\top)} = \sigma_1\sigma_2\cdots\) 常被用作运动规划的代价项，让机械臂远离奇异位形。实时逆运动学求解器会监控 \(\sigma_{\min}\)：它一变小，\(J^{-1}\) 就会要求巨大的关节速度，所以要改用<b>阻尼最小二乘</b>，把 \(1/\sigma\) 换成 \(\sigma/(\sigma^2+\lambda^2)\)（1.13 节和 3.4 节）。</p>
+    <p data-lang="en">Yoshikawa's manipulability \(w = \sqrt{\det(JJ^\top)} = \sigma_1\sigma_2\cdots\) is a common cost term in motion planning to keep an arm away from singularities. Real-time inverse kinematics solvers watch \(\sigma_{\min}\): as it shrinks, \(J^{-1}\) demands huge joint speeds, so they switch to <b>damped least squares</b>, replacing \(1/\sigma\) with \(\sigma/(\sigma^2+\lambda^2)\) (Lessons 1.13 and 3.4).</p>
   </div>
 
   <h3><span data-lang="zh">点云 PCA：法向量和主轴</span><span data-lang="en">Point-cloud PCA: normals and main axes</span></h3>
@@ -660,12 +660,16 @@ R101.onReady(function () {
       Uc[j] = best;
     }
     const Vc = r.V.map(v => Array.from(v));
+    // a u_j with σ_j = 0 is free in sign: use it to keep U a pure rotation when A is singular
+    const nullJ = r.S.findIndex(x => x <= tol);
     let out = null;
     for (let mask = 0; mask < 8; mask++) {
       const sg = [mask & 1 ? -1 : 1, mask & 2 ? -1 : 1, mask & 4 ? -1 : 1];
       const V = fromCols(Vc.map((v, j) => M.scale(v, sg[j])));
       if (M.det3(V) < 0) continue;
-      const U = fromCols(Uc.map((u, j) => M.scale(u, sg[j])));
+      let ucols = Uc.map((u, j) => M.scale(u, sg[j]));
+      if (nullJ >= 0 && M.det3(fromCols(ucols)) < 0) ucols[nullJ] = M.scale(ucols[nullJ], -1);
+      const U = fromCols(ucols);
       const refl = M.det3(U) < 0, Ur = refl ? M.mul(U, diag([1, 1, -1])) : U;
       const cost = rotAngle3(M.T(V)) + rotAngle3(Ur);
       if (!out || cost < out.cost - 1e-9) out = { cost, U, V, Vt: M.T(V), Ur, refl };
@@ -690,7 +694,7 @@ R101.onReady(function () {
   }).join(' & ')).join(' \\\\ ') + '\\end{bmatrix}';
   const SVC = ['cv', 'cw', 'cx'];               // colors of the 1st/2nd/3rd singular triplet in TeX
   const SVN = ['v', 'w', 'x'];                  // ... and on canvases
-  const fmtK = k => (isFinite(k) && k < 1e6 ? M.fmt(k, k < 100 ? 2 : 0) : '∞');
+  const fmtK = k => (isNaN(k) ? '—' : isFinite(k) && k < 1e6 ? M.fmt(k, k < 100 ? 2 : 0) : '∞');
   const deg = a => M.fmt(a / D2R, 1) + '°';
 
   // pixel-space drawing helpers on a Plane2D canvas
@@ -891,7 +895,7 @@ R101.onReady(function () {
         `\\underbrace{${texM(sv.Vt, i => SVC[i])}}_{V^\\top:\\ \\text{${t('旋转', 'rotate')} } ${M.tex(sv.theta / D2R, 1)}^\\circ}`);
       showStage();
       const [s1, s2] = sv.S, off = Math.abs(A[0][1]) + Math.abs(A[1][0]);
-      if (s1 - s2 < 0.03 && Math.abs(s1 - 1) > 0.2) R101.done('circle');
+      if (s1 - s2 < 0.03 && s2 > 0.1 && Math.abs(s1 - 1) > 0.2) R101.done('circle');
       if (off > 0.3 && M.norm(M.sub(sv.U[0].concat(sv.U[1]), sv.V[0].concat(sv.V[1]))) < 0.05) R101.done('sym');
       P.invalidate();
     }
@@ -912,7 +916,8 @@ R101.onReady(function () {
     ];
     const ph = document.getElementById('lab-presets');
     presets.forEach(([zh, en, B]) => ui.button(ph, { zh, en, cls: 'sm', onClick: () => {
-      animateTo(B || [[0, 0], [0, 0]].map(r => r.map(() => Math.round((Math.random() * 4 - 2) * 2) / 2)));
+      let R; do R = [[0, 0], [0, 0]].map(r => r.map(() => Math.round((Math.random() * 4 - 2) * 2) / 2)); while (!M.det2(R));
+      animateTo(B || R);
     } }));
     R101.on('lang', sync);
     sync();
@@ -943,7 +948,7 @@ R101.onReady(function () {
     const read = document.getElementById('hc-read');
     function sync() {
       sv = svd2n(A);
-      const [s1, s2] = sv.S, rank = (s1 > TOL) + (s2 > TOL), k = s2 > 1e-12 ? s1 / s2 : Infinity;
+      const [s1, s2] = sv.S, rank = (s1 > TOL) + (s2 > TOL), k = s1 < 1e-12 ? NaN : s2 > 1e-12 ? s1 / s2 : Infinity;
       const kc = !isFinite(k) || k > 100 ? 'bad' : k > 10 ? 'v' : 'good';
       const verdict = rank < 2 ? L('不可逆：一个方向被压没了', 'not invertible: a direction is gone') : k > 100 ? L('病态：接近奇异', 'ill-conditioned: nearly singular') : k > 10 ? L('偏扁：需要小心', 'flattish: be careful') : L('健康', 'healthy');
       read.innerHTML =
@@ -956,7 +961,7 @@ R101.onReady(function () {
       P.invalidate(); B.invalidate();
     }
     const box = document.getElementById('hc-presets');
-    [['健康', 'Healthy', [[1.6, 0.4], [0.3, 1.1]]], ['病态', 'Ill-conditioned', [[1.5, 1.3], [0.9, 0.9]]], ['正交', 'Orthogonal', [[0.8, -1.2], [1.2, 0.8]]]].forEach(([zh, en, T]) =>
+    [['健康', 'Healthy', [[1.6, 0.4], [0.3, 1.1]]], ['病态', 'Ill-conditioned', [[1.5, 1.3], [0.9, 0.9]]], ['正交', 'Orthogonal', [[0.6, -0.8], [0.8, 0.6]]]].forEach(([zh, en, T]) =>
       ui.button(box, { zh, en, cls: 'sm', onClick: () => { const from = A.map(r => r.slice()); R101.animate(600, e => { A = M.lerpM(from, T, e); sync(); }); } }));
     R101.on('lang', sync);
     sync();
@@ -1099,7 +1104,7 @@ R101.onReady(function () {
       sv = svd3(A); ed.set(A);
       const S = sv.S, tol = 0.02, rank = S.filter(x => x > tol).length;
       readEl.innerHTML = S.map((x, i) => `<b style="color:var(--c-${SVN[i]})">σ${'₁₂₃'[i]} = ${M.fmt(x, 2)}</b>`).join('<br>') +
-        `<br>${L('秩', 'rank')} = <b>${rank}</b> · κ = <b>${fmtK(S[2] > 1e-12 ? S[0] / S[2] : Infinity)}</b>` +
+        `<br>${L('秩', 'rank')} = <b>${rank}</b> · κ = <b>${fmtK(S[0] < 1e-12 ? NaN : S[2] > 1e-12 ? S[0] / S[2] : Infinity)}</b>` +
         `<br>det A = ${M.fmt(M.det3(A), 3)}${sv.refl ? ` · <span style="color:var(--c-j)">${L('U 含镜像', 'U has a mirror')}</span>` : ''}`;
       R101.tex(texEl, `A = \\underbrace{${texM(sv.U, (i, j) => SVC[j])}}_{U} \\underbrace{${texM(diag(S), (i, j) => (i === j ? SVC[i] : null))}}_{\\Sigma} \\underbrace{${texM(sv.Vt, i => SVC[i])}}_{V^\\top}`);
       showStage(); V3.invalidate();
@@ -1258,7 +1263,7 @@ R101.onReady(function () {
       compute();
       const { S, err } = res, sd = S.map(s => s / Math.sqrt(N));
       const which = mode === 'plane' ? L('法向量 = v₃', 'normal = v₃') : L('主轴 = v₁', 'main axis = v₁');
-      read.innerHTML = `${L('标准差', 'std. dev.')} σᵢ/√N<br>` +
+      read.innerHTML = `${L('标准差', 'std. dev.')} σᵢ/√N: ${sd.map(x => M.fmt(x, 2)).join(', ')}<br>` +
         `${which}<br>${L('与真值夹角', 'angle to truth')} <b style="color:var(--c-${err < 5 * D2R ? 'good' : err < 20 * D2R ? 'v' : 'bad'})">${deg(err)}</b><br>` +
         (mode === 'plane' ? `σ₃/σ₂ = <b>${M.fmt(sd[2] / sd[1], 2)}</b> ${sd[2] / sd[1] > 0.6 ? `<span style="color:var(--c-bad)">${L('已经不平了', 'not flat any more')}</span>` : ''}` : `σ₂/σ₁ = <b>${M.fmt(sd[1] / sd[0], 2)}</b>`);
       if (mode === 'plane' && err > 20 * D2R) R101.done('pcafail');

@@ -138,7 +138,7 @@
     <div class="fig-controls" id="w-ctl-w"></div>
     <div class="fig-controls" id="w-ctl-p"></div>
     <figcaption class="fig-cap">
-      <span data-lang="zh">琥珀色粗箭头是 \(\boldsymbol\omega\)（转轴，长度正比于转速）。青色小箭头是格点处的速度 \(\boldsymbol\omega\times\mathbf p\)；紫色点和箭头是你用 \(\mathbf p\) 滑块选的测试点。矩阵 \(\skew{\boldsymbol\omega}\) 里，红、绿、蓝依次来自 \(\omega_1, \omega_2, \omega_3\)，正负号和位置固定：对角线是 0，且关于对角线反对称。</span>
+      <span data-lang="zh">紫色粗箭头是 \(\boldsymbol\omega\)（转轴，长度正比于转速）。青色小箭头是格点处的速度 \(\boldsymbol\omega\times\mathbf p\)；不带颜色的圆点和箭头是你用 \(\mathbf p\) 滑块选的测试点及其速度。矩阵 \(\skew{\boldsymbol\omega}\) 里，红、绿、蓝依次来自 \(\omega_1, \omega_2, \omega_3\)，正负号和位置固定：对角线是 0，且关于对角线反对称。</span>
       
     </figcaption>
   </figure>
@@ -182,7 +182,7 @@
     </div>
     <div class="fig-controls" id="c-ctl"></div>
     <figcaption class="fig-cap">
-      <span data-lang="zh">琥珀色箭头是物理上的角速度矢量（只有一个）。浅色细线是它在世界轴（红绿蓝虚线）和在机体轴（实线）上的分量，分别对应 \(\boldsymbol\omega_s\) 和 \(\boldsymbol\omega_b\) 的三个读数。青色细线是机体的 \(x\) 轴尖端走过的轨迹。右侧第三行检查两件事：\(R\T\dot R\) 的对称部分确实是 0（数值误差内），以及 \(\boldsymbol\omega_s = R\boldsymbol\omega_b\)。</span>
+      <span data-lang="zh">紫色箭头是物理上的角速度矢量（只有一个）。浅色细线是它在世界轴（红绿蓝虚线）和在机体轴（实线）上的分量，分别对应 \(\boldsymbol\omega_s\) 和 \(\boldsymbol\omega_b\) 的三个读数。青色细线是机体的 \(x\) 轴尖端走过的轨迹。右侧第三行检查两件事：\(R\T\dot R\) 的对称部分确实是 0（数值误差内），以及 \(\boldsymbol\omega_s = R\boldsymbol\omega_b\)。</span>
       
     </figcaption>
   </figure>
@@ -241,7 +241,7 @@
     <div class="fig-controls" id="t-ctl-v"></div>
     <div class="fig-controls" id="t-ctl-p"></div>
     <figcaption class="fig-cap">
-      <span data-lang="zh">青色小箭头是各个格点的速度 \(\boldsymbol\omega\times\mathbf p + \mathbf v\)。琥珀色是 \(\boldsymbol\omega\)，紫色虚线是"螺旋轴"：当 \(\boldsymbol\omega\ne0\) 时，轴上最近原点的点是 \(\mathbf q = \boldsymbol\omega\times\mathbf v/\|\boldsymbol\omega\|^2\)，轴上的点只沿轴方向运动。琥珀色小箭头从原点指出 \(\mathbf v\)。</span>
+      <span data-lang="zh">青色小箭头是各个格点的速度 \(\boldsymbol\omega\times\mathbf p + \mathbf v\)。紫色箭头是 \(\boldsymbol\omega\)，紫色虚线是"螺旋轴"：当 \(\boldsymbol\omega\ne0\) 时，轴上最近原点的点是 \(\mathbf q = \boldsymbol\omega\times\mathbf v/\|\boldsymbol\omega\|^2\)，轴上的点只沿轴方向运动。琥珀色小箭头从原点指出 \(\mathbf v\)。</span>
       
     </figcaption>
   </figure>
@@ -258,7 +258,7 @@
   <p class="hl-hint"><span data-lang="zh">提示：把鼠标悬停在公式中带底色的符号上，FIG 1 或 FIG 4 中对应的量会被高亮。</span></p>
 
   <h3><span data-lang="zh">hat 与 vee（\(\so\)）</span></h3>
-  <div class="math-card">$$ \hl{w}{\cv{\boldsymbol\omega}} = \begin{bmatrix}\omega_1\\\omega_2\\\omega_3\end{bmatrix}\ \xrightarrow{\ (\cdot)^\wedge\ }\ \boldsymbol\omega^\wedge = \skew{\boldsymbol\omega} = \begin{bmatrix} 0 & -\omega_3 & \omega_2 \\ \omega_3 & 0 & -\omega_1 \\ -\omega_2 & \omega_1 & 0 \end{bmatrix}, \qquad \Omega^\vee = (\Omega_{32},\ \Omega_{13},\ \Omega_{21}), \qquad \skew{\boldsymbol\omega}\,\hl{p}{\mathbf p} = \boldsymbol\omega\times\mathbf p. $$</div>
+  <div class="math-card">$$ \hl{w}{\cw{\boldsymbol\omega}} = \begin{bmatrix}\omega_1\\\omega_2\\\omega_3\end{bmatrix}\ \xrightarrow{\ (\cdot)^\wedge\ }\ \boldsymbol\omega^\wedge = \skew{\boldsymbol\omega} = \begin{bmatrix} 0 & -\omega_3 & \omega_2 \\ \omega_3 & 0 & -\omega_1 \\ -\omega_2 & \omega_1 & 0 \end{bmatrix}, \qquad \Omega^\vee = (\Omega_{32},\ \Omega_{13},\ \Omega_{21}), \qquad \skew{\boldsymbol\omega}\,\hl{p}{\mathbf p} = \boldsymbol\omega\times\mathbf p. $$</div>
   <p data-lang="zh">\(\so = \{\Omega \in \R^{3\times3} : \Omega\T = -\Omega\}\) 是所有反对称矩阵的集合，是一个 3 维的向量空间，hat 与 vee 是它与 \(\R^3\) 之间的线性同构。（本课程、<i>Modern Robotics</i>、Barfoot 都用这个符号，Solà 的 micro Lie theory 写作 \([\boldsymbol\omega]_\times\)；约定一致。）</p>
   
 
@@ -280,12 +280,12 @@
   <p data-lang="zh">证明用雅可比恒等式 \(\mathbf a\times(\mathbf b\times\mathbf x) - \mathbf b\times(\mathbf a\times\mathbf x) = (\mathbf a\times\mathbf b)\times\mathbf x\)（对任意 \(\mathbf x\) 成立，把它写成矩阵形式就是上式）。李括号还有一个更几何的含义，就是 FIG 3：群的换位子 \(e^{\mathbf a}e^{\mathbf b}e^{-\mathbf a}e^{-\mathbf b} = \exp\big([\mathbf a, \mathbf b] + O(\varepsilon^3)\big)\)。\(\se\) 的李括号为</p>
   
   <div class="math-card">$$ \big[\boldsymbol\xi_1^\wedge,\ \boldsymbol\xi_2^\wedge\big]^\vee = \begin{bmatrix}\boldsymbol\omega_1\times\boldsymbol\omega_2\\ \boldsymbol\omega_1\times\mathbf v_2 - \boldsymbol\omega_2\times\mathbf v_1\end{bmatrix} = \underbrace{\begin{bmatrix}\skew{\boldsymbol\omega_1} & \mathbf 0\\ \skew{\mathbf v_1} & \skew{\boldsymbol\omega_1}\end{bmatrix}}_{\operatorname{ad}_{\boldsymbol\xi_1}}\boldsymbol\xi_2. $$</div>
-  <p data-lang="zh">这个 \(6\times6\) 矩阵 \(\operatorname{ad}_{\boldsymbol\xi}\) 叫李括号的矩阵形式（"小伴随"），5.8 节的伴随 Ad 是它的指数版本。这里的分块顺序对应 \((\boldsymbol\omega, \mathbf v)\)；若换成平移在前，两个分块行要对调。</p>
+  <p data-lang="zh">这个 \(6\times6\) 矩阵 \(\operatorname{ad}_{\boldsymbol\xi}\) 叫李括号的矩阵形式（"小伴随"），5.8 节的伴随 Ad 是它的指数版本。这里的分块顺序对应 \((\boldsymbol\omega, \mathbf v)\)；若换成平移在前，分块的行和列都要对调，得到 \(\begin{bmatrix}\skew{\boldsymbol\omega_1} & \skew{\mathbf v_1}\\ \mathbf 0 & \skew{\boldsymbol\omega_1}\end{bmatrix}\)。</p>
   
 
   <h3><span data-lang="zh">\(\se\) 的 hat、生成元与 se(2)</span></h3>
   <div class="math-card">$$ \boldsymbol\xi = \begin{bmatrix}\boldsymbol\omega\\ \hl{v}{\mathbf v}\end{bmatrix}\xrightarrow{\ (\cdot)^\wedge\ }\boldsymbol\xi^\wedge = \begin{bmatrix}\skew{\boldsymbol\omega} & \mathbf v\\ \mathbf 0\T & 0\end{bmatrix},\qquad \boldsymbol\xi^\wedge\begin{bmatrix}\mathbf p\\1\end{bmatrix} = \begin{bmatrix}\boldsymbol\omega\times\mathbf p + \mathbf v\\ 0\end{bmatrix}, \qquad \mathrm{se}(2):\ \boldsymbol\xi = \begin{bmatrix}\omega\\ v_x\\ v_y\end{bmatrix}\mapsto\begin{bmatrix}0&-\omega&v_x\\ \omega&0&v_y\\0&0&0\end{bmatrix}. $$</div>
-  <p data-lang="zh">\(\se\) 有 6 个生成元：三个转动 \(\begin{bmatrix}G_i&\mathbf 0\\\mathbf 0\T&0\end{bmatrix}\)，三个平移 \(\begin{bmatrix}0&\hat{\mathbf e}_i\\\mathbf 0\T&0\end{bmatrix}\)，所以它是 6 维的，与 \(\SE\) 的维数相同（5.4 节）。群的切向量和速度的关系是 \(\dot T = T\,\boldsymbol\xi^\wedge\)（\(\boldsymbol\xi\) 在机体系里表示的 twist，\(T\,^{-1}\dot T = \boldsymbol\xi^\wedge\)），5.8 节会讲怎样在机体系 twist 和世界系 twist 之间转换。</p>
+  <p data-lang="zh">\(\se\) 有 6 个生成元：三个转动 \(\begin{bmatrix}G_i&\mathbf 0\\\mathbf 0\T&0\end{bmatrix}\)，三个平移 \(\begin{bmatrix}0&\hat{\mathbf e}_i\\\mathbf 0\T&0\end{bmatrix}\)，所以它是 6 维的，与 \(\SE\) 的维数相同（5.4 节）。群的切向量和速度的关系是 \(\dot T = T\,\boldsymbol\xi^\wedge\)（\(\boldsymbol\xi\) 在机体系里表示的 twist，\(T^{-1}\dot T = \boldsymbol\xi^\wedge\)），5.8 节会讲怎样在机体系 twist 和世界系 twist 之间转换。</p>
   
 </section>
 
@@ -365,7 +365,7 @@
       <button class="opt">\(\begin{bmatrix}0&-3&2\\3&0&-1\\-2&1&0\end{bmatrix}\)</button>
       <button class="opt">\(\begin{bmatrix}0&3&2\\3&0&1\\2&1&0\end{bmatrix}\)</button>
     </div>
-    <div class="explain"><span data-lang="zh">hat 的固定模式：第 1 行 \((0, -\omega_3, \omega_2)\)，第 2 行 \((\omega_3, 0, -\omega_1)\)，第 3 行 \((-\omega_2, \omega_1, 0)\)。第一个是它的转置（符号反了，相当于 \(-\boldsymbol\omega\) 的 hat）；第四个是对称矩阵，不是 hat。</span></div>
+    <div class="explain"><span data-lang="zh">hat 的固定模式：第 1 行 \((0, -\omega_3, \omega_2)\)，第 2 行 \((\omega_3, 0, -\omega_1)\)，第 3 行 \((-\omega_2, \omega_1, 0)\)。选项 A 是它的转置（符号反了，相当于 \(-\boldsymbol\omega\) 的 hat）；选项 D 是对称矩阵，不是 hat。</span></div>
   </div>
 
   <div class="quiz" data-answer="1">
@@ -464,12 +464,12 @@ R101.onReady(function () {
     if (wn > 1e-6) {
       const u = M.scale(w, 1 / wn), q = o.axisPoint || [0, 0, 0];
       V.line(M.add(q, M.scale(u, -3)), M.add(q, M.scale(u, 3)), { color: 'w', width: 1.8, dash: [8, 6], alpha: 0.85 });
-      V.arrow(q, M.add(q, M.scale(w, 0.55)), { color: 'v', width: hl === 'w' ? 6 : 4, label: 'ω', bias: 0.05 });
+      V.arrow(q, M.add(q, M.scale(w, 0.55)), { color: 'w', width: hl === 'w' ? 6 : 4, label: 'ω', bias: 0.05 });
     }
     if (o.showV && M.norm(v) > 1e-6) V.arrow([0, 0, 0], M.scale(v, 0.55), { color: 'v', width: hl === 'v' ? 6 : 2.5, alpha: hl === 'v' ? 1 : 0.7, label: 'v', dash: [5, 4] });
     const u = vel(w, v, p);
-    V.point(p, { color: 'w', r: hl === 'p' ? 8 : 6, stroke: 'canvas', label: 'p' });
-    if (M.norm(u) > 1e-6) V.arrow(p, M.add(p, M.scale(u, 0.5)), { color: 'w', width: 4, alpha: 0.95 });
+    V.point(p, { color: 'text', r: hl === 'p' ? 8 : 6, stroke: 'canvas', label: 'p' });
+    if (M.norm(u) > 1e-6) V.arrow(p, M.add(p, M.scale(u, 0.5)), { color: 'text', width: 4, alpha: 0.85 });
   }
 
   /* ================= FIG 1: so(3) ================= */
@@ -482,9 +482,9 @@ R101.onReady(function () {
     ['pₓ', 'p_y', 'p_z'].forEach((n, i) => ui.slider(cp, { zh: n, en: n, min: -1.5, max: 1.5, step: 0.05, value: p[i], onInput: v => { p[i] = v; sync(); } }));
     const th = document.getElementById('w-tex-hat'), tp = document.getElementById('w-tex-p'), rd = document.getElementById('w-read');
     function sync() {
-      R101.tex(th, `\\hl{w}{\\cv{\\boldsymbol\\omega}}^\\wedge = ${texSkew(w)}`);
+      R101.tex(th, `\\hl{w}{\\cw{\\boldsymbol\\omega}}^\\wedge = ${texSkew(w)}`);
       const u = M.cross(w, p), Wp = M.mv(M.hat(w), p);
-      R101.tex(tp, `\\boldsymbol\\omega^\\wedge\\mathbf p = \\cw{${M.texVec(Wp)}} = \\boldsymbol\\omega\\times\\mathbf p`);
+      R101.tex(tp, `\\boldsymbol\\omega^\\wedge\\mathbf p = ${M.texVec(Wp)} = \\boldsymbol\\omega\\times\\mathbf p`);
       const back = M.vee(M.hat(w));
       rd.innerHTML = `‖ω‖ = <b>${fx(M.norm(w))}</b> rad/s<br>vee(hat ω) = <b>(${back.map(x => fx(x)).join(', ')})</b><br>${L('测试点速度', 'test-point speed')} = <b>${fx(M.norm(u))}</b> · ‖Ω + Ωᵀ‖ = <b>0</b>`;
       if (Math.abs(w[0]) < 0.1 && Math.abs(w[1]) < 0.1 && Math.abs(Math.abs(w[2]) - 1) < 0.1) R101.done('zspin');
@@ -530,7 +530,7 @@ R101.onReady(function () {
       for (let k = -30; k <= 0; k++) { const Rk = Rt(Math.max(0, t + k * 0.06)); trail.push(M.scale([Rk[0][0], Rk[1][0], Rk[2][0]], 1.1)); }
       V.polyline(trail, { color: 'x', width: 2, alpha: 0.7 });
       // the physical vector ω_s, with its components along world axes (dashed) and body axes (solid)
-      V.arrow([0, 0, 0], M.scale(ws, S), { color: 'v', width: 5, label: 'ω', bias: 0.1 });
+      V.arrow([0, 0, 0], M.scale(ws, S), { color: 'w', width: 5, label: 'ω', bias: 0.1 });
       let c = [0, 0, 0];
       for (let j = 0; j < 3; j++) { const n = [j === 0 ? 1 : 0, j === 1 ? 1 : 0, j === 2 ? 1 : 0], nxt = M.add(c, M.scale(n, ws[j] * S)); V.line(c, nxt, { color: ['i', 'j', 'k'][j], width: 1.6, dash: [4, 4], alpha: 0.8 }); c = nxt; }
       c = [0, 0, 0];
@@ -543,7 +543,7 @@ R101.onReady(function () {
     const tb = document.getElementById('c-tex-b'), ts = document.getElementById('c-tex-s'), rd = document.getElementById('c-read');
     function sync() {
       compute();
-      R101.tex(tb, `R\\T\\dot R = ${M.texMat(st.Wb)} \\Rightarrow \\boldsymbol\\omega_b = \\cv{${M.texVec(st.wb)}}`);
+      R101.tex(tb, `R\\T\\dot R = ${M.texMat(st.Wb)} \\Rightarrow \\boldsymbol\\omega_b = \\cw{${M.texVec(st.wb)}}`);
       R101.tex(ts, `\\dot R R\\T \\Rightarrow \\boldsymbol\\omega_s = \\cw{${M.texVec(st.ws)}}`);
       rd.innerHTML = `${L('对称部分的最大元素', 'largest symmetric-part entry')}: <b>${st.sym.toExponential(0)}</b><br>‖ω<sub>s</sub> − R ω<sub>b</sub>‖ = <b>${st.chk.toExponential(0)}</b> · ‖ω<sub>s</sub> − ω<sub>b</sub>‖ = <b>${fx(M.norm(M.sub(st.ws, st.wb)))}</b>`;
       if (M.norm(M.sub(st.ws, st.wb)) > 0.8) R101.done('frames');
@@ -614,11 +614,11 @@ R101.onReady(function () {
     const th = document.getElementById('t-tex-hat'), tp = document.getElementById('t-tex-p'), rd = document.getElementById('t-read');
     function sync() {
       const X = [[0, -w[2], w[1], v[0]], [w[2], 0, -w[0], v[1]], [-w[1], w[0], 0, v[2]], [0, 0, 0, 0]];
-      const cell = (x, k) => (k < 0 ? '\\cv{' : ['\\ci{', '\\cj{', '\\ck{'][k]) + M.tex(x, 2) + '}';
+      const cell = (x, k) => (k < 0 ? '\\hl{v}{\\cv{' + M.tex(x, 2) + '}}' : ['\\ci{', '\\cj{', '\\ck{'][k] + M.tex(x, 2) + '}');
       const Hm = [[0, cell(-w[2], 2), cell(w[1], 1), cell(v[0], -1)], [cell(w[2], 2), 0, cell(-w[0], 0), cell(v[1], -1)], [cell(-w[1], 1), cell(w[0], 0), 0, cell(v[2], -1)], [0, 0, 0, 0]];
-      R101.tex(th, `\\hl{v}{\\boldsymbol\\xi}^\\wedge = \\begin{bmatrix}${Hm.map(r => r.join(' & ')).join(' \\\\ ')}\\end{bmatrix}`);
+      R101.tex(th, `\\boldsymbol\\xi^\\wedge = \\begin{bmatrix}${Hm.map(r => r.join(' & ')).join(' \\\\ ')}\\end{bmatrix}`);
       const u = vel(w, v, p), Xp = M.mv(X, p.concat([1]));
-      R101.tex(tp, `\\boldsymbol\\xi^\\wedge\\begin{bmatrix}\\mathbf p\\\\1\\end{bmatrix} = \\cw{${M.texVec(Xp.slice(0, 3))}}`);
+      R101.tex(tp, `\\boldsymbol\\xi^\\wedge\\begin{bmatrix}\\mathbf p\\\\1\\end{bmatrix} = ${M.texVec(Xp.slice(0, 3))}`);
       const wn = M.norm(w), pitch = wn > 1e-6 ? M.dot(w, v) / (wn * wn) : null, qq = wn > 1e-6 ? M.scale(M.cross(w, v), 1 / (wn * wn)) : null;
       rd.innerHTML = `${L('测试点速度', 'test-point velocity')} = <b>${fx(M.norm(u))}</b><br>` + (wn > 1e-6 ? `${L('螺旋轴过', 'screw axis through')} q = <b>(${qq.map(x => fx(x)).join(', ')})</b><br>${L('螺距', 'pitch')} h = <b>${fx(pitch)}</b>` : `<b>${L('纯平移：螺旋轴在无穷远', 'pure translation: axis at infinity')}</b>`);
       if (wn > 0.4 && M.norm(u) < 0.06) R101.done('still');
@@ -652,7 +652,7 @@ R101.onReady(function () {
       if (Math.abs(om) > 1e-6) {
         const c = [T.x - Math.sin(T.a) * (v / om), T.y + Math.cos(T.a) * (v / om)];
         const r = Math.abs(v / om);
-        if (r < 60) P.circle(c, r, { color: 'w', width: 1.5, alpha: 0.6 });
+        if (r < 60) P.circle(c, r, { color: 'w', width: 1.5, alpha: 0.6, dash: [5, 5] });
         P.point(c, { color: 'w', r: 5 }); P.text(R101.t('瞬时转动中心', 'ICR'), c, { offset: [10, -12], color: 'w', size: 12, bold: true });
         P.line([T.x, T.y], c, { color: 'w', width: 1, dash: [3, 4], alpha: 0.6 });
       }

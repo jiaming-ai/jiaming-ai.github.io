@@ -187,7 +187,7 @@
     </div>
     <div class="fig-row" style="padding:12px 16px;border-top:1px solid var(--border);display:grid;gap:8px"><div class="katex-live" id="g-tex" style="overflow-x:auto"></div><div class="readout" id="g-read"></div></div>
     <figcaption class="fig-cap">
-      <span data-lang="zh">图中方块是地面，琥珀色圆点是末端平台（若有），边上的字母是关节类型（青色 \(f=1\)、绿色 \(f=2\)、紫色 \(f=3\)、琥珀色是 6 自由度的"自由关节"F）。右图：蓝柱是 \(\lambda(N-1)\)，红柱是各类关节扣掉的 \(\sum c_i\)，最右一根是 \(m\)（绿：能动；琥珀：0，刚性结构；红：负数，"过约束"）。Grübler 数得出来的是<b>公式的结果</b>；"实际活动度"一栏是用别的办法（几何、数值秩）得到的真实值，两者不一致的几行，就是第 4 节要讲的例外。悬停公式里的符号，图中对应部分会高亮。</span>
+      <span data-lang="zh">图中方块是地面，琥珀色圆点是末端平台（若有），边上的字母是关节类型（青色 \(f=1\)、绿色 \(f=2\)、紫色 \(f=3\)、琥珀色是 6 自由度的"自由关节"F）。右图：青色柱是 \(\lambda(N-1)\)，红柱是各类关节扣掉的 \(\sum c_i\)，最右一根是 \(m\)（绿：能动；琥珀：0，刚性结构；红：负数，"过约束"）。Grübler 数得出来的是<b>公式的结果</b>；"实际活动度"一栏是用别的办法（几何、数值秩）得到的真实值，两者不一致的几行，就是第 4 节要讲的例外。悬停公式里的符号，图中对应部分会高亮。</span>
       
     </figcaption>
   </figure>
@@ -258,7 +258,7 @@
   <div class="tasks-title"><span data-lang="zh">试一试</span></div>
   <ul class="tasks">
     <li data-task="par6"><span><span data-lang="zh">载入"六个同向转轴"。六个关节，为什么秩只有 3？把关节按钮改成别的方向，看看秩怎样变化。</span></span></li>
-    <li data-task="wristsing"><span><span data-lang="zh">载入"一般 6R 臂"，把<b>第 5 个关节</b>（腕部中间的 \(R_y\)）拖到 \(0^\circ\)：两根腕轴重合，秩从 6 掉到 5。把它稍微转开，秩立刻恢复。这是奇异位形（见 7.4）。再载入"7R 臂"：7 个关节，秩仍是 6，多出来的 1 个是什么？</span></span></li>
+    <li data-task="wristsing"><span><span data-lang="zh">载入"一般 6R 臂"，把<b>第 6 个关节</b>（腕部中间的 \(R_y\)；这个预设去掉了第 3 个）拖到 \(0^\circ\)：两根腕轴重合，秩从 6 掉到 5。把它稍微转开，秩立刻恢复。这是奇异位形（见 7.4）。再载入"7R 臂"：7 个关节，秩仍是 6，多出来的 1 个是什么？</span></span></li>
   </ul>
 
   <h3><span data-lang="zh">Grübler 的盲区：当约束并不独立</span></h3>
@@ -289,7 +289,7 @@
 
   <div class="callout view">
     <div class="ct"><span data-lang="zh">一个数字的三种求法</span></div>
-    <p data-lang="zh"><b>记账</b>：\(m=\lambda(N-1-J)+\sum f_i\)，只看节点数、边数和关节类型，不管几何尺寸，所以算得快，也会算错。<b>数环</b>：\(m=\sum f_i-\lambda L\)，其中 \(L=J-N+1\) 是图里独立环的个数，每个环吃掉 \(\lambda\) 个自由度；这和记账是同一个公式换了说法。<b>算秩</b>：\(m_{\text{local}}=n-\operatorname{rank}(A(\boldsymbol\theta))\)，\(A\) 是约束（或各关节螺旋轴）的矩阵。它看的是真实的几何，所以不会被特殊尺寸骗到，也会如实反映奇异位形里"瞬时自由度"的变化。前两种是估计，第三种才是定义。</p>
+    <p data-lang="zh"><b>记账</b>：\(m=\lambda(N-1-J)+\sum f_i\)，只看节点数、边数和关节类型，不管几何尺寸，所以算得快，也会算错。<b>数环</b>：\(m=\sum f_i-\lambda L\)，其中 \(L=J-N+1\) 是图里独立环的个数，每个环吃掉 \(\lambda\) 个自由度；这和记账是同一个公式换了说法。<b>算秩</b>：\(m_{\text{local}}=n-\operatorname{rank}(A(\boldsymbol\theta))\)，\(A\) 是闭环约束的雅可比矩阵（对串联链，螺旋轴矩阵 \(J_s\) 的秩数的是末端能动的方向数，\(n-\operatorname{rank}J_s\) 是零空间维数，见 FIG 4）。它看的是真实的几何，所以不会被特殊尺寸骗到，也会如实反映奇异位形里"瞬时自由度"的变化。前两种是估计，第三种才是定义。</p>
     
   </div>
 </section>
@@ -319,7 +319,7 @@
   <p data-lang="zh">设位形用 \(n\) 个坐标 \(\mathbf q\) 描述，闭环等约束写成 \(g(\mathbf q)=0\)（这样的约束叫<b>完整约束</b>，holonomic，它们能积分成位形之间的代数关系）。在一点 \(\mathbf q\) 处，允许的速度满足 \(A(\mathbf q)\dot{\mathbf q}=0\)，\(A=\partial g/\partial\mathbf q\)。于是</p>
   
   <div class="math-card">$$ m_{\text{local}}(\mathbf q) = n - \operatorname{rank}A(\mathbf q), \qquad m = \max_{\mathbf q}\, m_{\text{local}}\ \ \text{(generic mobility, if the solution set is a manifold)}. $$</div>
-  <p data-lang="zh">秩在特殊位形处下降，\(m_{\text{local}}\) 就在那里<b>变大</b>：这就是 FIG 3 里平行四边形折叠位置的"瞬时多出的自由度"（环路秩从 2 降到 1，3 个坐标减去秩，\(3-1=2\)）。串联臂也一样：\(\boldsymbol\theta\) 处末端能动的方向数是 \(\operatorname{rank}J_s(\boldsymbol\theta)\)（FIG 4），它在奇异位形处<b>变小</b>。两者方向相反，是因为一个数的是"约束掉多少"，另一个数的是"还能走多少"。不满足 \(A\dot{\mathbf q}=0\) 这种形式的速度约束（例如冰刀、轮子不能侧滑）如果不能积分成位形约束，就是<b>非完整约束</b> (nonholonomic)：它们减少可用的速度方向，却不减少可达位形的维数，这是 9.1 节的主题。</p>
+  <p data-lang="zh">秩在特殊位形处下降，\(m_{\text{local}}\) 就在那里<b>变大</b>：这就是 FIG 3 里平行四边形折叠位置的"瞬时多出的自由度"（环路秩从 2 降到 1，3 个坐标减去秩，\(3-1=2\)）。串联臂也一样：\(\boldsymbol\theta\) 处末端能动的方向数是 \(\operatorname{rank}J_s(\boldsymbol\theta)\)（FIG 4），它在奇异位形处<b>变小</b>。两者方向相反，是因为一个数的是"约束掉多少"，另一个数的是"还能走多少"。形如 \(A(\mathbf q)\dot{\mathbf q}=0\) 的速度约束（例如冰刀、轮子不能侧滑）如果不能积分成位形约束，就是<b>非完整约束</b> (nonholonomic)：它们减少可用的速度方向，却不减少可达位形的维数，这是 9.1 节的主题。</p>
   
 
   <h3><span data-lang="zh">关节自由度、任务自由度、冗余与欠驱动</span></h3>
@@ -358,7 +358,7 @@
     <tr><td><span data-lang="zh">Delta（Clavel 1988；ABB FlexPicker）</span></td><td><span data-lang="zh">3 个基座电机 + 3 组平行四边形杆</span></td><td><span data-lang="zh">3（平移）</span></td><td><span data-lang="zh">电机都在底座，运动部分极轻，每分钟可抓取上百次；平行四边形使平台始终不转。工业型号常再加一根伸缩中轴给出第 4 个转动自由度</span></td></tr>
     <tr><td><span data-lang="zh">Stewart–Gough 平台</span></td><td>6-UPS</td><td>6</td><td><span data-lang="zh">六条腿共同承载，刚度和负载比串联臂高得多，用于飞行模拟器和精密定位台；代价是工作空间小</span></td></tr>
     <tr><td><span data-lang="zh">四足机器人（如 Boston Dynamics Spot）</span></td><td><span data-lang="zh">每腿 3 个电机，浮动基座</span></td><td><span data-lang="zh">12 个驱动 + 6 个无驱动</span></td><td><span data-lang="zh">三个关节足以把脚放到腿部工作空间内的任意点；机身的 6 个自由度靠足底接触力控制</span></td></tr>
-    <tr><td><span data-lang="zh">全尺寸人形（如 Unitree H1）</span></td><td><span data-lang="zh">约 20 个以上驱动关节，浮动基座</span></td><td><span data-lang="zh">19 个驱动 + 6 个无驱动</span></td><td><span data-lang="zh">每条腿 5 个、每条手臂 4 个、腰部 1 个；手臂自由度少于人类的 7，是成本与任务需要之间的折衷</span></td></tr>
+    <tr><td><span data-lang="zh">全尺寸人形（如 Unitree H1）</span></td><td><span data-lang="zh">19 个驱动关节，浮动基座</span></td><td><span data-lang="zh">19 个驱动 + 6 个无驱动</span></td><td><span data-lang="zh">每条腿 5 个、每条手臂 4 个、腰部 1 个；手臂自由度少于人类的 7，是成本与任务需要之间的折衷</span></td></tr>
     <tr><td><span data-lang="zh">灵巧手（Shadow Hand、Allegro Hand）</span></td><td><span data-lang="zh">多指，每指 3–4 个关节</span></td><td><span data-lang="zh">Shadow：24 个关节中 20 个有独立驱动；Allegro：16</span></td><td><span data-lang="zh">操作一个自由物体（6 维位姿）需要的接触与关节远多于 6，且指尖之间形成闭链（9.3 节）</span></td></tr>
     <tr><td><span data-lang="zh">人的手臂</span></td><td><span data-lang="zh">肩 3 + 肘 1 + 前臂旋转 1 + 腕 2</span></td><td>7</td><td><span data-lang="zh">与 7R 协作臂同样的冗余：手固定不动，肘部仍能画圆</span></td></tr>
   </table></div>
@@ -411,7 +411,7 @@
       <button class="opt">3</button>
       <button class="opt">0</button>
     </div>
-    <div class="explain"><span data-lang="zh">平面 \(\lambda=3\)，\(N=5\)（含地面），\(J=5\)，\(\sum f_i=5\)：\(m=3(5-1-5)+5=2\)。需要两台电机，末端扫出的是一块面积（FIG 3）。选 1 的人把四连杆的结果套了过来；选 3 忘了每个环要吃掉 3 个自由度。</span></div>
+    <div class="explain"><span data-lang="zh">平面 \(\lambda=3\)，\(N=5\)（含地面），\(J=5\)，\(\sum f_i=5\)：\(m=3(5-1-5)+5=2\)。需要两台电机，末端扫出的是一块面积（FIG 3）。选 A（1）的人把四连杆的结果套了过来；选 C（3）忘了每个环要吃掉 3 个自由度。</span></div>
   </div>
 
   <div class="quiz" data-answer="2">
@@ -723,7 +723,7 @@ R101.onReady(function () {
       p.edges.forEach(e => {
         const a = p.pos[e[0]], b = p.pos[e[1]];
         P.line(a, b, { color: TCOL[e[2]], width: hl === 'J' ? 4.2 : 2.2, alpha: hl === 'J' ? 1 : 0.85 });
-        if (!small) P.text(e[2], [(a[0] + b[0]) / 2, (a[1] + b[1]) / 2], { color: TCOL[e[2]], size: 12, bold: true, offset: [0, -9] });
+        if (!small || hl === 'f') P.text(e[2], [(a[0] + b[0]) / 2, (a[1] + b[1]) / 2], { color: TCOL[e[2]], size: hl === 'f' ? 15 : 12, bold: true, offset: [0, -9] });
       });
       p.pos.forEach((q, i) => {
         const big = hl === 'N' ? 3 : 0;
@@ -1046,7 +1046,7 @@ R101.onReady(function () {
         if (a.isR) V.line(M.add(a.anchor, M.scale(a.dir, -0.45)), M.add(a.anchor, M.scale(a.dir, 0.45)), { color: c, width: 2.8, dash: [6, 4], alpha: 0.95 });
         else V.arrow(M.add(a.anchor, M.scale(a.dir, -0.4)), M.add(a.anchor, M.scale(a.dir, 0.4)), { color: c, width: 3.4, alpha: 0.95, bias: 0.05 });
         V.point(a.anchor, { color: 'canvas', r: 5.5, stroke: c });
-        V.text('J' + (a.k + 1), M.add(a.anchor, M.scale(a.dir, 0.58)), { color: c, size: 12 });
+        V.text('J' + (idx[a.k] + 1), M.add(a.anchor, M.scale(a.dir, 0.58)), { color: c, size: 12 });
       });
       V.point(pts[pts.length - 1], { color: 'v', r: 6, stroke: 'canvas' });
       V.frame({ R: T.R, t: Rb.apply(T, TIP) }, { scale: 0.4, width: 3 });
@@ -1079,11 +1079,9 @@ R101.onReady(function () {
         tb.appendChild(b);
       });
       ctl.innerHTML = '';
-      let k = 0;
       types.forEach((t, i) => {
         if (t === '—') return;
-        k++;
-        const isR = t[0] === 'R', jn = k;
+        const isR = t[0] === 'R', jn = i + 1;   // label by slot, matching the buttons and the 3D labels
         ui.slider(ctl, isR
           ? { zh: `θ${jn}（${t}）`, en: `θ${jn} (${t})`, min: -180, max: 180, step: 1, value: Math.round(q[i] / D2R), fmt: fmtAng, onInput: x => { q[i] = x * D2R; sync(true); } }
           : { zh: `d${jn}（${t}）`, en: `d${jn} (${t})`, min: -0.8, max: 0.8, step: 0.02, value: q[i], fmt: x => M.fmt(x, 2), onInput: x => { q[i] = x; sync(true); } });

@@ -288,7 +288,7 @@
   </div>
   <div class="callout pitfall">
     <div class="ct"><span data-lang="zh">误区 2：漏掉内层导数</span></div>
-    <p data-lang="zh">\((\sin 3x)'=3\cos 3x\)。少乘的那个 3，在机器人里常表现为"单位忘了换"：角度换成度、时间换成毫秒，都是内层函数，都会在导数里多出一个常数。</p>
+    <p data-lang="zh">\((\sin 3x)'=3\cos 3x\)。少乘的那个 3，在机器人里常表现为"单位忘了换"：角度换成度、时间换成毫秒、经过减速比，都是内层函数，都会在导数里多出一个常数。</p>
     
   </div>
   <div class="callout pitfall">
@@ -465,6 +465,7 @@ R101.onReady(function () {
     };
     const names = ['x', 'v_1=x^2', 'v_2=\\sin v_1', 'v_3=v_2-c', 'L=v_3^2'];
     const locs = ['2x', '\\cos v_1', '1', '2v_3'];
+    const bars = ['x̄', 'v̄₁', 'v̄₂', 'v̄₃', 'L̄'];   // backward labels: v̄ = ∂L/∂v
     host.innerHTML = '';
     const cards = [], edges = [];
     names.forEach((nm, i) => {
@@ -490,7 +491,7 @@ R101.onReady(function () {
       cards.forEach((card, i) => {
         const showF = stage >= i + 1, showB = stage >= FWD + (4 - i) + 1;
         card.querySelector('.fw').textContent = showF ? (i === 0 ? 'x = ' : '') + M.fmt(f[i], 3) : '';
-        card.querySelector('.bw').textContent = showB ? '∂L/∂ = ' + M.fmt(b[i], 3) : '';
+        card.querySelector('.bw').textContent = showB ? bars[i] + ' = ' + M.fmt(b[i], 3) : '';
         card.classList.toggle('hot', stage === i + 1 || stage === FWD + (4 - i) + 1);
       });
       edges.forEach((ed, i) => {

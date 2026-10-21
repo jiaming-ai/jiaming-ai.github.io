@@ -154,7 +154,7 @@
     </figcaption>
   </figure>
   <ul class="tasks">
-    <li data-task="equil"><span><span data-lang="zh">选"逻辑斯蒂"，放下至少 3 条不同起点的解：它们都靠向同一条水平线（<b>稳定平衡点</b> \(x=3\)）。</span><span data-lang="en">Pick "logistic" and drop at least 3 solutions from different starts: they all approach the same horizontal line (the <b>stable equilibrium</b> \(x=3\)).</span></span></li>
+    <li data-task="equil"><span><span data-lang="zh">选"逻辑斯蒂"，在 \(x&gt;0\) 处放下至少 3 条不同起点的解（3 的上方和下方都试试）：它们都靠向同一条水平线（<b>稳定平衡点</b> \(x=3\)）。</span><span data-lang="en">Pick "logistic" and drop at least 3 solutions from different starts with \(x&gt;0\) (try both above and below 3): they all approach the same horizontal line (the <b>stable equilibrium</b> \(x=3\)).</span></span></li>
     <li data-task="blow"><span><span data-lang="zh">选"\(\dot x=0.25x^2\)"，把起点放到 \(x_0>1\)：解在有限时间内<b>爆炸</b>，曲线冲出画面。</span><span data-lang="en">Pick "\(\dot x=0.25x^2\)" and put the start at \(x_0>1\): the solution <b>blows up</b> in finite time and shoots off the plot.</span></span></li>
   </ul>
 
@@ -438,7 +438,7 @@ R101.onReady(function () {
     };
     const TM = 8;
     let key = 'logi', main = [0, 0.4], extra = [], blew = false;
-    const P = new R101.Plane2D('#sf-canvas', { height: 400, draw, dragEmpty: true, onPointerDown: w => { if (!P.m) return; const q = P.m.inv(w); if (q[0] < 0 || q[0] > TM || Math.abs(q[1]) > 3.4) return; extra.push([q[0], q[1]]); if (extra.length > 8) extra.shift(); sync(); } });
+    const P = new R101.Plane2D('#sf-canvas', { height: 400, draw, dragEmpty: true, onPointerDown: w => { if (!P.m) return; const q = P.m.inv(w); if (q[0] < 0 || q[0] > TM || q[1] < -3.4 || q[1] > 4.4) return; extra.push([q[0], q[1]]); if (extra.length > 8) extra.shift(); sync(); } });
     function solve(f, t0, x0) {
       const fw = [[t0, x0]]; let x = x0, tt = t0, h = 0.02, hit = false;
       while (tt < TM - 1e-9) { x = rk4(f, x, tt, h); tt += h; if (!isFinite(x) || Math.abs(x) > 40) { hit = true; break; } fw.push([tt, x]); }
@@ -468,7 +468,7 @@ R101.onReady(function () {
       R101.tex(tex, FN[key].tex);
       read.innerHTML = `(t₀, x₀) = (<b>${M.fmt(main[0], 2)}</b>, <b>${M.fmt(main[1], 2)}</b>)<br>${L('额外解', 'extra solutions')}: <b>${extra.length}</b>` + (blew ? `<br><span style="color:var(--c-bad)">${L('有限时间内爆炸！', 'blows up in finite time!')}</span>` : '');
       P.invalidate();
-      if (key === 'logi' && extra.length >= 3) R101.done('equil');
+      if (key === 'logi' && extra.filter(e => e[1] > 0.05).length >= 3) R101.done('equil');
       if (key === 'blow' && main[1] > 1 && blew) R101.done('blow');
     }
     R101.on('lang', sync);
@@ -480,7 +480,7 @@ R101.onReady(function () {
     let tau = 0.8, K = 1, inp = 'step', wIn = 2;
     const TM = 6;
     const P = new R101.Plane2D('#fo-canvas', { height: 360, draw });
-    const u = tt => (inp === 'step' ? (tt >= 0.3 ? 1 : 0) : Math.sin(wIn * tt));
+    const u = tt => (inp === 'step' ? 1 : Math.sin(wIn * tt));   // unit step applied at t = 0
     function sim() { const out = []; let x = 0; const h = 0.005; for (let i = 0; i <= TM / h; i++) { const tt = i * h; if (i % 4 === 0) out.push([tt, x, u(tt)]); x = rk4((s, y) => (-y + K * u(s)) / tau, x, tt, h); } return out; }
     function draw(P) {
       const yr = inp === 'step' ? [-0.1, Math.max(1.3, K * 1.2)] : [-1.4, 1.4], m = P.fit([0, TM], yr, { l: 34, t: 10 });
@@ -491,7 +491,7 @@ R101.onReady(function () {
       P.path(S.map(p => m.pt([p[0], p[1]])), { color: 'x', width: 3 });
       if (inp === 'step') {
         P.line(m.pt([0, 0.632 * K]), m.pt([TM, 0.632 * K]), { color: 'w', width: 1.2, dash: [5, 5] });
-        P.line(m.pt([0.3 + tau, -0.1]), m.pt([0.3 + tau, yr[1]]), { color: 'w', width: 1.2, dash: [5, 5] });
+        P.line(m.pt([tau, -0.1]), m.pt([tau, yr[1]]), { color: 'w', width: 1.2, dash: [5, 5] });
         P.line(m.pt([0, K]), m.pt([TM, K]), { color: 'text-2', width: 1, dash: [2, 4], alpha: 0.6 });
       }
       P.unclip();
@@ -545,7 +545,10 @@ R101.onReady(function () {
       const c = Q.ctx; c.save(); c.strokeStyle = Q.col('axis'); c.globalAlpha = 0.5; c.setLineDash([4, 4]); c.beginPath(); c.ellipse(cx, cy, wn * pxx, wn * pxx * m.ky, 0, Math.PI / 2, 3 * Math.PI / 2); c.stroke(); c.restore();
       Q.poly([[0, -6], [3, -6], [3, 6], [0, 6]].map(m.pt), { fill: 'bad', fillAlpha: 0.08 });
       Q.textPx(t('不稳定区', 'unstable'), Q.X(1.5), Q.Y(5.2 * m.ky), { color: 'bad', size: 11, align: 'center', halo: false });
-      poles().forEach(p => { const q = m.pt(p); Q.point(q, { color: 'w', r: 7, stroke: 'canvas', strokeWidth: 2 }); });
+      const hl = R101.hl, p0 = poles()[0];
+      if (hl === 'sigma') Q.line(m.pt([0, 0]), m.pt([p0[0], 0]), { color: 'w', width: 4 });   // real part −ζω_n
+      if (hl === 'wd' && zeta < 1) poles().forEach(p => Q.line(m.pt([p[0], 0]), m.pt(p), { color: 'w', width: 4 }));   // imaginary part ±ω_d
+      poles().forEach(p => { const q = m.pt(p); Q.point(q, { color: 'w', r: hl === 'lam' ? 10 : 7, stroke: 'canvas', strokeWidth: 2 }); });
     }
     Q.handle({
       pos: () => (Q.m ? Q.m.pt(poles()[0]) : [0, 0]), color: 'w', r: 18,

@@ -132,7 +132,7 @@
       <li>每一列的<b>长度仍是 1</b>（边长没变）；</li>
       <li>两列<b>仍然互相垂直</b>（直角没变）。</li>
     </ul>
-    <p>满足这两条的列叫<b>标准正交</b>（orthonormal），列标准正交的方阵叫<b>正交矩阵</b>（orthogonal matrix）。下面切换四种变换：蓝绿色的 F 是被变换的图形，圆圈是单位圆。只有保持"圆还是圆、F 没有变形"的才是刚体运动。镜像也不拉伸，但它把 F 翻成了镜像字，这是下面要分清的另一类。</p>
+    <p>满足这两条的列叫<b>标准正交</b>（orthonormal），列标准正交的方阵叫<b>正交矩阵</b>（orthogonal matrix）。下面切换四种变换：F 是被变换的图形（颜色表示分类），圆圈是单位圆。只有保持"圆还是圆、F 没有变形"的才是刚体运动。镜像也不拉伸，但它把 F 翻成了镜像字，这是下面要分清的另一类。</p>
   </div>
   <div data-lang="en">
     <p>Pin a sheet of graph paper at the origin and turn it. The squares are still squares, the sides have the same length, the right angles are still right angles, and the distance between any two points on the sheet is unchanged. This is a <b>rigid motion</b> (here only about the origin).</p>
@@ -141,7 +141,7 @@
       <li>each column still has <b>length 1</b> (the sides did not change);</li>
       <li>the two columns are <b>still perpendicular</b> (the right angles did not change).</li>
     </ul>
-    <p>Columns that satisfy both are called <b>orthonormal</b>, and a square matrix with orthonormal columns is an <b>orthogonal matrix</b>. Switch between four transformations below. The F is the shape being transformed and the circle is the unit circle. Only maps that keep "the circle a circle and the F undistorted" are rigid. A mirror does not stretch either, but it turns the F into a mirror-image F; that is a separate class we will sort out shortly.</p>
+    <p>Columns that satisfy both are called <b>orthonormal</b>, and a square matrix with orthonormal columns is an <b>orthogonal matrix</b>. Switch between four transformations below. The F is the shape being transformed (its color shows the class) and the circle is the unit circle. Only maps that keep "the circle a circle and the F undistorted" are rigid. A mirror does not stretch either, but it turns the F into a mirror-image F; that is a separate class we will sort out shortly.</p>
   </div>
 
   <figure class="fig" id="fig-rigid">
@@ -310,8 +310,8 @@
   <p data-lang="zh">\(Q^\top\) 是 \(Q\) 的左逆；方阵的左逆必是逆，所以 \(QQ^\top = I\) 也成立：<b>行也标准正交</b>。这就是 FIG 4 里"行读出旧坐标"的原因。</p>
   <p data-lang="en">\(Q^\top\) is a left inverse of \(Q\), and for square matrices a left inverse is the inverse, so \(QQ^\top = I\) too: the <b>rows are orthonormal as well</b>. That is why the rows in FIG 4 read off old coordinates.</p>
   <div class="math-card">$$ \det(Q^\top Q) = \det(Q^\top)\det(Q) = \det(Q)^2 = \det I = 1 \;\Longrightarrow\; \det Q = \pm 1. $$</div>
-  <p data-lang="zh">用 1.5 节的话：正交矩阵不改变面积（体积），只可能翻不翻面。\(\det Q = +1\) 是<b>旋转</b>，\(\det Q = -1\) 是带镜像的<b>反射</b>（reflection）。全体 \(n\times n\) 正交矩阵记作 \(O(n)\)，其中行列式为 \(+1\) 的那一半记作 \(SO(n)\)（special orthogonal group）。注意方向：正交 ⇒ \(\det=\pm1\)，反过来<b>不成立</b>（剪切矩阵 \(\begin{bmatrix}1&1\\0&1\end{bmatrix}\) 的行列式是 1，却不正交）。</p>
-  <p data-lang="en">In the language of Lesson 1.5: an orthogonal matrix does not change area (volume); all it can do is flip or not flip. \(\det Q = +1\) is a <b>rotation</b>, \(\det Q = -1\) is a <b>reflection</b> (a mirror). All \(n\times n\) orthogonal matrices form \(O(n)\), and the half with determinant \(+1\) is \(SO(n)\), the special orthogonal group. Mind the direction: orthogonal ⇒ \(\det=\pm1\), but <b>not</b> the other way round (the shear \(\begin{bmatrix}1&1\\0&1\end{bmatrix}\) has determinant 1 and is not orthogonal).</p>
+  <p data-lang="zh">用 1.5 节的话：正交矩阵不改变面积（体积），只可能翻不翻面。\(\det Q = +1\) 是<b>旋转</b>，\(\det Q = -1\) 则带一次镜像：一个<b>反射</b>（reflection），或旋转再加一次反射（三维里的 \(-I\) 就是这样）。全体 \(n\times n\) 正交矩阵记作 \(O(n)\)，其中行列式为 \(+1\) 的那一半记作 \(SO(n)\)（special orthogonal group）。注意方向：正交 ⇒ \(\det=\pm1\)，反过来<b>不成立</b>（剪切矩阵 \(\begin{bmatrix}1&1\\0&1\end{bmatrix}\) 的行列式是 1，却不正交）。</p>
+  <p data-lang="en">In the language of Lesson 1.5: an orthogonal matrix does not change area (volume); all it can do is flip or not flip. \(\det Q = +1\) is a <b>rotation</b>, \(\det Q = -1\) involves a mirror: a <b>reflection</b>, or a rotation combined with one (such as \(-I\) in 3D). All \(n\times n\) orthogonal matrices form \(O(n)\), and the half with determinant \(+1\) is \(SO(n)\), the special orthogonal group. Mind the direction: orthogonal ⇒ \(\det=\pm1\), but <b>not</b> the other way round (the shear \(\begin{bmatrix}1&1\\0&1\end{bmatrix}\) has determinant 1 and is not orthogonal).</p>
 
   <h3><span data-lang="zh">二维：SO(2)</span><span data-lang="en">In 2D: SO(2)</span></h3>
   <p data-lang="zh">第一列是单位向量，可以写成 \((\cos\theta,\sin\theta)\)。第二列要垂直于它且长度为 1，只剩 \(\pm(-\sin\theta,\cos\theta)\) 两个选择；行列式 \(+1\) 选中了加号。所以<b>每个二维旋转都长这样</b>，由一个角度决定：</p>
@@ -371,8 +371,8 @@
     <div class="fig-controls" id="drift-controls"></div>
     <div class="fig-controls" id="drift-controls2"></div>
     <figcaption class="fig-cap">
-      <span data-lang="zh">"一阶更新"每步都把垂直于转轴的方向拉长一点，球变成椭球，列向量越来越长且不再垂直。"舍入到 3 位小数"的误差小得多，但永远不会消失。修复之后曲线垂直掉到 10⁻⁶ 以下，但<b>只修形状</b>，不能修好已经积累的朝向误差。两种修法的差别看读数：格拉姆–施密特保持第 1 列的方向不变，把全部修正压在后两列上，所以朝向会被额外带偏（在 0.05 的容许线上约 0.5°，在偏差 0.4 时约 3.7°，见"与理想的夹角"）；SVD 取"最近的旋转"，修正量最小（"修正量"），朝向几乎不动。</span>
-      <span data-lang="en">The "first-order update" stretches the directions perpendicular to the axis a little each step: the sphere becomes an ellipsoid, and the columns grow longer and stop being perpendicular. The "round to 3 decimals" error is much smaller but never goes away. After a repair the curve drops straight below 10⁻⁶, but it <b>only repairs the shape</b>; it cannot undo the heading error already accumulated. The readouts show how the two methods differ: Gram–Schmidt keeps the direction of column 1 and dumps all the correction on the other two, so it tilts the heading further (about 0.5° extra at the 0.05 limit, about 3.7° at an error of 0.4; see "angle to ideal"); the SVD takes the "nearest rotation" with the smallest correction ("correction size") and barely moves the heading.</span>
+      <span data-lang="zh">"一阶更新"每步都把垂直于转轴的方向拉长一点，球变成椭球，列向量越来越长且不再垂直。"舍入到 3 位小数"的误差小得多，但永远不会消失。修复之后曲线垂直掉到 10⁻⁶ 以下，但<b>只修形状</b>，不能修好已经积累的朝向误差。两种修法的差别看读数：格拉姆–施密特保持第 1 列的方向不变，把全部修正压在后两列上，所以朝向会被额外带偏（在 0.05 的容许线上约 0.5°，在偏差 0.4 时约 3.5°，见"与理想的夹角"）；SVD 取"最近的旋转"，修正量最小（"修正量"），朝向几乎不动。</span>
+      <span data-lang="en">The "first-order update" stretches the directions perpendicular to the axis a little each step: the sphere becomes an ellipsoid, and the columns grow longer and stop being perpendicular. The "round to 3 decimals" error is much smaller but never goes away. After a repair the curve drops straight below 10⁻⁶, but it <b>only repairs the shape</b>; it cannot undo the heading error already accumulated. The readouts show how the two methods differ: Gram–Schmidt keeps the direction of column 1 and dumps all the correction on the other two, so it tilts the heading further (about 0.5° extra at the 0.05 limit, about 3.5° at an error of 0.4; see "angle to ideal"); the SVD takes the "nearest rotation" with the smallest correction ("correction size") and barely moves the heading.</span>
     </figcaption>
   </figure>
 
@@ -444,8 +444,8 @@
 
   <div class="callout pitfall">
     <div class="ct"><span data-lang="zh">误区 4：R 和 Rᵀ 用反了</span><span data-lang="en">Pitfall 4: using R where Rᵀ belongs</span></div>
-    <p data-lang="zh">\(R\) 到底是把哪个坐标系的坐标换成哪个？约定（本课程）：\({}^{A}R_{B}\) 把 \(B\) 系的坐标换成 \(A\) 系的坐标，\(R\) 的列是 \(B\) 的轴写在 \(A\) 里。所以 <code>R_world_cam @ p_cam</code> 得到 <code>p_world</code>，而 <code>R_world_cam.T</code> 才是 <code>R_cam_world</code>。变量名里的下标像分数一样相消：<code>R_world_cam @ R_cam_tool</code> 得到 <code>R_world_tool</code>。再加上 1.3 节的主动与被动：把点转 30°，和把坐标系转 30°，读数互为转置。动手前，先问"这是在搬点，还是在换系？"</p>
-    <p data-lang="en">Which frame's coordinates does \(R\) turn into which? The convention here: \({}^{A}R_{B}\) converts coordinates in frame \(B\) to coordinates in frame \(A\), and its columns are the axes of \(B\) written in \(A\). So <code>R_world_cam @ p_cam</code> gives <code>p_world</code>, and <code>R_world_cam.T</code> is <code>R_cam_world</code>. The subscripts cancel like fractions: <code>R_world_cam @ R_cam_tool</code> gives <code>R_world_tool</code>. Add the active vs passive issue of Lesson 1.3: rotating a point by 30° and rotating the frame by 30° give readings that are transposes of each other. Before coding, ask "am I moving points or changing frames?"</p>
+    <p data-lang="zh">\(R\) 到底是把哪个坐标系的坐标换成哪个？约定（本课程，与 5.1 节一致）：\(R_{AB}\) 把 \(B\) 系的坐标换成 \(A\) 系的坐标，\(R\) 的列是 \(B\) 的轴写在 \(A\) 里。所以 <code>R_world_cam @ p_cam</code> 得到 <code>p_world</code>，而 <code>R_world_cam.T</code> 才是 <code>R_cam_world</code>。变量名里的下标像分数一样相消：<code>R_world_cam @ R_cam_tool</code> 得到 <code>R_world_tool</code>。再加上 1.3 节的主动与被动：把点转 30°，和把坐标系转 30°，读数互为转置。动手前，先问"这是在搬点，还是在换系？"</p>
+    <p data-lang="en">Which frame's coordinates does \(R\) turn into which? The convention here (as in Lesson 5.1): \(R_{AB}\) converts coordinates in frame \(B\) to coordinates in frame \(A\), and its columns are the axes of \(B\) written in \(A\). So <code>R_world_cam @ p_cam</code> gives <code>p_world</code>, and <code>R_world_cam.T</code> is <code>R_cam_world</code>. The subscripts cancel like fractions: <code>R_world_cam @ R_cam_tool</code> gives <code>R_world_tool</code>. Add the active vs passive issue of Lesson 1.3: rotating a point by 30° and rotating the frame by 30° give readings that are transposes of each other. Before coding, ask "am I moving points or changing frames?"</p>
   </div>
 
   <div class="callout pitfall">
@@ -467,7 +467,7 @@
       <button class="opt">\(\begin{bmatrix}0.6&-0.8\\0.8&0.6\end{bmatrix}\)</button>
       <button class="opt">\(\begin{bmatrix}2&0\\0&0.5\end{bmatrix}\)</button>
     </div>
-    <div class="explain"><span data-lang="zh">逐个算 \(Q^\top Q\)。第一个是 \(\begin{bmatrix}1&1\\1&2\end{bmatrix}\)（行列式为 1 的剪切，不正交）；第二个是 \(2I\)（列垂直但长度是 \(\sqrt2\)）；第四个是 \(\mathrm{diag}(4,\,0.25)\)（行列式也是 1，却在缩放）；只有第三个得到 \(I\)：\(0.6^2+0.8^2=1\)，\(0.6\cdot(-0.8)+0.8\cdot0.6=0\)。它是旋转约 53.1°。</span><span data-lang="en">Compute \(Q^\top Q\) for each. The first gives \(\begin{bmatrix}1&1\\1&2\end{bmatrix}\) (a shear with determinant 1, not orthogonal); the second gives \(2I\) (perpendicular columns of length \(\sqrt2\)); the fourth gives \(\mathrm{diag}(4,\,0.25)\) (determinant 1 too, yet it scales); only the third gives \(I\): \(0.6^2+0.8^2=1\) and \(0.6\cdot(-0.8)+0.8\cdot0.6=0\). It is a rotation by about 53.1°.</span></div>
+    <div class="explain"><span data-lang="zh">逐个算 \(Q^\top Q\)。A 是 \(\begin{bmatrix}1&1\\1&2\end{bmatrix}\)（行列式为 1 的剪切，不正交）；B 是 \(2I\)（列垂直但长度是 \(\sqrt2\)）；D 是 \(\mathrm{diag}(4,\,0.25)\)（行列式也是 1，却在缩放）；只有 C 得到 \(I\)：\(0.6^2+0.8^2=1\)，\(0.6\cdot(-0.8)+0.8\cdot0.6=0\)。它是旋转约 53.1°。</span><span data-lang="en">Compute \(Q^\top Q\) for each. A gives \(\begin{bmatrix}1&1\\1&2\end{bmatrix}\) (a shear with determinant 1, not orthogonal); B gives \(2I\) (perpendicular columns of length \(\sqrt2\)); D gives \(\mathrm{diag}(4,\,0.25)\) (determinant 1 too, yet it scales); only C gives \(I\): \(0.6^2+0.8^2=1\) and \(0.6\cdot(-0.8)+0.8\cdot0.6=0\). It is a rotation by about 53.1°.</span></div>
   </div>
 
   <div class="quiz" data-answer="3">
@@ -489,7 +489,7 @@
       <button class="opt"><span data-lang="zh">把 \(R\) 除以它的行列式</span><span data-lang="en">Divide \(R\) by its determinant</span></button>
       <button class="opt"><span data-lang="zh">不用管，0.2 很小</span><span data-lang="en">Nothing, 0.2 is small</span></button>
     </div>
-    <div class="explain"><span data-lang="zh">0.2 意味着列长和夹角都已经偏离了百分之几十的量级，\(R^\top\) 也不是 \(R^{-1}\) 了。只有投回旋转集合才能修好。\(R^\top\) 对一个已经变形的 \(R\) 毫无帮助；除以行列式只能修整体缩放，而一阶漂移是各向异性的拉伸，修不好。</span><span data-lang="en">0.2 means column lengths and angles are already off by tens of percent, and \(R^\top\) is no longer \(R^{-1}\). Only projecting back onto the rotations fixes it. The transpose of a deformed \(R\) is no help; dividing by the determinant only fixes a uniform scale, whereas first-order drift is an anisotropic stretch.</span></div>
+    <div class="explain"><span data-lang="zh">0.2 已经不可忽略：列长偏离了百分之几，直角偏了约 3°，而且误差还在随步数继续增长；\(R^\top\) 也不再是 \(R^{-1}\)。只有投回旋转集合才能修好。\(R^\top\) 对一个已经变形的 \(R\) 毫无帮助；除以行列式只能修整体缩放，而一阶漂移是各向异性的拉伸，修不好。</span><span data-lang="en">0.2 is no longer negligible: column lengths are off by several percent and the right angles by about 3°, the error keeps growing with every step, and \(R^\top\) is no longer \(R^{-1}\). Only projecting back onto the rotations fixes it. The transpose of a deformed \(R\) is no help; dividing by the determinant only fixes a uniform scale, whereas first-order drift is an anisotropic stretch.</span></div>
   </div>
 
   <div class="quiz" data-answer="1">
@@ -500,7 +500,7 @@
       <button class="opt"><span data-lang="zh">它是旋转乘了一个缩放，把 \(R\) 除以 \(-1\) 即可</span><span data-lang="en">It is a rotation times a scale; dividing \(R\) by \(-1\) fixes it</span></button>
       <button class="opt"><span data-lang="zh">\(R^\top\) 不是它的逆，所以不能用</span><span data-lang="en">\(R^\top\) is not its inverse, so it cannot be used</span></button>
     </div>
-    <div class="explain"><span data-lang="zh">\(R^\top R = I\) 说明它是正交的，\(R^\top = R^{-1}\) 仍然成立（第四个选项不对）；行列式 \(-1\) 说明有镜像。任何转角的旋转行列式都是 \(+1\)。在三维里，除以 \(-1\) 只会把所有轴一起取反（得到 \(-R\)，行列式是 \(+1\)，但那是另一个姿态，不是原来想要的）。应当检查是哪根轴被标反了。</span><span data-lang="en">\(R^\top R = I\) says it is orthogonal and \(R^\top = R^{-1}\) still holds (so option 4 is wrong); determinant \(-1\) says there is a mirror. A rotation by any angle has determinant \(+1\). In 3D, dividing by \(-1\) negates all axes together (giving \(-R\) with determinant \(+1\), but that is a different orientation, not the one intended). Find out which axis was calibrated backwards.</span></div>
+    <div class="explain"><span data-lang="zh">\(R^\top R = I\) 说明它是正交的，\(R^\top = R^{-1}\) 仍然成立（选项 D 不对）；行列式 \(-1\) 说明有镜像。任何转角的旋转行列式都是 \(+1\)。在三维里，除以 \(-1\) 只会把所有轴一起取反（得到 \(-R\)，行列式是 \(+1\)，但那是另一个姿态，不是原来想要的）。应当检查是哪根轴被标反了。</span><span data-lang="en">\(R^\top R = I\) says it is orthogonal and \(R^\top = R^{-1}\) still holds (so option D is wrong); determinant \(-1\) says there is a mirror. A rotation by any angle has determinant \(+1\). In 3D, dividing by \(-1\) negates all axes together (giving \(-R\) with determinant \(+1\), but that is a different orientation, not the one intended). Find out which axis was calibrated backwards.</span></div>
   </div>
 
   <div class="quiz" data-answer="2">
@@ -798,8 +798,9 @@ R101.onReady(function () {
       P.arrow([0, 0], e1, { color: 'i', width: 3.5, label: "x′" });
       P.arrow([0, 0], e2, { color: 'j', width: 3.5, label: "y′" });
       P.arrow([0, 0], v, { color: 'v', width: 4.5, label: which === 0 ? R101.t('旧 x 轴', 'old x') : R101.t('旧 y 轴', 'old y'), labelOffset: [8, which === 0 ? 14 : -8] });
-      P.text(M.fmt(c1, 2), f1, { offset: [c1 >= 0 ? 12 : -12, 12], color: 'i', bold: true, align: c1 >= 0 ? 'left' : 'right' });
-      P.text(M.fmt(c2, 2), f2, { offset: [c2 >= 0 ? 12 : -12, -12], color: 'j', bold: true, align: c2 >= 0 ? 'left' : 'right' });
+      // skip a near-zero reading: its label would land on the origin and the old-axis label
+      if (Math.abs(c1) >= 0.1) P.text(M.fmt(c1, 2), f1, { offset: [c1 >= 0 ? 12 : -12, 12], color: 'i', bold: true, align: c1 >= 0 ? 'left' : 'right' });
+      if (Math.abs(c2) >= 0.1) P.text(M.fmt(c2, 2), f2, { offset: [c2 >= 0 ? 12 : -12, -12], color: 'j', bold: true, align: c2 >= 0 ? 'left' : 'right' });
       const arc = []; for (let k = 0; k <= 20; k++) { const a = th * k / 20; arc.push([0.35 * Math.cos(a), 0.35 * Math.sin(a)]); }
       P.path(arc, { color: 'text-2', width: 1.2 });
     }
@@ -1026,7 +1027,8 @@ R101.onReady(function () {
       P.point([0, 0], { color: 'bad', r: 4 });
       P.text(R101.t('起点 R(0°)', 'start R(0°)'), [0.1, 1.45], { color: 'text-2', size: 12, offset: [4, -4] });
       const q = mapPts(End, [[0.4, 1.45]])[0];
-      P.text(R101.t('终点 R(θ₁)', 'end R(θ₁)'), q, { color: 'w', size: 12, offset: [4, -4] });
+      // near θ₁ = 0 the end label would sit on the start label
+      if (th1 >= 15) P.text(R101.t('终点 R(θ₁)', 'end R(θ₁)'), q, { color: 'w', size: 12, offset: [4, -4] });
     }
     const tex = document.getElementById('lerp-tex'), read = document.getElementById('lerp-read');
     function sync() {

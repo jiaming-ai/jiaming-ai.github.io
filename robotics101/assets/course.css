@@ -260,7 +260,7 @@ button { font: inherit; color: inherit; }
 .fig-body.two > .canvas-wrap + .canvas-wrap { border-left: 1px solid var(--border); }
 .fig-controls { display: flex; flex-wrap: wrap; gap: 10px 16px; align-items: center; padding: 12px 16px; border-top: 1px solid var(--border); font-size: 14px; }
 .fig-cap { padding: 10px 16px 14px; font-size: 14px; color: var(--fg-2); border-top: 1px solid var(--border); line-height: 1.6; }
-.readout { font-family: 'JetBrains Mono', monospace; font-size: 13px; color: var(--fg-2); }
+.readout { font-family: 'JetBrains Mono', monospace; font-size: 13px; color: var(--fg-2); overflow-wrap: anywhere; }
 .readout b { color: var(--fg); font-weight: 600; }
 .katex-live { min-height: 2.4em; font-size: 14px; overflow-x: auto; overflow-y: hidden; }
 
@@ -273,14 +273,14 @@ button { font: inherit; color: inherit; }
 .btn.primary { background: var(--accent); border-color: var(--accent); color: var(--bg); font-weight: 600; }
 .btn.primary:hover { color: var(--bg); filter: brightness(1.08); }
 .btn.sm { padding: 2px 9px; font-size: 12.5px; }
-.seg { display: inline-flex; border: 1px solid var(--border-2); border-radius: 8px; overflow: hidden; }
+.seg { display: inline-flex; flex-wrap: wrap; max-width: 100%; border: 1px solid var(--border-2); border-radius: 8px; overflow: hidden; }
 .seg button { border: 0; background: var(--bg-3); padding: 4px 12px; cursor: pointer; font-size: 13.5px; color: var(--fg-2); }
 .seg button + button { border-left: 1px solid var(--border-2); }
 .seg button.on { background: var(--accent); color: var(--bg); font-weight: 600; }
 .presets { display: flex; flex-wrap: wrap; gap: 6px; }
 
-.slider { display: flex; align-items: center; gap: 10px; min-width: 200px; flex: 1 1 220px; }
-.slider label { font-size: 13.5px; color: var(--fg-2); white-space: nowrap; }
+.slider { display: flex; align-items: center; gap: 10px; min-width: 200px; flex: 1 1 220px; max-width: 100%; }
+.slider label { font-size: 13.5px; color: var(--fg-2); min-width: 0; flex: 0 1 auto; }
 .slider input[type=range] { flex: 1; accent-color: var(--accent); min-width: 80px; }
 .slider .val { font-family: 'JetBrains Mono', monospace; font-size: 12.5px; min-width: 44px; text-align: right; color: var(--fg); }
 
@@ -338,6 +338,8 @@ button { font: inherit; color: inherit; }
 .quiz { border: 1px solid var(--border); border-radius: 12px; padding: 16px 18px; margin: 18px 0; background: var(--bg-2); }
 .quiz .q { font-weight: 600; margin-bottom: 10px; }
 .quiz .opts { display: grid; gap: 8px; }
+.quiz .opts { counter-reset: opt; }
+.quiz .opt::before { counter-increment: opt; content: counter(opt, upper-alpha) '. '; font-weight: 600; color: var(--fg-2); }
 .quiz .opt {
     text-align: left; border: 1px solid var(--border-2); border-radius: 9px; background: var(--bg);
     padding: 8px 12px; cursor: pointer; font-size: 15px; line-height: 1.5;

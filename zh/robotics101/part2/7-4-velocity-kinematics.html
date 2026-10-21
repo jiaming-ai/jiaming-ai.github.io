@@ -156,7 +156,7 @@
     <div class="fig-controls" id="tw-ctl-a"></div>
     <div class="fig-controls" id="tw-ctl-b"></div>
     <figcaption class="fig-cap">
-      <span data-lang="zh">红色虚线是关节 A（竖直的 z 轴），绿色虚线是关节 B（水平，方位角 \(\psi\)，高度 \(\zeta\)，离 z 轴的偏移 \(r\)）。琥珀色小箭头是速度场 \(\mathbf u(\mathbf p)\)，画在一个 \(3\times3\times2\) 的网格点上；"A / B / A+B"切换显示哪个场。紫色粗线是 A+B 的瞬时螺旋轴。盒子带着自己的坐标系（位置 \(T\)），盒子原点处的粗箭头是它的速度；侧栏同时给出空间 twist \(\boldsymbol\xi_s\)（前三个数：\(\boldsymbol\omega\)，后三个：\(\mathbf v\)）与机体 twist \(\boldsymbol\xi_b=\operatorname{Ad}_{T^{-1}}\boldsymbol\xi_s\)，并核对 \(\operatorname{Ad}_T\boldsymbol\xi_b=\boldsymbol\xi_s\)。</span>
+      <span data-lang="zh">红色虚线是关节 A（竖直的 z 轴），绿色虚线是关节 B（水平，方位角 \(\psi\)，高度 \(\zeta\)，离 z 轴的偏移 \(r\)）。小箭头是速度场 \(\mathbf u(\mathbf p)\)，画在一个 \(3\times3\times2\) 的网格点上，颜色随所选的场而定（A 红、B 绿、A+B 琥珀色）；"A / B / A+B"切换显示哪个场。紫色粗线是 A+B 的瞬时螺旋轴。盒子带着自己的坐标系（位置 \(T\)），盒子原点处的粗箭头是它的速度；侧栏同时给出空间 twist \(\boldsymbol\xi_s\)（前三个数：\(\boldsymbol\omega\)，后三个：\(\mathbf v\)）与机体 twist \(\boldsymbol\xi_b=\operatorname{Ad}_{T^{-1}}\boldsymbol\xi_s\)，并核对 \(\operatorname{Ad}_T\boldsymbol\xi_b=\boldsymbol\xi_s\)。</span>
       
     </figcaption>
   </figure>
@@ -199,7 +199,7 @@
     <div class="fig-controls" id="jc-ctl-q"></div>
     <div class="fig-controls" id="jc-ctl-r" style="display:none"></div>
     <figcaption class="fig-cap">
-      <span data-lang="zh">线段是 \(J_s\) 的各列所代表的关节轴（长度只是为了好看），6 种颜色对应 J1–J6。彩色细箭头是各关节在工具点产生的线速度，首尾相接；琥珀色粗箭头是总线速度 \(\mathbf u\)（工具点），灰白色箭头是总角速度 \(\boldsymbol\omega\)。切换"关节角 / 关节速度"来编辑姿态或速度。读数里的"差分对照"是 \(\max|J_s-J_{\text{fd}}|\)，其中 \(J_{\text{fd}}\) 的第 \(i\) 列是 \(\log\!\big(T(\boldsymbol\theta+\delta\mathbf e_i)T(\boldsymbol\theta-\delta\mathbf e_i)^{-1}\big)/2\delta\)。</span>
+      <span data-lang="zh">线段是 \(J_s\) 的各列所代表的关节轴（长度只是为了好看），6 种颜色对应 J1–J6。彩色细箭头是各关节在工具点产生的线速度，首尾相接；琥珀色粗箭头是总线速度 \(\mathbf u\)（工具点），中性色（文字色）箭头是总角速度 \(\boldsymbol\omega\)。切换"关节角 / 关节速度"来编辑姿态或速度。读数里的"差分对照"是 \(\max|J_s-J_{\text{fd}}|\)，其中 \(J_{\text{fd}}\) 的第 \(i\) 列是 \(\log\!\big(T(\boldsymbol\theta+\delta\mathbf e_i)T(\boldsymbol\theta-\delta\mathbf e_i)^{-1}\big)/2\delta\)。</span>
       
     </figcaption>
   </figure>
@@ -237,7 +237,7 @@
     </div>
     <div class="fig-controls" id="sg-ctl"></div>
     <figcaption class="fig-cap">
-      <span data-lang="zh">青色线框是线速度椭球（\(J_vJ_v^\top\) 的像，缩放系数 0.4）。琥珀色箭头是丢失方向中的线速度部分，紫色箭头是其中的转动部分，长度分别是单位向量里这两部分的大小（双向画出，因为方向只定到正负号）。丢失方向取自 \(J\)（转动行乘 \(L\)）的最小左奇异向量。侧栏的奇异值条按同一刻度画出；"秩"用阈值 \(10^{-6}\sigma_1\) 判定。</span>
+      <span data-lang="zh">青色线框是线速度椭球（单位关节速度球在 \(J_v\) 下的像，形状矩阵为 \(J_vJ_v^\top\)，缩放系数 0.4）。琥珀色箭头是丢失方向中的线速度部分，紫色箭头是其中的转动部分，长度分别是单位向量里这两部分的大小（双向画出，因为方向只定到正负号）。丢失方向取自 \(J\)（转动行乘 \(L\)）的最小左奇异向量。侧栏的奇异值条按同一刻度画出；"秩"用阈值 \(10^{-6}\sigma_1\) 判定。</span>
       
     </figcaption>
   </figure>
@@ -245,7 +245,7 @@
   <ul class="tasks">
     <li data-task="elbow"><span><span data-lang="zh">选"肘"，让 \(s=0\)。秩变成 5，椭球被压成一个圆盘，丢失的方向沿手臂。把 \(s\) 向两侧各拉一点：行列式的符号翻了吗？</span></span></li>
     <li data-task="wristj"><span><span data-lang="zh">选"腕"，让 \(s=0\)。秩同样是 5，可是线速度椭球并没有被压成一个盘，\(J_v\) 和 \(J_\omega\) 两块各自仍然满秩。奇异性只出现在"6 行合在一起"时：丢失的方向是线速度与角速度的混合。</span></span></li>
-    <li data-task="units"><span><span data-lang="zh">停在任一奇异位形（\(s=0\)），把 \(L\) 从 1 拉到 0.4 以下或 1.5 以上：秩不变，丢失方向里"转动 / 平移"的比例变了。哪个才是"真正的"丢失方向？</span></span></li>
+    <li data-task="units"><span><span data-lang="zh">选"腕"并停在 \(s=0\)，把 \(L\) 从 1 拉到 0.5 以下或 1.5 以上：秩不变，丢失方向里"转动 / 平移"的比例变了。哪个才是"真正的"丢失方向？（对"肘"和"肩"，参考点取手腕中心时，丢失方向是纯平移，与 \(L\) 无关；把参考点换成工具点再试一次。）</span></span></li>
   </ul>
 
   <h3><span data-lang="zh">哪个坐标系？同一组关节速度，三种雅可比</span></h3>
@@ -271,13 +271,13 @@
     </div>
     <div class="fig-controls" id="fr-ctl"></div>
     <figcaption class="fig-cap">
-      <span data-lang="zh">手爪的朝向由 \(\theta_1\)（偏航）、\(\vartheta\)（俯仰）、\(\theta_6\)（滚转）给出。预设的关节速度均为 1 rad/s。"θ̇₄"预设下 J4 的轴（前臂轴）与手爪轴并不重合，因此它会同时转动三个欧拉角。欧拉角速度条的刻度是 ±10 rad/s，超出的条被截断并标红。侧栏的最后一项 \(1/\sigma_{\min}(E)\) 是"单位角速度最多需要多大的欧拉角速度"。</span>
+      <span data-lang="zh">手爪的朝向由 \(\theta_1\)（偏航）、\(\vartheta\)（俯仰）、\(\theta_6\)（滚转）给出。单关节预设的关节速度均为 1 rad/s（"混合"预设是一组不同的速度）。"θ̇₄"预设下 J4 的轴（前臂轴）与手爪轴并不重合，因此它会同时转动三个欧拉角。欧拉角速度条的刻度是 ±10 rad/s，超出的条被截断并标红。侧栏的最后一项 \(1/\sigma_{\min}(E)\) 是"单位角速度最多需要多大的欧拉角速度"。</span>
       
     </figcaption>
   </figure>
   <div class="tasks-title"><span data-lang="zh">试一试</span></div>
   <ul class="tasks">
-    <li data-task="gimbal"><span><span data-lang="zh">选"θ̇₄"预设，把俯仰角 \(\vartheta\) 拉到 \(\ge85^\circ\)：欧拉角速度冲出刻度，而手臂的 \(\sigma_{\min}(J_s)\) 毫无变化。再找出手臂<b>自己</b>奇异的那个 \(\vartheta\)（\(\theta_5=0\)，\(\sigma_{\min}(J_s)\) 掉到 0），它与万向节锁是同一回事吗？</span></span></li>
+    <li data-task="gimbal"><span><span data-lang="zh">选"θ̇₄"预设，把俯仰角 \(\vartheta\) 拉到 \(\ge85^\circ\)：欧拉角速度冲出刻度，而手臂的 \(\sigma_{\min}(J_s)\) 离 0 很远（60° 到 90° 之间几乎不变）。再找出手臂<b>自己</b>奇异的那个 \(\vartheta\)（\(\theta_5=0\)，\(\sigma_{\min}(J_s)\) 掉到 0），它与万向节锁是同一回事吗？</span></span></li>
   </ul>
   <div class="callout view">
     <div class="ct"><span data-lang="zh">一个运动，几种写法</span></div>
@@ -360,7 +360,7 @@
     <p>遥操作、示教拖动、贴着表面擦拭、给相机一个"往目标靠近"的命令……最终都落在同一条流水线上：每个控制周期读出当前关节角，算雅可比，解 \(\dot{\boldsymbol\theta}=J^{+}\boldsymbol\xi_{\text{cmd}}\)（或阻尼最小二乘），积分后发给电机。这叫 <b>resolved-rate 控制</b>。下面的实验把它搬到 6R 臂上，目的有三：</p>
     <ul>
       <li><b>命令在哪个坐标系里？</b>"基座系"命令走混合雅可比，"工具系"命令走 \(J_b\)。选"不匹配"，就是把一个坐标系里的数字喂给另一个坐标系的雅可比，手爪会朝奇怪的方向走。</li>
-      <li><b>开环积分会漂。</b>\(J\) 只是瞬时有效，离散积分（FIG 5 用 \(\Delta t=0.02\) s）有一阶误差，读数里的末端误差来自这里；真实控制器会加位姿反馈 \(\boldsymbol\xi=\boldsymbol\xi_{\text{ff}}+K\mathbf e\)。</li>
+      <li><b>开环积分会漂。</b>\(J\) 只是瞬时有效，离散积分（FIG 5 用 \(\Delta t=0.02\) s）有一阶误差：用伪逆时，读数里的末端误差就来自这里；阻尼最小二乘还会再加上一份由阻尼带来的偏差（默认 \(\lambda=0.05\) 时它反而是主要部分）；真实控制器会加位姿反馈 \(\boldsymbol\xi=\boldsymbol\xi_{\text{ff}}+K\mathbf e\)。</li>
       <li><b>奇异位形附近怎么办？</b>把速度调大，让手爪冲向手臂伸展的极限：伪逆要求的关节速度冲上天，阻尼最小二乘（\(\lambda\) 可调）保持有界，代价是慢下来、偏离。</li>
     </ul>
   </div>
@@ -385,7 +385,7 @@
   </figure>
   <div class="tasks-title"><span data-lang="zh">试一试</span></div>
   <ul class="tasks">
-    <li data-task="mism"><span><span data-lang="zh">命令选"沿 +x 平移"，坐标系选"工具系"，雅可比选"不匹配"，让终点位置误差超过 0.3 m。再改回"匹配"，误差降到多少？为什么不是 0？</span></span></li>
+    <li data-task="mism"><span><span data-lang="zh">命令选"沿 +x 平移"，坐标系选"工具系"，雅可比选"不匹配"，让终点位置误差超过 0.3 m。再改回"匹配"并换成"伪逆"，误差降到多少？为什么不是 0？</span></span></li>
     <li data-task="blow"><span><span data-lang="zh">选基座系的"沿 +x 平移"，方法"伪逆"，把速度调到 0.5 m/s 以上，让需求峰值超过 20 rad/s。换成"阻尼最小二乘"再看一遍：末端停在了哪里？</span></span></li>
   </ul>
   <div class="callout robot">
@@ -420,7 +420,7 @@
   </div>
   <div class="callout pitfall">
     <div class="ct"><span data-lang="zh">误区 5：把 \(J\) 当成常数</span></div>
-    <p data-lang="zh">\(J(\boldsymbol\theta)\) 每一列都随位形变化，\(\boldsymbol\xi=J\dot{\boldsymbol\theta}\) 只是瞬时关系。FIG 5 里"匹配"雅可比的终点误差不是 0，就是因为每个 20 ms 的周期里 \(J\) 其实在变。解决办法是缩短周期、用位姿反馈闭环，或者在 IK 中每步重新算 \(J\)（7.5 节）。同样，用两帧位姿做差再除以时间来"测"手爪速度时，要用 \(\log\) 得到 twist，而不是把 \(4\times4\) 矩阵逐元素相减。</p>
+    <p data-lang="zh">\(J(\boldsymbol\theta)\) 每一列都随位形变化，\(\boldsymbol\xi=J\dot{\boldsymbol\theta}\) 只是瞬时关系。FIG 5 里"匹配"雅可比用伪逆时的终点误差不是 0，就是因为每个 20 ms 的周期里 \(J\) 其实在变（阻尼最小二乘的误差还另含阻尼造成的偏差）。解决办法是缩短周期、用位姿反馈闭环，或者在 IK 中每步重新算 \(J\)（7.5 节）。同样，用两帧位姿做差再除以时间来"测"手爪速度时，要用 \(\log\) 得到 twist，而不是把 \(4\times4\) 矩阵逐元素相减。</p>
     
   </div>
 </section>
@@ -743,7 +743,7 @@ R101.onReady(function () {
       if (Math.abs(s) < 1e-6) {
         if (fam === 'elbow') done('elbow');
         if (fam === 'wrist') done('wristj');
-        if (Math.abs(Lw - 1) > 0.5) done('units');
+        if (Math.abs(Lw - 1) > 0.5 && (fam === 'wrist' || refIdx === 4)) done('units');
       }
     };
     ui.seg(document.getElementById('sg-fam'), [{ value: 'elbow', zh: '肘', en: 'elbow' }, { value: 'shoulder', zh: '肩', en: 'shoulder' }, { value: 'wrist', zh: '腕', en: 'wrist' }], fam, v => { fam = v; user(); });

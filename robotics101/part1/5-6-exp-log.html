@@ -194,8 +194,8 @@
     </div>
     <div class="fig-controls" id="rv-controls"></div>
     <figcaption class="fig-cap">
-      <span data-lang="zh">淡色坐标系是单位元 \(I\)，亮色坐标系是 \(\Exp(t\boldsymbol\omega)\)。紫色虚线是转轴，黄色箭头是旋转向量 \(\boldsymbol\omega\)（为了放得下，按 0.4 倍长度画）。彩色细圆是各轴尖绕转轴的完整圆周，粗线是 \(0 \to t\) 已经走过的部分。</span>
-      <span data-lang="en">The faint frame is the identity \(I\); the bright frame is \(\Exp(t\boldsymbol\omega)\). The dashed purple line is the axis and the amber arrow is the rotation vector \(\boldsymbol\omega\) (drawn at 0.4× length so it fits). The thin colored circles are the full orbits of the axis tips; the thick arcs are the part covered from \(0\) to \(t\).</span>
+      <span data-lang="zh">淡色坐标系是单位元 \(I\)，亮色坐标系是 \(\Exp(t\boldsymbol\omega)\)。紫色虚线是转轴，紫色箭头是旋转向量 \(\boldsymbol\omega\)（为了放得下，按 0.4 倍长度画）。彩色细圆是各轴尖绕转轴的完整圆周，粗线是 \(0 \to t\) 已经走过的部分。</span>
+      <span data-lang="en">The faint frame is the identity \(I\); the bright frame is \(\Exp(t\boldsymbol\omega)\). The dashed purple line is the axis and the purple arrow is the rotation vector \(\boldsymbol\omega\) (drawn at 0.4× length so it fits). The thin colored circles are the full orbits of the axis tips; the thick arcs are the part covered from \(0\) to \(t\).</span>
     </figcaption>
   </figure>
   <ul class="tasks"><li data-task="z180"><span><span data-lang="zh">只用滑块（不用预设），在 \(t = 1\) 时得到<b>绕 z 轴转 180°</b> 的旋转。你能找到两种不同的 \(\boldsymbol\omega\) 吗？</span><span data-lang="en">Using only the sliders (no presets), produce a <b>180° rotation about the z-axis</b> at \(t = 1\). Can you find two different \(\boldsymbol\omega\) that do it?</span></span></li></ul>
@@ -245,8 +245,8 @@
     <div class="fig-controls" id="tw-ctl-v"></div>
     <div class="fig-controls" id="tw-ctl-s"></div>
     <figcaption class="fig-cap">
-      <span data-lang="zh">灰色线框是起点（单位位姿），实心盒子是 \(\exp(s\boldsymbol\xi)\)。紫色点 \(\mathbf q\) 是螺旋轴上离原点最近的点，青色细线是盒子一个角走过的路径。注意 \(\mathbf v\) <b>不是</b>物体原点的速度，而是"此刻恰好位于世界原点的那个物体点"的速度；只有 \(\boldsymbol\omega = 0\) 时两者才相同。</span>
-      <span data-lang="en">The grey wireframe is the start (identity pose); the solid box is \(\exp(s\boldsymbol\xi)\). The purple point \(\mathbf q\) is the point of the screw axis closest to the origin, and the thin cyan curve is the path of one corner of the box. Note that \(\mathbf v\) is <b>not</b> the velocity of the body's origin: it is the velocity of whichever body point currently sits at the world origin. The two agree only when \(\boldsymbol\omega = 0\).</span>
+      <span data-lang="zh">灰色线框是起点（单位位姿），实心盒子是 \(\exp(s\boldsymbol\xi)\)。紫色点 \(\mathbf q\) 是螺旋轴上离原点最近的点，青色细线是盒子一个角走过的路径。注意 \(\mathbf v\) 是"此刻恰好位于世界原点的那个物体点"的速度。起点（\(s = 0\)）时这个点就是物体原点，所以琥珀色路径一开始沿 \(\mathbf v\) 的方向出发；盒子离开原点以后（\(s > 0\)），两者一般就不同了，除非 \(\boldsymbol\omega = 0\)。</span>
+      <span data-lang="en">The grey wireframe is the start (identity pose); the solid box is \(\exp(s\boldsymbol\xi)\). The purple point \(\mathbf q\) is the point of the screw axis closest to the origin, and the thin cyan curve is the path of one corner of the box. Note that \(\mathbf v\) is the velocity of whichever body point currently sits at the world origin. At the start (\(s = 0\)) that point is the body origin itself, so the amber path leaves along \(\mathbf v\); once the box has moved away (\(s > 0\)) the two generally differ, unless \(\boldsymbol\omega = 0\).</span>
     </figcaption>
   </figure>
 
@@ -644,7 +644,7 @@ R101.onReady(function () {
       V.frame({ R: I3, t: [0, 0, 0] }, { scale: SC, width: 2, alpha: 0.28 });
       V.line(M.scale(u, -2.8), M.scale(u, 2.8), { color: 'w', width: hl === 'u' ? 4 : 2, dash: [8, 6], alpha: hl === 'u' ? 1 : 0.8 });
       V.text(R101.t('转轴 û', 'axis û'), M.scale(u, 2.9), { color: 'w', size: 12 });
-      if (thDeg > 0.5) V.arrow([0, 0, 0], M.scale(w, 0.4), { color: 'v', width: 4, label: 'ω', bias: 0.05 });
+      if (thDeg > 0.5) V.arrow([0, 0, 0], M.scale(w, 0.4), { color: 'w', width: 4, label: 'ω', bias: 0.05 });
       const cols = ['i', 'j', 'k'];
       for (let j = 0; j < 3; j++) {
         V.polyline(orbits[j], { color: cols[j], width: 1, alpha: 0.22 });
@@ -675,7 +675,7 @@ R101.onReady(function () {
     const tw = document.getElementById('rv-tex-w'), tk = document.getElementById('rv-tex-k'), tr = document.getElementById('rv-tex-r'), rd = document.getElementById('rv-read');
     function sync() {
       compute();
-      R101.tex(tw, `\\cv{\\boldsymbol\\omega} = \\theta\\,\\cw{\\hat{\\mathbf u}} = ${M.texVec(w)}`);
+      R101.tex(tw, `\\cw{\\boldsymbol\\omega} = \\theta\\,\\cw{\\hat{\\mathbf u}} = ${M.texVec(w)}`);
       R101.tex(tk, `\\skew{\\boldsymbol\\omega} = ${M.texMat(M.hat(w))}`);
       R101.tex(tr, `\\Exp(${M.tex(t)}\\,\\boldsymbol\\omega) = ${M.texMat(R)}`);
       const tt = M.trace(R), back = Math.acos(M.clamp((tt - 1) / 2, -1, 1));

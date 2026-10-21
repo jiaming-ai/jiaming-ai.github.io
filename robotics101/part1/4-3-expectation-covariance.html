@@ -233,7 +233,7 @@
       </div>
     </div>
     <figcaption class="fig-cap">
-      <span data-lang="zh">400 个 \(\mathcal N(\mathbf 0, \Sigma)\) 的样本；<span class="cv">黄色</span>椭圆是 1σ 与 2σ，虚线是主轴。拖动<span class="cv">两个黄色把手</span>改变主轴的方向与半轴长（把手在 1σ 椭圆的轴端）。<span class="cw">紫色把手</span>选择方向 \(\mathbf u\)：紫色粗线是投影的 ±σᵤ 范围，两条垂线与椭圆相切；它的长度就是 \(\sqrt{\mathbf u^\top\Sigma\mathbf u}\)。悬停公式里的 \(\mathrm{Cov}\)，会画出每个样本的带符号长方形。</span>
+      <span data-lang="zh">400 个 \(\mathcal N(\mathbf 0, \Sigma)\) 的样本；<span class="cv">黄色</span>椭圆是 1σ 与 2σ，虚线是主轴。拖动<span class="cv">两个黄色把手</span>改变主轴的方向与半轴长（把手在 1σ 椭圆的轴端）。<span class="cw">紫色把手</span>选择方向 \(\mathbf u\)：紫色粗线是投影的 ±σᵤ 范围，两条垂线与椭圆相切；它的半长就是 \(\sqrt{\mathbf u^\top\Sigma\mathbf u}\)。悬停公式里的 \(\mathrm{Cov}\)，会画出每个样本的带符号长方形。</span>
       <span data-lang="en">400 samples from \(\mathcal N(\mathbf 0, \Sigma)\); the <span class="cv">amber</span> ellipses are 1σ and 2σ, dashed lines are the principal axes. Drag the <span class="cv">two amber handles</span> to change the principal directions and semi-axes (the handles sit at the axis tips of the 1σ ellipse). The <span class="cw">purple handle</span> picks a direction \(\mathbf u\): the thick purple line is the ±σᵤ extent of the projection, and the two perpendicular lines touch the ellipse; its half-length is \(\sqrt{\mathbf u^\top\Sigma\mathbf u}\). Hover \(\mathrm{Cov}\) in the formulas to draw each sample's signed rectangle.</span>
     </figcaption>
   </figure>
@@ -284,11 +284,11 @@
 
   <h3><span data-lang="zh">期望</span><span data-lang="en">Expectation</span></h3>
   <div class="math-card">
-  $$ \hl{mean}{E[X] = \sum_i x_i\,p(x_i)} \;\;\Big/\;\; \hl{mean}{E[X] = \int x\,f(x)\,dx}, \qquad E[g(X)] = \sum_i g(x_i)\,p(x_i) $$
+  $$ \hl{mean}{E[X] = \sum_i x_i\,p(x_i)}, \qquad \hl{mean}{E[X] = \int x\,f(x)\,dx}, \qquad E[g(X)] = \sum_i g(x_i)\,p(x_i) $$
   $$ E[aX + bY + c] = a\,E[X] + b\,E[Y] + c $$
   </div>
-  <p data-lang="zh">第二行的<b>线性</b>是概率里最好用的性质：不需要知道 \(X, Y\) 的联合分布，独立与否都成立。机器人里，\(E[A\mathbf x + \mathbf b] = A\,E[\mathbf x] + \mathbf b\)，这就是"均值穿过线性映射"（4.5）。</p>
-  <p data-lang="en">The <b>linearity</b> in the second line is the most useful property in probability: no knowledge of the joint distribution of \(X, Y\) is needed, and it holds whether or not they are independent. For robots, \(E[A\mathbf x + \mathbf b] = A\,E[\mathbf x] + \mathbf b\), which is "the mean passes through a linear map" (Lesson 4.5).</p>
+  <p data-lang="zh">第一行前两式分别是离散情形与连续情形（\(f\) 是概率密度）。第二行的<b>线性</b>是概率里最好用的性质：不需要知道 \(X, Y\) 的联合分布，独立与否都成立。机器人里，\(E[A\mathbf x + \mathbf b] = A\,E[\mathbf x] + \mathbf b\)，这就是"均值穿过线性映射"（4.5）。</p>
+  <p data-lang="en">The first two formulas of the first line are the discrete and the continuous case (\(f\) is the density). The <b>linearity</b> in the second line is the most useful property in probability: no knowledge of the joint distribution of \(X, Y\) is needed, and it holds whether or not they are independent. For robots, \(E[A\mathbf x + \mathbf b] = A\,E[\mathbf x] + \mathbf b\), which is "the mean passes through a linear map" (Lesson 4.5).</p>
 
   <h3><span data-lang="zh">方差与协方差</span><span data-lang="en">Variance and covariance</span></h3>
   <div class="math-card">
@@ -320,11 +320,11 @@
 <section class="step" id="robotics">
   <h2><span class="n">6</span><span data-lang="zh">机器人中的它：定位误差的"形状"</span><span data-lang="en">In robotics: the "shape" of a localization error</span></h2>
   <div data-lang="zh">
-    <p>室内的 UWB 定位、或者靠两个已知的信标做距离测量，是一个非常干净的例子：机器人量到自己到信标 A 和 B 的距离 \(r_1, r_2\)，每个距离有高斯噪声 \(\sigma_r\)，然后求两个圆的交点作为位置。每次测量得到一个交点，重复很多次，就得到一团点云。它的形状取决于<b>信标的几何</b>：两个信标与机器人夹角接近 90° 时，点云接近圆；两个信标几乎在同一条射线上时，点云沿着这条射线被<b>拉得很长</b>，因为两个圆几乎相切。这正是 GPS 里的"几何精度因子" (DOP)。</p>
+    <p>室内的 UWB 定位、或者靠两个已知的信标做距离测量，是一个非常干净的例子：机器人量到自己到信标 A 和 B 的距离 \(r_1, r_2\)，每个距离有高斯噪声 \(\sigma_r\)，然后求两个圆的交点作为位置。每次测量得到一个交点，重复很多次，就得到一团点云。它的形状取决于<b>信标的几何</b>：两个信标与机器人夹角接近 90° 时，点云接近圆；两个信标几乎在同一条射线上时，点云在<b>垂直于这条射线</b>的方向上被<b>拉得很长</b>：两个圆在机器人处几乎相切，两次测距都只约束了沿射线的距离，沿切线方向几乎没有约束。这正是 GPS 里的"几何精度因子" (DOP)。</p>
     <p>图里同时画出<b>样本协方差</b>（直接从点云算出，黄色）和用雅可比算出的<b>理论预测</b> \(\sigma_r^2 (J^\top J)^{-1}\)（紫色虚线，下一节 4.5 的内容）；噪声不大时它们重合。拖动信标和机器人。</p>
   </div>
   <div data-lang="en">
-    <p>Indoor UWB positioning, or measuring ranges to two known beacons, is a very clean example. The robot measures its distances \(r_1, r_2\) to beacons A and B, each with Gaussian noise \(\sigma_r\), and takes the intersection of the two circles as its position. Each measurement gives one intersection; repeat many times and you get a cloud. Its shape depends on the <b>beacon geometry</b>: when the two beacons are about 90° apart as seen from the robot the cloud is nearly round; when they are almost on the same ray the cloud is <b>stretched long</b> along that ray, because the two circles are nearly tangent. This is the "dilution of precision" (DOP) of GPS.</p>
+    <p>Indoor UWB positioning, or measuring ranges to two known beacons, is a very clean example. The robot measures its distances \(r_1, r_2\) to beacons A and B, each with Gaussian noise \(\sigma_r\), and takes the intersection of the two circles as its position. Each measurement gives one intersection; repeat many times and you get a cloud. Its shape depends on the <b>beacon geometry</b>: when the two beacons are about 90° apart as seen from the robot the cloud is nearly round; when they are almost on the same ray the cloud is <b>stretched long</b> <b>perpendicular to that ray</b>: the two circles are nearly tangent at the robot, both ranges constrain only the distance along the ray, and almost nothing constrains the tangent direction. This is the "dilution of precision" (DOP) of GPS.</p>
     <p>The figure draws both the <b>sample covariance</b> (computed straight from the cloud, amber) and the <b>theoretical prediction</b> \(\sigma_r^2 (J^\top J)^{-1}\) from a Jacobian (dashed purple, the topic of the next lesson, 4.5); for small noise they coincide. Drag the beacons and the robot.</p>
   </div>
 
@@ -568,10 +568,23 @@ R101.onReady(function () {
     }
     const stats = () => {
       const mu = xs.reduce((s, x, i) => s + x * p[i], 0), va = xs.reduce((s, x, i) => s + p[i] * (x - mu) * (x - mu), 0);
+      // median: if the cumulative mass hits exactly 1/2, every point up to the next bar minimizes E|X-c|; take the midpoint
       let cum = 0, med = xs[NB - 1];
-      for (let i = 0; i < NB; i++) { cum += p[i]; if (cum >= 0.5 - 1e-12) { med = xs[i]; break; } }
-      const mx = Math.max.apply(null, p), mode = xs[p.indexOf(mx)];
-      return { mu, va, sd: Math.sqrt(va), med, mode };
+      for (let i = 0; i < NB; i++) {
+        cum += p[i];
+        if (cum >= 0.5 - 1e-9) {
+          med = xs[i];
+          if (Math.abs(cum - 0.5) < 1e-9) { for (let j = i + 1; j < NB; j++) if (p[j] > 1e-9) { med = (xs[i] + xs[j]) / 2; break; } }
+          break;
+        }
+      }
+      // mode: all bars tied for the maximum; a contiguous tie is reported by its midpoint
+      const mx = Math.max.apply(null, p), modeIdx = [];
+      p.forEach((v, i) => { if (Math.abs(v - mx) < 1e-9) modeIdx.push(i); });
+      const contig = modeIdx[modeIdx.length - 1] - modeIdx[0] === modeIdx.length - 1;
+      const mode = contig ? (xs[modeIdx[0]] + xs[modeIdx[modeIdx.length - 1]]) / 2 : xs[modeIdx[0]];
+      const modeTxt = contig ? M.fmt(mode, 1) : modeIdx.map(i => M.fmt(xs[i], 1)).join(' / ');
+      return { mu, va, sd: Math.sqrt(va), med, mode, modeIdx, modeTxt };
     };
     const J2 = x => { const s = stats(); return s.va + (s.mu - x) * (s.mu - x); };
     const J1 = x => xs.reduce((s, xi, i) => s + p[i] * Math.abs(xi - x), 0);
@@ -586,7 +599,7 @@ R101.onReady(function () {
       // mu ± sigma band
       P.poly([q1(S.mu - S.sd, -0.03), q1(S.mu + S.sd, -0.03), q1(S.mu + S.sd, 0.0), q1(S.mu - S.sd, 0.0)], { fill: 'v', fillAlpha: hl === 'var' ? 0.7 : 0.35 });
       for (let i = 0; i < NB; i++) {
-        const h = Math.min(YMAX, p[i]), isMode = xs[i] === S.mode;
+        const h = Math.min(YMAX, p[i]), isMode = S.modeIdx.indexOf(i) >= 0;
         P.poly([q1(i + 0.1, 0), q1(i + 0.9, 0), q1(i + 0.9, h), q1(i + 0.1, h)], { fill: 'x', fillAlpha: isMode ? 0.45 : 0.25, stroke: 'x', width: isMode ? 2.8 : 1.4 });
         if (p[i] >= 0.03) P.text(Math.round(p[i] * 100) + '%', q1(i + 0.5, h), { offset: [0, -9], align: 'center', size: 10.5, bold: true });
       }
@@ -627,7 +640,7 @@ R101.onReady(function () {
       R101.tex(t1, `\\hl{mean}{\\mu = \\sum_i x_i\\,p_i} = ${M.tex(S.mu, 2)}`);
       R101.tex(t2, `\\hl{var}{\\sigma^2 = \\sum_i p_i (x_i-\\mu)^2} = ${M.tex(S.va, 2)}`);
       R101.tex(t3, `E[(X-c)^2] = \\sigma^2 + (\\mu - c)^2 = ${M.tex(J2(c), 2)}`);
-      read.innerHTML = `${L('众数', 'mode')} <b class="cx">${M.fmt(S.mode, 1)}</b> · ${L('中位数', 'median')} <b class="cw">${M.fmt(S.med, 1)}</b> · ${L('均值', 'mean')} <b class="cv">${M.fmt(S.mu, 2)}</b><br>σ = <b>${M.fmt(S.sd, 2)}</b><br>c = <b class="ck">${M.fmt(c, 2)}</b>: E[(X−c)²] = <b>${M.fmt(J2(c), 2)}</b>, E|X−c| = <b>${M.fmt(J1(c), 2)}</b>`;
+      read.innerHTML = `${L('众数', 'mode')} <b class="cx">${S.modeTxt}</b> · ${L('中位数', 'median')} <b class="cw">${M.fmt(S.med, 1)}</b> · ${L('均值', 'mean')} <b class="cv">${M.fmt(S.mu, 2)}</b><br>σ = <b>${M.fmt(S.sd, 2)}</b><br>c = <b class="ck">${M.fmt(c, 2)}</b>: E[(X−c)²] = <b>${M.fmt(J2(c), 2)}</b>, E|X−c| = <b>${M.fmt(J1(c), 2)}</b>`;
       const gp = p[Math.min(NB - 1, Math.floor(S.mu))];
       msg.innerHTML = gp < 0.02 && S.va > 3 ? L('均值落在一个概率几乎为 0 的位置：它是"平均意义下的位置"，不是"最可能的位置"。', 'The mean sits where the probability is almost 0: it is the average position, not the likeliest one.')
         : S.mu - S.med > 1 ? L('右偏：远处的轻柱子把均值拽到中位数右边。', 'Right-skewed: the faraway light bars drag the mean to the right of the median.')
@@ -901,10 +914,10 @@ R101.onReady(function () {
       let sm = '—', sM = '—';
       if (pts.length) { const S = covOf(pts, meanOf(pts)), e = M.eigSym2(S); sM = M.fmt(Math.sqrt(e.l1), 2); sm = M.fmt(Math.sqrt(e.l2), 2); }
       read.innerHTML = `${L('夹角', 'angle between beacons')} γ = <b>${M.fmt(g, 0)}°</b><br>DOP = √2/|sin γ| = <b>${sinG > 0.01 ? M.fmt(Math.SQRT2 / sinG, 2) : '∞'}</b><br>${L('样本 σ 主轴/次轴', 'sample σ major / minor')}: <b class="cv">${sM}</b> / <b class="cv">${sm}</b> m`;
-      msg.innerHTML = sinG < 0.26 ? L('两个信标几乎在同一方向（或与机器人共线）：两个圆近乎相切，沿视线方向的误差被放大。', 'The beacons lie in almost the same direction (or collinear with the robot): the two circles are nearly tangent and the error along the line of sight blows up.')
+      msg.innerHTML = sinG < 0.26 ? L('两个信标几乎在同一方向（或与机器人共线）：两个圆近乎相切，垂直于视线（沿公切线）方向的误差被放大。', 'The beacons lie in almost the same direction (or collinear with the robot): the two circles are nearly tangent and the error perpendicular to the line of sight (along their common tangent) blows up.')
         : Math.abs(g - 90) < 8 ? L('接近垂直的两条视线：椭圆接近圆，精度最好（DOP ≈ 1.41）。', 'Nearly perpendicular lines of sight: a near-round ellipse and the best accuracy (DOP ≈ 1.41).')
         : L('拖动机器人和信标，观察椭圆的形状怎样随几何变化。', 'Drag the robot and beacons and see how the ellipse follows the geometry.');
-      if (touched && sinG < 0.26) R101.done('tri-line');
+      if (touched && g < 15) R101.done('tri-line');
       if (touched && Math.abs(g - 90) < 5) R101.done('tri-round');
       P.invalidate();
     }

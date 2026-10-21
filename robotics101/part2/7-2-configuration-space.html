@@ -329,10 +329,10 @@
   <div class="cs-wrap"><table class="cs-tab">
     <thead><tr><th><span data-lang="zh">系统</span><span data-lang="en">System</span></th><th>\(\mathcal C\)</th><th><span data-lang="zh">维数</span><span data-lang="en">dim</span></th><th>nq / nv</th></tr></thead>
     <tbody>
-      <tr><td><span data-lang="zh">平面两连杆（无限位）</span><span data-lang="en">Planar 2R (no limits)</span></td><td>\(T^2=S^1\times S^1\)</td><td>2</td><td>2 / 2 <span data-lang="zh">（角度）</span><span data-lang="en">(angles)</span></td></tr>
+      <tr><td><span data-lang="zh">平面两连杆（无限位）</span><span data-lang="en">Planar 2R (no limits)</span></td><td>\(T^2=S^1\times S^1\)</td><td>2</td><td>2 / 2 <span data-lang="zh">（角度）或 4 / 2（Pinocchio：\(\cos,\sin\)）</span><span data-lang="en">(angles) or 4 / 2 (Pinocchio: \(\cos,\sin\))</span></td></tr>
       <tr><td><span data-lang="zh">平面刚体（移动机器人）</span><span data-lang="en">Planar rigid body (mobile robot)</span></td><td>\(SE(2)\cong\R^2\times S^1\)</td><td>3</td><td>3 / 3 <span data-lang="zh">或</span><span data-lang="en">or</span> 4 / 3 <span data-lang="zh">（\(x,y,\cos\phi,\sin\phi\)）</span><span data-lang="en">(\(x,y,\cos\phi,\sin\phi\))</span></td></tr>
       <tr><td><span data-lang="zh">六自由度机械臂（有限位）</span><span data-lang="en">6-DoF arm (with limits)</span></td><td>\(I^6\)</td><td>6</td><td>6 / 6</td></tr>
-      <tr><td><span data-lang="zh">7 自由度臂装在平面底盘上（无限位）</span><span data-lang="en">7-DoF arm on a planar base (no limits)</span></td><td>\(SE(2)\times T^7\)</td><td>10</td><td>3 + 7 / 10</td></tr>
+      <tr><td><span data-lang="zh">7 自由度臂装在平面底盘上（无限位）</span><span data-lang="en">7-DoF arm on a planar base (no limits)</span></td><td>\(SE(2)\times T^7\)</td><td>10</td><td>10 / 10 <span data-lang="zh">（角度）或 18 / 10（Pinocchio）</span><span data-lang="en">(angles) or 18 / 10 (Pinocchio)</span></td></tr>
       <tr><td><span data-lang="zh">四旋翼 / 自由飞行刚体</span><span data-lang="en">Quadrotor / free-flying rigid body</span></td><td>\(SE(3)\cong\R^3\times SO(3)\)</td><td>6</td><td>7 / 6 <span data-lang="zh">（四元数）</span><span data-lang="en">(quaternion)</span></td></tr>
       <tr><td><span data-lang="zh">人形机器人：浮动基座 + 30 个关节</span><span data-lang="en">Humanoid: floating base + 30 joints</span></td><td>\(SE(3)\times I^{30}\)</td><td>36</td><td>37 / 36</td></tr>
     </tbody>
@@ -381,12 +381,12 @@
 <section class="step" id="robotics">
   <h2><span class="n">6</span><span data-lang="zh">机器人中的它：窄通道与"数一数你的 nq 和 nv"</span><span data-lang="en">In robotics: narrow passages, and "count your nq and nv"</span></h2>
   <div data-lang="zh">
-    <p><b>窄通道。</b>规划器最怕的不是障碍物多，而是自由空间里的"窄门"。下面是一个只有三个自由度的例子：一根杆（平面刚体，\(\mathcal C=SE(2)\)）要穿过墙上的一个门洞。在工作空间里门洞宽约 0.5，杆长 1.2，看上去根本过不去；但在 \(\mathcal C\) 里，只要杆的朝向合适，它就是一个自由的通道。右图是 \(\mathcal C\) 沿杆中心 \(x\) 坐标取的一个切片（横轴 \(y\)，纵轴朝向 \(\phi\)）：红色是会撞墙的 \((y,\phi)\)，中间那一小块自由区域就是"门"。拖动杆的中心靠近墙，切片里的自由区域会收窄；杆一旦竖起来（\(\phi\) 接近 \(\pm90°\)），门就关上了。</p>
-    <p>这就是采样式规划器（Part IV 的 PRM、RRT）的难处：在 \(\mathcal C\) 里随机撒点，落进窄门的概率与它占的体积成比例，而这个体积往往很小；维数越高，情况越糟。FIG 2 里我们用 \(180^2\) 个格点就能画出整个 \(\mathcal C\)，六自由度臂用同样的分辨率要 \(160^6\approx1.7\times10^{13}\) 个格点，已经不可能了，所以实际系统都是<b>采样</b>并<b>只对采到的点做碰撞检测</b>。</p>
+    <p><b>窄通道。</b>规划器最怕的不是障碍物多，而是自由空间里的"窄门"。下面是一个只有三个自由度的例子：一根杆（平面刚体，\(\mathcal C=SE(2)\)）要穿过墙上的一个门洞。门洞净宽约 0.48，杆长 1.2，是门宽的 2.5 倍：杆只有在大致对准门的法线方向时才过得去，允许的朝向只是很窄的一段。在 \(\mathcal C\) 里，这就是一条细长的自由通道。右图是 \(\mathcal C\) 沿杆中心 \(x\) 坐标取的一个切片（横轴 \(y\)，纵轴朝向 \(\phi\)）：红色是会撞墙的 \((y,\phi)\)，中间那一小块自由区域就是"门"。拖动杆的中心靠近墙，切片里的自由区域会收窄；杆一旦竖起来（\(\phi\) 接近 \(\pm90°\)），门就关上了。</p>
+    <p>这就是采样式规划器（Part IV 的 PRM、RRT）的难处：在 \(\mathcal C\) 里随机撒点，落进窄门的概率与它占的体积成比例，而这个体积往往很小；维数越高，情况越糟。FIG 2 里我们用 \(180^2\) 个格点就能画出整个 \(\mathcal C\)，六自由度臂用同样的分辨率要 \(180^6\approx3.4\times10^{13}\) 个格点，已经不可能了，所以实际系统都是<b>采样</b>并<b>只对采到的点做碰撞检测</b>。</p>
   </div>
   <div data-lang="en">
-    <p><b>Narrow passages.</b> What a planner fears is not many obstacles but a narrow door in free space. Here is a three-DoF example: a rod (a planar rigid body, \(\mathcal C=SE(2)\)) must pass through a doorway in a wall. In the workspace the doorway is about 0.5 wide and the rod 1.2 long, so it looks impossible; in \(\mathcal C\), for the right orientation, it is a free corridor. The right panel is a slice of \(\mathcal C\) at the rod centre's current \(x\) (horizontal \(y\), vertical orientation \(\phi\)): red marks the \((y,\phi)\) that hit the wall, and the small free region in the middle is the "door". Drag the rod centre toward the wall and the free region in the slice narrows; once the rod stands upright (\(\phi\) near \(\pm90°\)), the door is shut.</p>
-    <p>This is the difficulty of sampling-based planners (PRM and RRT in Part IV): a random sample lands in a narrow door with probability proportional to its volume, which is often tiny, and the higher the dimension, the worse it gets. In FIG 2 a \(180^2\) grid draws all of \(\mathcal C\); a six-DoF arm at the same resolution would need \(160^6\approx1.7\times10^{13}\) cells, which is out of the question, so real systems <b>sample</b> and <b>run collision checks only at the sampled points</b>.</p>
+    <p><b>Narrow passages.</b> What a planner fears is not many obstacles but a narrow door in free space. Here is a three-DoF example: a rod (a planar rigid body, \(\mathcal C=SE(2)\)) must pass through a doorway in a wall. The doorway is about 0.48 wide and the rod 1.2 long, 2.5 times the width: the rod fits only when roughly aligned with the door normal, and the allowed orientations form a narrow band. In \(\mathcal C\) that is a thin free corridor. The right panel is a slice of \(\mathcal C\) at the rod centre's current \(x\) (horizontal \(y\), vertical orientation \(\phi\)): red marks the \((y,\phi)\) that hit the wall, and the small free region in the middle is the "door". Drag the rod centre toward the wall and the free region in the slice narrows; once the rod stands upright (\(\phi\) near \(\pm90°\)), the door is shut.</p>
+    <p>This is the difficulty of sampling-based planners (PRM and RRT in Part IV): a random sample lands in a narrow door with probability proportional to its volume, which is often tiny, and the higher the dimension, the worse it gets. In FIG 2 a \(180^2\) grid draws all of \(\mathcal C\); a six-DoF arm at the same resolution would need \(180^6\approx3.4\times10^{13}\) cells, which is out of the question, so real systems <b>sample</b> and <b>run collision checks only at the sampled points</b>.</p>
   </div>
 
   <figure class="fig bleed" id="fig-door">
@@ -402,7 +402,7 @@
     </figcaption>
   </figure>
   <ul class="tasks">
-    <li data-task="tilt"><span><span data-lang="zh">把杆的中心放到门轴线上（\(|x|&lt;0.04\)），让杆<b>无碰撞</b>地倾斜超过 \(57°\)。杆长是门宽的两倍，它是怎么穿过去的？切片里这个点在哪？</span><span data-lang="en">Put the rod's centre on the door line (\(|x|&lt;0.04\)) and tilt the rod beyond \(57°\) <b>without collision</b>. The rod is twice the door width; how does it get through? Where is that point in the slice?</span></span></li>
+    <li data-task="tilt"><span><span data-lang="zh">把杆的中心放到门轴线上（\(|x|&lt;0.04\)），让杆<b>无碰撞</b>地倾斜超过 \(57°\)。杆长是门宽的 2.5 倍，为什么还能这样倾斜？切片里这个点在哪？</span><span data-lang="en">Put the rod's centre on the door line (\(|x|&lt;0.04\)) and tilt the rod beyond \(57°\) <b>without collision</b>. The rod is 2.5 times the door width; why can it still tilt this far? Where is that point in the slice?</span></span></li>
   </ul>
   <div data-lang="zh">
     <p><b>数一数你的 nq 与 nv。</b>下面搭一个机器人，看它的构型空间的拓扑、维数，以及软件里的 nq、nv。</p>
@@ -524,7 +524,7 @@
       <button class="opt"><span data-lang="zh">因为旋转矩阵有 9 个元素</span><span data-lang="en">Because a rotation matrix has 9 entries</span></button>
       <button class="opt"><span data-lang="zh">因为还没有人找到这样的参数化，将来也许能找到</span><span data-lang="en">Because nobody has found one yet; maybe someone will</span></button>
     </div>
-    <div class="explain"><span data-lang="zh">旋转正好有 3 个自由度（四元数的 4 个分量带一个单位长度约束），问题不是数目，而是形状：紧致流形不可能同胚于 \(\R^3\) 的任何子集（区域不变性）。这是拓扑定理，不是工程上的缺陷，欧拉角的万向节死锁与轴角在 \(\pi\) 处的跳变是它的两种表现。</span><span data-lang="en">A rotation has exactly 3 degrees of freedom (the quaternion's 4 components carry one unit-length constraint); the issue is shape, not count: a compact manifold cannot be homeomorphic to any subset of \(\R^3\) (invariance of domain). This is a topological theorem, not an engineering deficiency; gimbal lock in Euler angles and the jump at \(\pi\) in axis-angle are two of its faces.</span></div>
+    <div class="explain"><span data-lang="zh">旋转正好有 3 个自由度（四元数的 4 个分量带一个单位长度约束），问题不是数目，而是形状：无边界的紧致三维流形不可能嵌入 \(\R^3\)（区域不变性）。这是拓扑定理，不是工程上的缺陷，欧拉角的万向节死锁与轴角在 \(\pi\) 处的跳变是它的两种表现。</span><span data-lang="en">A rotation has exactly 3 degrees of freedom (the quaternion's 4 components carry one unit-length constraint); the issue is shape, not count: a compact 3-manifold without boundary cannot be embedded in \(\R^3\) (invariance of domain). This is a topological theorem, not an engineering deficiency; gimbal lock in Euler angles and the jump at \(\pi\) in axis-angle are two of its faces.</span></div>
   </div>
 </section>
 
@@ -712,7 +712,7 @@ R101.onReady(function () {
       }
       P.point(st.th, { color: 'v', r: 7, stroke: 'canvas', strokeWidth: 2 });
     }
-    document.getElementById('c-flip').onclick = () => { st.th = twinOf(st.th); done('twin'); sync(); };
+    document.getElementById('c-flip').onclick = () => { st.th = twinOf(st.th); last = st.th.slice(); done('twin'); sync(); };
     const tex = document.getElementById('c-tex'), read = document.getElementById('c-read');
     function sync() {
       const th = st.th, p = fk2(th)[2], tw = twinOf(th);

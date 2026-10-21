@@ -122,7 +122,7 @@
     <p>用遥操作手柄或者视觉伺服去控制机械臂，你想要的是"手爪朝这个方向、以这个速度走"，电机能听懂的却是"每个关节转多快"。中间的翻译官就是雅可比 \(J(\boldsymbol\theta)\)：</p>
     <ul>
       <li><b>速度运动学</b>：\(\mathbf v = J(\boldsymbol\theta)\,\dot{\boldsymbol\theta}\)，关节速度 → 手爪速度。</li>
-      <li><b>解析/数值逆运动学</b>：\(\dot{\boldsymbol\theta} = J^{+}\mathbf v\)，手爪速度 → 关节速度。每一步迭代都要解一次。</li>
+      <li><b>微分/数值逆运动学</b>：\(\dot{\boldsymbol\theta} = J^{+}\mathbf v\)，手爪速度 → 关节速度。每一步迭代都要解一次。</li>
       <li><b>静力学</b>：\(\boldsymbol\tau = J^\top \mathbf F\)，手爪受力 → 关节力矩。力控制、阻抗控制、接触力估计都靠它。</li>
       <li><b>奇异性与可操作性</b>：\(J\) 什么时候"失去一个方向"？手臂在哪些姿态下又快又灵活？</li>
     </ul>
@@ -132,7 +132,7 @@
     <p>Whether you teleoperate an arm with a joystick or servo it from vision, what you want is "move the gripper this way at this speed", while the motors only understand "turn each joint this fast". The translator in between is the Jacobian \(J(\boldsymbol\theta)\):</p>
     <ul>
       <li><b>Velocity kinematics</b>: \(\mathbf v = J(\boldsymbol\theta)\,\dot{\boldsymbol\theta}\), joint velocities → gripper velocity.</li>
-      <li><b>Analytic/numerical inverse kinematics</b>: \(\dot{\boldsymbol\theta} = J^{+}\mathbf v\), gripper velocity → joint velocities. Every iteration solves this once.</li>
+      <li><b>Differential/numerical inverse kinematics</b>: \(\dot{\boldsymbol\theta} = J^{+}\mathbf v\), gripper velocity → joint velocities. Every iteration solves this once.</li>
       <li><b>Statics</b>: \(\boldsymbol\tau = J^\top \mathbf F\), gripper force → joint torques. Force control, impedance control and contact-force estimation all rely on it.</li>
       <li><b>Singularities and manipulability</b>: when does \(J\) "lose a direction"? In which postures is the arm fast and agile?</li>
     </ul>
@@ -183,7 +183,7 @@
 <section class="step" id="play">
   <h2><span class="n">3</span><span data-lang="zh">动手玩：关节速度的叠加</span><span data-lang="en">Play: superposing joint velocities</span></h2>
   <div data-lang="zh">
-    <p>现在三个关节同时转。用滑块给出关节角速度 \(\dot\theta_1,\dot\theta_2,\dot\theta_3\)：红、绿、蓝箭头是 \(\dot\theta_i\mathbf J_i\)，首尾相接地从手爪出发，终点连成的琥珀色箭头就是手爪的速度 \(\mathbf v\)。紫色虚线圈是"按这个速度真实运动一小段时间"后手爪的位置。因为雅可比只是一阶近似，时间越短，琥珀色预测与真实位置越贴合。</p>
+    <p>现在三个关节同时转。用滑块给出关节角速度 \(\dot\theta_1,\dot\theta_2,\dot\theta_3\)：红、绿、蓝箭头是 \(\dot\theta_i\mathbf J_i\)，首尾相接地从手爪出发，终点连成的琥珀色箭头就是手爪的速度 \(\mathbf v\)。紫色虚线是"按这个速度真实运动一小段时间"时手爪走过的路径。因为雅可比只是一阶近似，时间越短，琥珀色预测与真实位置越贴合。</p>
   </div>
   <div data-lang="en">
     <p>Now all three joints turn at once. Set the joint rates \(\dot\theta_1,\dot\theta_2,\dot\theta_3\) with the sliders: the red, green and blue arrows are \(\dot\theta_i\mathbf J_i\), chained head to tail from the tip, and the amber arrow joining the ends is the tip velocity \(\mathbf v\). The purple dashed path is where the tip really goes if the joints keep these rates for a short time. Since the Jacobian is only a first-order approximation, the shorter that time, the better the amber prediction matches the true position.</p>
@@ -197,8 +197,8 @@
     </div>
     <div class="fig-controls" id="m-controls"></div>
     <figcaption class="fig-cap">
-      <span data-lang="zh">箭头按 1 s 的位移画出（单位 m/s 对应 1 m）。琥珀色虚线圈是 \(\mathbf p + \mathbf v\,T\)，紫色路径是关节匀速转动 \(T\) 秒、手爪的真实轨迹，终点的实心紫点是真实位置。读数里的"几何 − 数值"是用上面的杠杆臂公式算出的雅可比，与对 FK 做数值差分得到的雅可比的最大差，应当在 \(10^{-8}\) 量级。</span>
-      <span data-lang="en">Arrows are drawn as the displacement over 1 s (1 m/s ↔ 1 m). The amber dashed ring is \(\mathbf p + \mathbf v\,T\); the purple path is the tip's true trajectory when the joints turn at constant rates for \(T\) seconds, and the solid purple dot its end. The "geometric − numeric" readout is the largest difference between the Jacobian from the lever-arm formula and one obtained by numerically differencing FK; it should be around \(10^{-8}\).</span>
+      <span data-lang="zh">箭头按 1 s 的位移画出（单位 m/s 对应 1 m）。琥珀色空心圆圈是 \(\mathbf p + \mathbf v\,T\)，紫色路径是关节匀速转动 \(T\) 秒、手爪的真实轨迹，终点的实心紫点是真实位置。读数里的"几何 − 数值"是用上面的杠杆臂公式算出的雅可比，与对 FK 做数值差分得到的雅可比的最大差，应当在 \(10^{-10}\) 量级（极小）。</span>
+      <span data-lang="en">Arrows are drawn as the displacement over 1 s (1 m/s ↔ 1 m). The hollow amber ring is \(\mathbf p + \mathbf v\,T\); the purple path is the tip's true trajectory when the joints turn at constant rates for \(T\) seconds, and the solid purple dot its end. The "geometric − numeric" readout is the largest difference between the Jacobian from the lever-arm formula and one obtained by numerically differencing FK; it should be around \(10^{-10}\) (tiny).</span>
     </figcaption>
   </figure>
   <div class="tasks-title"><span data-lang="zh">试一试</span><span data-lang="en">Try this</span></div>
@@ -240,7 +240,7 @@
   </figure>
   <ul class="tasks">
     <li data-task="sing"><span><span data-lang="zh">用"2 连杆"，把手臂拉直，让 \(\sigma_2&lt;0.03\)：椭圆变成一条线段。线段沿什么方向？</span><span data-lang="en">With "2 links", stretch the arm out until \(\sigma_2&lt;0.03\): the ellipse becomes a segment. Along what direction does it lie?</span></span></li>
-    <li data-task="round"><span><span data-lang="zh">用"3 连杆"，把椭圆调成几乎正圆（\(\sigma_1/\sigma_2&lt;1.25\)）。2 连杆做得到吗？</span><span data-lang="en">With "3 links", make the ellipse almost a circle (\(\sigma_1/\sigma_2&lt;1.25\)). Can two links do it?</span></span></li>
+    <li data-task="round"><span><span data-lang="zh">用"3 连杆"，把椭圆调成几乎正圆（\(\sigma_1/\sigma_2&lt;1.15\)，读数里的 κ）。再试"2 连杆"：这组连杆长度下它最好只能到约 1.19（在 \(\theta_2\approx\pm3\pi/4\)），因为两连杆要做到严格正圆需要 \(l_1=\sqrt2\,l_2\)。</span><span data-lang="en">With "3 links", make the ellipse almost a circle (\(\sigma_1/\sigma_2&lt;1.15\), the κ in the readout). Then try "2 links": with these link lengths the best it can do is about 1.19 (at \(\theta_2\approx\pm3\pi/4\)), because an exactly round ellipse with two links needs \(l_1=\sqrt2\,l_2\).</span></span></li>
   </ul>
 
   <h3><span data-lang="zh">力的对偶：\(\boldsymbol\tau = J^\top\mathbf F\)</span><span data-lang="en">The force duality: \(\boldsymbol\tau = J^\top\mathbf F\)</span></h3>
@@ -306,7 +306,7 @@
   <div class="math-card">
   $$ \begin{bmatrix} v_x\\ v_y\\ \omega\end{bmatrix} = \begin{bmatrix} \ci{\mathbf J_1} & \cj{\mathbf J_2} & \cdots & \mathbf J_n\\ \ci{1} & \cj{1} & \cdots & 1\end{bmatrix}\begin{bmatrix}\dot\theta_1\\ \dot\theta_2\\ \vdots\\ \dot\theta_n\end{bmatrix}, \qquad \mathbf J_i = \hat{\mathbf z}\times(\mathbf p_{\text{tip}}-\mathbf p_i). $$
   </div>
-  <p data-lang="zh">三维空间里，每个转动关节有转轴方向 \(\hat{\boldsymbol\omega}_i\) 和轴上一点 \(\mathbf q_i\)，对应的列是 \(\begin{bmatrix}\hat{\boldsymbol\omega}_i\times(\mathbf p_{\text{tip}}-\mathbf q_i)\\ \hat{\boldsymbol\omega}_i\end{bmatrix}\)：上半部分仍然是"杠杆臂叉乘转轴"，下半部分是转轴本身（1.8 节的叉积）；平移关节的列则是 \(\begin{bmatrix}\hat{\mathbf a}_i\\ \mathbf 0\end{bmatrix}\)，\(\hat{\mathbf a}_i\) 是滑动方向。这就是 \(6\times n\) 的<b>几何雅可比</b>，5.10 节会用 twist 把它写得更紧凑。</p>
+  <p data-lang="zh">三维空间里，每个转动关节有转轴方向 \(\hat{\boldsymbol\omega}_i\) 和轴上一点 \(\mathbf q_i\)，对应的列是 \(\begin{bmatrix}\hat{\boldsymbol\omega}_i\times(\mathbf p_{\text{tip}}-\mathbf q_i)\\ \hat{\boldsymbol\omega}_i\end{bmatrix}\)：上半部分仍然是"转轴叉乘杠杆臂"，下半部分是转轴本身（1.8 节的叉积）；平移关节的列则是 \(\begin{bmatrix}\hat{\mathbf a}_i\\ \mathbf 0\end{bmatrix}\)，\(\hat{\mathbf a}_i\) 是滑动方向。这就是 \(6\times n\) 的<b>几何雅可比</b>，5.10 节会用 twist 把它写得更紧凑。</p>
   <p data-lang="en">In 3D each revolute joint has an axis direction \(\hat{\boldsymbol\omega}_i\) and a point \(\mathbf q_i\) on that axis; its column is \(\begin{bmatrix}\hat{\boldsymbol\omega}_i\times(\mathbf p_{\text{tip}}-\mathbf q_i)\\ \hat{\boldsymbol\omega}_i\end{bmatrix}\): the top half is still "axis crossed with lever arm", and the bottom half is the axis itself (the cross product of Lesson 1.8). A prismatic joint's column is \(\begin{bmatrix}\hat{\mathbf a}_i\\ \mathbf 0\end{bmatrix}\), with \(\hat{\mathbf a}_i\) the sliding direction. This is the \(6\times n\) <b>geometric Jacobian</b>; Lesson 5.10 writes it more compactly with twists.</p>
 
   <h3><span data-lang="zh">用 SVD 读椭圆</span><span data-lang="en">Reading the ellipse from the SVD</span></h3>
@@ -324,8 +324,8 @@
   <div class="math-card">
   $$ \Delta\boldsymbol\theta = \underbrace{\alpha\,J^\top\mathbf e}_{\text{transpose}},\qquad \underbrace{J^{+}\mathbf e = J^\top(JJ^\top)^{-1}\mathbf e}_{\text{pseudo-inverse}},\qquad \underbrace{J^\top\big(JJ^\top+\lambda^2 I\big)^{-1}\mathbf e}_{\text{damped least squares}}. $$
   </div>
-  <p data-lang="zh"><b>伪逆</b>（1.13 节）在 \(J\) 行满秩时给出所有解里 \(\|\Delta\boldsymbol\theta\|\) <b>最小</b>的一个。它在奇异点附近出问题：\(\|J^+\| = 1/\sigma_{\min}\to\infty\)，关节被要求以极大速度转动。<b>阻尼最小二乘</b>（Nakamura–Hanafusa、Wampler）在 \(JJ^\top\) 上加 \(\lambda^2I\)，等价于最小化 \(\|J\Delta\boldsymbol\theta-\mathbf e\|^2+\lambda^2\|\Delta\boldsymbol\theta\|^2\)：奇异值 \(\sigma\) 对应的放大倍数从 \(1/\sigma\) 变成 \(\sigma/(\sigma^2+\lambda^2)\)，最大不超过 \(1/(2\lambda)\)，用一点精度换取稳定。<b>转置法</b>不需要求逆，只是沿代价梯度（3.2 节）\(J^\top\mathbf e\) 走，收敛慢但永远安全，6.3 节会说明这正是梯度下降。</p>
-  <p data-lang="en">The <b>pseudo-inverse</b> (Lesson 1.13), when \(J\) has full row rank, gives the solution with the <b>smallest</b> \(\|\Delta\boldsymbol\theta\|\) among all that fit. It misbehaves near singularities: \(\|J^+\| = 1/\sigma_{\min}\to\infty\), demanding enormous joint speeds. <b>Damped least squares</b> (Nakamura–Hanafusa, Wampler) adds \(\lambda^2I\) to \(JJ^\top\), which minimizes \(\|J\Delta\boldsymbol\theta-\mathbf e\|^2+\lambda^2\|\Delta\boldsymbol\theta\|^2\): a singular value \(\sigma\) is amplified by \(\sigma/(\sigma^2+\lambda^2)\) instead of \(1/\sigma\), never more than \(1/(2\lambda)\), trading a little accuracy for stability. The <b>transpose</b> method needs no inverse: it just steps along the cost gradient (Lesson 3.2) \(J^\top\mathbf e\), slow but always safe; Lesson 6.3 shows this is exactly gradient descent.</p>
+  <p data-lang="zh"><b>伪逆</b>（1.13 节）在 \(J\) 行满秩时给出所有解里 \(\|\Delta\boldsymbol\theta\|\) <b>最小</b>的一个。它在奇异点附近出问题：\(\|J^+\| = 1/\sigma_{\min}\to\infty\)，关节被要求以极大速度转动。<b>阻尼最小二乘</b>（Nakamura–Hanafusa、Wampler）在 \(JJ^\top\) 上加 \(\lambda^2I\)，等价于最小化 \(\|J\Delta\boldsymbol\theta-\mathbf e\|^2+\lambda^2\|\Delta\boldsymbol\theta\|^2\)：奇异值 \(\sigma\) 对应的放大倍数从 \(1/\sigma\) 变成 \(\sigma/(\sigma^2+\lambda^2)\)，最大不超过 \(1/(2\lambda)\)，用一点精度换取稳定。<b>转置法</b>不需要求逆，只是沿代价 \(\tfrac12\|\mathbf e\|^2\) 的负梯度（3.2 节）\(J^\top\mathbf e\) 走，收敛慢但永远安全，6.3 节会说明这正是梯度下降。</p>
+  <p data-lang="en">The <b>pseudo-inverse</b> (Lesson 1.13), when \(J\) has full row rank, gives the solution with the <b>smallest</b> \(\|\Delta\boldsymbol\theta\|\) among all that fit. It misbehaves near singularities: \(\|J^+\| = 1/\sigma_{\min}\to\infty\), demanding enormous joint speeds. <b>Damped least squares</b> (Nakamura–Hanafusa, Wampler) adds \(\lambda^2I\) to \(JJ^\top\), which minimizes \(\|J\Delta\boldsymbol\theta-\mathbf e\|^2+\lambda^2\|\Delta\boldsymbol\theta\|^2\): a singular value \(\sigma\) is amplified by \(\sigma/(\sigma^2+\lambda^2)\) instead of \(1/\sigma\), never more than \(1/(2\lambda)\), trading a little accuracy for stability. The <b>transpose</b> method needs no inverse: it just steps along the negative gradient (Lesson 3.2) of the cost \(\tfrac12\|\mathbf e\|^2\), which is \(J^\top\mathbf e\), slow but always safe; Lesson 6.3 shows this is exactly gradient descent.</p>
 
   <h3><span data-lang="zh">冗余与零空间</span><span data-lang="en">Redundancy and the null space</span></h3>
   <p data-lang="zh">当 \(n&gt;2\)（位置任务），\(J\) 有非平凡零空间（1.6 节）：\(J\mathbf n = \mathbf 0\) 的关节运动不改变手爪位置，称为<b>自运动</b>。\(3\) 连杆臂的位置雅可比是 \(2\times3\)，零空间是一维的，方向可以用两行的叉积得到：\(\mathbf n\propto\mathbf j_1\times\mathbf j_2\)（\(\mathbf j_k\) 是 \(J\) 的第 \(k\) 行，1.8 节）。一般地，所有解为</p>
@@ -341,7 +341,7 @@
 <section class="step" id="robotics">
   <h2><span class="n">6</span><span data-lang="zh">机器人中的它：用雅可比做逆运动学</span><span data-lang="en">In robotics: inverse kinematics with the Jacobian</span></h2>
   <div data-lang="zh">
-    <p>下图是真实的"解析 + 迭代"流程：拖动目标（黄色菱形），三连杆臂每一步按所选方法计算 \(\Delta\boldsymbol\theta\)，直到误差足够小。右侧画出每次迭代的误差（对数坐标），可以比较三种方法。把目标拖到伸直的边界附近，看伪逆法发生什么；把目标拖出可达范围，看阻尼最小二乘如何"尽量靠近"。</p>
+    <p>下图是真实的迭代流程：拖动目标（黄色菱形），三连杆臂每一步按所选方法计算 \(\Delta\boldsymbol\theta\)，直到误差足够小。右侧画出每次迭代的误差（对数坐标），可以比较三种方法。把目标拖到伸直的边界附近，看伪逆法发生什么；把目标拖出可达范围，看阻尼最小二乘如何"尽量靠近"。</p>
     <p>底部的"自运动"按钮让手臂沿零空间运动：手爪纹丝不动，肘部却在扫过一圈。这是冗余机械臂能"绕开障碍物而不打断任务"的原因。</p>
   </div>
   <div data-lang="en">
@@ -420,14 +420,14 @@
   </div>
 
   <div class="quiz" data-answer="0">
-    <div class="q"><span data-lang="zh">2. 同样的臂与姿态，在手爪施加 \(\mathbf F=(0,-10)\) N（向下）。要"撑住"它，关节力矩 \(\boldsymbol\tau\)（单位 N·m）是？</span><span data-lang="en">2. Same arm and posture; a force \(\mathbf F=(0,-10)\) N (downward) acts on the tip. What joint torques \(\boldsymbol\tau\) (N·m) hold it up?</span></div>
+    <div class="q"><span data-lang="zh">2. 同样的臂与姿态，手爪向下压桌面，对桌面施加 \(\mathbf F=(0,-10)\) N。关节需要输出的力矩 \(\boldsymbol\tau\)（单位 N·m）是？</span><span data-lang="en">2. Same arm and posture; the gripper presses down on a table, applying \(\mathbf F=(0,-10)\) N to it. What joint torques \(\boldsymbol\tau\) (N·m) must the joints produce?</span></div>
     <div class="opts">
       <button class="opt">\((-10,\ 0)\)</button>
       <button class="opt">\((10,\ 0)\)</button>
       <button class="opt">\((0,\ -10)\)</button>
       <button class="opt">\((-10,\ -10)\)</button>
     </div>
-    <div class="explain"><span data-lang="zh">\(\boldsymbol\tau=J^\top\mathbf F=\begin{bmatrix}-1&1\\-1&0\end{bmatrix}\begin{bmatrix}0\\-10\end{bmatrix}=\begin{bmatrix}-10\\0\end{bmatrix}\)。直观检查：向下的力对原点的力矩是 \(\mathbf r_1\times\mathbf F = 1\cdot(-10)-1\cdot0=-10\)；对肘部（\((1,0)\)）的杠杆臂 \((0,1)\) 与力平行，力矩为 0。</span><span data-lang="en">\(\boldsymbol\tau=J^\top\mathbf F=\begin{bmatrix}-1&1\\-1&0\end{bmatrix}\begin{bmatrix}0\\-10\end{bmatrix}=\begin{bmatrix}-10\\0\end{bmatrix}\). Sanity check: the downward force's moment about the origin is \(\mathbf r_1\times\mathbf F = 1\cdot(-10)-1\cdot0=-10\); about the elbow at \((1,0)\) the lever arm \((0,1)\) is parallel to the force, so the moment is 0.</span></div>
+    <div class="explain"><span data-lang="zh">\(\boldsymbol\tau=J^\top\mathbf F=\begin{bmatrix}-1&1\\-1&0\end{bmatrix}\begin{bmatrix}0\\-10\end{bmatrix}=\begin{bmatrix}-10\\0\end{bmatrix}\)。直观检查：手爪施加的力 \(\mathbf F\) 对原点的力矩是 \(\mathbf r_1\times\mathbf F = 1\cdot(-10)-1\cdot0=-10\)；对肘部（\((1,0)\)）的杠杆臂 \((0,1)\) 与力平行，力矩为 0。注意符号约定：\(\mathbf F\) 是手爪<b>施加给外界</b>的力；若改问"撑住一个挂在手爪上的向下重物"，外力是 \(\mathbf F_{\text{ext}}\)，关节要输出 \(-J^\top\mathbf F_{\text{ext}}=(10,0)\)。</span><span data-lang="en">\(\boldsymbol\tau=J^\top\mathbf F=\begin{bmatrix}-1&1\\-1&0\end{bmatrix}\begin{bmatrix}0\\-10\end{bmatrix}=\begin{bmatrix}-10\\0\end{bmatrix}\). Sanity check: the moment of the applied force \(\mathbf F\) about the origin is \(\mathbf r_1\times\mathbf F = 1\cdot(-10)-1\cdot0=-10\); about the elbow at \((1,0)\) the lever arm \((0,1)\) is parallel to the force, so the moment is 0. Mind the sign convention: \(\mathbf F\) is the force the gripper <b>applies to the world</b>; to hold up a downward weight hanging on the gripper (an external force \(\mathbf F_{\text{ext}}\)), the joints must produce \(-J^\top\mathbf F_{\text{ext}}=(10,0)\).</span></div>
   </div>
 
   <div class="quiz" data-answer="3">
@@ -770,7 +770,7 @@ R101.onReady(function () {
       read.innerHTML = `θ = (${st.th.slice(0, n).map(x => M.fmt(wrapPi(x), 2)).join(', ')}) rad · ${L('条件数', 'condition number')} κ = <b>${isFinite(kap) ? M.fmt(kap, 2) : '∞'}</b>` +
         (sing ? `<br><b style="color:var(--c-bad)">${L('奇异位形：椭圆被压成线段，垂直于它的方向手爪动不了。', 'Singular: the ellipse is a segment; the tip cannot move perpendicular to it.')}</b>` : '');
       if (n === 2 && sing) done('sing');
-      if (n === 3 && kap < 1.25) done('round');
+      if (n === 3 && kap < 1.15) done('round');
       P.invalidate(); Q.invalidate();
     }
     R101.on('lang', sync);

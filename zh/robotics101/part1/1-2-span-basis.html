@@ -138,11 +138,11 @@
       <div class="fig-side" id="reach-side"></div>
     </div>
     <figcaption class="fig-cap">
-      <span data-lang="zh">淡青色区域或线条是<b>张成</b>。两个方向不同的原料能铺满整个平面；只有一种原料，或者两种原料同方向（绿色箭头是红色的 \(-0.5\) 倍），菜单就缩成一条线，线外的 \(\mathbf w\) 怎么配都做不出来（红色虚线是差距）。</span>
+      <span data-lang="zh">淡青色区域或线条是<b>张成</b>。两个方向不同的原料能铺满整个平面；只有一种原料，或者两种原料共线（绿色箭头是红色的 \(-0.5\) 倍，反向但在同一条直线上），菜单就缩成一条线，线外的 \(\mathbf w\) 怎么配都做不出来（红色虚线是差距）。</span>
       
     </figcaption>
   </figure>
-  <ul class="tasks"><li data-task="reach"><span><span data-lang="zh">找一个 \(\mathbf w\)：在"一个向量"或"同一方向"下<b>做不出来</b>，再切到"方向不同"，它就做得出来了。</span></span></li></ul>
+  <ul class="tasks"><li data-task="reach"><span><span data-lang="zh">找一个 \(\mathbf w\)：在"一个向量"或"共线"下<b>做不出来</b>，再切到"方向不同"，它就做得出来了。</span></span></li></ul>
 
   <div class="callout key">
     <div class="ct"><span data-lang="zh">核心洞见</span></div>
@@ -197,7 +197,7 @@
     </div>
     <div class="fig-controls" id="game-controls"></div>
   </figure>
-  <ul class="tasks"><li data-task="game3"><span><span data-lang="zh">不用"显示配方"，连续答对 3 题。</span></span></li></ul>
+  <ul class="tasks"><li data-task="game3"><span><span data-lang="zh">不用"显示配方"，累计答对 3 题。</span></span></li></ul>
 </section>
 
 <!-- ============ 4. COORDINATES ============ -->
@@ -376,7 +376,7 @@
     <p data-lang="zh"><b>固件里的基变换。</b>Klipper、Marlin 等 3D 打印机固件在 CoreXY 模式下，每一步都在做 FIG 6 里的换算：把想要的 \((x,y)\) 变成两个电机的位置（相差一个常数倍）。电机相关或卡死，换算就失效。</p>
     <p data-lang="zh"><b>差速车并非到不了。</b>它不能<em>瞬时</em>横移，但通过"转一下、前进、再转回来"（像侧方停车）可以到达平面上任何位姿。瞬时能走的方向不足，换来的是需要规划的运动，这类约束叫<b>非完整约束</b>（nonholonomic），第 II 部分会专门讲。</p>
     <p data-lang="zh"><b>冗余也是一种相关。</b>4 个麦克纳姆轮的全向底盘，只有 3 个自由度：4 个轮子的"贡献向量"住在 \(\R^3\) 里，4 个向量一定相关，所以同一个车体速度可以由很多种轮速组合产生。这给了你"多出来的自由"（可以用来分配负载、避开打滑），也意味着配方不再唯一，需要 1.6 节和 1.13 节的工具来选一个。</p>
-    <p data-lang="zh"><b>机械臂。</b>6 自由度机械臂的雅可比（3.4 节）的 6 列，是 6 个关节各自产生的末端运动向量。它们无关，末端才能朝任意方向运动；两列撞到同一条线上就是<b>奇异位形</b>：和 FIG 6 里电机卡死如出一辙。</p>
+    <p data-lang="zh"><b>机械臂。</b>6 自由度机械臂的雅可比（3.4 节）的 6 列，是 6 个关节各自产生的末端运动向量。它们无关，末端才能朝任意方向运动；这些列变得线性相关（例如两列撞到同一条线上）就是<b>奇异位形</b>：和 FIG 6 里电机卡死如出一辙。</p>
     
     
     
@@ -564,7 +564,7 @@ R101.onReady(function () {
     ui.seg(document.getElementById('reach-seg'), [
       { value: 'one', zh: '1 个向量', en: 'One vector' },
       { value: 'two', zh: '2 个，方向不同', en: 'Two, different directions' },
-      { value: 'same', zh: '2 个，同一方向', en: 'Two, same direction' }
+      { value: 'same', zh: '2 个，共线', en: 'Two, on one line' }
     ], mode, v => { mode = v; sync(); });
     function sync() {
       const A = analyze(), [a, b] = ing();

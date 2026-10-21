@@ -125,19 +125,19 @@
   <h2><span class="n">2</span><span data-lang="zh">直觉：弦在曲线之上</span><span data-lang="en">Intuition: the chord stays above the curve</span></h2>
   <div data-lang="zh">
     <p>取函数曲线上任意两点，连一条线段（<b>弦</b>）。如果无论你取哪两点，弦<b>都不会钻到曲线下面</b>，这个函数就是凸的：它像一个碗，向上"兜住"每一条弦。只要有<b>一对</b>点，弦钻到了曲线下面，就说明那里有个"凸起"，凸性被破坏。</p>
-    <p>这个看似平淡的性质威力巨大。假设碗里有两个"谷底"，它们之间的弦必须在曲线之上（或重合）；可两个谷底都是最低值 \(m\)，弦的高度恰好是 \(m\)，而曲线又不可能低于 \(m\)，于是两点之间的曲线被夹住，处处等于 \(m\)：两个谷底其实是同一片平地。<b>凸函数不可能有彼此孤立的两个局部最小值。</b>先亲手试试弦测试。</p>
+    <p>这个看似平淡的性质威力巨大。假设碗里有两个"谷底"，它们之间的弦必须在曲线之上（或重合）；可两个谷底都是最低值 \(m\)，弦的高度恰好是 \(m\)，而曲线又不可能低于 \(m\)，于是两点之间的曲线被夹住，处处等于 \(m\)：两个谷底其实是同一片平地。如果两个谷底一高一低，弦从高的那个谷底出发就向下倾斜，紧挨着它的曲线也被压到它的高度之下，它根本不是局部最小（第 7 节给出严格证明）。<b>凸函数不可能有彼此孤立的两个局部最小值。</b>先亲手试试弦测试。</p>
   </div>
   <div data-lang="en">
     <p>Pick any two points on a function's curve and join them with a segment (the <b>chord</b>). If, whichever two points you pick, the chord <b>never dips below the curve</b>, the function is convex: it behaves like a bowl that holds up every chord. If a <b>single</b> pair has a chord that dips under the curve, there is a "bump" there and convexity fails.</p>
-    <p>This humble property is powerful. Suppose a bowl had two separate "valley floors". The chord between them must lie on or above the curve; but both floors are at the lowest value \(m\), so the chord sits at height exactly \(m\), and the curve cannot go below \(m\), so between them it is squeezed to equal \(m\) everywhere: the two floors are really one flat stretch. <b>A convex function cannot have two isolated local minima.</b> First, try the chord test by hand.</p>
+    <p>This humble property is powerful. Suppose a bowl had two separate "valley floors". The chord between them must lie on or above the curve; but both floors are at the lowest value \(m\), so the chord sits at height exactly \(m\), and the curve cannot go below \(m\), so between them it is squeezed to equal \(m\) everywhere: the two floors are really one flat stretch. If one floor were higher than the other, the chord from the higher one would slope downward, pushing the curve right next to it below its height, so it would not be a local minimum at all (Section 7 proves this properly). <b>A convex function cannot have two isolated local minima.</b> First, try the chord test by hand.</p>
   </div>
 </section>
 
 <!-- ============ 3. PLAY: 1D chord ============ -->
 <section class="step" id="play">
   <h2><span class="n">3</span><span data-lang="zh">动手玩：弦测试</span><span data-lang="en">Play: the chord test</span></h2>
-  <p data-lang="zh">选一个函数，拖动曲线上的两个点 A、B。弦在曲线<span class="cj">之上</span>的部分填绿色，钻到曲线<span class="ci">之下</span>的部分填红色。滑块 \(\theta\) 在弦上取一点，对比 \(f(\theta a+(1-\theta)b)\) 与弦的高度 \(\theta f(a)+(1-\theta)f(b)\)。"全面扫描"会测试 1000 对点，告诉你有多大比例的弦违反了凸性。</p>
-  <p data-lang="en">Choose a function and drag the two points A and B along the curve. Where the chord lies <span class="cj">above</span> the curve it is filled green; where it dips <span class="ci">below</span>, red. The slider \(\theta\) picks a point on the chord so you can compare \(f(\theta a+(1-\theta)b)\) with the chord height \(\theta f(a)+(1-\theta)f(b)\). "Full scan" tests 1000 pairs and tells you what fraction of chords violate convexity.</p>
+  <p data-lang="zh">选一个函数，拖动曲线上的两个点 A、B。弦在曲线<span class="cj">之上</span>的部分填绿色，钻到曲线<span class="ci">之下</span>的部分填红色。滑块 \(\theta\) 在弦上取一点，对比 \(f(\theta a+(1-\theta)b)\) 与弦的高度 \(\theta f(a)+(1-\theta)f(b)\)。"全面扫描"会测试 780 对点（区间上 40 个点两两配对），告诉你有多大比例的弦违反了凸性。</p>
+  <p data-lang="en">Choose a function and drag the two points A and B along the curve. Where the chord lies <span class="cj">above</span> the curve it is filled green; where it dips <span class="ci">below</span>, red. The slider \(\theta\) picks a point on the chord so you can compare \(f(\theta a+(1-\theta)b)\) with the chord height \(\theta f(a)+(1-\theta)f(b)\). "Full scan" tests 780 pairs (every pair of 40 points across the interval) and tells you what fraction of chords violate convexity.</p>
 
   <figure class="fig" id="fig-chord">
     <div class="fig-head"><span class="fig-kind">FIG 1</span><span class="fig-title"><span data-lang="zh">一维弦测试</span><span data-lang="en">The 1D chord test</span></span><span class="spacer"></span><span class="presets" id="ch-btns"></span></div>
@@ -267,7 +267,7 @@
     </figcaption>
   </figure>
   <ul class="tasks">
-    <li data-task="rosen"><span><span data-lang="zh">在 <b>Rosenbrock</b> 上放 A、B，使剖面<b>钻到弦之下</b>（它只有一个谷底，却不是凸的）。</span><span data-lang="en">On <b>Rosenbrock</b> place A and B so the profile <b>pokes above the chord</b> (one valley floor, yet not convex).</span></span></li>
+    <li data-task="rosen"><span><span data-lang="zh">在 <b>Rosenbrock</b> 上放 A、B，使剖面<b>鼓到弦之上</b>（它只有一个谷底，却不是凸的）。</span><span data-lang="en">On <b>Rosenbrock</b> place A and B so the profile <b>pokes above the chord</b> (one valley floor, yet not convex).</span></span></li>
     <li data-task="lse"><span><span data-lang="zh">在 log-sum-exp 上随便拖拽 A、B：剖面永远在弦下面，红色区域也不出现。</span><span data-lang="en">On log-sum-exp drag A and B anywhere: the profile always stays below the chord and no red zone appears.</span></span></li>
   </ul>
 </section>
@@ -344,8 +344,8 @@
   </ul>
   <div class="callout robot">
     <div class="ct"><span data-lang="zh">真实系统里</span><span data-lang="en">In real systems</span></div>
-    <p data-lang="zh">这解释了机器人领域的一个普遍现象：<b>"把不凸的部分藏到凸的外面"</b>。解 IK 时通常先在关节空间做一次非凸迭代，再在<b>每一步里</b>解一个凸的线性化子问题（雅可比 \(J\) 把问题局部变成线性最小二乘，<a href="6-6-newton-gauss-newton.html">6.6</a>、<a href="6-9-nonlinear-least-squares.html">6.9</a> 节）。全身控制则更进一步：在<b>加速度</b>层面，动力学对力矩 \(\boldsymbol\tau\) 与加速度 \(\ddot{\mathbf q}\) 是线性的，于是整个问题是一个凸 QP（<a href="6-8-lp-qp.html">6.8</a> 节、第 IV 部分），能在 1 kHz 下保证有解。凸与不凸，常常取决于你选了哪个变量。</p>
-    <p data-lang="en">This explains a recurring pattern in robotics: <b>"hide the non-convex part outside the convex part"</b>. IK is usually solved with a non-convex outer iteration in joint space, but <b>every step</b> solves a convex linearized subproblem (the Jacobian \(J\) turns the problem locally into a linear least-squares one; Lessons <a href="6-6-newton-gauss-newton.html">6.6</a> and <a href="6-9-nonlinear-least-squares.html">6.9</a>). Whole-body control goes further: at the <b>acceleration</b> level, dynamics are linear in torques \(\boldsymbol\tau\) and accelerations \(\ddot{\mathbf q}\), so the entire problem is a convex QP (Lesson <a href="6-8-lp-qp.html">6.8</a>, Part IV) with a guaranteed solution at 1 kHz. Whether a problem is convex often depends on which variable you chose.</p>
+    <p data-lang="zh">这解释了机器人领域的一个普遍现象：<b>"把不凸的部分藏到凸的外面"</b>。解 IK 时通常先在关节空间做一次非凸迭代，再在<b>每一步里</b>解一个凸的线性化子问题（雅可比 \(J\) 把问题局部变成线性最小二乘，<a href="6-6-newton-gauss-newton.html">6.6</a>、<a href="6-9-nonlinear-least-squares.html">6.9</a> 节）。全身控制则更进一步：在<b>加速度</b>层面，动力学对力矩 \(\boldsymbol\tau\) 与加速度 \(\ddot{\mathbf q}\) 是线性的，于是整个问题是一个凸 QP（<a href="6-8-lp-qp.html">6.8</a> 节、第 IV 部分）：只要约束可行，求解器就能在 1 kHz 下可靠地给出全局最优解。凸与不凸，常常取决于你选了哪个变量。</p>
+    <p data-lang="en">This explains a recurring pattern in robotics: <b>"hide the non-convex part outside the convex part"</b>. IK is usually solved with a non-convex outer iteration in joint space, but <b>every step</b> solves a convex linearized subproblem (the Jacobian \(J\) turns the problem locally into a linear least-squares one; Lessons <a href="6-6-newton-gauss-newton.html">6.6</a> and <a href="6-9-nonlinear-least-squares.html">6.9</a>). Whole-body control goes further: at the <b>acceleration</b> level, dynamics are linear in torques \(\boldsymbol\tau\) and accelerations \(\ddot{\mathbf q}\), so the entire problem is a convex QP (Lesson <a href="6-8-lp-qp.html">6.8</a>, Part IV): as long as the constraints are feasible, the solver reliably returns the global optimum at 1 kHz. Whether a problem is convex often depends on which variable you chose.</p>
   </div>
 </section>
 

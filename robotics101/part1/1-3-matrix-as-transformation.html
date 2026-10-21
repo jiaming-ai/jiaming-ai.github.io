@@ -188,8 +188,8 @@
       </div>
     </div>
     <figcaption class="fig-cap">
-      <span data-lang="zh">淡色网格是原始坐标网格；亮色网格是变换后的网格；浅色平行四边形是单位正方形变换后的样子（它的面积就是下一节的主角：行列式）。虚线显示 <span class="cv">Av</span> 是怎样由 x 份 <span class="ci">Aî</span> 加 y 份 <span class="cj">Aĵ</span> 拼成的。</span>
-      <span data-lang="en">The faint grid is the original grid; the bright grid is the transformed one; the shaded parallelogram is the image of the unit square (its area stars in the next lesson as the determinant). The dashed path shows how <span class="cv">Av</span> is assembled from x copies of <span class="ci">Aî</span> plus y copies of <span class="cj">Aĵ</span>.</span>
+      <span data-lang="zh">淡色网格是原始坐标网格；亮色网格是变换后的网格；浅色平行四边形是单位正方形变换后的样子（它的面积就是 1.5 节的主角：行列式）。虚线显示 <span class="cv">Av</span> 是怎样由 x 份 <span class="ci">Aî</span> 加 y 份 <span class="cj">Aĵ</span> 拼成的。</span>
+      <span data-lang="en">The faint grid is the original grid; the bright grid is the transformed one; the shaded parallelogram is the image of the unit square (its area stars in Lesson 1.5 as the determinant). The dashed path shows how <span class="cv">Av</span> is assembled from x copies of <span class="ci">Aî</span> plus y copies of <span class="cj">Aĵ</span>.</span>
     </figcaption>
   </figure>
 
@@ -215,7 +215,7 @@
       </div>
     </div>
   </figure>
-  <ul class="tasks"><li data-task="game3"><span><span data-lang="zh">连续猜中 3 题。</span><span data-lang="en">Get 3 right.</span></span></li></ul>
+  <ul class="tasks"><li data-task="game3"><span><span data-lang="zh">累计猜中 3 题。</span><span data-lang="en">Get 3 right.</span></span></li></ul>
 </section>
 
 <!-- ============ 4. TWO VIEWS ============ -->
@@ -510,7 +510,7 @@ R101.onReady(function () {
       const [a1, a2] = cols(A), w = M.mv(A, v);
       R101.tex(texEl, `\\cv{A\\mathbf v} = ${M.tex(v[0], 1)}\\ci{${M.texVec(a1)}} + ${M.tex(v[1], 1)}\\cj{${M.texVec(a2)}} = \\cv{${M.texVec(w)}}`);
       const d = M.det2(A);
-      readEl.innerHTML = `${L('单位正方形面积', 'unit-square area')} → <b>${M.fmt(d, 2)}</b>` + (Math.abs(d) < 0.04 ? `<br><span style="color:var(--c-bad)">${L('平面被压扁了！', 'The plane is squashed!')}</span>` : d < 0 ? `<br><span style="color:var(--c-j)">${L('网格翻面了', 'The grid flipped')}</span>` : '');
+      readEl.innerHTML = `${L('单位正方形的有符号面积', 'unit-square signed area')} → <b>${M.fmt(d, 2)}</b>` + (Math.abs(d) < 0.04 ? `<br><span style="color:var(--c-bad)">${L('平面被压扁了！', 'The plane is squashed!')}</span>` : d < 0 ? `<br><span style="color:var(--c-j)">${L('网格翻面了', 'The grid flipped')}</span>` : '');
       // tasks
       if (near(A, [[0, -1], [1, 0]], 0.06)) R101.done('rot90');
       if (Math.abs(d) < 0.04 && Math.abs(A[0][0]) + Math.abs(A[0][1]) + Math.abs(A[1][0]) + Math.abs(A[1][1]) > 0.5) R101.done('collapse');

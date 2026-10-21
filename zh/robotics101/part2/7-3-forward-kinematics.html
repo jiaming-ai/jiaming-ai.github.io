@@ -344,13 +344,13 @@
     </div>
     <div class="fig-controls" id="d5-ctl"></div>
     <figcaption class="fig-cap">
-      <span data-lang="zh">灰色是设计值（名义）模型，琥珀色是带误差的"真机"。琥珀色箭头从名义工具位置指向真实工具位置，长度放大了 20 倍。"平均/最大误差"在 300 个随机姿态上统计。点"标定"：在 20 个随机姿态上"测量"真机的工具位置（可加噪声），用 Gauss–Newton 辨识四个参数 \((\delta a_2,\delta a_3,\delta d_4,\delta\theta_2)\)；绿色是标定后的模型。</span>
+      <span data-lang="zh">灰色是设计值（名义）模型，琥珀色是带误差的"真机"。红色箭头从名义工具位置指向真实工具位置，长度放大了 20 倍。"平均/最大误差"在 300 个随机姿态上统计。点"标定"：在 20 个随机姿态上"测量"真机的工具位置（可加噪声），用 Gauss–Newton 辨识四个参数 \((\delta a_2,\delta a_3,\delta d_4,\delta\theta_2)\)；绿色是标定后的模型。</span>
       
     </figcaption>
   </figure>
   <div class="tasks-title"><span data-lang="zh">试一试</span></div>
   <ul class="tasks">
-    <li data-task="err"><span><span data-lang="zh">只把 \(\delta a_2\) 设成 \(5\) mm（其余为 0）。工具偏差是多少？换几个姿态看看：偏差等于 5 mm 吗？为什么有时更小？</span></span></li>
+    <li data-task="err"><span><span data-lang="zh">只把 \(\delta a_2\) 设成 \(5\) mm（其余为 0）。工具偏差是多少？换几个姿态看看：偏差总是正好 5 mm，为什么？（提示：连杆长度误差只是把它下游的所有坐标系沿 \(x_2\) 平移 \(\delta a_2\)。）对比下一项的零点误差，它的影响随姿态变化。</span></span></li>
     <li data-task="th2"><span><span data-lang="zh">只给关节 2 一个 \(0.3^\circ\) 的零点误差。末端偏差有多大？（\(0.3^\circ\approx0.0052\) rad，乘以关节 2 到工具的距离，约 \(0.8\) m。）</span></span></li>
     <li data-task="cal"><span><span data-lang="zh">设定几项误差，点"标定"。残差平方根 (RMS) 经过几次迭代降到多少？加上 \(0.5\) mm 的测量噪声再试一次：标定后的验证误差还能到 0 吗？</span></span></li>
   </ul>

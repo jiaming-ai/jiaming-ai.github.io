@@ -117,7 +117,7 @@
       <li><b>定位</b>：机器人看到一扇门，更新"我在走廊哪个位置"的信念；</li>
       <li><b>建图</b>：激光打到障碍物，更新"这个栅格被占用"的概率；</li>
       <li><b>目标检测与数据关联</b>：检测网络给出 0.8 的置信度，它是不是真的？这得看这类物体平时多常见；</li>
-      <li><b>卡尔曼滤波、粒子滤波</b>的"更新"一步，从头到尾就是贝叶斯定理（4.7、4.8）。</li>
+      <li><b>卡尔曼滤波、粒子滤波</b>的"更新"一步，从头到尾就是贝叶斯定理（4.7、4.8、4.10）。</li>
     </ul>
     <p>本节先在离散情形下把它彻底看懂：一个二选一的检测器、一条会让你"迷路"的走廊，再看连续读数的检测分数，最后看它在实际系统里最常见的一个坑：同一份证据被重复计算。</p>
   </div>
@@ -128,7 +128,7 @@
       <li><b>Localization</b>: the robot sees a door and updates its belief about where in the corridor it is;</li>
       <li><b>Mapping</b>: a laser hits an obstacle and the probability that a grid cell is occupied is updated;</li>
       <li><b>Object detection and data association</b>: a detector says 0.8 confidence; is it real? That depends on how common such objects usually are;</li>
-      <li>The "update" step of the <b>Kalman and particle filters</b> is Bayes' theorem from start to finish (4.7, 4.8).</li>
+      <li>The "update" step of the <b>Kalman and particle filters</b> is Bayes' theorem from start to finish (4.7, 4.8, 4.10).</li>
     </ul>
     <p>This lesson first makes the discrete case completely clear: a yes/no detector, then a corridor that can make you "lost". Then we look at a continuous detection score, and finally at the most common trap in real systems: counting the same evidence twice.</p>
   </div>
@@ -138,11 +138,11 @@
 <section class="step" id="intuition">
   <h2><span class="n">2</span><span data-lang="zh">直觉：用面积来数"哪一种可能"</span><span data-lang="en">Intuition: counting "which possibility" with area</span></h2>
   <div data-lang="zh">
-    <p>把走廊上机器人可能停下的所有位置画成一个单位正方形。<b>横向</b>切一刀：左边这一块是"墙前面是门"的位置，占比就是<b>先验</b> \(p(\text{门})\)；右边是"墙前面是墙"。然后在每一块里<b>纵向</b>切一刀：门这一块里，检测器报告"有门"的部分占 \(p(z \mid \text{门})\)（真阳性率）；墙这一块里，检测器<b>错报</b>"有门"的部分占 \(p(z \mid \text{墙})\)（假阳性率）。</p>
+    <p>把走廊上机器人可能停下的所有位置画成一个单位正方形。先按<b>左右</b>分成两块：左边这一块是"墙前面是门"的位置，占比就是<b>先验</b> \(p(\text{门})\)；右边是"墙前面是墙"。然后把每一块再按<b>上下</b>分开：门这一块里，检测器报告"有门"的部分占 \(p(z \mid \text{门})\)（真阳性率）；墙这一块里，检测器<b>错报</b>"有门"的部分占 \(p(z \mid \text{墙})\)（假阳性率）。</p>
     <p>现在检测器响了。机器人知道自己落在<b>两块"报告有门"的区域</b>里的某处，但不知道是哪一块。门的那一块占了多少？这就是后验。关键在于：<b>两块"报告有门"的区域面积是不等的，要比的是面积，而不是纵向的比例</b>。拖动下面的三个手柄试试。</p>
   </div>
   <div data-lang="en">
-    <p>Draw every position where the robot might be standing as a unit square. Cut it <b>horizontally</b>: the left slab is positions that face a door, its share is the <b>prior</b> \(p(\text{door})\); the right slab faces a wall. Now cut each slab <b>vertically</b>: within the door slab, the part where the detector says "door" has share \(p(z \mid \text{door})\) (true-positive rate); within the wall slab, the part where the detector <b>wrongly</b> says "door" has share \(p(z \mid \text{wall})\) (false-positive rate).</p>
+    <p>Draw every position where the robot might be standing as a unit square. Split it <b>left/right</b>: the left slab is positions that face a door, its share is the <b>prior</b> \(p(\text{door})\); the right slab faces a wall. Now split each slab <b>top/bottom</b>: within the door slab, the part where the detector says "door" has share \(p(z \mid \text{door})\) (true-positive rate); within the wall slab, the part where the detector <b>wrongly</b> says "door" has share \(p(z \mid \text{wall})\) (false-positive rate).</p>
     <p>The detector fires. The robot knows it is somewhere in <b>the two "says door" regions</b>, but not which one. What share of them is the door slab? That is the posterior. The key point: <b>the two "says door" regions have unequal areas, and it is the areas that must be compared, not the vertical fractions</b>. Drag the three handles below.</p>
   </div>
 
@@ -230,11 +230,11 @@
 <section class="step" id="score">
   <h2><span class="n">4</span><span data-lang="zh">第二个视角：连续的检测分数与后验曲线</span><span data-lang="en">A second view: continuous detection scores and the posterior curve</span></h2>
   <div data-lang="zh">
-    <p>真实的检测器很少只吐"有/无"，而是给一个连续的<b>分数</b> \(s\)（神经网络的置信度，或者特征匹配的内点数）。假设有路标时分数服从 \(\mathcal N(\mu_1, \sigma^2)\)，没有路标时服从 \(\mathcal N(\mu_0, \sigma^2)\)。这时"似然"是两条高斯曲线，贝叶斯定理逐点把它们换成<b>后验概率 \(p(\text{路标} \mid s)\)</b>。</p>
+    <p>真实的检测器很少只吐"有/无"，而是给一个连续的<b>分数</b> \(s\)（神经网络的置信度，或者特征匹配的内点数）。假设有路标时分数服从 \(\mathcal N(\mu_1, \sigma^2)\)，没有路标时服从 \(\mathcal N(\mu_0, \sigma^2)\)（图中取 \(\mu_0 = 0\)，\(\mu_1\) 可调）。这时"似然"是两条高斯曲线，贝叶斯定理逐点把它们换成<b>后验概率 \(p(\text{路标} \mid s)\)</b>。</p>
     <p>神奇的是，后验随 \(s\) 变化的曲线是一条漂亮的 S 形（sigmoid）。更神奇的是：先验只是把这条 S 形曲线<b>左右平移</b>，并不改变形状。上图的两条曲线是"先验 × 似然"（面积已按先验缩放），下图是后验。</p>
   </div>
   <div data-lang="en">
-    <p>Real detectors rarely emit just "yes/no"; they give a continuous <b>score</b> \(s\) (a network's confidence, or the inlier count of a feature match). Suppose the score is \(\mathcal N(\mu_1, \sigma^2)\) when the landmark is present and \(\mathcal N(\mu_0, \sigma^2)\) when it is not. The "likelihoods" are now two Gaussian curves, and Bayes' theorem converts them point by point into the <b>posterior \(p(\text{landmark} \mid s)\)</b>.</p>
+    <p>Real detectors rarely emit just "yes/no"; they give a continuous <b>score</b> \(s\) (a network's confidence, or the inlier count of a feature match). Suppose the score is \(\mathcal N(\mu_1, \sigma^2)\) when the landmark is present and \(\mathcal N(\mu_0, \sigma^2)\) when it is not (the figure uses \(\mu_0 = 0\) and lets you tune \(\mu_1\)). The "likelihoods" are now two Gaussian curves, and Bayes' theorem converts them point by point into the <b>posterior \(p(\text{landmark} \mid s)\)</b>.</p>
     <p>Remarkably, the posterior as a function of \(s\) is a neat S-shaped (sigmoid) curve. Even more remarkably, the prior merely <b>slides this S-curve left or right</b> without changing its shape. The upper plot shows "prior × likelihood" (each curve's area scaled by its prior); the lower plot shows the posterior.</p>
   </div>
 
@@ -261,7 +261,7 @@
   </figure>
   <div class="tasks-title"><span data-lang="zh">试一试</span><span data-lang="en">Try this</span></div>
   <ul class="tasks">
-    <li data-task="score-prior"><span><span data-lang="zh">把先验 \(\pi\) 降到 5% 以下，再把 \(s\) 拖到两个均值正中间（\(s = 1.5\)）：后验是多少？阈值分数往哪边挪了？</span><span data-lang="en">Lower the prior \(\pi\) below 5%, then drag \(s\) to the midpoint of the two means (\(s = 1.5\)): what is the posterior, and which way did the threshold move?</span></span></li>
+    <li data-task="score-prior"><span><span data-lang="zh">把先验 \(\pi\) 降到 5% 以下，再把 \(s\) 拖到两个均值正中间（\(s = \mu_1/2\)，默认是 1.5）：后验是多少？阈值分数往哪边挪了？</span><span data-lang="en">Lower the prior \(\pi\) below 5%, then drag \(s\) to the midpoint of the two means (\(s = \mu_1/2\), 1.5 by default): what is the posterior, and which way did the threshold move?</span></span></li>
     <li data-task="score-sharp"><span><span data-lang="zh">让后验从 10% 升到 90% 只需要 \(s\) 变化不到 1：增大均值间距或减小 \(\sigma\)，使斜率 \((\mu_1-\mu_0)/\sigma^2 \ge 4.4\)。</span><span data-lang="en">Make the posterior go from 10% to 90% over a change in \(s\) of less than 1: widen the mean gap or shrink \(\sigma\) so the slope \((\mu_1-\mu_0)/\sigma^2 \ge 4.4\).</span></span></li>
   </ul>
   <div class="callout view">
@@ -281,14 +281,14 @@
   <p data-lang="en">"The probability of \(A\) given that \(B\) happened" restricts the world to \(B\) and asks what fraction of it is \(A\):</p>
   <div class="math-card">$$ P(A \mid B) = \frac{P(A, B)}{P(B)} \quad (P(B) \gt 0) $$
   $$ P(A, B) = P(A \mid B)\,P(B) = P(B \mid A)\,P(A) $$</div>
-  <p data-lang="zh">最后那个等号的两边都是同一块面积 \(P(A, B)\)，只是切的方向不同。这就是 FIG 1 为什么能先横切后纵切，也能反过来。</p>
-  <p data-lang="en">Both sides of the last equality are the same area \(P(A, B)\), cut in different orders. That is why FIG 1 works whether you cut horizontally then vertically or the other way around.</p>
+  <p data-lang="zh">最后那个等号的两边都是同一块面积 \(P(A, B)\)，只是切的方向不同。这就是 FIG 1 为什么能先左右分、再上下分，也能反过来。</p>
+  <p data-lang="en">Both sides of the last equality are the same area \(P(A, B)\), cut in different orders. That is why FIG 1 works whether you split left/right first and then top/bottom, or the other way around.</p>
 
   <h3><span data-lang="zh">全概率公式与贝叶斯定理</span><span data-lang="en">Total probability and Bayes' theorem</span></h3>
-  <p data-lang="zh">读数 \(z\) 可能由状态 \(x\) 的各种取值产生，把它们的贡献加起来，就是读数出现的总概率（"证据"）。把乘法法则的两种写法相除，得到贝叶斯定理：</p>
-  <p data-lang="en">A reading \(z\) can arise from any value of the state \(x\); add up all the contributions to get the total probability of the reading (the "evidence"). Dividing the two forms of the product rule gives Bayes' theorem:</p>
+  <p data-lang="zh">读数 \(z\) 可能由状态 \(x\) 的各种取值产生，把它们的贡献加起来（离散的 \(x\) 求和，连续的 \(x\) 积分），就是读数出现的总概率（"证据"）。把乘法法则的两种写法相除，得到贝叶斯定理：</p>
+  <p data-lang="en">A reading \(z\) can arise from any value of the state \(x\); add up all the contributions (a sum for discrete \(x\), an integral for continuous \(x\)) to get the total probability of the reading (the "evidence"). Dividing the two forms of the product rule gives Bayes' theorem:</p>
   <div class="math-card">
-  $$ \hl{evid}{p(z) = \sum_{x} p(z \mid x)\,p(x)} \;\;\Big/\;\; \int p(z \mid x)\,p(x)\,dx $$
+  $$ \hl{evid}{p(z) = \sum_{x} p(z \mid x)\,p(x)}, \qquad p(z) = \int p(z \mid x)\,p(x)\,dx $$
   $$ \hl{post}{p(x \mid z)} = \frac{\hl{lik}{p(z \mid x)}\,\hl{prior}{p(x)}}{\hl{evid}{p(z)}} = \eta\; p(z \mid x)\,p(x), \qquad \eta = \frac{1}{p(z)} $$
   </div>
   <div class="table-wrap">
@@ -548,8 +548,8 @@ R101.onReady(function () {
     const post = () => { const dd = pr * s, wd = (1 - pr) * f; return dd / (dd + wd); };
     const rnd = v => Math.round(v * 100) / 100;
     P.handle({ pos: () => q(pr, 1), color: 'w', set: p => { pr = M.clamp(rnd(q.inv(p)[0]), 0.01, 0.99); touched = true; sync(); } });
-    P.handle({ pos: () => q(pr / 2, s), color: 'v', set: p => { s = M.clamp(rnd(q.inv(p)[1]), 0, 1); touched = true; sync(); } });
-    P.handle({ pos: () => q(pr + (1 - pr) / 2, f), color: 'x', set: p => { f = M.clamp(rnd(q.inv(p)[1]), 0, 1); touched = true; sync(); } });
+    P.handle({ pos: () => q(pr / 2, s), color: 'v', set: p => { s = M.clamp(rnd(q.inv(p)[1]), 0.01, 1); touched = true; sync(); } });
+    P.handle({ pos: () => q(pr + (1 - pr) / 2, f), color: 'x', set: p => { f = M.clamp(rnd(q.inv(p)[1]), 0.01, 1); touched = true; sync(); } });
     function draw(P) {
       side = Math.min(P.W - 70, P.H - 76);
       const pl = (P.W - side) / 2;
@@ -598,7 +598,7 @@ R101.onReady(function () {
       const nd = Math.round(1000 * pr), ndd = Math.round(1000 * pr * s), nfa = Math.round(1000 * (1 - pr) * f);
       read.innerHTML = `${L('每 1000 个位置', 'Per 1000 positions')}:<br>${nd} ${L('个门', 'doors')} → <b class="cv">${ndd}</b> ${L('次真报', 'true hits')}<br>${1000 - nd} ${L('堵墙', 'walls')} → <b class="cx">${nfa}</b> ${L('次误报', 'false alarms')}<br>${L('检测器响 ', 'detector fires ')}<b>${ndd + nfa}</b> ${L('次，其中', 'times, of which')} <b class="cv">${ndd}</b> ${L('次是真门', 'are real doors')}`;
       msg.innerHTML = Math.abs(s - f) < 0.03 ? L('读数在门前和墙前一样常见：后验 = 先验，这个传感器没有提供任何信息。', 'The reading is equally likely at doors and walls: posterior = prior, the sensor tells you nothing.')
-        : po < pr ? L('后验比先验还低：检测器不响反而更像门？(真阳性率低于假阳性率)', 'The posterior is below the prior: the detector fires more at walls than at doors!')
+        : po < pr ? L('后验比先验还低：检测器在墙前比在门前更爱报警（真阳性率低于假阳性率）！', 'The posterior is below the prior: the detector fires more at walls than at doors!')
         : L(`响了之后，"是门"的把握从先验 ${Math.round(pr * 100)}% 变成 ${k}%。`, `After the detector fires, "it is a door" goes from a ${Math.round(pr * 100)}% prior to ${k}%.`);
       if (touched && pr <= 0.05 && s >= 0.9 && f <= 0.1 && po < 0.5) R101.done('bayes-base');
       if (touched && pr <= 0.05 && po > 0.8) R101.done('bayes-high');
@@ -756,7 +756,7 @@ R101.onReady(function () {
       read.innerHTML = `s = <b>${M.fmt(s, 2)}</b><br>${L('先验几率', 'prior odds')} ${M.fmt(pi / (1 - pi), 2)}<br>${L('似然比', 'likelihood ratio')} <b>${sci2(Math.exp(t - lnOdds(pi)))}</b><br>${L('斜率', 'slope')} μ₁/σ² = <b>${M.fmt(slope, 2)}</b>`;
       msg.innerHTML = pi < 0.1 && Math.abs(s - mu1 / 2) < 0.2 ? L(`先验很低时，处在两个均值正中间的分数只给出 ${M.fmt(po * 100, 0)}% 的后验：要说服机器人，需要更高的分数。`, `With a low prior, a score exactly between the two means yields only a ${M.fmt(po * 100, 0)}% posterior: convincing the robot takes a higher score.`)
         : L('拖动 s，观察两条曲线在竖线处的高度之比怎样决定后验。', 'Drag s and watch how the ratio of the two curve heights at the line sets the posterior.');
-      if (touched && pi <= 0.05 && Math.abs(s - 1.5) < 0.15) R101.done('score-prior');
+      if (touched && pi <= 0.05 && Math.abs(s - mu1 / 2) < 0.15) R101.done('score-prior');
       if (touched && slope >= 4.4) R101.done('score-sharp');
       P1.invalidate(); P2.invalidate();
     }

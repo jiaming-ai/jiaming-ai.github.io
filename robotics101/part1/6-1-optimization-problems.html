@@ -148,7 +148,7 @@
 <!-- ============ 3. PLAY ============ -->
 <section class="step" id="play">
   <h2><span class="n">3</span><span data-lang="zh">动手玩：把球放在哪里？</span><span data-lang="en">Play: where do you drop the ball?</span></h2>
-  <p data-lang="zh"><b>点击地图</b>（或拖动空心圆）放下小球，它会沿着最陡的下坡方向滚（这就是下一节课要讲的梯度下降，这里先当黑盒用）。打开"盆地图"，每个颜色格子表示：从这一格出发，最终会滚进哪个谷。</p>
+  <p data-lang="zh"><b>点击地图</b>（或拖动空心圆）放下小球，它会沿着最陡的下坡方向滚（这就是 <a href="6-3-gradient-descent.html">6.3</a> 节要讲的梯度下降，这里先当黑盒用）。打开"盆地图"，每个颜色格子表示：从这一格出发，最终会滚进哪个谷。</p>
   <p data-lang="en"><b>Click the map</b> (or drag the hollow circle) to drop the ball; it rolls along the steepest downhill direction (that is gradient descent, the topic of Lesson <a href="6-3-gradient-descent.html">6.3</a>; treat it as a black box for now). Switch on the basin map: each colored cell shows which valley a ball started there ends up in.</p>
 
   <figure class="fig bleed" id="fig-land">
@@ -163,8 +163,8 @@
       </div>
     </div>
     <figcaption class="fig-cap">
-      <span data-lang="zh">青色越亮、等高线越密的地方海拔 \(f\) 越低。四个圆点是用梯度下降从各个谷心附近精确求出的谷底。小球的每一步都是真实的梯度下降迭代 \(\x\leftarrow\x-0.2\,\nabla f(\x)\)，不是预先画好的路径。盆地图是对 80×55 个起点逐个做梯度下降的结果。</span>
-      <span data-lang="en">Shading and contour lines show altitude \(f\); the brighter the cyan, the lower the ground. The four dots are valley floors found precisely by running gradient descent from near each valley center. Every ball step is a real gradient-descent iteration \(\x\leftarrow\x-0.2\,\nabla f(\x)\), not a pre-drawn path. The basin map comes from running gradient descent from each of 80×55 starting points.</span>
+      <span data-lang="zh">底色和等高线表示海拔 \(f\)：青色越浓，地势越低。四个圆点是用梯度下降从各个谷心附近精确求出的谷底。小球的每一步都是真实的梯度下降迭代 \(\x\leftarrow\x-0.2\,\nabla f(\x)\)，不是预先画好的路径。盆地图是对 80×55 个起点逐个做梯度下降的结果。</span>
+      <span data-lang="en">Shading and contour lines show altitude \(f\); the stronger the cyan tint, the lower the ground. The four dots are valley floors found precisely by running gradient descent from near each valley center. Every ball step is a real gradient-descent iteration \(\x\leftarrow\x-0.2\,\nabla f(\x)\), not a pre-drawn path. The basin map comes from running gradient descent from each of 80×55 starting points.</span>
     </figcaption>
   </figure>
 
@@ -216,7 +216,7 @@
   <div class="tasks-title"><span data-lang="zh">试一试</span><span data-lang="en">Try this</span></div>
   <ul class="tasks">
     <li data-task="boundary"><span><span data-lang="zh">把目标 \(\mathbf c\) 拖到<b>不可行区域</b>里，观察 \(\x^\star\) 落在边界上，而不是 \(\mathbf c\) 处。</span><span data-lang="en">Drag the target \(\mathbf c\) into the <b>infeasible region</b> and see \(\x^\star\) land on the boundary rather than at \(\mathbf c\).</span></span></li>
-    <li data-task="guess"><span><span data-lang="zh">不看紫色星，把黄色猜测点拖到<b>可行</b>且代价与最优值相差不到 0.03 的位置。</span><span data-lang="en">Ignoring the purple star, drag the amber guess to a <b>feasible</b> place whose cost is within 0.03 of the optimum.</span></span></li>
+    <li data-task="guess"><span><span data-lang="zh">目标 \(\mathbf c\) 留在不可行区域（例如默认位置）时，不看紫色圆圈，把黄色猜测点拖到<b>可行</b>且代价与最优值相差不到 0.03 的位置。</span><span data-lang="en">With the target \(\mathbf c\) left in the infeasible region (e.g. where it starts), and ignoring the purple circle, drag the amber guess to a <b>feasible</b> place whose cost is within 0.03 of the optimum.</span></span></li>
     <li data-task="hole"><span><span data-lang="zh">选"障碍物"，把 \(\mathbf c\) 放在障碍物正中，看最优点跳到障碍物的哪一侧。再微微挪动 \(\mathbf c\)，它会不会突然跳到另一侧？</span><span data-lang="en">Choose "obstacle" and place \(\mathbf c\) at the obstacle's center; see on which side the optimum lands. Nudge \(\mathbf c\) slightly: does the optimum suddenly jump to the other side?</span></span></li>
   </ul>
 </section>
@@ -326,8 +326,8 @@
   </ul>
   <div class="callout robot">
     <div class="ct"><span data-lang="zh">真实系统里</span><span data-lang="en">In real systems</span></div>
-    <p data-lang="zh">几乎所有数值 IK 求解器都是"迭代 + 从上一个姿态出发"：控制循环每个周期都把<b>上一周期的解</b>当作起点（<b>热启动</b>），这样机械臂总在同一个谷里连续运动，不会突然从肘朝上翻到肘朝下。TRAC-IK 等库还会在求解失败时随机重启：这就是前面的"多起点"。7 自由度机械臂有无穷多个解（零空间），代价地形里的谷底变成一条"谷底山脉"，<a href="6-7-constrained.html">6.7</a> 节的约束和 <a href="6-8-lp-qp.html">6.8</a> 节的二次规划会处理这种冗余。</p>
-    <p data-lang="en">Nearly every numerical IK solver is "iterate, starting from the previous posture": at each control cycle the <b>previous solution</b> is the starting point (a <b>warm start</b>), so the arm moves continuously within one valley and never flips from elbow up to elbow down. Libraries such as TRAC-IK also restart from random seeds when a solve fails: that is the "multi-start" idea from earlier. A 7-DOF arm has infinitely many solutions (the null space), so the valley floor becomes a whole "ridge line" in the landscape; the constraints of Lesson <a href="6-7-constrained.html">6.7</a> and the quadratic programs of Lesson <a href="6-8-lp-qp.html">6.8</a> deal with that redundancy.</p>
+    <p data-lang="zh">几乎所有数值 IK 求解器都是"迭代 + 从上一个姿态出发"：控制循环每个周期都把<b>上一周期的解</b>当作起点（<b>热启动</b>），这样机械臂总在同一个谷里连续运动，不会突然从肘朝上翻到肘朝下。TRAC-IK 等库还会在求解失败时随机重启：这就是前面的"多起点"。7 自由度机械臂有无穷多个解（零空间），代价地形里的谷底变成一整条同样低的"谷底曲线"，<a href="6-7-constrained.html">6.7</a> 节的约束和 <a href="6-8-lp-qp.html">6.8</a> 节的二次规划会处理这种冗余。</p>
+    <p data-lang="en">Nearly every numerical IK solver is "iterate, starting from the previous posture": at each control cycle the <b>previous solution</b> is the starting point (a <b>warm start</b>), so the arm moves continuously within one valley and never flips from elbow up to elbow down. Libraries such as TRAC-IK also restart from random seeds when a solve fails: that is the "multi-start" idea from earlier. A 7-DOF arm has infinitely many solutions (the null space), so the valley floor becomes a whole curve of equally low ground in the landscape; the constraints of Lesson <a href="6-7-constrained.html">6.7</a> and the quadratic programs of Lesson <a href="6-8-lp-qp.html">6.8</a> deal with that redundancy.</p>
   </div>
 </section>
 
@@ -890,6 +890,7 @@ R101.onReady(function () {
       const sol = solutions(), end = path[path.length - 1], done = idx >= path.length - 1;
       let msg = '';
       if (Math.hypot(t[0], t[1]) > REACH) { msg = L('目标在臂展外：只有一个谷，最低点 f > 0', 'target beyond the reach: a single valley whose floor has f > 0'); R101.done('reach'); }
+      else if (!sol.length) msg = L(`目标离基座不到 ${M.fmt(Ls[0] - Ls[1], 1)}，在够不着的内圈里：最低点 f > 0`, `target within ${M.fmt(Ls[0] - Ls[1], 1)} of the base, inside the unreachable inner disk: the floor has f > 0`);
       else if (done && sol.length) {
         const e = [wrap(end[0]), wrap(end[1])], k = Math.abs(e[1] - sol[0][1]) < Math.abs(e[1] - sol[1][1]) ? 0 : 1;
         msg = `<b style="color:var(--c-good)">${k === 0 ? L('落在肘朝下', 'landed in elbow down') : L('落在肘朝上', 'landed in elbow up')}</b> · f = ${M.fmt(cost(end[0], end[1]), 6)}`;

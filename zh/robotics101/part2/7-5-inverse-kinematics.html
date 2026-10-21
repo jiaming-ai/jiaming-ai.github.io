@@ -187,7 +187,7 @@
   <figure class="fig bleed" id="fig-count">
     <div class="fig-head"><span class="fig-kind">FIG 2</span><span class="fig-title"><span data-lang="zh">位置 vs 位姿：数一数解</span></span><span class="spacer"></span><span id="b-seg-n"></span><span id="b-seg-m"></span></div>
     <div class="fig-body two">
-      <div class="canvas-wrap" id="b-canvas"><span class="overlay-label"><span data-lang="zh">工作空间：灰色手臂 = 满足约束的解族</span></span></div>
+      <div class="canvas-wrap" id="b-canvas"><span class="overlay-label"><span data-lang="zh">工作空间：淡色手臂 = 满足约束的解族</span></span></div>
       <div class="canvas-wrap" id="b-chart"><span class="overlay-label"><span data-lang="zh">构型空间中的解集（沿自由参数）</span></span></div>
     </div>
     <div class="fig-row" style="padding:12px 16px;border-top:1px solid var(--border);display:grid;gap:8px"><div class="katex-live" id="b-tex"></div><div class="readout" id="b-read"></div></div>
@@ -257,7 +257,7 @@
   <h3><span data-lang="zh">数值 IK：在 SE(3) 上线性化、重复</span></h3>
   <div data-lang="zh">
     <p>没有闭式解（或懒得推导）时，就用 3.4 节的老办法，只是把"位置误差"换成<b>位姿误差</b>。当前位姿 \(T(\mathbf q)\) 与目标 \(T_d\) 之间的误差，用 5.6 节的对数映射表示成机体系下的一个 twist：\(\mathbf e=\Log\big(T(\mathbf q)^{-1}T_d\big)\in\R^6\)（前三个分量是转角向量，后三个是平移）。它正好是 7.4 节机体雅可比 \(J_b\) 的"自然输入"：\(J_b\Delta\mathbf q\approx\mathbf e\)，解出 \(\Delta\mathbf q\)（伪逆或阻尼最小二乘），更新 \(\mathbf q\leftarrow\mathbf q+\Delta\mathbf q\)，重复。这就是 6.6 节的牛顿 / 高斯–牛顿法，只不过残差活在 SE(3) 上。</p>
-    <p>下图从 4 个不同的初值同时出发（编号 1–4，四种颜色），对同一个目标位姿迭代。拖动"迭代 k"或按播放，看手臂怎样走向目标，右侧是每次迭代的误差 \(\|\mathbf e\|\)（对数）。每一步的关节增量被限幅到 0.8 rad（相当于速度限制）。四种目标位姿分别演示：正常收敛、手臂伸直的奇异位形、刚好够不着、远超范围。</p>
+    <p>下图从 4 个不同的初值同时出发（编号 1–4，四种颜色），对同一个目标位姿迭代。拖动"迭代 k"或按播放，看手臂怎样走向目标，右侧是每次迭代的误差 \(\|\mathbf e\|\)（对数）。每一步的关节增量 \(\|\Delta\mathbf q\|\) 被限幅到 0.8 rad（相当于速度限制）。四种目标位姿分别演示：正常收敛、手臂伸直的奇异位形、刚好够不着、远超范围。</p>
   </div>
   
 
@@ -283,7 +283,7 @@
 
   <h3><span data-lang="zh">初值决定去哪：吸引域</span></h3>
   <div data-lang="zh">
-    <p>FIG 4 里同一个目标，从不同初值走向不同的解，有些初值根本不收敛。把这一点画清楚最容易用平面 2R：构型空间只有 \((\theta_1,\theta_2)\) 两维，可以<b>给每一个初值着色</b>，颜色是牛顿迭代最终落到的解。下图右侧就是这张"吸引域地图"：青色 = 肘上，紫色 = 肘下，红色 = 没有收敛。两个解是地图上的白圈。点击地图中任一点，作为初值，左边的手臂就沿着迭代路径走过去。虚线是 \(\theta_2=0,\pm\pi\)（雅可比奇异的位置），吸引域的边界总是沿着它们"撕开"。</p>
+    <p>FIG 4 里同一个目标，从不同初值走向不同的解，有些初值根本不收敛。把这一点画清楚最容易用平面 2R：构型空间只有 \((\theta_1,\theta_2)\) 两维，可以<b>给每一个初值着色</b>，颜色是牛顿迭代最终落到的解。下图右侧就是这张"吸引域地图"：青色 = 肘上，紫色 = 肘下，红色 = 没有收敛。两个解是地图上带描边的圆点。点击地图中任一点，作为初值，左边的手臂就沿着迭代路径走过去。虚线是 \(\theta_2=0,\pm\pi\)（雅可比奇异的位置），吸引域的边界总是沿着它们"撕开"。</p>
   </div>
   
 
@@ -427,7 +427,7 @@
     <div class="fig-row" style="padding:12px 16px;border-top:1px solid var(--border);display:grid;gap:8px"><div class="readout" id="f-read"></div></div>
     <div class="fig-controls" id="f-controls"></div>
     <figcaption class="fig-cap">
-      <span data-lang="zh">路径上取 201 个样本，每个样本解一次 IK。"固定分支"在 \(q_5\) 穿过 0（腕）或腕心穿过 J1 轴（肩）的那一帧，对应关节突然转 180°，实际机器人在一个控制周期里做不到，会报速度超限或直接停机。"最近的解"和"热启动"保持连续；但请注意读数里的限位：越过底座时，连续的解要求 \(q_2\) 超出它的限位，<b>连续不等于可行</b>，这时需要换一条路径或换一个肘部分支。</span>
+      <span data-lang="zh">路径上取 201 个样本，每个样本解一次 IK。"固定分支"在 \(q_5\) 穿过 0（腕）或腕心穿过 J1 轴（肩）的那一帧，对应关节突然转 180°，实际机器人在一个控制周期里做不到，会报速度超限或直接停机。"最近的解"和"热启动"保持连续；但请注意读数里的限位：越过底座时，连续的解要求 \(q_2\)（以及 \(q_5\)）超出限位，<b>连续不等于可行</b>，这时需要换一条路径或换一个肘部分支。</span>
       
     </figcaption>
   </figure>
@@ -819,7 +819,7 @@ R101.onReady(function () {
       R101.tex(tex, `\\underbrace{${n}}_{n:\\ \\theta_1\\ldots\\theta_${n}}\\;-\\;\\underbrace{${m}}_{m:\\ ${pose ? 'x,y,\\varphi' : 'x,y'}}\\;=\\;${dim}`);
       P.invalidate(true); Q.invalidate(true);
       read.innerHTML = `n = <b>${n}</b>, m = <b>${m}</b> → ${L('解集维数', 'solution-set dimension')} n−m = <b>${dim}</b><br>${L('当前滑块处的精确解个数', 'exact solutions at the slider values')}: <b style="color:var(--c-${nSol ? 'good' : 'bad'})">${nSol}</b>` +
-        (n === 3 && !pose ? `<br><span class="muted">${L('虚线圈外的灰色手臂都满足同一个位置，每条曲线是一族连续解。', 'Every faint arm reaches the same point; each curve in the right panel is a continuous family of solutions.')}</span>` : '');
+        (n === 3 && !pose ? `<br><span class="muted">${L('每条淡色手臂都到达同一个点；右图每条曲线是一族连续解。', 'Every faint arm reaches the same point; each curve in the right panel is a continuous family of solutions.')}</span>` : '');
       if (n === 3 && pose && nSol === 0 && M.norm(tg) < 2.3) done('gap');
       if (n === 4 && !pose) done('redund');
     }

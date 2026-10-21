@@ -136,8 +136,8 @@
 <!-- ============ 3. PLAY: equality ============ -->
 <section class="step" id="play">
   <h2><span class="n">3</span><span data-lang="zh">动手玩：沿着约束曲线走</span><span data-lang="en">Play: walking along the constraint curve</span></h2>
-  <p data-lang="zh">代价 \(f\) 的等高线是青色椭圆，中心 \(\mathbf c\) 可拖动（\(f=\tfrac12[(x-c_1)^2+3(y-c_2)^2]\)）。约束是紫色曲线 \(h(x,y)=0\)，可行点只能在曲线上。拖动曲线上的黄点：<span class="cv">黄色箭头</span>是 \(\nabla f\)，<span class="cw">紫色箭头</span>是 \(\nabla h\)。右图画出 \(f\) 沿曲线的变化。你会发现，只在两个箭头<b>共线</b>的地方，右图的曲线才有极值。</p>
-  <p data-lang="en">The contours of the cost \(f\) are cyan ellipses with a draggable center \(\mathbf c\) (\(f=\tfrac12[(x-c_1)^2+3(y-c_2)^2]\)). The constraint is the purple curve \(h(x,y)=0\); feasible points lie only on it. Drag the amber dot along the curve: the <span class="cv">amber arrow</span> is \(\nabla f\) and the <span class="cw">purple arrow</span> is \(\nabla h\). The right panel plots \(f\) along the curve. You will find that the curve on the right has an extremum exactly where the two arrows are <b>collinear</b>.</p>
+  <p data-lang="zh">代价 \(f\) 的等高线是青色椭圆，中心 \(\mathbf c\) 可拖动（\(f=\tfrac12[(x-c_1)^2+3(y-c_2)^2]\)）。约束是紫色曲线 \(h(x,y)=0\)，可行点只能在曲线上。拖动曲线上的黄点：<span class="cv">黄色箭头</span>是 \(\hl{gradf}{\nabla f}\)，<span class="cw">紫色箭头</span>是 \(\hl{gradh}{\nabla h}\)（悬停在符号上，对应箭头会加粗）。右图画出 \(f\) 沿曲线的变化。你会发现，只在两个箭头<b>共线</b>的地方，右图的曲线才有极值。</p>
+  <p data-lang="en">The contours of the cost \(f\) are cyan ellipses with a draggable center \(\mathbf c\) (\(f=\tfrac12[(x-c_1)^2+3(y-c_2)^2]\)). The constraint is the purple curve \(h(x,y)=0\); feasible points lie only on it. Drag the amber dot along the curve: the <span class="cv">amber arrow</span> is \(\hl{gradf}{\nabla f}\) and the <span class="cw">purple arrow</span> is \(\hl{gradh}{\nabla h}\) (hover a symbol to thicken its arrow). The right panel plots \(f\) along the curve. You will find that the curve on the right has an extremum exactly where the two arrows are <b>collinear</b>.</p>
 
   <figure class="fig bleed" id="fig-eq">
     <div class="fig-head"><span class="fig-kind">FIG 1</span><span class="fig-title"><span data-lang="zh">等式约束：梯度平行</span><span data-lang="en">Equality constraint: parallel gradients</span></span><span class="spacer"></span><span id="eq-seg"></span></div>
@@ -258,8 +258,8 @@
     <div class="fig-controls" id="pn-controls"></div>
     <div class="fig-controls"><span class="readout" id="pn-read"></span></div>
     <figcaption class="fig-cap">
-      <span data-lang="zh">问题：\(\min\tfrac12\|\x-\mathbf c\|^2\) s.t. \(\|\x\|^2\le1\)，\(\mathbf c\) 可拖动（在圆外）。<span class="cv">琥珀色</span>：罚函数路径与当前 \(\mu\) 的最小点；<span class="cx">青色</span>：障碍函数路径与当前 \(t\) 的最小点；白点是 KKT 解。右图：两种方法估出的乘子随 \(\mu\)（\(t\)）的变化，虚线是真实的 \(\lambda^\star\)。</span>
-      <span data-lang="en">Problem: \(\min\tfrac12\|\x-\mathbf c\|^2\) s.t. \(\|\x\|^2\le1\), with \(\mathbf c\) draggable (outside the circle). <span class="cv">Amber</span>: the penalty path and the minimizer at the current \(\mu\); <span class="cx">cyan</span>: the barrier path and the minimizer at the current \(t\); the white dot is the KKT solution. Right: the multiplier estimated by each method against \(\mu\) (\(t\)); the dashed line is the true \(\lambda^\star\).</span>
+      <span data-lang="zh">问题：\(\min\tfrac12\|\x-\mathbf c\|^2\) s.t. \(\|\x\|^2\le1\)，\(\mathbf c\) 可拖动（在圆外）。<span class="cv">琥珀色</span>：罚函数路径与当前 \(\mu\) 的最小点；<span class="cx">青色</span>：障碍函数路径与当前 \(t\) 的最小点；标着"x⋆ (KKT)"的中性色圆点是 KKT 解。右图：两种方法估出的乘子随 \(\mu\)（\(t\)）的变化，虚线是真实的 \(\lambda^\star\)。</span>
+      <span data-lang="en">Problem: \(\min\tfrac12\|\x-\mathbf c\|^2\) s.t. \(\|\x\|^2\le1\), with \(\mathbf c\) draggable (outside the circle). <span class="cv">Amber</span>: the penalty path and the minimizer at the current \(\mu\); <span class="cx">cyan</span>: the barrier path and the minimizer at the current \(t\); the neutral dot labelled "x⋆ (KKT)" is the KKT solution. Right: the multiplier estimated by each method against \(\mu\) (\(t\)); the dashed line is the true \(\lambda^\star\).</span>
     </figcaption>
   </figure>
   <ul class="tasks">
@@ -312,11 +312,11 @@
   <h2><span class="n">8</span><span data-lang="zh">机器人中的它：带关节限位的 IK</span><span data-lang="en">In robotics: IK with joint limits</span></h2>
   <div data-lang="zh">
     <p>两连杆臂的 IK：\(\min\tfrac12\|\mathrm{FK}(\mathbf q)-\mathbf t\|^2\)，约束是关节限位 \(\mathbf q_{\min}\le\mathbf q\le\mathbf q_{\max}\)。限位是简单的"盒子"约束，所以用<b>投影梯度法</b>：每步 \(\mathbf q\leftarrow\mathrm{clamp}\big(\mathbf q-\alpha\nabla f\big)\)，其中 \(\alpha\) 由 Armijo 回溯确定（<a href="6-5-line-search-trust-region.html">6.5</a> 节）。收敛后读出每条限位的 KKT 乘子：若某个关节被"顶"在限位上，对应乘子就是 \(\partial f/\partial q_i\) 的大小（下限处为 \(+\partial_if\)，上限处为 \(-\partial_if\)）。</p>
-    <p>目标靠近手臂的"内侧"时，需要的肘角 \(q_2\) 小于允许的下限。优化器无法做到，只能停在 \(q_2=q_{2,\min}\) 的边界上，剩下的误差是约束的"代价"。\(q_2\) 下限的乘子告诉你：<b>把下限放松 1 rad，误差平方的一半能降低多少</b>。下面拖动目标，调节 \(q_2\) 的下限，对照乘子预测的下降量与真正重新求解的结果。</p>
+    <p>目标远在工作空间外缘附近时，手臂需要几乎伸直，所需的肘角 \(q_2\) 小于允许的下限。优化器无法做到，只能停在 \(q_2=q_{2,\min}\) 的边界上，剩下的误差是约束的"代价"。\(q_2\) 下限的乘子告诉你：<b>把下限放松 1 rad，误差平方的一半能降低多少</b>。下面拖动目标，调节 \(q_2\) 的下限，对照乘子预测的下降量与真正重新求解的结果。</p>
   </div>
   <div data-lang="en">
     <p>Two-link IK: \(\min\tfrac12\|\mathrm{FK}(\mathbf q)-\mathbf t\|^2\) with joint limits \(\mathbf q_{\min}\le\mathbf q\le\mathbf q_{\max}\). Joint limits are simple "box" constraints, so we use <b>projected gradient descent</b>: each step \(\mathbf q\leftarrow\mathrm{clamp}\big(\mathbf q-\alpha\nabla f\big)\), with \(\alpha\) chosen by Armijo backtracking (Lesson <a href="6-5-line-search-trust-region.html">6.5</a>). On convergence we read off each limit's KKT multiplier: if a joint is "pinned" against a limit, the multiplier is the size of \(\partial f/\partial q_i\) (\(+\partial_if\) at a lower limit, \(-\partial_if\) at an upper limit).</p>
-    <p>When the target is near the "inside" of the arm, the needed elbow angle \(q_2\) is below the permitted minimum. The optimizer cannot do it and stops on the boundary \(q_2=q_{2,\min}\); the leftover error is the "price" of the constraint. The multiplier of the \(q_2\) lower limit tells you <b>how much half the squared error would drop if you relaxed that limit by 1 rad</b>. Drag the target below, tune the \(q_2\) lower limit and compare the multiplier's prediction with the result of genuinely re-solving.</p>
+    <p>When the target is far out, near the edge of the workspace, the arm would have to be almost straight, so the needed elbow angle \(q_2\) is below the permitted minimum. The optimizer cannot do it and stops on the boundary \(q_2=q_{2,\min}\); the leftover error is the "price" of the constraint. The multiplier of the \(q_2\) lower limit tells you <b>how much half the squared error would drop if you relaxed that limit by 1 rad</b>. Drag the target below, tune the \(q_2\) lower limit and compare the multiplier's prediction with the result of genuinely re-solving.</p>
   </div>
 
   <figure class="fig bleed" id="fig-lim">
@@ -328,8 +328,8 @@
     <div class="fig-controls" id="lm-controls"></div>
     <div class="fig-controls"><span class="readout" id="lm-read"></span></div>
     <figcaption class="fig-cap">
-      <span data-lang="zh">左：工作空间（拖动目标）；虚线紫色手臂是无约束的两个解析解。右：关节空间，浅色矩形是可行盒子（限位），路径是投影梯度法的迭代。读数：每条限位的状态与乘子，以及"放松 \(q_2\) 下限 0.05 rad"的预测下降（\(\lambda\times0.05\)）和重新求解得到的真实下降。</span>
-      <span data-lang="en">Left: the workspace (drag the target); the dashed purple arms are the two unconstrained closed-form solutions. Right: joint space; the light rectangle is the feasible box (the limits) and the path is the projected-gradient iterates. Readout: the state and multiplier of each limit, and for "relax the \(q_2\) lower limit by 0.05 rad" both the predicted decrease (\(\lambda\times0.05\)) and the real decrease from re-solving.</span>
+      <span data-lang="zh">左：工作空间（拖动目标）；虚线紫色手臂是无约束的两个解析解。右：关节空间，带框线、未涂红的矩形是可行盒子（限位），盒子外涂成红色，路径是投影梯度法的迭代。读数：每条限位的状态与乘子，以及"放松 \(q_2\) 下限 0.05 rad"的预测下降（\(\lambda\times0.05\)）和重新求解得到的真实下降。</span>
+      <span data-lang="en">Left: the workspace (drag the target); the dashed purple arms are the two unconstrained closed-form solutions. Right: joint space; the outlined, unshaded rectangle is the feasible box (the limits), with everything outside it tinted red and the path is the projected-gradient iterates. Readout: the state and multiplier of each limit, and for "relax the \(q_2\) lower limit by 0.05 rad" both the predicted decrease (\(\lambda\times0.05\)) and the real decrease from re-solving.</span>
     </figcaption>
   </figure>
   <ul class="tasks">

@@ -116,7 +116,7 @@
 <section class="step" id="why">
   <h2><span class="n">1</span><span data-lang="zh">为什么机器人需要它</span></h2>
   <div data-lang="zh">
-    <p>在自由空间里挥舞手臂，反而是机器人的例外。脚踩地面才能走路，手指夹住物体才能抓取，推箱子、拧螺丝、插接头、擦桌子，都是靠<b>接触</b>把力传给世界。接触也是仿真与真实机器人之间差距的主要来源：同样的动力学方程 \(M\ddot{\mathbf q}+\mathbf h=\boldsymbol\tau+J_c^\top\mathbf f\)（8.1 节），自由运动时误差很小，一旦出现接触，\(\mathbf f\) 这一项就成了最难算准的部分。接触力有三个特点：</p>
+    <p>在自由空间里挥舞手臂，反而是机器人的例外。脚踩地面才能走路，手指夹住物体才能抓取，推箱子、拧螺丝、插接头、擦桌子，都是靠<b>接触</b>把力传给世界。接触也是仿真与真实机器人之间差距的主要来源：同样的动力学方程（8.1、8.3 节的 \(M\ddot{\mathbf q}+\mathbf b=\boldsymbol\tau\) 加上接触项）\(M\ddot{\mathbf q}+\mathbf b=\boldsymbol\tau+J_c^\top\mathbf f\)，自由运动时误差很小，一旦出现接触，\(\mathbf f\) 这一项就成了最难算准的部分。接触力有三个特点：</p>
     <ul>
       <li><b>单边</b>：地面只能推机器人，不能拉它。法向力 \(\lambda_n\ge 0\)。所有“拉不住”的现象（脚离地、手指松开）都从这里来。</li>
       <li><b>有上限</b>：切向的摩擦力不超过 \(\mu\) 倍的法向力，\(\|\mathbf f_t\|\le\mu f_n\)；超过就打滑。它在力空间里画出一个<b>摩擦锥</b>，腿式机器人的足底力、抓取的接触力都必须待在锥里。</li>
@@ -227,7 +227,7 @@
     </div>
     <div class="fig-controls" id="p-controls"></div>
     <figcaption class="fig-cap">
-      <span data-lang="zh">法线沿 \(z\)（蓝），两个切向沿 \(x,y\)。青色圆是 \(f_n=1\) 处的真实锥截面，紫色是内接的 \(k\) 棱金字塔，琥珀色是外切的。滑块 \(\varphi\) 在切平面内选一个方向（白色射线）：三个标记点分别是真实锥、内接、外切在这个方向上允许的最大切向力（以 \(f_n\) 为单位）。读数里的“数值最大误差”是对 7200 个方向取样得到的，应与闭式 \(1-\cos(\pi/k)\) 一致。</span>
+      <span data-lang="zh">法线沿 \(z\)（蓝），两个切向沿 \(x,y\)。青色圆是 \(f_n=1\) 处的真实锥截面，紫色是内接的 \(k\) 棱金字塔，琥珀色是外切的。滑块 \(\varphi\) 在切平面内选一个方向（虚线射线）：三个标记点分别是真实锥、内接、外切在这个方向上允许的最大切向力（以 \(f_n\) 为单位）。读数里的“数值最大误差”是对 7200 个方向取样得到的，应与闭式 \(1-\cos(\pi/k)\) 一致。</span>
       
     </figcaption>
   </figure>
@@ -297,16 +297,16 @@
   <p data-lang="zh">设 \(\phi(\mathbf q)\) 是第 \(c\) 个接触的<b>间隙函数</b>（有符号距离），\(J_n=\partial\phi/\partial\mathbf q\) 是法向的接触雅可比。接触点速度与关节速度的关系是 \(\mathbf v_c=J_c\dot{\mathbf q}\)（3.4 节雅可比的同一个思想，只是这里取的是接触点），\(J_c=[J_n;\,J_t]\)。把接触力当成未知的“约束力”加进 8.1 节的方程，得到<b>接触隐式</b>的操作臂方程：</p>
   
   <div class="math-card">
-  $$ M(\mathbf q)\ddot{\mathbf q}+\mathbf h(\mathbf q,\dot{\mathbf q})=S\boldsymbol\tau+\sum_c J_c(\mathbf q)^\top\boldsymbol\lambda_c,\qquad \boldsymbol\lambda_c=(\lambda_{t},\lambda_{n})\in K_\mu,\quad 0\le\lambda_{n}\perp\phi_c(\mathbf q)\ge0. $$
+  $$ M(\mathbf q)\ddot{\mathbf q}+\mathbf b(\mathbf q,\dot{\mathbf q})=S\boldsymbol\tau+\sum_c J_c(\mathbf q)^\top\boldsymbol\lambda_c,\qquad \boldsymbol\lambda_c=(\lambda_{t},\lambda_{n})\in K_\mu,\quad 0\le\lambda_{n}\perp\phi_c(\mathbf q)\ge0. $$
   </div>
-  <p data-lang="zh">\(S\) 是驱动选择矩阵（浮动基机器人只有部分自由度有电机）。互补条件正是约束优化 \(\min\,\text{能量}\ \text{s.t.}\ \phi(\mathbf q)\ge0\) 的 KKT 条件（6.7 节）：\(\lambda_n\) 是不等式约束的乘子，\(\lambda_n\phi=0\) 是互补松弛。未知数是 \(\ddot{\mathbf q}\) 与所有 \(\boldsymbol\lambda_c\)，方程里有不等式，所以每一步要解的不是线性方程组，而是一个<b>互补问题</b>。碰撞（\(\phi=0\) 且 \(\dot\phi&lt;0\)）还要加一条速度跳变的规律，牛顿恢复律 \(\dot\phi^+=-e\,\dot\phi^-\)。</p>
+  <p data-lang="zh">\(\mathbf b=C\dot{\mathbf q}+\mathbf g\) 是 8.3 节的偏置项，\(S\) 是驱动选择矩阵（浮动基机器人只有部分自由度有电机）。互补条件正是约束优化 \(\min\,\text{能量}\ \text{s.t.}\ \phi(\mathbf q)\ge0\) 的 KKT 条件（6.7 节）：\(\lambda_n\) 是不等式约束的乘子，\(\lambda_n\phi=0\) 是互补松弛。未知数是 \(\ddot{\mathbf q}\) 与所有 \(\boldsymbol\lambda_c\)，方程里有不等式，所以每一步要解的不是线性方程组，而是一个<b>互补问题</b>。碰撞（\(\phi=0\) 且 \(\dot\phi&lt;0\)）还要加一条速度跳变的规律，牛顿恢复律 \(\dot\phi^+=-e\,\dot\phi^-\)。</p>
   
 
   <h3><span data-lang="zh">时间步进的 LCP（Stewart–Trinkle）</span></h3>
   <p data-lang="zh">处理碰撞有两条路。<b>事件驱动</b>：用 ODE 积分到碰撞或模式切换的时刻，在那里处理跳变，再继续；精确，但事件很多（Zeno、多点接触）时会卡死。<b>时间步进</b>（Moreau；Stewart–Trinkle 1996）：不找事件，每个小步 \(\Delta t\) 在<b>速度层面</b>解一次互补问题，把冲量 \(\mathbf c=\Delta t\,\boldsymbol\lambda\) 当未知数。取摩擦锥的 \(k\) 棱金字塔，\(J_d\) 的每一行是接触点速度沿第 \(i\) 个切向 \(\mathbf d_i\) 的分量，\(\boldsymbol\beta\ge0\) 是各棱上的冲量，\(\sigma\ge0\) 是滑动速度：</p>
   
   <div class="math-card">
-  $$ \begin{aligned} &M(\mathbf v^{+}-\mathbf v)=\Delta t\big(S\boldsymbol\tau-\mathbf h\big)+J_n^\top c_n+J_d^\top\boldsymbol\beta,\qquad \mathbf q^{+}=\mathbf q+\Delta t\,\mathbf v^{+},\\ &0\le c_n\ \perp\ \tfrac1{\Delta t}\phi(\mathbf q)+J_n\mathbf v^{+}\ \ge 0,\\ &0\le\boldsymbol\beta\ \perp\ \sigma\mathbf 1+J_d\mathbf v^{+}\ \ge 0,\\ &0\le\sigma\ \perp\ \mu c_n-\mathbf 1^\top\boldsymbol\beta\ \ge 0 . \end{aligned} $$
+  $$ \begin{aligned} &M(\mathbf v^{+}-\mathbf v)=\Delta t\big(S\boldsymbol\tau-\mathbf b\big)+J_n^\top c_n+J_d^\top\boldsymbol\beta,\qquad \mathbf q^{+}=\mathbf q+\Delta t\,\mathbf v^{+},\\ &0\le c_n\ \perp\ \tfrac1{\Delta t}\phi(\mathbf q)+J_n\mathbf v^{+}\ \ge 0,\\ &0\le\boldsymbol\beta\ \perp\ \sigma\mathbf 1+J_d\mathbf v^{+}\ \ge 0,\\ &0\le\sigma\ \perp\ \mu c_n-\mathbf 1^\top\boldsymbol\beta\ \ge 0 . \end{aligned} $$
   </div>
   <p data-lang="zh">第二行是线性化的不穿透条件；第三、四行是“最大耗散原理”：摩擦冲量在满足 \(\mathbf 1^\top\boldsymbol\beta\le\mu c_n\) 的前提下，尽量减慢接触点的滑动，滑动速度 \(\sigma\) 只在锥的边界上才可以不为 0。消去 \(\mathbf v^{+}\) 后，这是一个标准的<b>线性互补问题</b>（LCP）。Stewart 与 Trinkle 提出了这类格式；Anitescu 与 Potra（1997）给出了一个与之密切相关的写法，并证明在金字塔摩擦下它<b>总有解</b>（Lemke 算法能求出），这对仿真器的鲁棒性至关重要。该问题的另一种写法是二次规划（QP）：把乘子视为变量，在锥的约束下最小化“能量”，这就是 MuJoCo 等求解器所用的凸形式。</p>
   
@@ -334,7 +334,7 @@
     <p>一个两连杆的机械臂用指尖压在桌面上。接触点就是指尖，接触雅可比 \(J_c\) 就是指尖位置的雅可比（3.4 节的 \(J\)）。桌子对指尖的力 \(\mathbf f_c=(f_t,f_n)\) 必须同时满足两个条件：</p>
     <ul>
       <li><b>接触允许</b>：\(f_n\ge0\) 且 \(|f_t|\le\mu f_n\)，即落在摩擦锥里（FIG 2）。</li>
-      <li><b>电机做得到</b>：缓慢（准静态）并且重力已补偿时，8.1 节的方程 \(M\ddot{\mathbf q}+\mathbf h=\boldsymbol\tau+J_c^\top\mathbf f_c\) 退化成 \(\mathbf 0=\boldsymbol\tau+J_c^\top\mathbf f_c\)，所以电机力矩是 \(\boldsymbol\tau=-J_c^\top\mathbf f_c\)（手指对桌子的力是 \(\mathbf F=-\mathbf f_c\)，就是 3.4 节的 \(\boldsymbol\tau=J^\top\mathbf F\)）。每个关节要满足 \(|\tau_i|\le\tau_{\max}\)。</li>
+      <li><b>电机做得到</b>：缓慢（准静态）并且重力已补偿时，8.3 节的方程加上接触项 \(M\ddot{\mathbf q}+\mathbf b=\boldsymbol\tau+J_c^\top\mathbf f_c\) 退化成 \(\mathbf 0=\boldsymbol\tau+J_c^\top\mathbf f_c\)，所以电机力矩是 \(\boldsymbol\tau=-J_c^\top\mathbf f_c\)（手指对桌子的力是 \(\mathbf F=-\mathbf f_c\)，就是 3.4 节的 \(\boldsymbol\tau=J^\top\mathbf F\)）。每个关节要满足 \(|\tau_i|\le\tau_{\max}\)。</li>
     </ul>
     <p>两个条件都是 \(\mathbf f_c\) 的<b>线性不等式</b>，所以可行的接触力是一个凸多边形：锥与力矩上限形成的平行四边形的交集。右图画的就是这个力空间。手指能用多大的力压桌子，就是在这个多边形上求 \(\max f_n\)，这是一个线性规划（6.8 节），解在多边形的顶点上。拖动指尖的位置、切换肘的方向，看这个多边形怎样随姿态变化：当前臂的最后一节对准了力的方向时，肘关节几乎不用出力，同样的力矩就能压得更重。</p>
   </div>
@@ -391,7 +391,7 @@
     <tr><td>Bullet / PyBullet</td><td><span data-lang="zh">刚体接触，顺序冲量（投影 Gauss–Seidel 型 LCP 迭代）；摩擦沿两个切向，各自以法向冲量乘 \(\mu\) 为界。</span></td></tr>
     <tr><td>PhysX / Isaac Sim / Isaac Gym</td><td><span data-lang="zh">GPU 上的迭代求解器（PGS/TGS），两种材料的摩擦系数按规则合并；高度并行，适合强化学习大批量仿真。</span></td></tr>
     <tr><td>Drake</td><td><span data-lang="zh">柔顺接触（点接触或水弹性接触）加凸的时间步进求解器；摩擦用“黏着容差”正则化。</span></td></tr>
-    <tr><td>ODE</td><td><span data-lang="zh">LCP 求解；默认的摩擦是方盒金字塔，每个切向独立以 \(\mu f_n\) 为界。</span></td></tr>
+    <tr><td>ODE</td><td><span data-lang="zh">LCP 型求解器；摩擦沿两个切向分别限幅，具体是固定的力上限还是按法向力缩放的方盒金字塔，取决于接触标志，请查所用版本的文档。</span></td></tr>
   </table>
   </div>
 </section>
@@ -683,7 +683,7 @@ R101.onReady(function () {
           `${L('加速度', 'acceleration')} = <b>${M.fmt(Math.abs(acc), 2)}</b> m/s²`) +
         `<br>mg = ${M.fmt(W, 1)} N · F = ${M.fmt(Fp, 1)} N`;
       if (S.state === 'down' && p.w === 0 && al - crit >= 0 && al - crit <= 1.5) done('crit');
-      if (S.state === 'stick' && p.w > 0.01 && al - crit > 3) done('press');
+      if (S.state === 'stick' && p.w > 0.01 && p.beta < 0 && al - crit > 3) done('press');
       if (S.state === 'lift') done('lift');
       P.invalidate();
     }

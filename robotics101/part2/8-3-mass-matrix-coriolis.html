@@ -144,7 +144,7 @@
       <li><b>仿真与全身控制</b>：物理引擎每一步都在解 \(\ddot{\mathbf q}=M^{-1}(\boldsymbol\tau-C\dot{\mathbf q}-\mathbf g)\)；足式机器人的全身控制把 \(M\) 放进二次规划的等式约束里（第四部分）。</li>
       <li><b>参数辨识与 sim-to-real</b>：方程对质量、质心、惯量是<em>线性</em>的，可以用最小二乘从数据里估计它们；仿真里惯量写错，策略迁移到真机就会"手感不对"。</li>
     </ul>
-    <p>这一节的目标是：看清每一项<b>长什么样、为什么长这样、在控制里干什么</b>。我们用同一个平面两连杆臂贯穿全篇：\(l_1=1\) m，\(l_2=0.8\) m，质量 \(m_1=2\) kg，\(m_2=1.5\) kg，两根连杆都是均匀杆（质心在中点，绕质心的转动惯量 \(I=ml^2/12\)），\(\theta_i\) 从水平方向量起，重力沿 \(-y\)。</p>
+    <p>这一节的目标是：看清每一项<b>长什么样、为什么长这样、在控制里干什么</b>。我们用同一个平面两连杆臂贯穿全篇：\(l_1=1\) m，\(l_2=0.8\) m，质量 \(m_1=2\) kg，\(m_2=1.5\) kg，两根连杆都是均匀杆（质心在中点，绕质心的转动惯量 \(I=ml^2/12\)），\(\theta_i\) 从水平方向量起（\(\mathbf q=(\theta_1,\theta_2)\)），重力沿 \(-y\)。</p>
   </div>
   <div data-lang="en">
     <p>The recursive algorithm answers "given a motion, what torque?" but it is a black box. Controllers usually want the <b>structure of the equation</b>:</p>
@@ -155,7 +155,7 @@
       <li><b>Simulation and whole-body control</b>: a physics engine solves \(\ddot{\mathbf q}=M^{-1}(\boldsymbol\tau-C\dot{\mathbf q}-\mathbf g)\) at every step; whole-body control for legged robots puts \(M\) in an equality constraint of a quadratic program (Part IV).</li>
       <li><b>Identification and sim-to-real</b>: the equation is <em>linear</em> in the masses, centres of mass and inertias, so least squares can estimate them from data; wrong inertias in simulation make a policy "feel off" on the real robot.</li>
     </ul>
-    <p>The goal of this lesson is to see what each term <b>looks like, why it has that form, and what it does in a controller</b>. One planar two-link arm runs through the whole page: \(l_1=1\) m, \(l_2=0.8\) m, masses \(m_1=2\) kg, \(m_2=1.5\) kg, both links uniform rods (centre of mass at the midpoint, inertia about it \(I=ml^2/12\)), angles \(\theta_i\) measured from the horizontal, gravity along \(-y\).</p>
+    <p>The goal of this lesson is to see what each term <b>looks like, why it has that form, and what it does in a controller</b>. One planar two-link arm runs through the whole page: \(l_1=1\) m, \(l_2=0.8\) m, masses \(m_1=2\) kg, \(m_2=1.5\) kg, both links uniform rods (centre of mass at the midpoint, inertia about it \(I=ml^2/12\)), angles \(\theta_i\) measured from the horizontal (\(\mathbf q=(\theta_1,\theta_2)\)), gravity along \(-y\).</p>
   </div>
 </section>
 
@@ -341,7 +341,7 @@
   <p data-lang="zh"><b>两连杆算例。</b>\(M\) 只依赖 \(q_2=\theta_2\)，所以只有 \(\partial M/\partial q_2\) 非零：\(\partial M_{11}/\partial q_2=-2h\)，\(\partial M_{12}/\partial q_2=-h\)，\(\partial M_{22}/\partial q_2=0\)，其中 \(h=m_2l_1l_{c2}\sin\theta_2\)。代入得 \(c_{211}=-h\)，\(c_{121}=c_{221}=-h\)，\(c_{112}=h\)，其余为零，即</p>
   <p data-lang="en"><b>Two-link example.</b> \(M\) depends only on \(q_2=\theta_2\), so only \(\partial M/\partial q_2\) is non-zero: \(\partial M_{11}/\partial q_2=-2h\), \(\partial M_{12}/\partial q_2=-h\), \(\partial M_{22}/\partial q_2=0\), with \(h=m_2l_1l_{c2}\sin\theta_2\). Substituting gives \(c_{211}=-h\), \(c_{121}=c_{221}=-h\), \(c_{112}=h\), all others zero, i.e.</p>
   <div class="math-card">
-  $$ C=\begin{bmatrix}-h\dot\theta_2 & -h(\dot\theta_1+\dot\theta_2)\\ h\dot\theta_1 & 0\end{bmatrix},\qquad C\dot{\mathbf q}=\begin{bmatrix}\cx{-h\,\dot\theta_2^{2}}\ \ \ci{-\,2h\dot\theta_1\dot\theta_2}\\ \cj{h\,\dot\theta_1^{2}}\end{bmatrix}. $$
+  $$ C=\begin{bmatrix}-h\dot\theta_2 & -h(\dot\theta_1+\dot\theta_2)\\ h\dot\theta_1 & 0\end{bmatrix},\qquad C\dot{\mathbf q}=\begin{bmatrix}\ci{-h\,\dot\theta_2^{2}}\ \ \ci{-\,2h\dot\theta_1\dot\theta_2}\\ \cj{h\,\dot\theta_1^{2}}\end{bmatrix}. $$
   </div>
   <p data-lang="zh">这正是 FIG 2 四根条形图的来源：含 \(\dot\theta_i^2\) 的是离心项，含 \(\dot\theta_1\dot\theta_2\) 的是科氏项。代码里的"克里斯托费尔 − 闭式"读数，就是对 \(M\) 数值求偏导后用上面的公式算出 \(C\)，与这个闭式的差（约 \(10^{-9}\)）。</p>
   <p data-lang="en">This is where FIG 2's four bars come from: terms with \(\dot\theta_i^2\) are centrifugal, the term with \(\dot\theta_1\dot\theta_2\) is Coriolis. The "Christoffel − closed form" readout numerically differentiates \(M\), builds \(C\) with the formula above, and compares it with this closed form (the difference is about \(10^{-9}\)).</p>
@@ -559,7 +559,7 @@
       <button class="opt"><span data-lang="zh">误差不再为零，但保持有界，大小随模型误差增长，并且可以靠提高增益或改进模型来减小</span><span data-lang="en">The error is no longer zero but stays bounded, grows with the model error, and can be reduced by higher gains or a better model</span></button>
       <button class="opt"><span data-lang="zh">误差与模型无关，只由 PD 增益决定</span><span data-lang="en">The error is independent of the model and set by the PD gains alone</span></button>
     </div>
-    <div class="explain"><span data-lang="zh">误差方程 \(\ddot{\mathbf e}+K_d\dot{\mathbf e}+K_p\mathbf e=-\boldsymbol\eta\) 是被有界扰动 \(\boldsymbol\eta\) 驱动的稳定线性系统，\(\boldsymbol\eta\) 正比于模型误差。所以误差有界、随失配增长；在这个例子里偏重和偏轻的结果并不对称，且在 \(+30\%\) 时与"PD + 重力补偿"已经相差不大。</span><span data-lang="en">The error equation \(\ddot{\mathbf e}+K_d\dot{\mathbf e}+K_p\mathbf e=-\boldsymbol\eta\) is a stable linear system driven by the bounded disturbance \(\boldsymbol\eta\), which scales with the model error. So the error is bounded and grows with the mismatch; in this example the too-heavy and too-light cases are not symmetric, and at \(+30\%\) computed torque is already close to "PD + gravity compensation".</span></div>
+    <div class="explain"><span data-lang="zh">误差方程 \(\ddot{\mathbf e}+K_d\dot{\mathbf e}+K_p\mathbf e=-\boldsymbol\eta\) 是被有界扰动 \(\boldsymbol\eta\) 驱动的稳定线性系统，\(\boldsymbol\eta\) 正比于模型误差。所以误差有界、随失配增长；在这个例子里偏重和偏轻的结果并不对称：模型偏轻（\(-30\%\)）的误差约是偏重（\(+30\%\)）的两倍，但两种情况下计算力矩都仍比"PD + 重力补偿"好约 1.5 倍。</span><span data-lang="en">The error equation \(\ddot{\mathbf e}+K_d\dot{\mathbf e}+K_p\mathbf e=-\boldsymbol\eta\) is a stable linear system driven by the bounded disturbance \(\boldsymbol\eta\), which scales with the model error. So the error is bounded and grows with the mismatch; in this example the too-heavy and too-light cases are not symmetric: the too-light model (\(-30\%\)) gives about twice the error of the too-heavy one (\(+30\%\)), yet in both cases computed torque still beats "PD + gravity compensation" by about 1.5×.</span></div>
   </div>
 </section>
 

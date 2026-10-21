@@ -343,11 +343,11 @@
   <div class="tasks-title"><span data-lang="zh">试一试</span></div>
   <ul class="tasks">
     <li data-task="mm-gauss"><span><span data-lang="zh">把航向噪声调到 3°/√m 以下：样本云几乎是个椭圆，高斯近似很好（椭圆内比例约 80%–90%）。</span></span></li>
-    <li data-task="mm-banana"><span><span data-lang="zh">把航向噪声调大（≥ 12°/√m）、距离拉到 7 m 以上：样本弯成"香蕉"，椭圆内比例掉到 78% 以下，而且椭圆中心偏离了名义终点。</span></span></li>
+    <li data-task="mm-banana"><span><span data-lang="zh">把航向噪声调大（≥ 12°/√m）、距离拉到 7 m 以上：样本弯成"香蕉"，椭圆内比例掉到 78% 以下，而且样本均值偏离了名义终点（椭圆始终以名义终点为中心）。</span></span></li>
   </ul>
   <div class="callout robot">
     <div class="ct"><span data-lang="zh">真实系统里</span></div>
-    <p data-lang="zh">"从一个你写得出前向仿真、却写不出密度的模型里采样"是机器人里最常用的采样用法：粒子滤波的预测步 (4.10)；<b>域随机化</b>里在仿真中采样质量、摩擦、延迟，训练出对现实更鲁棒的策略；<b>MPPI</b> 与 <b>CEM</b> 这类采样式模型预测控制，每个控制周期采样成百上千条带噪声的轨迹并按代价加权，其权重正是重要性采样里的权重；RRT 在构型空间里随机采样；蒙特卡洛树搜索靠随机展开估计价值。</p>
+    <p data-lang="zh">"从一个你写得出前向仿真、却写不出密度的模型里采样"是机器人里最常用的采样用法：粒子滤波的预测步 (4.10)；<b>域随机化</b>里在仿真中采样质量、摩擦、延迟，训练出对现实更鲁棒的策略；<b>MPPI</b> 与 <b>CEM</b> 这类采样式模型预测控制，每个控制周期采样成百上千条带噪声的轨迹：MPPI 按 \(\exp(-\text{代价}/\lambda)\) 给它们加权，这正是重要性采样里的权重，CEM 则只保留代价最低的一批来重新拟合采样分布；RRT 在构型空间里随机采样；蒙特卡洛树搜索靠随机展开估计价值。</p>
     
   </div>
 </section>
@@ -362,7 +362,7 @@
   </div>
   <div class="callout pitfall">
     <div class="ct"><span data-lang="zh">误区 2：重要性权重退化</span></div>
-    <p data-lang="zh">\(q\) 和 \(p\) 差得远时，ESS 会塌到 1 左右：1000 个样本只剩一个在起作用，估计值看似"收敛"，其实只是那一个样本。务必同时报告 ESS。粒子滤波里这叫<b>粒子退化</b>，是 4.10 节的核心问题。</p>
+    <p data-lang="zh">\(q\) 和 \(p\) 差得远时，ESS 会塌到 1 左右：1000 个样本只剩一个在起作用，估计值看似"收敛"，其实只是那一个样本。务必同时报告 ESS。粒子滤波里这叫<b>权重退化</b>，重采样就是为它准备的（4.10 节）。</p>
     
   </div>
   <div class="callout pitfall">

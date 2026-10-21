@@ -265,7 +265,7 @@
     </div>
     <div class="fig-controls" id="mi-controls"></div>
     <figcaption class="fig-cap">
-      <span data-lang="zh">上方"马赛克"：横向分成"门开 / 门关"两列（宽度 = 先验），每列再按读数分成两格，<b>每格面积 = 联合概率 \(p(x,z)\)</b>。下方长条：总长 = \(H(X)\)，<span class="cj">绿段 = 互信息 \(I(X;Z)\)</span>（读数带来的），<span class="cv">黄段 = \(H(X\mid Z)\)</span>（读数后还剩的）。若两个传感器的读数和门<b>互相独立</b>（TPR = FPR），所有列里格子的高度一样，互信息为 0。</span>
+      <span data-lang="zh">上方"马赛克"：横向分成"门开 / 门关"两列（宽度 = 先验），每列再按读数分成两格，<b>每格面积 = 联合概率 \(p(x,z)\)</b>。下方长条：总长 = \(H(X)\)，<span class="cj">绿段 = 互信息 \(I(X;Z)\)</span>（读数带来的），<span class="cv">黄段 = \(H(X\mid Z)\)</span>（读数后还剩的）。若读数和门<b>互相独立</b>（TPR = FPR），所有列里格子的高度一样，互信息为 0。</span>
       
     </figcaption>
   </figure>
@@ -304,7 +304,7 @@
   $$ \hl{MI}{I(X;Z)}=H(X)-H(X\mid Z)=H(Z)-H(Z\mid X) $$
   $$ \phantom{I(X;Z)}=D_{\mathrm{KL}}\big(p(x,z)\,\big\|\,p(x)\,p(z)\big)\;\ge\;0. $$
   </div>
-  <p data-lang="zh">它是联合分布与"假装独立"的分布之间的 KL，所以对 \(X\) 和 \(Z\) 对称，当且仅当两者独立时为 0。FIG 4 中"撒谎的传感器"之所以信息量最大，是因为互信息只看<b>依赖</b>，不看读数的"含义"。传感器的价值 = 它读数的<b>可预测性的提升</b>，而不是准不准。再往后，<b>数据处理不等式</b>说：对 \(X\to Z\to W\)，\(I(X;W)\le I(X;Z)\)：随便怎么加工读数，都不会凭空增加关于 \(X\) 的信息。</p>
+  <p data-lang="zh">它是联合分布与"假装独立"的分布之间的 KL，所以对 \(X\) 和 \(Z\) 对称，当且仅当两者独立时为 0。FIG 4 中"撒谎的传感器"之所以信息量最大，是因为互信息只看<b>依赖</b>，不看读数的"含义"。传感器的价值 = 它的读数让我们对 \(X\) 的<b>预测能力提升了多少</b>，而不是读数字面上准不准。再往后，<b>数据处理不等式</b>说：对 \(X\to Z\to W\)，\(I(X;W)\le I(X;Z)\)：随便怎么加工读数，都不会凭空增加关于 \(X\) 的信息。</p>
   
 
   <h3><span data-lang="zh">高斯情形：熵与 KL 的闭式</span></h3>
@@ -339,7 +339,7 @@
     </div>
     <div class="fig-controls" id="nb-controls"></div>
     <figcaption class="fig-cap">
-      <span data-lang="zh">每个格子：<span class="cx">青色雾</span>越浓 = 熵越高（越不确定），白色块 = 很可能是障碍，空白 = 很可能是空地。<span class="cv">黄色圆点</span>大小 = 以该格为视点的期望信息增益；<span class="cj">绿圈</span>是增益最大的视点，<span class="cw">紫圈与虚线圆</span>是你选的视点及其感知范围，白色小方块是机器人当前所在。点击任意格子选择视点。</span>
+      <span data-lang="zh">每个格子：<span class="cx">青色雾</span>越浓 = 熵越高（越不确定），实心的中性色方块 = 很可能是障碍，空白 = 很可能是空地。<span class="cv">黄色圆点</span>大小 = 以该格为视点的期望信息增益；<span class="cj">绿圈</span>是增益最大的视点，<span class="cw">紫圈与虚线圆</span>是你选的视点及其感知范围，<span class="ck">蓝色小方块</span>是机器人当前所在。点击任意格子选择视点。</span>
       
     </figcaption>
   </figure>
@@ -790,7 +790,7 @@ R101.onReady(function () {
       const px = (i) => ox(P) + (i + 0.5) * c, py = j => oy(P) + (j + 0.5) * c;
       P.circle([px(bestV[0]), py(bestV[1])], c * 0.5, { color: 'j', width: 3 });
       if (sel) { P.circle([px(sel[0]), py(sel[1])], c * 0.5, { color: 'w', width: 3 }); P.circle([px(sel[0]), py(sel[1])], R * c, { color: 'w', width: 1.5, dash: [5, 4], alpha: 0.9 }); }
-      P.poly([[px(pos[0]) - 6, py(pos[1]) - 6], [px(pos[0]) + 6, py(pos[1]) - 6], [px(pos[0]) + 6, py(pos[1]) + 6], [px(pos[0]) - 6, py(pos[1]) + 6]], { fill: 'text', fillAlpha: 1, stroke: 'canvas', width: 1.5 });
+      P.poly([[px(pos[0]) - 6, py(pos[1]) - 6], [px(pos[0]) + 6, py(pos[1]) - 6], [px(pos[0]) + 6, py(pos[1]) + 6], [px(pos[0]) - 6, py(pos[1]) + 6]], { fill: 'k', fillAlpha: 1, stroke: 'canvas', width: 1.5 });
     }
     const head = document.getElementById('nb-btns');
     ui.button(head, { zh: '去所选并扫描', en: 'Scan selected', cls: 'sm', onClick: () => { if (!sel) return; if (!(sel[0] === bestV[0] && sel[1] === bestV[1])) onlyBest = false; scan(sel); sync(); } });

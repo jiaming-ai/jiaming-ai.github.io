@@ -222,7 +222,7 @@
   <div class="tasks-title"><span data-lang="zh">试一试</span><span data-lang="en">Try this</span></div>
   <ul class="tasks">
     <li data-task="near"><span><span data-lang="zh">只用手柄，把你的 SSE 压到<b>最优 SSE 的 105% 以内</b>。</span><span data-lang="en">Using only the handles, get your SSE within <b>105% of the optimal SSE</b>.</span></span></li>
-    <li data-task="outlier"><span><span data-lang="zh">点“加离群点”，看最小二乘线被拉偏多少（读数会显示）。一个坏点就能把整条线拖走，因为平方让大误差占了主导。第三部分会看到鲁棒方法，比如 RANSAC。</span><span data-lang="en">Press “add outlier” and see how far the LS line gets dragged (the readout tells you). One bad point can pull the whole line, because squaring lets large errors dominate. Part III covers robust methods such as RANSAC.</span></span></li>
+    <li data-task="outlier"><span><span data-lang="zh">点“加离群点”，看最小二乘线被拉偏多少（读数会显示）。一个坏点就能把整条线拖走，因为平方让大误差占了主导。鲁棒损失见 6.9 节，RANSAC 见第三部分 11.5 节。</span><span data-lang="en">Press “add outlier” and see how far the LS line gets dragged (the readout tells you). One bad point can pull the whole line, because squaring lets large errors dominate. Robust losses come in Lesson 6.9, and RANSAC in Lesson 11.5 (Part III).</span></span></li>
     <li data-task="zerosum"><span><span data-lang="zh">造一条<b>很差的线</b>，让残差之和 \(\sum r_i\) 接近 0（\(|\sum r_i| &lt; 1\)），同时 SSE 至少是最优的 2 倍。提示：直线必须经过哪个点？零和说明不了好坏，起作用的是平方。</span><span data-lang="en">Build a <b>bad line</b> whose residuals still sum to nearly zero (\(|\sum r_i| &lt; 1\)) while the SSE is at least twice the optimum. Hint: which point must the line pass through? A zero sum says nothing about quality; the squares do the work.</span></span></li>
   </ul>
   <div data-lang="zh">
@@ -291,12 +291,12 @@ $$ \Longrightarrow\quad \hat m = \frac{y_3 - y_1}{2},\qquad \hat c = \frac{y_1 +
   <h2><span class="n">5</span><span data-lang="zh">第三种视角：方程不够，挑最短的解</span><span data-lang="en">A third view: too few equations, pick the shortest solution</span></h2>
   <div data-lang="zh">
     <p>现在反过来：只有<b>一个</b>方程，却有两个未知数，\(a_1x_1 + a_2x_2 = \beta\)，也就是 \(A = [\,a_1\;\;a_2\,]\)，\(b = \beta\)。在 \(x_1x_2\) 平面上，所有解排成一条直线。按 1.6 节，这条线是一个特解加上零空间：\(\mathbf x = \mathbf x_p + \mathbf n\)，\(\mathbf n\in\operatorname{null}(A)\)。</p>
-    <p>该选哪一个？一个自然的规则是选<b>离原点最近</b>的，也就是范数最小的。如果 \(x_1, x_2\) 是两个关节的速度，这就是“让关节总共动得最少”。几何上，离原点最近的点是原点向解线作垂线的垂足，所以它垂直于零空间方向，一定落在 \(A\) 的<b>行空间</b>里（行向量 \((a_1, a_2)\) 的方向）。这个点就是 \(A^{+}\mathbf b\)。</p>
+    <p>该选哪一个？一个自然的规则是选<b>离原点最近</b>的，也就是范数最小的。如果 \(x_1, x_2\) 是两个关节的速度，这就是“让关节总共动得最少”。几何上，离原点最近的点是原点向解线作垂线的垂足，所以它垂直于零空间方向。零空间正是与每一行都垂直的向量（\(A\mathbf n = \mathbf 0\) 就是说每一行与 \(\mathbf n\) 的点积为 0），所以垂直于零空间的方向就是各行张成的方向，叫作 \(A\) 的<b>行空间</b>（这里就是行向量 \((a_1, a_2)\) 的方向）。最短解一定落在行空间里。这个点就是 \(A^{+}\mathbf b\)。</p>
     <p>拖动青色的行向量 \((a_1, a_2)\) 的箭头尖端，用滑块改 \(\beta\)，再把琥珀色的点沿解线滑动，看看有没有比紫色点更短的解。</p>
   </div>
   <div data-lang="en">
     <p>Now the reverse: just <b>one</b> equation for two unknowns, \(a_1x_1 + a_2x_2 = \beta\), i.e. \(A = [\,a_1\;\;a_2\,]\), \(b = \beta\). In the \(x_1x_2\) plane the solutions form a line. By Lesson 1.6 that line is a particular solution plus the null space: \(\mathbf x = \mathbf x_p + \mathbf n\) with \(\mathbf n\in\operatorname{null}(A)\).</p>
-    <p>Which one should we pick? A natural rule is the one <b>closest to the origin</b>, the one of minimum norm. If \(x_1, x_2\) are two joint velocities, this means “move the joints as little as possible in total”. Geometrically, the closest point is the foot of the perpendicular dropped from the origin onto the solution line, so it is perpendicular to the null-space direction and must lie in the <b>row space</b> of \(A\) (the direction of the row vector \((a_1, a_2)\)). That point is \(A^{+}\mathbf b\).</p>
+    <p>Which one should we pick? A natural rule is the one <b>closest to the origin</b>, the one of minimum norm. If \(x_1, x_2\) are two joint velocities, this means “move the joints as little as possible in total”. Geometrically, the closest point is the foot of the perpendicular dropped from the origin onto the solution line, so it is perpendicular to the null-space direction. The null space is exactly the set of vectors perpendicular to every row (\(A\mathbf n = \mathbf 0\) says each row has zero dot product with \(\mathbf n\)), so the directions perpendicular to it are those spanned by the rows: the <b>row space</b> of \(A\) (here, the direction of the row vector \((a_1, a_2)\)). The shortest solution must lie in the row space. That point is \(A^{+}\mathbf b\).</p>
     <p>Drag the tip of the cyan row-vector arrow \((a_1, a_2)\), change \(\beta\) with the slider, and slide the amber point along the solution line to see whether any solution beats the purple one.</p>
   </div>
 
@@ -396,8 +396,8 @@ $$ \Longrightarrow\quad \hat m = \frac{y_3 - y_1}{2},\qquad \hat c = \frac{y_1 +
   <p class="hl-hint"><span data-lang="zh">提示：把鼠标悬停在公式中的 \(\mathbf b\)、\(A\hat{\mathbf x}\)、\(\mathbf r\)、列空间上，FIG 2 会加粗对应的对象。</span><span data-lang="en">Tip: hover \(\mathbf b\), \(A\hat{\mathbf x}\), \(\mathbf r\) or the column space in the formula; FIG 2 thickens the matching object.</span></p>
 
   <h3><span data-lang="zh">推导二：令梯度为零</span><span data-lang="en">Derivation 2: set the gradient to zero</span></h3>
-  <p data-lang="zh">展开目标函数：\(f(\mathbf x) = \|A\mathbf x - \mathbf b\|^2 = \mathbf x^\top A^\top A\,\mathbf x - 2\,\mathbf b^\top A\mathbf x + \mathbf b^\top\mathbf b\)。它是 \(\mathbf x\) 的二次函数，梯度为 \(\nabla f = 2A^\top A\,\mathbf x - 2A^\top\mathbf b\)。令梯度为零，得到同样的正规方程。这是第 3 章（梯度）和第 6 章（优化）的预告：最小二乘是最简单的优化问题，因为目标是凸二次函数，唯一的驻点就是最小值点。</p>
-  <p data-lang="en">Expand the objective: \(f(\mathbf x) = \|A\mathbf x - \mathbf b\|^2 = \mathbf x^\top A^\top A\,\mathbf x - 2\,\mathbf b^\top A\mathbf x + \mathbf b^\top\mathbf b\). It is quadratic in \(\mathbf x\), with gradient \(\nabla f = 2A^\top A\,\mathbf x - 2A^\top\mathbf b\). Setting the gradient to zero gives the same normal equations. This previews Chapter 3 (gradients) and Chapter 6 (optimisation): least squares is the simplest optimisation problem, because the objective is a convex quadratic and its only stationary point is the minimum.</p>
+  <p data-lang="zh">展开目标函数：\(f(\mathbf x) = \|A\mathbf x - \mathbf b\|^2 = \mathbf x^\top A^\top A\,\mathbf x - 2\,\mathbf b^\top A\mathbf x + \mathbf b^\top\mathbf b\)。它是 \(\mathbf x\) 的二次函数，梯度为 \(\nabla f = 2A^\top A\,\mathbf x - 2A^\top\mathbf b\)。令梯度为零，得到同样的正规方程。这是第 3 章（梯度）和第 6 章（优化）的预告：最小二乘是最简单的优化问题，因为目标是凸二次函数，驻点就是最小值点；\(A\) 列满秩时驻点唯一，否则最小值点构成一整片（见下文）。</p>
+  <p data-lang="en">Expand the objective: \(f(\mathbf x) = \|A\mathbf x - \mathbf b\|^2 = \mathbf x^\top A^\top A\,\mathbf x - 2\,\mathbf b^\top A\mathbf x + \mathbf b^\top\mathbf b\). It is quadratic in \(\mathbf x\), with gradient \(\nabla f = 2A^\top A\,\mathbf x - 2A^\top\mathbf b\). Setting the gradient to zero gives the same normal equations. This previews Chapter 3 (gradients) and Chapter 6 (optimisation): least squares is the simplest optimisation problem, because the objective is a convex quadratic, so every stationary point is a minimum; with full column rank there is exactly one, otherwise the minimisers form a whole affine set (see below).</p>
 
   <h3><span data-lang="zh">唯一性与投影矩阵</span><span data-lang="en">Uniqueness and the projection matrix</span></h3>
   <div data-lang="zh">
@@ -419,8 +419,8 @@ $$ \Longrightarrow\quad \hat m = \frac{y_3 - y_1}{2},\qquad \hat c = \frac{y_1 +
   </div>
   <div class="math-card">$$ \hl{xp}{\cw{\mathbf x^{+}}} = A^\top(AA^\top)^{-1}\mathbf b $$
 $$ \text{every solution is } \mathbf x = \mathbf x^{+} + \mathbf n,\ \ \mathbf n\in\hl{ns}{\operatorname{null}(A)},\qquad \|\mathbf x\|^2 = \|\mathbf x^{+}\|^2 + \|\mathbf n\|^2. $$</div>
-  <p data-lang="zh">理由：\(\mathbf x^{+} = A^\top\mathbf w\) 是行的线性组合，在行空间里；\(A\mathbf x^{+} = AA^\top(AA^\top)^{-1}\mathbf b = \mathbf b\)，所以它是解。行空间和零空间互相垂直（1.6 节、1.9 节），所以勾股定理成立，任何别的解都更长。这就是 FIG 3 里的直角。</p>
-  <p data-lang="en">Why: \(\mathbf x^{+} = A^\top\mathbf w\) is a combination of rows, so it lies in the row space; and \(A\mathbf x^{+} = AA^\top(AA^\top)^{-1}\mathbf b = \mathbf b\), so it is a solution. The row space and null space are perpendicular (Lessons 1.6 and 1.9), so Pythagoras applies and every other solution is longer. That is the right angle in FIG 3.</p>
+  <p data-lang="zh">理由：\(\mathbf x^{+} = A^\top\mathbf w\) 是行的线性组合，在行空间里；\(A\mathbf x^{+} = AA^\top(AA^\top)^{-1}\mathbf b = \mathbf b\)，所以它是解。零空间里的 \(\mathbf n\) 满足 \(A\mathbf n = \mathbf 0\)，即与每一行都垂直，所以行空间和零空间互相垂直（第 5 节开头已说明），勾股定理成立，任何别的解都更长。这就是 FIG 3 里的直角。</p>
+  <p data-lang="en">Why: \(\mathbf x^{+} = A^\top\mathbf w\) is a combination of rows, so it lies in the row space; and \(A\mathbf x^{+} = AA^\top(AA^\top)^{-1}\mathbf b = \mathbf b\), so it is a solution. A null-space vector \(\mathbf n\) has \(A\mathbf n = \mathbf 0\), i.e. it is perpendicular to every row, so the row space and null space are perpendicular (as noted at the start of Section 5) and Pythagoras applies and every other solution is longer. That is the right angle in FIG 3.</p>
   <p class="hl-hint"><span data-lang="zh">提示：悬停 \(\mathbf x^{+}\) 或零空间，FIG 3 会加粗对应的点或直线。</span><span data-lang="en">Tip: hover \(\mathbf x^{+}\) or the null space; FIG 3 thickens the matching point or line.</span></p>
 
   <h3><span data-lang="zh">Moore–Penrose 伪逆</span><span data-lang="en">The Moore–Penrose pseudo-inverse</span></h3>
@@ -483,8 +483,8 @@ $$ \mathbf x^{+} = A^{+}\mathbf b = \sum_{i=1}^{r}\frac{\mathbf u_i^\top\mathbf 
     </div>
     <div class="fig-controls" id="dl-controls"></div>
     <figcaption class="fig-cap">
-      <span data-lang="zh">设 \(J = U\,\mathrm{diag}(\sigma_1,\sigma_2)\,V^\top\)，\(\sigma_1 = 1\)，\(\sigma_2\) 是可调的“弱方向”，目标末端速度 \(\dot{\mathbf x}\) 在 \(\mathbf u_1,\mathbf u_2\) 上的分量是 \((0.8,\,0.6)\)。左图：每个方向的增益。红色虚线是 \(1/\sigma\)，紫色是 \(\sigma/(\sigma^2+\lambda^2)\)；竖线标出两个奇异值，圆点是它们此刻的增益。右图：随着 \(\lambda\) 从 0 增大，关节速度 \(\|\dot{\mathbf q}\|\)（纵轴）和跟踪误差 \(\|J\dot{\mathbf q}-\dot{\mathbf x}\|\)（横轴）怎么变化；绿色方框是“速度 ≤ 4 且误差 ≤ 0.5”的可接受区。</span>
-      <span data-lang="en">Let \(J = U\,\mathrm{diag}(\sigma_1,\sigma_2)\,V^\top\) with \(\sigma_1 = 1\) and an adjustable “weak direction” \(\sigma_2\); the desired end-effector velocity \(\dot{\mathbf x}\) has components \((0.8,\,0.6)\) along \(\mathbf u_1,\mathbf u_2\). Left: the gain of each direction. The dashed red curve is \(1/\sigma\), the purple one is \(\sigma/(\sigma^2+\lambda^2)\); vertical lines mark the two singular values and the dots show their gains right now. Right: as \(\lambda\) grows from 0, how the joint speed \(\|\dot{\mathbf q}\|\) (vertical) and the tracking error \(\|J\dot{\mathbf q}-\dot{\mathbf x}\|\) (horizontal) change; the green box is the acceptable zone “speed ≤ 4 and error ≤ 0.5”.</span>
+      <span data-lang="zh">设 \(J = U\,\mathrm{diag}(\sigma_1,\sigma_2)\,V^\top\)，\(\sigma_1 = 1\)，\(\sigma_2\) 是可调的“弱方向”，目标末端速度 \(\dot{\mathbf x}\) 在 \(\mathbf u_1,\mathbf u_2\) 上的分量是 \((0.8,\,0.6)\)。左图：每个方向的增益。红色虚线是 \(1/\sigma\)，紫色是 \(\sigma/(\sigma^2+\lambda^2)\)；竖线标出两个奇异值（琥珀色 \(\sigma_1\)，青色 \(\sigma_2\)），圆点是它们此刻的增益。右图：随着 \(\lambda\) 从 0 增大，关节速度 \(\|\dot{\mathbf q}\|\)（纵轴）和跟踪误差 \(\|J\dot{\mathbf q}-\dot{\mathbf x}\|\)（横轴）怎么变化；绿色方框是“速度 ≤ 4 且误差 ≤ 0.5”的可接受区。</span>
+      <span data-lang="en">Let \(J = U\,\mathrm{diag}(\sigma_1,\sigma_2)\,V^\top\) with \(\sigma_1 = 1\) and an adjustable “weak direction” \(\sigma_2\); the desired end-effector velocity \(\dot{\mathbf x}\) has components \((0.8,\,0.6)\) along \(\mathbf u_1,\mathbf u_2\). Left: the gain of each direction. The dashed red curve is \(1/\sigma\), the purple one is \(\sigma/(\sigma^2+\lambda^2)\); vertical lines mark the two singular values (amber \(\sigma_1\), cyan \(\sigma_2\)) and the dots show their gains right now. Right: as \(\lambda\) grows from 0, how the joint speed \(\|\dot{\mathbf q}\|\) (vertical) and the tracking error \(\|J\dot{\mathbf q}-\dot{\mathbf x}\|\) (horizontal) change; the green box is the acceptable zone “speed ≤ 4 and error ≤ 0.5”.</span>
     </figcaption>
   </figure>
   <div class="tasks-title"><span data-lang="zh">试一试</span><span data-lang="en">Try this</span></div>
@@ -541,13 +541,13 @@ $$ \mathbf x^{+} = A^{+}\mathbf b = \sum_{i=1}^{r}\frac{\mathbf u_i^\top\mathbf 
     </div>
     <div class="fig-controls" id="ik-controls"></div>
     <figcaption class="fig-cap">
-      <span data-lang="zh">琥珀色椭圆是当前姿态的可操作度椭圆（1.12 节）。末端的紫色短箭头是想要的速度 \(\dot{\mathbf x}\)，青色短箭头是截断之后实际得到的速度 \(J\dot{\mathbf q}\)：两者方向不同，说明关节速度被截断后“跑偏”了。靠近奇异位形时 \(\sigma_2\to 0\)，\(J^{-1}\) 要求的速度趋于无穷，截断后手臂左右抖动；伪逆在 \(\sigma_2\) 低于阈值的瞬间把增益从 \(1/0.08\) 直接砍到 0，手臂提前停下；阻尼解法的增益连续变化，手臂平滑地伸向极限。</span>
-      <span data-lang="en">The amber ellipse is the manipulability ellipse of the current pose (Lesson 1.12). The short purple arrow at the hand is the desired velocity \(\dot{\mathbf x}\); the short cyan one is the velocity \(J\dot{\mathbf q}\) actually obtained after clipping: when they point in different directions, clipping has thrown the motion off course. Near a singularity \(\sigma_2\to 0\) and \(J^{-1}\) demands unbounded speeds, so after clipping the arm jitters; the pseudo-inverse cuts the gain from \(1/0.08\) straight to 0 the moment \(\sigma_2\) falls under the threshold, so the arm stops early; the damped gain changes continuously and the arm glides toward the limit.</span>
+      <span data-lang="zh">琥珀色椭圆是当前姿态的可操作度椭圆（1.12 节）。末端的紫色短箭头是想要的速度 \(\dot{\mathbf x}\)，青色短箭头是截断之后实际得到的速度 \(J\dot{\mathbf q}\)：两者方向不同，说明关节速度被截断后“跑偏”了。靠近奇异位形时 \(\sigma_2\to 0\)，\(J^{-1}\) 要求的速度趋于无穷，截断后手臂左右抖动；伪逆的增益在阈值附近从 \(1/0.08 = 12.5\) 直接跳到 0：跳之前要求的速度仍会冲过电机上限，跳之后沿弱方向的运动戛然而止，而不是逐渐减速；阻尼解法的增益连续变化，手臂平滑地伸向极限。</span>
+      <span data-lang="en">The amber ellipse is the manipulability ellipse of the current pose (Lesson 1.12). The short purple arrow at the hand is the desired velocity \(\dot{\mathbf x}\); the short cyan one is the velocity \(J\dot{\mathbf q}\) actually obtained after clipping: when they point in different directions, clipping has thrown the motion off course. Near a singularity \(\sigma_2\to 0\) and \(J^{-1}\) demands unbounded speeds, so after clipping the arm jitters; the pseudo-inverse's gain jumps from \(1/0.08 = 12.5\) straight to 0 at the threshold: just before the jump the demanded speed still overshoots the motor limit, and after it the motion along the weak direction stops abruptly instead of tapering off; the damped gain changes continuously and the arm glides toward the limit.</span>
     </figcaption>
   </figure>
   <div class="tasks-title"><span data-lang="zh">试一试</span><span data-lang="en">Try this</span></div>
   <ul class="tasks">
-    <li data-task="dlsedge"><span><span data-lang="zh">选<b>阻尼</b>解法，把目标拖到外圈附近，让手臂<b>平滑地</b>伸到几乎伸直（末端到底座的距离 \(\ge 1.97\)），过去 4 秒内要求的关节速度没有超过 6 rad/s（看下方曲线）。</span><span data-lang="en">Pick the <b>damped</b> solver and drag the target to the outer ring so that the arm reaches almost full stretch <b>smoothly</b> (hand-to-base distance \(\ge 1.97\)), with the demanded joint speed never exceeding 6 rad/s during the last 4 seconds.</span></span></li>
+    <li data-task="dlsedge"><span><span data-lang="zh">选<b>阻尼</b>解法，把目标拖到外圈附近（离底座不超过约 2.35，“边缘外 (2.1)”按钮就可以），让手臂<b>平滑地</b>伸到几乎伸直（末端到底座的距离 \(\ge 1.97\)）并停稳，过去 4 秒内要求的关节速度没有超过 6 rad/s（看下方曲线）。</span><span data-lang="en">Pick the <b>damped</b> solver and drag the target to the outer ring (no farther than about 2.35 from the base; the “just beyond (2.1)” button works) so that the arm reaches almost full stretch <b>smoothly</b> (hand-to-base distance \(\ge 1.97\)) and settles, with the demanded joint speed never exceeding 6 rad/s during the last 4 seconds.</span></span></li>
     <li data-task="spike"><span><span data-lang="zh">选<b>逆</b>解法，把目标放到工作空间之外，看要求的关节速度飙到 \(\ge 30\) rad/s（超过电机上限 5 倍）。再换成阻尼，对比有多平静。</span><span data-lang="en">Pick the plain <b>inverse</b> and put the target outside the workspace; watch the demanded joint speed spike to \(\ge 30\) rad/s (5 times the motor limit). Then switch to damped and compare how calm it is.</span></span></li>
   </ul>
   <div data-lang="zh">
@@ -564,8 +564,8 @@ $$ \mathbf x^{+} = A^{+}\mathbf b = \sum_{i=1}^{r}\frac{\mathbf u_i^\top\mathbf 
   </div>
   <div class="callout robot">
     <div class="ct"><span data-lang="zh">真实系统里：怎么选 λ</span><span data-lang="en">In real systems: choosing λ</span></div>
-    <p data-lang="zh">固定的 \(\lambda\) 在远离奇异位形时也在白白降低精度。常见做法是让 \(\lambda\) 随 \(\sigma_{\min}\) 变化：\(\sigma_{\min}\) 大于阈值 \(\epsilon\) 时 \(\lambda = 0\)，小于 \(\epsilon\) 时取 \(\lambda^2 = \lambda_{\max}^2\,(1 - \sigma_{\min}^2/\epsilon^2)\)（Nakamura 和 Hanafusa 的方案）。数值逆运动学库里常带有类似的阻尼项，例如 KDL 的加权阻尼最小二乘速度求解器。</p>
-    <p data-lang="en">A fixed \(\lambda\) needlessly costs accuracy even far from a singularity. A common remedy lets \(\lambda\) depend on \(\sigma_{\min}\): \(\lambda = 0\) when \(\sigma_{\min}\) exceeds a threshold \(\epsilon\), and \(\lambda^2 = \lambda_{\max}^2\,(1 - \sigma_{\min}^2/\epsilon^2)\) below it (the scheme of Nakamura and Hanafusa). Numerical IK libraries often carry a similar damping term, for example KDL's weighted damped least-squares velocity solver.</p>
+    <p data-lang="zh">固定的 \(\lambda\) 在远离奇异位形时也在白白降低精度。常见做法是让 \(\lambda\) 随 \(\sigma_{\min}\) 变化：\(\sigma_{\min}\) 大于阈值 \(\epsilon\) 时 \(\lambda = 0\)，小于 \(\epsilon\) 时取 \(\lambda^2 = \lambda_{\max}^2\,(1 - \sigma_{\min}^2/\epsilon^2)\)，这是一种常见的自适应阻尼方案。数值逆运动学库里常带有类似的阻尼项，例如 KDL 的加权阻尼最小二乘速度求解器。</p>
+    <p data-lang="en">A fixed \(\lambda\) needlessly costs accuracy even far from a singularity. A common remedy lets \(\lambda\) depend on \(\sigma_{\min}\): \(\lambda = 0\) when \(\sigma_{\min}\) exceeds a threshold \(\epsilon\), and \(\lambda^2 = \lambda_{\max}^2\,(1 - \sigma_{\min}^2/\epsilon^2)\) below it, a common adaptive-damping scheme. Numerical IK libraries often carry a similar damping term, for example KDL's weighted damped least-squares velocity solver.</p>
   </div>
 </section>
 
@@ -579,8 +579,8 @@ $$ \mathbf x^{+} = A^{+}\mathbf b = \sum_{i=1}^{r}\frac{\mathbf u_i^\top\mathbf 
   </div>
   <div class="callout pitfall">
     <div class="ct"><span data-lang="zh">误区 2：最小二乘对坏数据很宽容</span><span data-lang="en">Pitfall 2: least squares is forgiving about bad data</span></div>
-    <p data-lang="zh">恰恰相反。残差被平方，一个离群点的影响和它偏差的平方成正比，FIG 1 里加一个离群点就能把整条线拖偏。激光里的反射错误、特征匹配的误匹配都是离群点。对策是鲁棒损失（Huber、Cauchy）或者先用 RANSAC 挑出内点再拟合，第三部分会详细讲。</p>
-    <p data-lang="en">Quite the opposite. Residuals are squared, so an outlier's influence grows with the square of its deviation; in FIG 1 a single outlier drags the whole line. Reflection errors in lidar and wrong feature matches are outliers. The remedies are robust losses (Huber, Cauchy) or RANSAC to pick the inliers first and fit afterwards; Part III covers them in detail.</p>
+    <p data-lang="zh">恰恰相反。残差被平方，一个离群点的影响和它偏差的平方成正比，FIG 1 里加一个离群点就能把整条线拖偏。激光里的反射错误、特征匹配的误匹配都是离群点。对策是鲁棒损失（Huber、Cauchy）或者先用 RANSAC 挑出内点再拟合，分别见 6.9 节和 11.5 节。</p>
+    <p data-lang="en">Quite the opposite. Residuals are squared, so an outlier's influence grows with the square of its deviation; in FIG 1 a single outlier drags the whole line. Reflection errors in lidar and wrong feature matches are outliers. The remedies are robust losses (Huber, Cauchy) or RANSAC to pick the inliers first and fit afterwards; see Lessons 6.9 and 11.5 respectively.</p>
   </div>
   <div class="callout pitfall">
     <div class="ct"><span data-lang="zh">误区 3：它最小化的是点到线的距离</span><span data-lang="en">Pitfall 3: it minimises point-to-line distance</span></div>
@@ -589,8 +589,8 @@ $$ \mathbf x^{+} = A^{+}\mathbf b = \sum_{i=1}^{r}\frac{\mathbf u_i^\top\mathbf 
   </div>
   <div class="callout pitfall">
     <div class="ct"><span data-lang="zh">误区 4：列的尺度无所谓</span><span data-lang="en">Pitfall 4: column scales do not matter</span></div>
-    <p data-lang="zh">如果 \(A\) 的一列以米为单位、另一列以毫米为单位（差 1000 倍），\(\kappa(A)\) 就多出来 1000 倍：上面的 \([\,t\;\;1\,]\)，\(t\in[0,1]\) 时 \(\kappa\approx 3.7\)，换成毫米后 \(\kappa\approx 1100\)。手眼标定里旋转（无量纲）和平移（米或毫米）经常混在一个系统里，也是同样的问题。对策：把每一列除以它的范数（列归一化）、把数据减去均值再拟合，求完解再换回原来的单位。</p>
-    <p data-lang="en">If one column of \(A\) is in metres and another in millimetres (a factor of 1000 apart), \(\kappa(A)\) grows about 1000-fold: for the \([\,t\;\;1\,]\) above, \(\kappa\approx 3.7\) when \(t\in[0,1]\) but \(\kappa\approx 1100\) once \(t\) is in the thousands. Hand–eye calibration mixes rotations (unitless) and translations (metres or millimetres) in one system, with the same issue. The remedy: divide each column by its norm (column normalisation), subtract the mean before fitting, and convert the solution back to the original units afterwards.</p>
+    <p data-lang="zh">如果 \(A\) 的一列以米为单位、另一列以毫米为单位（差 1000 倍），\(\kappa(A)\) 会变大几百倍：上面的 \([\,t\;\;1\,]\)，\(t\in[0,1]\) 时 \(\kappa\approx 3.7\)，换成毫米后 \(\kappa\approx 1100\)。手眼标定里旋转（无量纲）和平移（米或毫米）经常混在一个系统里，也是同样的问题。对策：把每一列除以它的范数（列归一化）、把数据减去均值再拟合，求完解再换回原来的单位。</p>
+    <p data-lang="en">If one column of \(A\) is in metres and another in millimetres (a factor of 1000 apart), \(\kappa(A)\) grows by a factor of several hundred: for the \([\,t\;\;1\,]\) above, \(\kappa\approx 3.7\) when \(t\in[0,1]\) but \(\kappa\approx 1100\) once \(t\) is in the thousands. Hand–eye calibration mixes rotations (unitless) and translations (metres or millimetres) in one system, with the same issue. The remedy: divide each column by its norm (column normalisation), subtract the mean before fitting, and convert the solution back to the original units afterwards.</p>
   </div>
   <div class="callout pitfall">
     <div class="ct"><span data-lang="zh">误区 5：阻尼系数越大越安全</span><span data-lang="en">Pitfall 5: a larger damping factor is always safer</span></div>
@@ -1008,10 +1008,10 @@ R101.onReady(function () {
       P.textPx(t('奇异值 σ（对数坐标）', 'singular value σ (log scale)'), (pad.l + P.W - pad.r) / 2, P.H - 9, { color: 'text-2', size: 12, align: 'center' });
       P.textPx(t('增益', 'gain'), pad.l, 11, { color: 'text-2', size: 12, align: 'left' });
       const xs = []; for (let k = 0; k <= 240; k++) xs.push(X0 * Math.pow(X1 / X0, k / 240));
-      curve(P, s => 1 / s, xs, fx, fy, GT, { color: 'bad', width: hl === 'inv' ? 3.4 : 2, dash: [6, 4], alpha: 0.95 });
+      curve(P, s => 1 / s, xs, fx, fy, GT, { color: 'bad', width: 2, dash: [6, 4], alpha: 0.95 });
       curve(P, s => gain(s, lam), xs, fx, fy, GT, { color: 'w', width: hl === 'dls' ? 4.6 : 3 });
       P.textPx('1/σ', fx(0.04), fy(GT) + 12, { color: 'bad', size: 12.5, bold: true, align: 'left' });
-      [[S1, 'v', 'σ₁'], [s2, 'w', 'σ₂']].forEach(([s, col, nm], k) => {
+      [[S1, 'v', 'σ₁'], [s2, 'x', 'σ₂']].forEach(([s, col, nm], k) => {
         pxPath(P, [[fx(s), pad.t], [fx(s), P.H - pad.b]], { color: col, width: 1.3, dash: [3, 4], alpha: 0.8 });
         const g = gain(s, lam), inr = isFinite(g) && g <= GT;
         if (inr) { P.ctx.save(); P.ctx.beginPath(); P.ctx.arc(fx(s), fy(g), 5.5, 0, 6.2832); P.ctx.fillStyle = P.col(col); P.ctx.fill(); P.ctx.lineWidth = 1.5; P.ctx.strokeStyle = P.col('canvas'); P.ctx.stroke(); P.ctx.restore(); }
@@ -1168,7 +1168,7 @@ R101.onReady(function () {
     }
     new IntersectionObserver(es => { visible = es[0].isIntersecting; if (visible) wake(); }).observe(document.getElementById('fig-ik'));
 
-    const seg = ui.seg(document.getElementById('ik-seg'), [{ value: 'inv', zh: '逆 J⁻¹', en: 'Inverse J⁻¹' }, { value: 'pinv', zh: '伪逆（截断）', en: 'Pseudo-inverse' }, { value: 'dls', zh: '阻尼 DLS', en: 'Damped DLS' }], mode, v => { mode = v; hist = []; wake(); refresh(); });
+    const seg = ui.seg(document.getElementById('ik-seg'), [{ value: 'inv', zh: '逆 J⁻¹', en: 'Inverse J⁻¹' }, { value: 'pinv', zh: '伪逆（截断）', en: 'Pseudo-inverse (truncated)' }, { value: 'dls', zh: '阻尼 DLS', en: 'Damped DLS' }], mode, v => { mode = v; hist = []; wake(); refresh(); });
     const ctr = document.getElementById('ik-controls');
     ui.slider(ctr, { zh: '阻尼 λ', en: 'damping λ', min: 0.01, max: 0.6, step: 0.01, value: lam, fmt: v => M.fmt(v, 2), onInput: v => { lam = v; hist = []; wake(); refresh(); } });
     const box = ui.el('div', 'presets'); ctr.appendChild(box);

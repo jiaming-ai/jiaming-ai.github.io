@@ -181,7 +181,7 @@
   </ul>
 
   <h3><span data-lang="zh">小游戏：估一估面积</span></h3>
-  <p data-lang="zh">下面随机给一个矩阵，单位正方形被变成了平行四边形。不要算，凭眼睛估计它的 \(\det\)：数一数淡色小格子，注意颜色和 F 的方向（紫色表示负）。用滑块给出你的猜测，点"检查"。误差在 10% 以内算猜中。</p>
+  <p data-lang="zh">下面随机给一个矩阵，单位正方形被变成了平行四边形。不要算，凭眼睛估计它的 \(\det\)：数一数平行四边形盖住了几个原来的方格（每格面积 1），注意颜色和 F 的方向（紫色表示负）。用滑块给出你的猜测，点"检查"。误差在 10% 以内算猜中。</p>
   
   <figure class="fig" id="fig-game">
     <div class="fig-head"><span class="fig-kind">FIG 3</span><span class="fig-title"><span data-lang="zh">估一估面积</span></span><span class="spacer"></span><span class="readout" id="game-score"></span></div>
@@ -195,7 +195,7 @@
     </div>
     <div class="fig-controls" id="game-controls"></div>
     <figcaption class="fig-cap">
-      <span data-lang="zh">虚线是单位正方形，实色是它的像。背景里的淡色网格是变换后的格子：平行四边形里有几个这样的格子？每个格子的面积是多少？想让游戏变简单，可以点"显示矩阵"，直接用 \(ad - bc\) 算，但那样练不到眼力。</span>
+      <span data-lang="zh">虚线是单位正方形，实色是它的像。背景里的方格是原来的单位网格，每格面积为 1：平行四边形盖住了大约几格？这个数就是 \(|\det|\)，符号看颜色和 F。青色的斜网格是变换后的格子，平行四边形本身正好是其中一格。想让游戏变简单，可以点"显示矩阵"，直接用 \(ad - bc\) 算，但那样练不到眼力。</span>
       
     </figcaption>
   </figure>
@@ -339,9 +339,9 @@
   <ol>
     <li data-lang="zh"><b>单位不变：</b>\(\det I = 1\)。单位正方形（立方体）体积为 1。</li>
     
-    <li data-lang="zh"><b>对每一列线性：</b>把某一列放大 \(s\) 倍，行列式放大 \(s\) 倍；\(\det[\mathbf u+\mathbf u',\ \mathbf w] = \det[\mathbf u,\ \mathbf w] + \det[\mathbf u',\ \mathbf w]\)。几何上：拉长一条边，面积同比例变化。由此还能推出，把一列加上另一列的倍数（剪切）不改变行列式。</li>
+    <li data-lang="zh"><b>对每一列线性：</b>把某一列放大 \(s\) 倍，行列式放大 \(s\) 倍；\(\det[\mathbf u+\mathbf u',\ \mathbf w] = \det[\mathbf u,\ \mathbf w] + \det[\mathbf u',\ \mathbf w]\)。几何上：拉长一条边，面积同比例变化。</li>
     
-    <li data-lang="zh"><b>交替：</b>交换两列，行列式变号。于是两列相同时行列式为 0（与自己交换，结果既不变又变号，只能是 0）。</li>
+    <li data-lang="zh"><b>交替：</b>交换两列，行列式变号。于是两列相同时行列式为 0（与自己交换，结果既不变又变号，只能是 0）。结合第 2 条还能推出：把一列加上另一列的倍数（剪切）不改变行列式，因为 \(\det[\mathbf u + s\mathbf w,\ \mathbf w] = \det[\mathbf u,\ \mathbf w] + s\det[\mathbf w,\ \mathbf w] = \det[\mathbf u,\ \mathbf w]\)。</li>
     
   </ol>
 
@@ -404,7 +404,7 @@
     </div>
     <div class="fig-controls" id="arm-controls"></div>
     <figcaption class="fig-cap">
-      <span data-lang="zh">杆长 \(\ell_1 = 1.2\)，\(\ell_2 = 1.0\)。手端处的红、绿箭头是 \(J\) 的两列（缩小到 0.6 倍），它们围成的平行四边形是"单位关节速度"能产生的手端速度范围；\(\det J &gt; 0\) 时青色，\(&lt; 0\) 时紫色，接近 0 时红色。右侧曲线是 \(\ell_1\ell_2\sin\theta_2\)，圆点是当前位形，红点是两个奇异位形。</span>
+      <span data-lang="zh">杆长 \(\ell_1 = 1.2\)，\(\ell_2 = 1.0\)。手端处的红、绿箭头是 \(J\) 的两列（缩小到 0.6 倍），它们围成的平行四边形是"单位关节速度"能产生的手端速度范围；\(\det J &gt; 0\) 时青色，\(&lt; 0\) 时紫色，接近 0 时红色。右侧曲线是 \(\ell_1\ell_2\sin\theta_2\)，圆点是当前位形，红点标出奇异位形 \(\theta_2 = 0\) 和 \(\theta_2 = \pm\pi\)（\(-\pi\) 与 \(\pi\) 是同一个姿态）。</span>
       
     </figcaption>
   </figure>
@@ -747,7 +747,7 @@ R101.onReady(function () {
     }
     let last = null;   // result of the latest check, kept so the message can be re-rendered on language switch
     function renderResult() {
-      if (!last) { msg.innerHTML = L('提示：数一数淡色格子，别忘了符号。', 'Hint: count the faint cells, and mind the sign.'); return; }
+      if (!last) { msg.innerHTML = L('提示：数一数平行四边形盖住了几个原来的方格，别忘了符号。', 'Hint: count the original square cells the parallelogram covers, and mind the sign.'); return; }
       const { g, d, ok } = last, err = Math.abs(g - d) / Math.abs(d);
       msg.innerHTML = `<b style="color:var(--c-${ok ? 'good' : 'bad'})">${ok ? L('猜中了！', 'Good guess!') : L('差得有点远。', 'Not quite.')}</b> ` +
         L(`你猜 ${M.fmt(g, 2)}，真值 ${M.fmt(d, 2)}，误差 ${(err * 100).toFixed(0)}%。`, `You said ${M.fmt(g, 2)}, the truth is ${M.fmt(d, 2)}, off by ${(err * 100).toFixed(0)}%.`) +

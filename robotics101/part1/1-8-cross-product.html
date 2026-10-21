@@ -177,8 +177,8 @@
 <!-- ============ 3. PLAY ============ -->
 <section class="step" id="play">
   <h2><span class="n">3</span><span data-lang="zh">动手玩：三维叉积实验室</span><span data-lang="en">Play: the 3D cross-product lab</span></h2>
-  <p data-lang="zh">用下面六个滑块摆放 <span class="cx">a</span> 和 <span class="cw">b</span>：每个向量由方位角（绕 z 轴转）、仰角（离开水平面）和长度决定。右边是实时读数，下方是逐分量的计算。也可以点一个预设，或者显示灰色虚线的 <span class="cv">b × a</span>。</p>
-  <p data-lang="en">Place <span class="cx">a</span> and <span class="cw">b</span> with the six sliders: each vector is set by an azimuth (turning about the z-axis), an elevation (tilting out of the horizontal plane) and a length. The readouts are live, and the component-by-component computation is underneath. You can also pick a preset, or show the dashed <span class="cv">b × a</span>.</p>
+  <p data-lang="zh">用下面六个滑块摆放 <span class="cx">a</span> 和 <span class="cw">b</span>：每个向量由方位角（绕 z 轴转）、仰角（离开水平面）和长度决定。右边是实时读数，下方是逐分量的计算。也可以点一个预设，或者显示琥珀色虚线的 <span class="cv">b × a</span>。</p>
+  <p data-lang="en">Place <span class="cx">a</span> and <span class="cw">b</span> with the six sliders: each vector is set by an azimuth (turning about the z-axis), an elevation (tilting out of the horizontal plane) and a length. The readouts are live, and the component-by-component computation is underneath. You can also pick a preset, or show the dashed amber <span class="cv">b × a</span>.</p>
 
   <figure class="fig bleed" id="fig-lab">
     <div class="fig-head"><span class="fig-kind">FIG 2</span><span class="fig-title"><span data-lang="zh">叉积实验室</span><span data-lang="en">Cross-product lab</span></span><span class="spacer"></span><span id="lab-ghost"></span></div>
@@ -265,8 +265,8 @@
       </div>
     </div>
     <figcaption class="fig-cap">
-      <span data-lang="zh">每个拐角处的弧线表示"相对于直行，往哪边拐了多少"。绿色是左转（叉积为正），红色是右转（叉积为负），灰色是几乎直行。数值是 u × v，它同时也是以 u、v 为边的平行四边形面积，所以急转弯的数值大，缓弯的数值小。</span>
-      <span data-lang="en">The arc at each corner shows which way and how far the path bends relative to going straight. Green is a left turn (positive cross product), red a right turn (negative), grey nearly straight. The number is u × v, which is also the area of the parallelogram on u and v, so sharp, long turns give big values and gentle ones small values.</span>
+      <span data-lang="zh">每个拐角处的弧线表示"相对于直行，往哪边拐了多少"。绿色是左转（叉积为正），红色是右转（叉积为负），灰色是几乎直行。数值是 u × v，它同时也是以 u、v 为边的平行四边形面积 \(\lVert\mathbf u\rVert\lVert\mathbf v\rVert\sin\alpha\)（α 是拐过的角度）：路段越长、拐角越接近 90°，数值越大；缓弯和几乎掉头的急弯数值都小，所以判断左右只看符号。</span>
+      <span data-lang="en">The arc at each corner shows which way and how far the path bends relative to going straight. Green is a left turn (positive cross product), red a right turn (negative), grey nearly straight. The number is u × v, which is also the area of the parallelogram on u and v, \(\lVert\mathbf u\rVert\lVert\mathbf v\rVert\sin\alpha\) (α is the angle turned): long segments and turns near 90° give big values, while gentle bends and near U-turns both give small ones, so only the sign decides left or right.</span>
     </figcaption>
   </figure>
   <ul class="tasks">
@@ -314,8 +314,8 @@
     </div>
     <div class="fig-body" style="border-top:1px solid var(--border)"><div class="fig-side" style="border:0"><div class="katex-live" id="hat-pow-tex"></div><div class="readout" id="hat-pow-read"></div></div></div>
     <figcaption class="fig-cap">
-      <span data-lang="zh">上方：矩阵乘向量与叉积给出同一个结果。下方：选择 1、2、3 次幂，程序算出矩阵幂，并和右边的公式逐项比较。切到"归一化 â"再选 3 次幂，就是 5.6 节要用的 \(K^3=-K\)。</span>
-      <span data-lang="en">Top: the matrix-vector product and the cross product give the same result. Bottom: pick power 1, 2 or 3 and the page computes the matrix power and compares it entry by entry with the formula on the right. Switch to the normalised â and power 3 and you get the \(K^3=-K\) that Lesson 5.6 uses.</span>
+      <span data-lang="zh">上方：矩阵乘向量与叉积给出同一个结果。下方：选第一项检查斜对称（转置等于取负）；选 2 次或 3 次幂，程序算出矩阵幂，并和公式逐项比较。切到"归一化 â"再选 3 次幂，就是 5.6 节要用的 \(K^3=-K\)。</span>
+      <span data-lang="en">Top: the matrix-vector product and the cross product give the same result. Bottom: the first option checks skew-symmetry (the transpose equals the negative); power 2 or 3 makes the page compute the matrix power and compare it entry by entry with the formula. Switch to the normalised â and power 3 and you get the \(K^3=-K\) that Lesson 5.6 uses.</span>
     </figcaption>
   </figure>
   <ul class="tasks">
@@ -375,12 +375,12 @@
   <p data-lang="en"><b>A counterexample to associativity</b>: \(\ihat\times(\ihat\times\jhat) = \ihat\times\khat = -\jhat\), but \((\ihat\times\ihat)\times\jhat = \mathbf 0\times\jhat=\mathbf 0\). To simplify nested cross products use the BAC-CAB rule: \(\mathbf a\times(\mathbf b\times\mathbf c) = \mathbf b\,(\mathbf a\cdot\mathbf c) - \mathbf c\,(\mathbf a\cdot\mathbf b)\).</p>
 
   <h3><span data-lang="zh">三重积：体积</span><span data-lang="en">The triple product: volume</span></h3>
-  <div class="math-card">$$ \mathbf a\cdot(\mathbf b\times\mathbf c) \;=\; \det\begin{bmatrix}\mathbf a & \mathbf b & \mathbf c\end{bmatrix} \;=\; \text{signed volume of the parallelepiped spanned by }\mathbf a,\mathbf b,\mathbf c. $$</div>
+  <div class="math-card">$$ \mathbf a\cdot(\mathbf b\times\mathbf c) \;=\; \det\begin{bmatrix}\mathbf a & \mathbf b & \mathbf c\end{bmatrix} \;=\; \pm\,V_{\mathbf a,\mathbf b,\mathbf c}. $$</div>
   <div data-lang="zh">
-    <p>\(\mathbf b\times\mathbf c\) 的长度是底面积，方向垂直于底面；再和 \(\mathbf a\) 点积，就是 \(\mathbf a\) 在垂直方向的分量（高）乘底面积，即体积。正负号反映 \((\mathbf a,\mathbf b,\mathbf c)\) 是不是右手系，这就是 1.5 节说的三维行列式。例：\(\mathbf a=(1,0,0)\)，\(\mathbf b=(1,2,0)\)，\(\mathbf c=(1,1,3)\)，则 \(\mathbf b\times\mathbf c=(6,-3,-1)\)，\(\mathbf a\cdot(\mathbf b\times\mathbf c)=6\)；矩阵是上三角的，行列式 \(1\cdot2\cdot3=6\)，一致。</p>
+    <p>其中 \(V_{\mathbf a,\mathbf b,\mathbf c}\) 是 \(\mathbf a,\mathbf b,\mathbf c\) 张成的平行六面体的体积，三重积是带符号的体积。\(\mathbf b\times\mathbf c\) 的长度是底面积，方向垂直于底面；再和 \(\mathbf a\) 点积，就是 \(\mathbf a\) 在垂直方向的分量（高）乘底面积，即体积。正负号反映 \((\mathbf a,\mathbf b,\mathbf c)\) 是不是右手系，这就是 1.5 节说的三维行列式。例：\(\mathbf a=(1,0,0)\)，\(\mathbf b=(1,2,0)\)，\(\mathbf c=(1,1,3)\)，则 \(\mathbf b\times\mathbf c=(6,-3,-1)\)，\(\mathbf a\cdot(\mathbf b\times\mathbf c)=6\)；矩阵是上三角的，行列式 \(1\cdot2\cdot3=6\)，一致。</p>
   </div>
   <div data-lang="en">
-    <p>The length of \(\mathbf b\times\mathbf c\) is the base area and its direction is perpendicular to the base; dotting with \(\mathbf a\) picks the component of \(\mathbf a\) along that perpendicular (the height) times the base area: the volume. The sign says whether \((\mathbf a,\mathbf b,\mathbf c)\) is right-handed, which is the 3D determinant of Lesson 1.5. Example: \(\mathbf a=(1,0,0)\), \(\mathbf b=(1,2,0)\), \(\mathbf c=(1,1,3)\) give \(\mathbf b\times\mathbf c=(6,-3,-1)\) and \(\mathbf a\cdot(\mathbf b\times\mathbf c)=6\); the matrix is upper triangular with determinant \(1\cdot2\cdot3=6\), the same.</p>
+    <p>Here \(V_{\mathbf a,\mathbf b,\mathbf c}\) is the volume of the parallelepiped spanned by \(\mathbf a,\mathbf b,\mathbf c\): the triple product is a signed volume. The length of \(\mathbf b\times\mathbf c\) is the base area and its direction is perpendicular to the base; dotting with \(\mathbf a\) picks the component of \(\mathbf a\) along that perpendicular (the height) times the base area: the volume. The sign says whether \((\mathbf a,\mathbf b,\mathbf c)\) is right-handed, which is the 3D determinant of Lesson 1.5. Example: \(\mathbf a=(1,0,0)\), \(\mathbf b=(1,2,0)\), \(\mathbf c=(1,1,3)\) give \(\mathbf b\times\mathbf c=(6,-3,-1)\) and \(\mathbf a\cdot(\mathbf b\times\mathbf c)=6\); the matrix is upper triangular with determinant \(1\cdot2\cdot3=6\), the same.</p>
   </div>
 
   <h3><span data-lang="zh">hat 矩阵的恒等式</span><span data-lang="en">Identities of the hat matrix</span></h3>
@@ -446,12 +446,12 @@
   <div data-lang="en">
     <p>Take three neighbouring points \(p_1,p_2,p_3\) of a point cloud; the cross product of two edges is perpendicular to the plane through them:</p>
   </div>
-  <div class="math-card">$$ \mathbf n = \frac{(p_2-p_1)\times(p_3-p_1)}{\lVert(p_2-p_1)\times(p_3-p_1)\rVert}, \qquad \text{area} = \tfrac12\lVert(p_2-p_1)\times(p_3-p_1)\rVert. $$</div>
+  <div class="math-card">$$ \mathbf N = (p_2-p_1)\times(p_3-p_1), \qquad \mathbf n = \frac{\mathbf N}{\lVert\mathbf N\rVert}, \qquad A_\triangle = \tfrac12\lVert\mathbf N\rVert. $$</div>
   <div data-lang="zh">
-    <p>三角形的面积顺手就有了（平行四边形的一半）。下面给三个点加一点测量噪声，看噪声怎么影响法向量。深色的 <span class="cv">琥珀色箭头</span> 是无噪声的法向量，青色小点是 36 次加噪后的单位法向量的尖端。</p>
+    <p>未归一化的 \(\mathbf N\) 顺手给出三角形的面积 \(A_\triangle\)（平行四边形的一半）。下面给三个点加一点测量噪声，看噪声怎么影响法向量。深色的 <span class="cv">琥珀色箭头</span> 是无噪声的法向量，青色小点是 36 次加噪后的单位法向量的尖端。</p>
   </div>
   <div data-lang="en">
-    <p>The triangle's area comes for free (half the parallelogram). Below, a little measurement noise is added to the three points to see how it affects the normal. The <span class="cv">amber arrow</span> is the noise-free normal; the small cyan dots are the tips of the unit normals from 36 noisy trials.</p>
+    <p>The unnormalised \(\mathbf N\) gives the triangle's area \(A_\triangle\) for free (half the parallelogram). Below, a little measurement noise is added to the three points to see how it affects the normal. The <span class="cv">amber arrow</span> is the noise-free normal; the small cyan dots are the tips of the unit normals from 36 noisy trials.</p>
   </div>
 
   <figure class="fig" id="fig-normal">
@@ -462,8 +462,8 @@
     </div>
     <div class="fig-controls" id="nm-ctrl"></div>
     <figcaption class="fig-cap">
-      <span data-lang="zh">三个点各加标准差 0.03 的随机偏移。三角形胖的时候，36 个法向量几乎重合；把它压扁（三点接近一条直线），\(\lVert\mathbf n\rVert\)（面积）变小，噪声被放大，法向量四散，甚至翻到另一面。箭头 1→2→3 是点的顺序：交换 2 和 3 的顺序，法向量就翻向另一侧。</span>
-      <span data-lang="en">Each of the three points gets a random offset of standard deviation 0.03. With a fat triangle the 36 normals nearly coincide; squash it (three points close to a line) and \(\lVert\mathbf n\rVert\) (the area) shrinks, the noise is amplified, and the normals scatter and even flip to the other side. The arrows 1→2→3 show the point order: swap 2 and 3 and the normal flips to the other side.</span>
+      <span data-lang="zh">三个点各加标准差 0.03 的随机偏移。三角形胖的时候，36 个法向量几乎重合；把它压扁（三点接近一条直线），\(\lVert\mathbf N\rVert\)（两倍面积）变小，噪声被放大，法向量四散，甚至翻到另一面。箭头 1→2→3 是点的顺序：交换 2 和 3 的顺序，法向量就翻向另一侧。</span>
+      <span data-lang="en">Each of the three points gets a random offset of standard deviation 0.03. With a fat triangle the 36 normals nearly coincide; squash it (three points close to a line) and \(\lVert\mathbf N\rVert\) (twice the area) shrinks, the noise is amplified, and the normals scatter and even flip to the other side. The arrows 1→2→3 show the point order: swap 2 and 3 and the normal flips to the other side.</span>
     </figcaption>
   </figure>
   <ul class="tasks">
@@ -473,8 +473,8 @@
 
   <div class="callout robot">
     <div class="ct"><span data-lang="zh">真实系统里</span><span data-lang="en">In real systems</span></div>
-    <p data-lang="zh">点云库一般取一个点的 20 个左右近邻，用 PCA（1.12 节）拟合平面，取最小奇异方向作法向量：它用了所有点，比三点叉积稳得多。叉积仍然用在网格里：给每个三角面算法向量，顶点法向量取周围面的加权平均（面积就是权重，\(\lVert\mathbf n\rVert\) 本来就带着）。法向量的符号需要统一：常见做法是和朝向传感器的向量点乘，为负就翻转。</p>
-    <p data-lang="en">Point-cloud libraries usually take about 20 neighbours of a point, fit a plane with PCA (Lesson 1.12) and use the smallest singular direction as the normal: it uses all the points and is far more robust than a three-point cross product. The cross product is still used on meshes: compute each triangle's normal, and set a vertex normal as the average over the surrounding faces (the area is the weight, and the unnormalised \(\mathbf n\) already carries it). Normals also need a consistent sign: the usual trick is to dot them with the vector toward the sensor and flip when the result is negative.</p>
+    <p data-lang="zh">点云库一般取一个点的 20 个左右近邻，用 PCA（1.12 节）拟合平面，取最小奇异方向作法向量：它用了所有点，比三点叉积稳得多。叉积仍然用在网格里：给每个三角面算法向量，顶点法向量取周围面的加权平均（面积就是权重，未归一化的 \(\mathbf N\) 本来就带着）。法向量的符号需要统一：常见做法是和朝向传感器的向量点乘，为负就翻转。</p>
+    <p data-lang="en">Point-cloud libraries usually take about 20 neighbours of a point, fit a plane with PCA (Lesson 1.12) and use the smallest singular direction as the normal: it uses all the points and is far more robust than a three-point cross product. The cross product is still used on meshes: compute each triangle's normal, and set a vertex normal as the average over the surrounding faces (the area is the weight, and the unnormalised \(\mathbf N\) already carries it). Normals also need a consistent sign: the usual trick is to dot them with the vector toward the sensor and flip when the result is negative.</p>
   </div>
 </section>
 
@@ -559,7 +559,7 @@
     <div class="q"><span data-lang="zh">5. 用三个几乎在一条直线上的点估计平面法向量，结果很不稳定。最直接的原因是？</span><span data-lang="en">5. Estimating a plane normal from three almost collinear points gives unstable results. The most direct reason is:</span></div>
     <div class="opts">
       <button class="opt"><span data-lang="zh">叉积只在三个点不共线时才有定义</span><span data-lang="en">The cross product is defined only for non-collinear points</span></button>
-      <button class="opt"><span data-lang="zh">\(\lVert\mathbf n\rVert=\lVert\mathbf a\rVert\lVert\mathbf b\rVert\sin\theta\) 很小，噪声相对被放大，方向主要由噪声决定</span><span data-lang="en">\(\lVert\mathbf n\rVert=\lVert\mathbf a\rVert\lVert\mathbf b\rVert\sin\theta\) is tiny, so noise is relatively amplified and the direction is mostly noise</span></button>
+      <button class="opt"><span data-lang="zh">\(\lVert\mathbf N\rVert=\lVert\mathbf a\rVert\lVert\mathbf b\rVert\sin\theta\) 很小，噪声相对被放大，方向主要由噪声决定</span><span data-lang="en">\(\lVert\mathbf N\rVert=\lVert\mathbf a\rVert\lVert\mathbf b\rVert\sin\theta\) is tiny, so noise is relatively amplified and the direction is mostly noise</span></button>
       <button class="opt"><span data-lang="zh">叉积不满足结合律</span><span data-lang="en">The cross product is not associative</span></button>
       <button class="opt"><span data-lang="zh">右手定则在这种情况下失效</span><span data-lang="en">The right-hand rule fails in this case</span></button>
     </div>
@@ -770,7 +770,7 @@ R101.onReady(function () {
       R101.tex(tex, `\\cv{a_1b_2-a_2b_1} = \\det\\begin{bmatrix} \\cx{${t(a[0])}} & \\cw{${t(b[0])}} \\\\ \\cx{${t(a[1])}} & \\cw{${t(b[1])}} \\end{bmatrix} = \\cv{${t(s)}}`);
       const eps = 0.05, side = Math.abs(s) < eps ? L('共线（面积为 0）', 'collinear (zero area)') : s > 0 ? L('b 在 a 的<b style="color:var(--c-good)">左边</b>（逆时针）', 'b is <b style="color:var(--c-good)">left</b> of a (counter-clockwise)') : L('b 在 a 的<b style="color:var(--c-bad)">右边</b>（顺时针）', 'b is <b style="color:var(--c-bad)">right</b> of a (clockwise)');
       const th = na > 1e-6 && nb > 1e-6 ? Math.atan2(s, dot(a, b)) / D2R : 0;
-      read.innerHTML = `${side}<br>signed θ = <b>${M.fmt(th, 1)}°</b><br>‖a‖‖b‖ sin θ = <b>${f2(na * nb * Math.sin(th * D2R))}</b>`;
+      read.innerHTML = `${side}<br>${L('有向角', 'signed')} θ = <b>${M.fmt(th, 1)}°</b><br>‖a‖‖b‖ sin θ = <b>${f2(na * nb * Math.sin(th * D2R))}</b>`;
       if (user === true) {
         if (s > 1) R101.done('left');
         if (s < -1) R101.done('right');
@@ -791,7 +791,8 @@ R101.onReady(function () {
     const P = new R101.Plane2D('#turn-canvas', { height: 430, view: { span: 8 }, draw, onChange: sync });
     const turn = (p0, p1, p2) => {
       const u = sub(p1, p0), v = sub(p2, p1), c = cross2(u, v), s = c / (norm(u) * norm(v) || 1);
-      return { u, v, c, s, kind: Math.abs(s) < 0.06 ? 'S' : c > 0 ? 'L' : 'R' };
+      // 'S' only for a near-straight continuation; a near U-turn (dot < 0) keeps the sign of c
+      return { u, v, c, s, kind: Math.abs(s) < 0.06 && dot(u, v) > 0 ? 'S' : c >= 0 ? 'L' : 'R' };
     };
     const corners = () => { const out = []; for (let i = 1; i < W.length - 1; i++) out.push(turn(W[i - 1], W[i], W[i + 1])); return out; };
     const kcol = k => (k === 'L' ? 'good' : k === 'R' ? 'bad' : 'text-2');
@@ -994,7 +995,7 @@ R101.onReady(function () {
         const rm = scale(r, S), tt = tau(), nF = norm(F), d = nF > 1e-9 ? Math.abs(tt) / nF : 0;
         R101.tex(tex, `\\cv{\\tau} = r_xF_y - r_yF_x = (${t(rm[0])})(${t(F[1])}) - (${t(rm[1])})(${t(F[0])}) = \\cv{${t(tt)}}`);
         read.innerHTML = `r = (${f2(rm[0])}, ${f2(rm[1])}) m<br>F = (${f2(F[0])}, ${f2(F[1])}) N, ‖F‖ = ${f2(nF)} N<br>τ = <b>${tt >= 0 ? '+' : '−'}${f2(Math.abs(tt))} N·m</b> ${tt > 0.005 ? L('逆时针', 'counter-clockwise') : tt < -0.005 ? L('顺时针', 'clockwise') : L('零', 'zero')}<br>${L('力臂', 'lever arm')} d = ${f2(d)} m, ‖F‖·d = ${f2(nF * d)}`;
-        if (nF >= 3 && Math.abs(tt) <= 0.05 * norm(rm) * nF) R101.done('zerotorque');
+        if (nF >= 3 && norm(rm) >= 0.1 && Math.abs(tt) <= 0.05 * norm(rm) * nF) R101.done('zerotorque');
       } else {
         const rm = scale(rs, S), v = vel(rs), nv = norm(v);
         R101.tex(tex, `\\cv{\\mathbf v} = \\boldsymbol\\omega\\times\\mathbf r = \\omega\\begin{bmatrix}-r_y\\\\ r_x\\end{bmatrix} = \\cv{\\begin{bmatrix}${t(v[0])}\\\\${t(v[1])}\\end{bmatrix}}`);
@@ -1042,7 +1043,7 @@ R101.onReady(function () {
     const read = document.getElementById('nm-read');
     function sync() {
       const s = stats(), area = s.len / 2;
-      read.innerHTML = `${L('三角形面积', 'area')} ½‖n‖ = <b>${f2(area)}</b><br>n̂ = (${s.u0.map(f2).join(', ')})<br>${L('法向量朝', 'normal points')} <b>${s.u0[2] > 0 ? L('上', 'up') : L('下', 'down')}</b><br>${L('加噪后平均误差', 'mean error under noise')} = <b style="color:var(--c-${s.err > 15 ? 'bad' : 'good'})">${M.fmt(s.err, 1)}°</b>`;
+      read.innerHTML = `${L('三角形面积', 'area')} ½‖N‖ = <b>${f2(area)}</b><br>n = (${s.u0.map(f2).join(', ')})<br>${L('法向量朝', 'normal points')} <b>${s.u0[2] > 0 ? L('上', 'up') : L('下', 'down')}</b><br>${L('加噪后平均误差', 'mean error under noise')} = <b style="color:var(--c-${s.err > 15 ? 'bad' : 'good'})">${M.fmt(s.err, 1)}°</b>`;
       if (s.err > 15) R101.done('sliver');
       if (swapped && s.u0[2] < 0) R101.done('flipnormal');
       V.invalidate();

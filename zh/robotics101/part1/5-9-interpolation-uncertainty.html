@@ -145,7 +145,7 @@
     <div class="fig-controls" id="sl-ctl1"></div>
     <div class="fig-controls" id="sl-ctl-s"></div>
     <figcaption class="fig-cap">
-      <span data-lang="zh">淡色的两个坐标系是起点 \(R_0\) 和终点 \(R_1\)。绿色是测地线，当前时刻的坐标系用实线画；红色是欧拉角逐个线性插值（直接对滑块里的偏航、俯仰、横滚数值插值）；紫色是 NLERP。球面上的曲线是各方法下 x 轴尖的轨迹。右图横轴是 \(s\)，纵轴是瞬时角速度除以测地线的恒定角速度。</span>
+      <span data-lang="zh">淡色的两个坐标系是起点 \(R_0\) 和终点 \(R_1\)。黄色是测地线，当前时刻的坐标系用粗的红绿蓝三轴画出；青色是欧拉角逐个线性插值（直接对滑块里的偏航、俯仰、横滚数值插值）；紫色是 NLERP。球面上的曲线是各方法下 x 轴尖的轨迹。右图横轴是 \(s\)，纵轴是瞬时角速度除以测地线的恒定角速度。</span>
       
     </figcaption>
   </figure>
@@ -222,7 +222,7 @@
     </div>
     <div class="fig-controls" id="mn-ctl"></div>
     <figcaption class="fig-cap">
-      <span data-lang="zh">绿色实心坐标系：Karcher 均值；红色虚线：欧拉角平均；紫色点：矩阵平均再投影。读数里的"距离"是各均值与 Karcher 均值之间的测地线角度，"代价"是 \(\frac1N\sum\|\Log(R\T R_i)\|^2\)，Karcher 均值使它最小。把中心偏航设到接近 \(\pm180^\circ\) 再看欧拉角平均。</span>
+      <span data-lang="zh">粗的红绿蓝实线坐标系：Karcher 均值；青色虚线箭头：欧拉角平均；紫色点：矩阵平均再投影。读数里的"距离"是各均值与 Karcher 均值之间的测地线角度，"代价"是 \(\frac1N\sum\|\Log(R\T R_i)\|^2\)，Karcher 均值使它最小。把中心偏航设到接近 \(\pm180^\circ\) 再看欧拉角平均。</span>
       
     </figcaption>
   </figure>
@@ -331,12 +331,12 @@
   </div>
   <div class="callout pitfall">
     <div class="ct"><span data-lang="zh">误区 3：把位姿协方差当成欧氏坐标的协方差</span></div>
-    <p data-lang="zh">切空间里的 \(\Sigma\) 只是 \(\bar T\) 附近的局部描述。把它直接当成 \((x,y,\theta)\) 的协方差，会得到 FIG 4 里那个"包进空白区域"的椭圆。需要世界系下的位置协方差时，要通过 \(\Exp\) 的雅可比把它换过去，或者用采样的办法（sigma points、蒙特卡洛）。</p>
+    <p data-lang="zh">切空间里的 \(\Sigma\) 描述的是机体系里的小扰动 \(\boldsymbol\varepsilon\)，不是世界系坐标 \((x,y,\theta)\) 的协方差，两者的分量含义不同，不能直接互换。而且只要航向的散布一大，世界系 \((x,y)\) 上的<b>任何</b>高斯都会出问题：不论是像 FIG 4 那样直接对位置拟合，还是把 \(\Sigma\) 经过 \(\Exp\) 的雅可比线性化过去，得到的都是一个椭圆，都会"包进空白区域"、丢掉香蕉的弯曲。需要保留弯曲时，就留在切空间形式 \(\bar T\Exp(\boldsymbol\varepsilon)\) 里，或者经过 \(\Exp\) 采样（sigma points、蒙特卡洛）；线性化只在散布小时才可靠。</p>
     
   </div>
   <div class="callout pitfall">
     <div class="ct"><span data-lang="zh">误区 4：左右协方差混用，twist 顺序不一致</span></div>
-    <p data-lang="zh">\(\Sigma_l = \operatorname{Ad}_{\bar T}\Sigma_r\operatorname{Ad}_{\bar T}\T\)。\(\bar T\) 离原点越远，两者差得越多。把一个库输出的 6×6 协方差喂给另一个库之前，要同时确认：左还是右，以及 \((\boldsymbol\omega,\mathbf v)\) 还是 \((\mathbf v,\boldsymbol\omega)\)（5.6 节误区 5）。</p>
+    <p data-lang="zh">\(\Sigma_l = \operatorname{Ad}_{\bar T}\Sigma_r\operatorname{Ad}_{\bar T}\T\)。\(\bar T\) 离单位元越远（转得越多、平移越大），两者差得越多。把一个库输出的 6×6 协方差喂给另一个库之前，要同时确认：左还是右，以及 \((\boldsymbol\omega,\mathbf v)\) 还是 \((\mathbf v,\boldsymbol\omega)\)（5.6 节误区 5）。</p>
     
   </div>
 </section>
@@ -512,17 +512,17 @@ R101.onReady(function () {
     }
     function draw3(V) {
       const hl = R101.hl;
-      V.ellipsoid([0, 0, 0], [[SC, 0, 0], [0, SC, 0], [0, 0, SC]], { alpha: 0.22, lat: 6, lon: 10 });
+      V.ellipsoid([0, 0, 0], [[SC, 0, 0], [0, SC, 0], [0, 0, SC]], { color: 'text-2', alpha: 0.18, lat: 6, lon: 10 });
       V.frame({ R: R0, t: [0, 0, 0] }, { scale: SC * 0.85, width: 2, alpha: 0.28 });
       V.frame({ R: R1, t: [0, 0, 0] }, { scale: SC * 0.85, width: 2, alpha: 0.28 });
       V.text('R₀', frameTip(R0, 0, SC * 1.12), { color: 'text-2', size: 12 });
       V.text('R₁', frameTip(R1, 0, SC * 1.12), { color: 'text-2', size: 12 });
-      V.polyline(pathE, { color: 'bad', width: hl === 'euler' ? 4 : 2, alpha: 0.9 });
+      V.polyline(pathE, { color: 'x', width: hl === 'euler' ? 4 : 2, alpha: 0.9 });
       V.polyline(pathN, { color: 'w', width: hl === 'nlerp' ? 4.5 : 2.2, alpha: 0.9, dash: [6, 4] });
-      V.polyline(pathG, { color: 'good', width: hl === 'geo' ? 5 : 3, alpha: 1 });
+      V.polyline(pathG, { color: 'v', width: hl === 'geo' ? 5 : 3, alpha: 1 });
       const Rs = fGeo(s);
       V.frame({ R: Rs, t: [0, 0, 0] }, { scale: SC, width: 3.6 });
-      V.point(frameTip(fEul(s), 0, SC), { color: 'bad', r: 5.5, stroke: 'canvas' });
+      V.point(frameTip(fEul(s), 0, SC), { color: 'x', r: 5.5, stroke: 'canvas' });
       V.point(frameTip(fNl(s), 0, SC), { color: 'w', r: 5.5, stroke: 'canvas' });
     }
     function drawPlot(P) {
@@ -538,12 +538,12 @@ R101.onReady(function () {
       P.textPx(R101.t('相对角速度（测地线 = 1）', 'relative angular speed (geodesic = 1)'), PL.l + 6, PL.t - 16, { color: 'text', size: 12, bold: true });
       P.textPx('s', PL.l + pw, H - 6, { color: 'text-2', size: 12, align: 'right', bold: true });
       const ser = sp => sp.map((v, k) => w(X((k + 0.5) / N), Y(Math.min(v, ymax))));
-      P.path(ser(spE), { color: 'bad', width: 2.4 });
+      P.path(ser(spE), { color: 'x', width: 2.4 });
       P.path(ser(spN), { color: 'w', width: 2.4, dash: [6, 4] });
-      P.line(w(X(0), Y(1)), w(X(1), Y(1)), { color: 'good', width: 3 });
-      P.line(w(X(s), PL.t), w(X(s), PL.t + ph), { color: 'v', width: 1.4, dash: [4, 4] });
-      P.textPx(R101.t('— 测地线', '— geodesic'), PL.l + pw, PL.t + 12, { color: 'good', size: 12, bold: true, align: 'right' });
-      P.textPx(R101.t('— 欧拉角', '— Euler angles'), PL.l + pw, PL.t + 28, { color: 'bad', size: 12, bold: true, align: 'right' });
+      P.line(w(X(0), Y(1)), w(X(1), Y(1)), { color: 'v', width: 3 });
+      P.line(w(X(s), PL.t), w(X(s), PL.t + ph), { color: 'text-2', width: 1.4, dash: [4, 4] });
+      P.textPx(R101.t('— 测地线', '— geodesic'), PL.l + pw, PL.t + 12, { color: 'v', size: 12, bold: true, align: 'right' });
+      P.textPx(R101.t('— 欧拉角', '— Euler angles'), PL.l + pw, PL.t + 28, { color: 'x', size: 12, bold: true, align: 'right' });
       P.textPx('- - NLERP', PL.l + pw, PL.t + 44, { color: 'w', size: 12, bold: true, align: 'right' });
     }
     const user = () => {
@@ -560,7 +560,7 @@ R101.onReady(function () {
     function sync() {
       compute();
       const col = c => `style="color:var(--c-${c})"`;
-      rd.innerHTML = `${L('起点终点相差（测地线角度）', 'angle between start and end (geodesic)')} = <b>${deg(theta)}</b><br><b ${col('good')}>${L('测地线', 'geodesic')}</b>: ${L('扫过', 'sweeps')} <b>${deg(sweptG)}</b> · <b ${col('bad')}>${L('欧拉角', 'Euler angles')}</b>: ${L('扫过', 'sweeps')} <b>${deg(sweptE)}</b> (×${M.fmt(sweptE / Math.max(sweptG, 1e-9), 2)}) · <b style="color:var(--c-w)">NLERP</b>: ${L('速度最大/最小', 'speed max/min')} = <b>${M.fmt(ratioN, 2)}</b><br><span class="muted small">${L('四元数 SLERP 公式与 R₀ Exp(s Log(R₀ᵀR₁)) 之差', 'quaternion SLERP vs. R₀ Exp(s Log(R₀ᵀR₁))')}: ${slerpErr.toExponential(1).replace('-', '−')}</span>`;
+      rd.innerHTML = `${L('起点终点相差（测地线角度）', 'angle between start and end (geodesic)')} = <b>${deg(theta)}</b><br><b ${col('v')}>${L('测地线', 'geodesic')}</b>: ${L('扫过', 'sweeps')} <b>${deg(sweptG)}</b> · <b ${col('x')}>${L('欧拉角', 'Euler angles')}</b>: ${L('扫过', 'sweeps')} <b>${deg(sweptE)}</b> (×${M.fmt(sweptE / Math.max(sweptG, 1e-9), 2)}) · <b style="color:var(--c-w)">NLERP</b>: ${L('速度最大/最小', 'speed max/min')} = <b>${M.fmt(ratioN, 2)}</b><br><span class="muted small">${L('四元数 SLERP 公式与 R₀ Exp(s Log(R₀ᵀR₁)) 之差', 'quaternion SLERP vs. R₀ Exp(s Log(R₀ᵀR₁))')}: ${slerpErr.toExponential(1).replace('-', '−')}</span>`;
       V.invalidate(); P.invalidate();
     }
     R101.on('lang', sync);
@@ -658,10 +658,10 @@ R101.onReady(function () {
     }
     function draw(V) {
       const hl = R101.hl;
-      V.ellipsoid([0, 0, 0], [[SC, 0, 0], [0, SC, 0], [0, 0, SC]], { alpha: 0.2, lat: 6, lon: 10 });
+      V.ellipsoid([0, 0, 0], [[SC, 0, 0], [0, SC, 0], [0, 0, SC]], { color: 'text-2', alpha: 0.16, lat: 6, lon: 10 });
       samples.forEach(Ri => { V.point(frameTip(Ri, 0, SC), { color: 'i', r: 2.6, alpha: 0.65 }); V.point(frameTip(Ri, 2, SC), { color: 'k', r: 2.6, alpha: 0.65 }); });
       const te = [0, 1, 2].map(j => frameTip(Re, j, SC));
-      te.forEach(p => { V.arrow([0, 0, 0], p, { color: 'bad', width: 1.8, dash: [5, 4], head: 8 }); V.point(p, { color: 'bad', r: 4.5 }); });
+      te.forEach(p => { V.arrow([0, 0, 0], p, { color: 'x', width: 1.8, dash: [5, 4], head: 8 }); V.point(p, { color: 'x', r: 4.5 }); });
       for (let j = 0; j < 3; j++) V.point(frameTip(Rc2, j, SC * 1.02), { color: 'w', r: 4.5, stroke: 'canvas' });
       V.frame({ R: Rk, t: [0, 0, 0] }, { scale: SC, width: hl === 'karcher' ? 5.5 : 3.6 });
     }
@@ -678,7 +678,7 @@ R101.onReady(function () {
     function sync() {
       compute();
       const row = (c, name, d, f) => `<b style="color:var(--c-${c})">${name}</b><br>${L('距离 Karcher', 'distance to Karcher')} <b>${deg(d)}</b> · ${L('代价', 'cost')} <b>${M.fmt(f, 3)}</b>`;
-      rd.innerHTML = `<b style="color:var(--c-good)">${L('Karcher 均值', 'Karcher mean')}</b> (${itK} ${L('次迭代', 'iterations')})<br>${L('代价', 'cost')} <b>${M.fmt(fK, 3)}</b> ${L('（最小）', '(minimum)')}<br><br>` + row('bad', L('欧拉角平均', 'Euler-angle average'), dE, fE) + '<br><br>' + row('w', L('矩阵平均再投影', 'projected matrix mean'), dC, fC);
+      rd.innerHTML = `<b>${L('Karcher 均值', 'Karcher mean')}</b> (${itK} ${L('次迭代', 'iterations')})<br>${L('代价', 'cost')} <b>${M.fmt(fK, 3)}</b> ${L('（最小）', '(minimum)')}<br><br>` + row('x', L('欧拉角平均', 'Euler-angle average'), dE, fE) + '<br><br>' + row('w', L('矩阵平均再投影', 'projected matrix mean'), dC, fC);
       V.invalidate();
     }
     R101.on('lang', sync);

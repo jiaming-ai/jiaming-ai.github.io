@@ -229,7 +229,7 @@
   <ul class="tasks">
     <li data-task="rot"><span><span data-lang="zh">选"旋转"场，把 \(\tau\) 拉到 2 以上：小块转了很多，面积比却始终是 1。旋度不为零而散度为零意味着什么？</span><span data-lang="en">Pick the "Rotation" field and pull \(\tau\) above 2: the patch turns a lot, yet the area ratio stays 1. What does nonzero curl with zero divergence mean?</span></span></li>
     <li data-task="shrink"><span><span data-lang="zh">选"螺旋汇"场，让面积比降到 0.3 以下。\(\exp(\operatorname{div}\cdot\tau)\) 预测得准吗？</span><span data-lang="en">Pick the "Spiral sink" field and bring the area ratio below 0.3. Does \(\exp(\operatorname{div}\cdot\tau)\) predict it well?</span></span></li>
-    <li data-task="zerodiv"><span><span data-lang="zh">在"极限环"场里，找到散度从正变负的圆（\(|\operatorname{div}|&lt;0.1\)）：圆内粒子向外扩散，圆外则收缩，所以大家都被吸到这个圆上。</span><span data-lang="en">In the "Limit cycle" field find where the divergence changes sign (\(|\operatorname{div}|&lt;0.1\)): inside, particles spread out; outside, they contract, so all are drawn onto that ring.</span></span></li>
+    <li data-task="zerodiv"><span><span data-lang="zh">在"极限环"场里，把圆心拖到散度从正变负的位置附近（\(|\operatorname{div}|&lt;0.3\)）。这里 \(\operatorname{div}F=2-4r^2\)，变号的圆是 \(r\approx0.71\)，<b>不是</b>粒子最终绕行的极限环 \(r=1\)：在 \(0.71&lt;r&lt;1\) 之间面积在收缩，粒子却仍在向外走。散度只说面积怎样变，不说轨道最后停在哪里。</span><span data-lang="en">In the "Limit cycle" field drag the center close to where the divergence changes sign (\(|\operatorname{div}|&lt;0.3\)). Here \(\operatorname{div}F=2-4r^2\), so the sign change is on the circle \(r\approx0.71\), <b>not</b> on the limit cycle \(r=1\) where particles end up: between \(0.71&lt;r&lt;1\) area shrinks, yet particles still move outward. Divergence tells you how area changes, not where orbits settle.</span></span></li>
   </ul>
 </section>
 
@@ -597,7 +597,7 @@ R101.onReady(function () {
     function addMark(w) {
       if (Math.abs(w[0]) > D || Math.abs(w[1]) > D) return;
       marks.push(curve(w)); if (marks.length > 6) marks.shift();
-      if (marks.length >= 3) done('seed');
+      if (key === 'cycle' && marks.length >= 3) done('seed');
       P.invalidate();
     }
     function draw(P) {
@@ -784,7 +784,7 @@ R101.onReady(function () {
         `${L('红色直径转过的角度', 'angle turned by the red diameter')} = <b>${M.fmt(S.ang * 180 / PI, 1)}°</b> · (curl/2)·τ = <b>${M.fmt(S.curl / 2 * tau * 180 / PI, 1)}°</b>`;
       if (key === 'rot' && tau > 2 && Math.abs(S.ratio - 1) < 0.01) done('rot');
       if (key === 'spiral' && S.ratio < 0.3) done('shrink');
-      if (key === 'cycle' && Math.abs(S.div) < 0.1) done('zerodiv');
+      if (key === 'cycle' && Math.abs(S.div) < 0.3) done('zerodiv');
       P.invalidate();
     }
     R101.on('lang', sync);

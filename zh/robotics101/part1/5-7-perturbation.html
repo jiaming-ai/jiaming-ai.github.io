@@ -165,7 +165,7 @@
     <p>现在来求导。设物体上有一个点（比如夹爪指尖）固定在<b>机体系</b>里的位置 \(\mathbf p\)，它在世界系里的位置是 \(f(R) = R\mathbf p\)。让姿态做右扰动 \(R \to R\,\Exp(\boldsymbol\delta)\)，用 \(\Exp(\boldsymbol\delta)\approx I + \skew{\boldsymbol\delta}\)（一阶展开，5.6 节）：</p>
   </div>
   
-  <div class="math-card">$$ f\big(R\,\Exp(\boldsymbol\delta)\big) = R\,\Exp(\boldsymbol\delta)\,\mathbf p \;\approx\; R\mathbf p + R\,\skew{\boldsymbol\delta}\,\mathbf p \;=\; R\mathbf p \;\underbrace{-\,R\,\skew{\mathbf p}}_{J}\,\boldsymbol\delta, $$</div>
+  <div class="math-card">$$ f\big(R\,\Exp(\boldsymbol\delta)\big) = R\,\Exp(\boldsymbol\delta)\,\mathbf p \;\approx\; R\mathbf p + R\,\skew{\boldsymbol\delta}\,\mathbf p \;=\; R\mathbf p \;\underbrace{-\,R\,\skew{\mathbf p}}_{\hl{J}{J}}\,\boldsymbol\delta, $$</div>
   <div data-lang="zh">
     <p>最后一步用了 \(\boldsymbol\delta\times\mathbf p = -\mathbf p\times\boldsymbol\delta\)（1.8 节）。于是 \(f\) 对右扰动的雅可比就是 \(J = -R\skew{\mathbf p}\)，一个普通的 3×3 矩阵。注意它的零空间：\(\boldsymbol\delta\parallel\mathbf p\) 时 \(J\boldsymbol\delta = 0\)，因为绕着 \(\mathbf p\) 自己转，\(\mathbf p\) 这个点不动。</p>
     <p>"一阶近似"的意思，不只是"近似"，而是<b>误差比 \(\boldsymbol\delta\) 小得多</b>：\(\boldsymbol\delta\) 缩小 10 倍，误差缩小约 100 倍。下面用实验看这件事。左边是三维视图：黄色箭头是 \(R\mathbf p\)，绿点是真实结果 \(R\,\Exp(\boldsymbol\delta)\mathbf p\)，紫点是线性预测 \(R\mathbf p + J\boldsymbol\delta\)，淡色圆环是 \(\mathbf p\) 绕转轴能走到的所有位置。右边是双对数图：横轴 \(\varepsilon = \|\boldsymbol\delta\|\)，纵轴是预测误差。</p>
@@ -202,7 +202,7 @@
   
   <div class="math-card">$$ \Exp(\boldsymbol\phi + \boldsymbol\delta) \;\approx\; \Exp(\boldsymbol\phi)\,\Exp\big(J_r(\boldsymbol\phi)\,\boldsymbol\delta\big), \qquad J_r(\boldsymbol\phi) = I - \frac{1-\cos\theta}{\theta^2}\skew{\boldsymbol\phi} + \frac{\theta-\sin\theta}{\theta^3}\skew{\boldsymbol\phi}^2,\quad \theta = \|\boldsymbol\phi\|. $$</div>
   <div data-lang="zh">
-    <p>下面的实验把三种做法比一比：<b>真值</b> \(\Exp(\boldsymbol\phi+\boldsymbol\delta)\)（实心坐标系），<b>天真的</b> \(\Exp(\boldsymbol\phi)\Exp(\boldsymbol\delta)\)（红色虚线），<b>修正后的</b> \(\Exp(\boldsymbol\phi)\Exp(J_r\boldsymbol\delta)\)（绿色虚线）。\(\theta\) 很小时 \(J_r\approx I\)，天真的做法也还行；\(\theta\) 变大以后，红色明显偏离，绿色仍然贴着真值。</p>
+    <p>下面的实验把三种做法比一比：<b>真值</b> \(\Exp(\boldsymbol\phi+\boldsymbol\delta)\)（实心坐标系），<b>天真的</b> \(\hl{naive}{\Exp(\boldsymbol\phi)\Exp(\boldsymbol\delta)}\)（红色虚线），<b>修正后的</b> \(\Exp(\boldsymbol\phi)\Exp(\hl{Jr}{J_r}\boldsymbol\delta)\)（绿色虚线）。\(\theta\) 很小时 \(J_r\approx I\)，天真的做法也还行；\(\theta\) 变大以后，红色明显偏离，绿色仍然贴着真值。</p>
   </div>
   
 
@@ -228,7 +228,7 @@
 <!-- ============ 4. MATH ============ -->
 <section class="step" id="math">
   <h2><span class="n">4</span><span data-lang="zh">再看数学</span></h2>
-  <p class="hl-hint"><span data-lang="zh">提示：把鼠标悬停在公式中带底色的符号上，FIG 1 或 FIG 3 中对应的元素会被高亮。</span></p>
+  <p class="hl-hint"><span data-lang="zh">提示：把鼠标悬停在公式中带底色的符号上，FIG 1 或 FIG 3 中对应的元素会被高亮（§3 正文里的 \(J\) 和两种做法也对应 FIG 2、FIG 3）。</span></p>
 
   <h3><span data-lang="zh">⊕ 与回缩 (retraction)</span></h3>
   <p data-lang="zh">把切空间里的增量 \(\boldsymbol\delta\in\R^3\) 作用到群元素上，得到新的群元素。这个动作叫<b>回缩</b>，两种写法分别记作 \(\oplus\)：</p>

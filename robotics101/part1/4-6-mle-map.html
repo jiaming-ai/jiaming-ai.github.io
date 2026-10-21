@@ -101,7 +101,7 @@
   </p>
   <div class="lesson-meta">
     <span class="chip"><span data-lang="zh">约 20 分钟</span><span data-lang="en">~20 min</span></span>
-    <span class="chip"><span data-lang="zh">前置：4.2 条件概率与贝叶斯 · 4.4 高斯分布 · 1.13 最小二乘</span><span data-lang="en">Prereqs: 4.2 Conditional Probability &amp; Bayes · 4.4 Gaussians · 1.13 Least Squares</span></span>
+    <span class="chip"><span data-lang="zh">前置：<a href="4-2-bayes.html">4.2 条件概率与贝叶斯</a> · <a href="4-4-gaussian.html">4.4 高斯分布</a> · <a href="1-13-least-squares.html">1.13 最小二乘</a></span><span data-lang="en">Prereqs: <a href="4-2-bayes.html">4.2 Conditional Probability &amp; Bayes</a> · <a href="4-4-gaussian.html">4.4 Gaussians</a> · <a href="1-13-least-squares.html">1.13 Least Squares</a></span></span>
     <span class="chip"><span data-lang="zh">4 个交互</span><span data-lang="en">4 interactives</span></span>
   </div>
   <ul class="toc-steps" id="step-toc"></ul>
@@ -159,7 +159,7 @@
   <ul class="tasks">
     <li data-task="ml-peak"><span><span data-lang="zh">把 θ 拖到似然的<b>最高点</b>（误差小于 0.05）。它和样本均值是什么关系？</span><span data-lang="en">Drag θ onto the <b>top of the likelihood</b> (within 0.05). How does it relate to the sample mean?</span></span></li>
     <li data-task="ml-n"><span><span data-lang="zh">点"加一个读数"，直到 n ≥ 10。似然的山峰是变宽还是变窄？宽度约为 σ/√n。</span><span data-lang="en">Press "Add a reading" until n ≥ 10. Does the likelihood peak widen or narrow? Its width is about σ/√n.</span></span></li>
-    <li data-task="ml-outlier"><span><span data-lang="zh">把一个紫点拖到最右边，使最大似然估计超过 4.6。一个野值能把均值拉多远？</span><span data-lang="en">Drag one purple dot far right so the ML estimate exceeds 4.6. How far can one outlier pull the mean?</span></span></li>
+    <li data-task="ml-outlier"><span><span data-lang="zh">把一个紫点拖到最右边，使最大似然估计超过 4.1（原来是 3.4）。一个野值能把均值拉多远？</span><span data-lang="en">Drag one purple dot far right so the ML estimate exceeds 4.1 (it starts at 3.4). How far can one outlier pull the mean?</span></span></li>
   </ul>
 
   <div class="callout key">
@@ -542,7 +542,7 @@ R101.onReady(function () {
         : L(`θ 偏离峰值 ${M.fmt(gap, 2)}：似然降到峰值的 ${M.fmt(Math.exp(l - lm) * 100, 1)}%。`, `θ is ${M.fmt(gap, 2)} from the peak: the likelihood has dropped to ${M.fmt(Math.exp(l - lm) * 100, 1)}% of its maximum.`);
       if (touched && gap < 0.05) R101.done('ml-peak');
       if (n >= 10) R101.done('ml-n');
-      if (mu > 4.6) R101.done('ml-outlier');
+      if (mu > 4.1) R101.done('ml-outlier');
       Pt.invalidate(); Pb.invalidate();
     }
     R101.on('lang', sync);

@@ -368,12 +368,12 @@
   <div class="tasks-title"><span data-lang="zh">试一试</span><span data-lang="en">Try this</span></div>
   <ul class="tasks">
     <li data-task="mm-gauss"><span><span data-lang="zh">把航向噪声调到 3°/√m 以下：样本云几乎是个椭圆，高斯近似很好（椭圆内比例约 80%–90%）。</span><span data-lang="en">Set the heading noise below 3°/√m: the cloud is nearly an ellipse and the Gaussian approximation is fine (inside-ellipse fraction roughly 80%–90%).</span></span></li>
-    <li data-task="mm-banana"><span><span data-lang="zh">把航向噪声调大（≥ 12°/√m）、距离拉到 7 m 以上：样本弯成"香蕉"，椭圆内比例掉到 78% 以下，而且椭圆中心偏离了名义终点。</span><span data-lang="en">Raise the heading noise (≥ 12°/√m) and the distance to 7 m or more: the samples bend into a "banana", the inside-ellipse fraction falls below 78%, and the ellipse is no longer centered on the nominal endpoint.</span></span></li>
+    <li data-task="mm-banana"><span><span data-lang="zh">把航向噪声调大（≥ 12°/√m）、距离拉到 7 m 以上：样本弯成"香蕉"，椭圆内比例掉到 78% 以下，而且样本均值偏离了名义终点（椭圆始终以名义终点为中心）。</span><span data-lang="en">Raise the heading noise (≥ 12°/√m) and the distance to 7 m or more: the samples bend into a "banana", the inside-ellipse fraction falls below 78%, and the sample mean drifts away from the nominal endpoint (where the ellipse stays centered).</span></span></li>
   </ul>
   <div class="callout robot">
     <div class="ct"><span data-lang="zh">真实系统里</span><span data-lang="en">In real systems</span></div>
-    <p data-lang="zh">"从一个你写得出前向仿真、却写不出密度的模型里采样"是机器人里最常用的采样用法：粒子滤波的预测步 (4.10)；<b>域随机化</b>里在仿真中采样质量、摩擦、延迟，训练出对现实更鲁棒的策略；<b>MPPI</b> 与 <b>CEM</b> 这类采样式模型预测控制，每个控制周期采样成百上千条带噪声的轨迹并按代价加权，其权重正是重要性采样里的权重；RRT 在构型空间里随机采样；蒙特卡洛树搜索靠随机展开估计价值。</p>
-    <p data-lang="en">"Sample from a model for which you can write a forward simulation but not a density" is the most common use of sampling in robotics: the predict step of a particle filter (4.10); <b>domain randomization</b>, sampling masses, friction and latency in simulation to train policies that are more robust in reality; sampling-based model-predictive control such as <b>MPPI</b> and <b>CEM</b>, which in every control cycle sample hundreds of noisy trajectories and weight them by cost, with weights that are exactly importance weights; RRT, which samples the configuration space; and Monte-Carlo tree search, which estimates values by random rollouts.</p>
+    <p data-lang="zh">"从一个你写得出前向仿真、却写不出密度的模型里采样"是机器人里最常用的采样用法：粒子滤波的预测步 (4.10)；<b>域随机化</b>里在仿真中采样质量、摩擦、延迟，训练出对现实更鲁棒的策略；<b>MPPI</b> 与 <b>CEM</b> 这类采样式模型预测控制，每个控制周期采样成百上千条带噪声的轨迹：MPPI 按 \(\exp(-\text{代价}/\lambda)\) 给它们加权，这正是重要性采样里的权重，CEM 则只保留代价最低的一批来重新拟合采样分布；RRT 在构型空间里随机采样；蒙特卡洛树搜索靠随机展开估计价值。</p>
+    <p data-lang="en">"Sample from a model for which you can write a forward simulation but not a density" is the most common use of sampling in robotics: the predict step of a particle filter (4.10); <b>domain randomization</b>, sampling masses, friction and latency in simulation to train policies that are more robust in reality; sampling-based model-predictive control such as <b>MPPI</b> and <b>CEM</b>, which in every control cycle sample hundreds of noisy trajectories: MPPI weights them by \(\exp(-\text{cost}/\lambda)\), which are importance weights, while CEM keeps the lowest-cost few and refits its sampling distribution to them; RRT, which samples the configuration space; and Monte-Carlo tree search, which estimates values by random rollouts.</p>
   </div>
 </section>
 
@@ -387,8 +387,8 @@
   </div>
   <div class="callout pitfall">
     <div class="ct"><span data-lang="zh">误区 2：重要性权重退化</span><span data-lang="en">Pitfall 2: degenerate importance weights</span></div>
-    <p data-lang="zh">\(q\) 和 \(p\) 差得远时，ESS 会塌到 1 左右：1000 个样本只剩一个在起作用，估计值看似"收敛"，其实只是那一个样本。务必同时报告 ESS。粒子滤波里这叫<b>粒子退化</b>，是 4.10 节的核心问题。</p>
-    <p data-lang="en">When \(q\) and \(p\) differ greatly ESS collapses to about 1: of 1000 samples only one matters, and the estimate looks "converged" while it is really that single sample. Always report ESS alongside the estimate. In particle filters this is <b>particle degeneracy</b>, the central problem of Lesson 4.10.</p>
+    <p data-lang="zh">\(q\) 和 \(p\) 差得远时，ESS 会塌到 1 左右：1000 个样本只剩一个在起作用，估计值看似"收敛"，其实只是那一个样本。务必同时报告 ESS。粒子滤波里这叫<b>权重退化</b>，重采样就是为它准备的（4.10 节）。</p>
+    <p data-lang="en">When \(q\) and \(p\) differ greatly ESS collapses to about 1: of 1000 samples only one matters, and the estimate looks "converged" while it is really that single sample. Always report ESS alongside the estimate. In particle filters this is <b>weight degeneracy</b>, the problem that resampling exists to fix (Lesson 4.10).</p>
   </div>
   <div class="callout pitfall">
     <div class="ct"><span data-lang="zh">误区 3：把 MCMC 的相邻样本当作独立样本</span><span data-lang="en">Pitfall 3: treating consecutive MCMC samples as independent</span></div>

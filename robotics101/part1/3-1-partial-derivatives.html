@@ -176,11 +176,11 @@
 <section class="step" id="play">
   <h2><span class="n">3</span><span data-lang="zh">动手玩：用差分"量"出偏导</span><span data-lang="en">Play: measuring a partial by differencing</span></h2>
   <div data-lang="zh">
-    <p>偏导数的定义就是一个极限：沿 \(x\) 方向迈一小步 \(h\)，看 \(f\) 变了多少，再除以 \(h\)。左边是等高线图（颜色越深越低，每条线上 \(f\) 相等），拖动黄点 \(\mathbf p\)。右边把两条切口画在同一张图里：横轴是离开 \(\mathbf p\) 的位移 \(t\)，纵轴是 \(f\)。实心粗线段是"差商"，即割线，虚线是真正的切线。把 \(h\) 拉小，割线就会贴上切线。</p>
+    <p>偏导数的定义就是一个极限：沿 \(x\) 方向迈一小步 \(h\)，看 \(f\) 变了多少，再除以 \(h\)。左边是等高线图（越偏青色越低，越偏紫色越高，每条线上 \(f\) 相等），拖动黄点 \(\mathbf p\)。右边把两条切口画在同一张图里：横轴是离开 \(\mathbf p\) 的位移 \(t\)，纵轴是 \(f\)。实心粗线段是"差商"，即割线，虚线是真正的切线。把 \(h\) 拉小，割线就会贴上切线。</p>
     <p>现实里的 \(f\) 常常是传感器读数，带噪声。把"测量噪声"打开，再把 \(h\) 拉到很小，会发生什么？</p>
   </div>
   <div data-lang="en">
-    <p>The partial derivative is defined by a limit: take a small step \(h\) in the \(x\) direction, see how much \(f\) changed, and divide by \(h\). On the left is a contour map (darker is lower; \(f\) is constant along each line); drag the amber point \(\mathbf p\). On the right both cuts share one plot: the horizontal axis is the displacement \(t\) away from \(\mathbf p\), the vertical axis is \(f\). The thick solid segments are the "difference quotients" (secants); the dashed lines are the true tangents. Pull \(h\) down and the secants settle onto the tangents.</p>
+    <p>The partial derivative is defined by a limit: take a small step \(h\) in the \(x\) direction, see how much \(f\) changed, and divide by \(h\). On the left is a contour map (more cyan is lower, more purple is higher; \(f\) is constant along each line); drag the amber point \(\mathbf p\). On the right both cuts share one plot: the horizontal axis is the displacement \(t\) away from \(\mathbf p\), the vertical axis is \(f\). The thick solid segments are the "difference quotients" (secants); the dashed lines are the true tangents. Pull \(h\) down and the secants settle onto the tangents.</p>
     <p>In real life \(f\) is often a sensor reading, and sensors are noisy. Turn "measurement noise" on, then pull \(h\) very small. What happens?</p>
   </div>
 
@@ -222,8 +222,8 @@
   <div class="math-card">
   $$ f(x+\delta_x,\,y+\delta_y) - f(x,y) \;\approx\; \ci{\frac{\partial f}{\partial x}}\,\delta_x \;+\; \cj{\frac{\partial f}{\partial y}}\,\delta_y $$
   </div>
-  <div data-lang="zh"><p>拖动下图中的紫色手柄 \(\mathbf q = \mathbf p + \boldsymbol\delta\)，黄点 \(\mathbf p\) 也可以拖动。右边的瀑布图把预测的变化拆成两块：红色是 \(x\) 方向贡献的 \(f_x\delta_x\)，绿色接在它后面，是 \(y\) 方向贡献的 \(f_y\delta_y\)；琥珀色竖线是 \(f\) 的真实变化。</p></div>
-  <div data-lang="en"><p>Drag the purple handle \(\mathbf q = \mathbf p + \boldsymbol\delta\) in the figure below; the amber point \(\mathbf p\) can be dragged too. The waterfall on the right splits the predicted change into two pieces: red is the \(x\) contribution \(f_x\delta_x\), green stacks onto it with the \(y\) contribution \(f_y\delta_y\); the amber vertical line is the true change in \(f\).</p></div>
+  <div data-lang="zh"><p>拖动下图中的紫色手柄 \(\mathbf q = \mathbf p + \boldsymbol\delta\)，黄点 \(\mathbf p\) 也可以拖动。右边的瀑布图把预测的变化拆成两块：红色是 \(x\) 方向贡献的 \(f_x\delta_x\)，绿色接在它后面，是 \(y\) 方向贡献的 \(f_y\delta_y\)；琥珀色条是 \(f\) 的真实变化，紫色竖虚线标出预测值。</p></div>
+  <div data-lang="en"><p>Drag the purple handle \(\mathbf q = \mathbf p + \boldsymbol\delta\) in the figure below; the amber point \(\mathbf p\) can be dragged too. The waterfall on the right splits the predicted change into two pieces: red is the \(x\) contribution \(f_x\delta_x\), green stacks onto it with the \(y\) contribution \(f_y\delta_y\); the amber bar is the true change in \(f\), and the purple dashed line marks the prediction.</p></div>
 
   <figure class="fig bleed" id="fig-stair">
     <div class="fig-head"><span class="fig-kind">FIG 3</span><span class="fig-title"><span data-lang="zh">阶梯路径与瀑布图</span><span data-lang="en">Staircase path and waterfall</span></span><span class="spacer"></span><span id="t-fn"></span><button class="btn sm" id="t-half"><span data-lang="zh">δ 减半</span><span data-lang="en">Halve δ</span></button></div>
@@ -276,8 +276,8 @@
   <div class="math-card">
   $$ f(\mathbf p + \boldsymbol\delta) \;\approx\; \cv{f(\mathbf p)} + \sum_{j=1}^{n} \frac{\partial f}{\partial x_j}(\mathbf p)\,\delta_j \;=\; \cv{f(\mathbf p)} + \Big[\tfrac{\partial f}{\partial x_1}\;\cdots\;\tfrac{\partial f}{\partial x_n}\Big]\boldsymbol\delta . $$
   </div>
-  <p data-lang="zh">方括号里是一个<b>行向量</b>，它就是下一节的梯度 \(\nabla f(\mathbf p)^\top\)。上式对光滑函数成立，余项是 \(O(\|\boldsymbol\delta\|^2)\)；"光滑"在这里的意思是各偏导数本身连续（\(C^1\)）。只有偏导数存在而不连续时，这个近似可能失败，这是第 7 节的一个误区。</p>
-  <p data-lang="en">The bracket is a <b>row vector</b>, which is the next lesson's gradient \(\nabla f(\mathbf p)^\top\). The formula holds for smooth functions with remainder \(O(\|\boldsymbol\delta\|^2)\); "smooth" here means the partials themselves are continuous (\(C^1\)). If partials merely exist but are discontinuous, the approximation can fail, which is one of the pitfalls in Section 7.</p>
+  <p data-lang="zh">方括号里是一个<b>行向量</b>，它就是下一节的梯度 \(\nabla f(\mathbf p)^\top\)。只要各偏导数本身连续（\(C^1\)），上式就成立，余项比 \(\|\boldsymbol\delta\|\) 小得多（\(o(\|\boldsymbol\delta\|)\)）；若二阶偏导也连续（\(C^2\)），余项是 \(O(\|\boldsymbol\delta\|^2)\)。只有偏导数存在而不连续时，这个近似可能失败，这是第 7 节的一个误区。</p>
+  <p data-lang="en">The bracket is a <b>row vector</b>, which is the next lesson's gradient \(\nabla f(\mathbf p)^\top\). The formula holds as long as the partials themselves are continuous (\(C^1\)), with a remainder much smaller than \(\|\boldsymbol\delta\|\) (\(o(\|\boldsymbol\delta\|)\)); if the second partials are continuous too (\(C^2\)), the remainder is \(O(\|\boldsymbol\delta\|^2)\). If partials merely exist but are discontinuous, the approximation can fail, which is one of the pitfalls in Section 7.</p>
 
   <h3><span data-lang="zh">二阶偏导与混合偏导</span><span data-lang="en">Second partials and mixed partials</span></h3>
   <p data-lang="zh">偏导数本身又是 \(x,y\) 的函数，可以再求偏导。对 \(f = x^2y+\sin y\)：</p>
@@ -351,8 +351,8 @@
   </div>
   <div class="callout pitfall">
     <div class="ct"><span data-lang="zh">误区 3："固定其余变量"取决于你选了什么变量</span><span data-lang="en">Pitfall 3: "hold the others fixed" depends on which variables you chose</span></div>
-    <p data-lang="zh">\(\partial f/\partial x\) 的含义依赖于同时使用的其他坐标。同一个函数 \(f = x^2+y^2\)，如果换成极坐标 \((r,\theta)\)，\(\partial f/\partial r = 2r\)，而"固定 \(y\)、让 \(x\) 变"得到的是 \(2x\)，两者不是一回事。机器人里要明确：偏导是对关节角、对笛卡尔坐标，还是对李代数里的扰动。</p>
-    <p data-lang="en">The meaning of \(\partial f/\partial x\) depends on which other coordinates come with it. For the same \(f = x^2+y^2\), in polar coordinates \((r,\theta)\) we get \(\partial f/\partial r = 2r\), whereas "hold \(y\) fixed and vary \(x\)" gives \(2x\); they are different things. In robotics be explicit: partials with respect to joint angles, Cartesian coordinates, or a perturbation in a Lie algebra.</p>
+    <p data-lang="zh">\(\partial f/\partial x\) 的含义依赖于同时使用的其他坐标。以 \(r=\sqrt{x^2+y^2}\) 为例：用坐标 \((x,y)\) 时"固定 \(y\)、让 \(x\) 变"，得 \(\partial r/\partial x = x/r\)；改用坐标 \((x,\theta)\) 时"固定 \(\theta\)、让 \(x\) 变"，由 \(x=r\cos\theta\) 得 \(\partial r/\partial x = 1/\cos\theta = r/x\)。同样写作 \(\partial r/\partial x\)，两者却不同。机器人里要明确：偏导是对关节角、对笛卡尔坐标，还是对李代数里的扰动。</p>
+    <p data-lang="en">The meaning of \(\partial f/\partial x\) depends on which other coordinates come with it. Take \(r=\sqrt{x^2+y^2}\): in coordinates \((x,y)\), "hold \(y\) fixed and vary \(x\)" gives \(\partial r/\partial x = x/r\); in coordinates \((x,\theta)\), "hold \(\theta\) fixed and vary \(x\)" uses \(x=r\cos\theta\) and gives \(\partial r/\partial x = 1/\cos\theta = r/x\). Same symbol \(\partial r/\partial x\), different numbers. In robotics be explicit: partials with respect to joint angles, Cartesian coordinates, or a perturbation in a Lie algebra.</p>
   </div>
   <div class="callout pitfall">
     <div class="ct"><span data-lang="zh">误区 4：忘了各变量的单位不同</span><span data-lang="en">Pitfall 4: forgetting that the variables have different units</span></div>
@@ -373,7 +373,7 @@
       <button class="opt">\(0\)</button>
       <button class="opt">\(-1\)</button>
     </div>
-    <div class="explain"><span data-lang="zh">把 \(x\) 当常数：\(f_y = x^2\cos y\)。代入得 \(1\cdot\cos(\pi/2) = 0\)。选项 \(2\) 是 \(f_x = 2x\sin y\) 在这一点的值，求错了变量。</span><span data-lang="en">Treat \(x\) as a constant: \(f_y = x^2\cos y\), which at this point is \(1\cdot\cos(\pi/2) = 0\). The value \(2\) is \(f_x = 2x\sin y\) at that point: the wrong variable.</span></div>
+    <div class="explain"><span data-lang="zh">把 \(x\) 当常数：\(f_y = x^2\cos y\)。代入得 \(1\cdot\cos(\pi/2) = 0\)。选项 A（\(2\)）是 \(f_x = 2x\sin y\) 在这一点的值，求错了变量。</span><span data-lang="en">Treat \(x\) as a constant: \(f_y = x^2\cos y\), which at this point is \(1\cdot\cos(\pi/2) = 0\). Option A (\(2\)) is \(f_x = 2x\sin y\) at that point: the wrong variable.</span></div>
   </div>
 
   <div class="quiz" data-answer="1">
@@ -736,8 +736,8 @@ R101.onReady(function () {
         ctx.fillRect(x0, P.H * y - 12, w, 24); ctx.restore();
         P.textPx(lbl, Math.min(P.X(a), P.X(b)) + (Math.abs(P.X(b) - P.X(a)) > 40 ? 6 : -6), P.H * y - 22, { color: col, bold: true, size: 12, align: Math.abs(P.X(b) - P.X(a)) > 40 ? 'left' : 'right' });
       };
-      bar(rows[0], 0, c.a, 'i', 'fₓδx = ' + M.fmt(c.a, 3));
-      bar(rows[1], c.a, c.pred, 'j', 'fᵧδy = ' + M.fmt(c.b, 3));
+      bar(rows[0], 0, c.a, 'i', 'f_x·δx = ' + M.fmt(c.a, 3));
+      bar(rows[1], c.a, c.pred, 'j', 'f_y·δy = ' + M.fmt(c.b, 3));
       bar(rows[2], 0, c.truth, 'v', R101.t('真实 Δf = ', 'true Δf = ') + M.fmt(c.truth, 3));
       P.line([c.pred, Y(rows[1] + 0.06)], [c.pred, Y(rows[2] - 0.06)], { color: 'w', width: 2, dash: [5, 4] });
       P.textPx(R101.t('预测 = ', 'predicted = ') + M.fmt(c.pred, 3), P.X(c.pred), P.H * 0.62, { color: 'w', bold: true, size: 12, align: 'center' });

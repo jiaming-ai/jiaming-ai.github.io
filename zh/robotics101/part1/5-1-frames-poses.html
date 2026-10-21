@@ -183,7 +183,7 @@
     </div>
     <div class="fig-controls" id="k-ctl"></div>
     <figcaption class="fig-cap">
-      <span data-lang="zh">灰色是世界系 W，三角形是底盘系 B，青色扇形是相机系 C 的视野（±35°，6 米）。杯子在视野内时扇形变绿。位姿用 \((x, y, \theta)\) 表示：平面里的 \(R_{WB}\) 只由一个角 \(\theta\) 决定。选"错误顺序"会多画一个红色的 \(T_{BC}\,T_{WB}\)：乘反了，相机就跑到了别处。</span>
+      <span data-lang="zh">原点处的小坐标系是世界系 W（标签为灰色），三角形是底盘系 B，青色扇形是相机系 C 的视野（±35°，6 米）。杯子在视野内时扇形变绿。位姿用 \((x, y, \theta)\) 表示：平面里的 \(R_{WB}\) 只由一个角 \(\theta\) 决定。选"错误顺序"会多画一个红色的 \(T_{BC}\,T_{WB}\)：乘反了，相机就跑到了别处。</span>
       
     </figcaption>
   </figure>
@@ -215,7 +215,7 @@
     </div>
     <div class="fig-controls" id="o-ctl"></div>
     <figcaption class="fig-cap">
-      <span data-lang="zh">灰色是起点 A。琥珀色是右乘的结果 \(A\Delta\)（在 A 自己的坐标系里动），紫色是左乘的结果 \(\Delta A\)（在世界系里动）。用三个滑块设定 \(\Delta = (\Delta x, \Delta y, \Delta\theta)\)。当 A 在世界原点时两者重合，A 离原点越远差别越大。</span>
+      <span data-lang="zh">灰色是起点 A。琥珀色是右乘的结果 \(A\Delta\)（在 A 自己的坐标系里动），紫色是左乘的结果 \(\Delta A\)（在世界系里动）。用三个滑块设定 \(\Delta = (\Delta x, \Delta y, \Delta\theta)\)。当 A 是单位位姿（在世界原点、车头朝世界 \(+x\)）时两者重合；A 离原点越远、或车头偏得越多，差别越大。</span>
       
     </figcaption>
   </figure>
@@ -270,7 +270,7 @@
   <h2><span class="n">5</span><span data-lang="zh">机器人中的它：移动操作机器人的 tf 树</span></h2>
   <div data-lang="zh">
     <p>下面是一台简化的移动操作机器人：底盘 B 在世界 W 里，头上装着相机 C，肩部 S、肘部 E、夹爪 G 组成一条手臂，桌上有一只杯子 O。树里每条边存一个相对父坐标系的位姿，其中底盘位姿来自里程计 / 定位，肩、肘位姿由关节角算出，杯子是（相机检测、世界系里固定的）一个静态位姿。</p>
-    <p>从下面选两个坐标系 A 和 B，页面会沿树找出路径，把边上的位姿连乘（或求逆）出 \(T_{AB}\)。抓取的核心是 \(T_{GO}\)：杯子在夹爪系里的位姿。它为 0 时手就在杯子上了。</p>
+    <p>从下面选两个坐标系 A 和 B，页面会沿树找出路径，把边上的位姿连乘（或求逆）出 \(T_{AB}\)。抓取的核心是 \(T_{GO}\)：杯子在夹爪系里的位姿。它的平移部分为 0 时，手就在杯子上了。</p>
   </div>
   
 
@@ -317,7 +317,7 @@
   </div>
   <div class="callout pitfall">
     <div class="ct"><span data-lang="zh">误区 2：左乘右乘随便用</span></div>
-    <p data-lang="zh">"向前走 1 米"是在机器人自己的坐标系里说的，要<b>右乘</b>；"把整个机器人在世界里向东平移 1 米"是在世界系里说的，要<b>左乘</b>。只有机器人恰好在世界原点（或 \(\Delta\) 与 \(A\) 可交换）时，两者才相等（FIG 3）。判断办法：问一句，这个增量是谁的坐标系里的读数？</p>
+    <p data-lang="zh">"向前走 1 米"是在机器人自己的坐标系里说的，要<b>右乘</b>；"把整个机器人在世界里向东平移 1 米"是在世界系里说的，要<b>左乘</b>。只有机器人的位姿恰好是单位位姿（在世界原点、车头朝世界 \(+x\)），或 \(\Delta\) 与 \(A\) 可交换时，两者才相等（FIG 3）。判断办法：问一句，这个增量是谁的坐标系里的读数？</p>
     
   </div>
   <div class="callout pitfall">
@@ -387,7 +387,7 @@
       <button class="opt"><span data-lang="zh">\(\Delta\,A\)，\(\Delta\) 是前进 1 米的位姿</span></button>
       <button class="opt"><span data-lang="zh">\(A^{-1}\Delta\)</span></button>
     </div>
-    <div class="explain"><span data-lang="zh">增量是机器人自己坐标系里的读数，所以右乘：\(A\Delta\)。\(\Delta A\) 会让机器人沿世界 \(x\) 轴走 1 米，并且把位置绕世界原点转一转。</span></div>
+    <div class="explain"><span data-lang="zh">增量是机器人自己坐标系里的读数，所以右乘：\(A\Delta\)。\(\Delta A\) 会让机器人沿世界 \(x\) 轴走 1 米，不管车头朝哪。</span></div>
   </div>
 </section>
 

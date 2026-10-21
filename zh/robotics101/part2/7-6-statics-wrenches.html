@@ -133,7 +133,7 @@
   <h2><span class="n">1</span><span data-lang="zh">为什么机器人需要它</span></h2>
   <div data-lang="zh">
     <p>拧螺丝要沿轴向压、同时绕轴转；打磨要贴着曲面维持一个恒定的法向力；插孔对不准时，要让接触力把零件"引"进去；搬箱子时，手腕要承受箱子的重量，以及重量对手腕的力矩。这些任务里，机器人和世界之间交换的不是位置，而是<b>力</b>。可是作用在刚体上的力不只是三个数。作用点不同，同一个力对物体的转动效果就不同，所以描述接触，必须把<b>力</b>和它对参考点的<b>力矩</b>放在一起，成为一个六维量：<b>wrench</b>（力旋量）。</p>
-    <p>它与上一课（<a href="7-4-velocity-kinematics.html">7.4</a>）的 twist 是一对。twist 说刚体怎么动（角速度、线速度），wrench 说外界怎么推它（力矩、力），两者配对得到<b>功率</b>。本课要回答四个问题：</p>
+    <p>它与 <a href="7-4-velocity-kinematics.html">7.4 节</a>的 twist 是一对。twist 说刚体怎么动（角速度、线速度），wrench 说外界怎么推它（力矩、力），两者配对得到<b>功率</b>。本课要回答四个问题：</p>
     <ul>
       <li>怎样用一个 6 维向量描述接触力，并在传感器系、工具尖端系和世界系之间换算？（FIG 1、FIG 2）</li>
       <li>手爪处的 wrench 需要多大的关节力矩去支撑？连杆和负载自己的重量又要多少？（FIG 3）</li>
@@ -150,7 +150,7 @@
   <h2><span class="n">2</span><span data-lang="zh">直觉：wrench = 力 + 相对一点的力矩</span></h2>
   <div data-lang="zh">
     <p>推一扇门。力的大小方向都一样，推在门把手上，门轻松打开；推在门轴上，门纹丝不动。差别在于<b>杠杆臂</b>：力沿作用线可以滑动而效果不变，但作用线离转轴越远，转动效果越大。要记录"外界对这个刚体做了什么"，就先选一个参考点 \(O\)，然后记下两样东西：总力 \(\mathbf f\)，以及所有力对 \(O\) 的总力矩 \(\mathbf m\)（\(\mathbf m=\sum\mathbf x_i\times\mathbf f_i\)，叉积见 <a href="../part1/1-8-cross-product.html">1.8</a>）。这一对就是 \(O\) 处的 wrench。</p>
-    <p>参考点换到 \(O'\)，总力不变，力矩却变了，因为每个力的杠杆臂变了：若 \(\mathbf r\) 是从 \(O\) 指向 \(O'\) 的向量，则 \(\mathbf m'=\sum(\mathbf x_i-\mathbf r)\times\mathbf f_i=\mathbf m-\mathbf r\times\mathbf f\)。注意是<b>减号</b>：参考点向力的作用线靠近，力矩变小；落在作用线上，力矩恰好为零。再看两个特殊情形。一对大小相等方向相反、不共线的力叫<b>力偶</b>：总力为零，力矩 \(\mathbf m\) 与参考点无关（拧瓶盖时双手的作用），所以力偶是"自由向量"，可以放在刚体上任何地方。一般的 wrench 是力加力偶，总存在一条<b>中心轴</b>：参考点落在这条线上时，力矩与力平行，大小为 \(h\|\mathbf f\|\)，\(h\) 叫<b>螺距</b>。它正是 twist 的螺旋轴（<a href="../part1/5-6-exp-log.html">5.6</a>）在力学里的镜像。</p>
+    <p>参考点换到 \(O'\)，总力不变，力矩却变了，因为每个力的杠杆臂变了：若 \(\mathbf r\) 是从 \(O\) 指向 \(O'\) 的向量，则 \(\mathbf m'=\sum(\mathbf x_i-\mathbf r)\times\mathbf f_i=\mathbf m-\mathbf r\times\mathbf f\)。注意是<b>减号</b>：参考点向力的作用线靠近，力矩变小；落在作用线上，力矩恰好为零。再看两个特殊情形。一对大小相等方向相反、不共线的力叫<b>力偶</b>：总力为零，力矩 \(\mathbf m\) 与参考点无关（拧瓶盖时双手的作用），所以力偶是"自由向量"，可以放在刚体上任何地方。一般的 wrench 是力加力偶，总存在一条<b>中心轴</b>：参考点落在这条线上时，力矩与力平行，大小为 \(|h|\,\|\mathbf f\|\)，\(h\) 叫<b>螺距</b>。它正是 twist 的螺旋轴（<a href="../part1/5-6-exp-log.html">5.6</a>）在力学里的镜像。</p>
   </div>
   
 
@@ -181,8 +181,8 @@
   <ul class="tasks">
     <li data-task="shift"><span><span data-lang="zh">在"力"模式下把参考点 \(O'\) 移开原点 1 m 以上，观察 \(\mathbf m'\) 的变化，同时留意 \(\mathbf f\) 是否变了。</span></span></li>
     <li data-task="online"><span><span data-lang="zh">用"移到作用线上"按钮（或滑块）让 \(O'\) 落在力的作用线上：\(\|\mathbf m'\|&lt;0.06\)。力矩去哪了？</span></span></li>
-    <li data-task="couple"><span><span data-lang="zh">切换到"力偶"，把 \(O'\) 拖到离原点 1.5 m 以外。\(\mathbf m'\) 变了吗？为什么力偶叫"自由向量"？</span></span></li>
-    <li data-task="axis"><span><span data-lang="zh">切换到"力+力偶"，按"移到中心轴上"。此时 \(\mathbf m'\) 与 \(\mathbf f\) 平行，且 \(\mathbf m'=h\mathbf f\)。螺距 \(h\) 是多少？</span></span></li>
+    <li data-task="couple"><span><span data-lang="zh">切换到"力偶"（\(\|\mathbf c\|&gt;0.3\) N·m），把 \(O'\) 拖到离原点 1.5 m 以外。\(\mathbf m'\) 变了吗？为什么力偶叫"自由向量"？</span></span></li>
+    <li data-task="axis"><span><span data-lang="zh">切换到"力+力偶"（保持 \(|h|&gt;0.25\) m，默认值即可），按"移到中心轴上"。此时 \(\mathbf m'\) 与 \(\mathbf f\) 平行，且 \(\mathbf m'=h\mathbf f\)。螺距 \(h\) 是多少？</span></span></li>
   </ul>
   <div class="callout key">
     <div class="ct"><span data-lang="zh">核心洞见</span></div>
@@ -239,7 +239,7 @@
   </div>
   <div data-lang="zh">
     <p>两种写法给出完全相同的 \(\boldsymbol\tau\)：\(\mathbf F_b\) 是在工具系里、以工具原点为参考点的 wrench；\(\mathbf F_s\) 是在基座系里、以基座原点为参考点的 wrench，二者差一个 \(\operatorname{Ad}^\top\)，而 \(J_b\) 与 \(J_s\) 差一个 \(\operatorname{Ad}\)，两个正好抵消（第 5 节）。FIG 3 里切换"wrench 的坐标轴"，滑块的数值会被换算成另一个系里的同一个 wrench，力矩条一动不动。</p>
-    <p>重力项 \(\mathbf g(\mathbf q)=\partial U/\partial\mathbf q\) 是位能的梯度。本课的模型：三根连杆各是一个质点，放在连杆中点（质量 5、3、1.5 kg，最后一个包含腕部和工具），外加负载质点（离工具原点沿工具 y 轴偏出 \(d\)）。关节力矩上限 150、200、100、50、60、25 N·m 只是示意数字。<b>先玩一下</b>：用"举起 5 kg"预设，把手臂伸直，哪个关节先变红？再试"拧螺丝"：除了向下压 30 N，还在工具轴上加 8 N·m 的力矩，为什么关节 1、4、6 都要出力？</p>
+    <p>重力项 \(\mathbf g(\mathbf q)=\partial U/\partial\mathbf q\) 是位能的梯度。本课的模型：三根连杆各是一个质点，放在连杆中点（质量 5、3、1.5 kg，最后一个包含腕部和工具），外加负载质点（离工具原点沿工具 y 轴偏出 \(d\)）。关节力矩上限 150、200、100、50、60、25 N·m 只是示意数字。<b>先玩一下</b>：用"举起 5 kg"预设，把手臂水平伸直（\(q_2\)、\(q_3\) 都接近 0），哪个关节离上限最近？再加大负载，直到某根条变红：是哪个关节？再试"拧螺丝"：除了向下压 30 N，还在工具轴上加 8 N·m 的力矩，为什么关节 1、4、6 都要出力？</p>
   </div>
   
 
@@ -257,7 +257,7 @@
     <div class="fig-controls" id="a-cp"></div>
     <div class="fig-controls" id="a-cpre"></div>
     <figcaption class="fig-cap">
-      <span data-lang="zh">琥珀色箭头是手爪施加的力 \(\mathbf f\)（0.012 m/N），紫色箭头是力矩 \(\mathbf m\)（0.04 m/(N·m)），都画在工具原点上。右侧每条力矩条：红色竖线是上限，细白线是其中重力 \(g(\mathbf q)\) 的部分，整条是总力矩 \(\boldsymbol\tau\)；超限的条变红，对应关节在手臂上出现红圈。读数里 \(J_b^\top\mathbf F_b-J_s^\top\mathbf F_s\) 是两种写法的差，应在 \(10^{-13}\) 量级。</span>
+      <span data-lang="zh">琥珀色箭头是手爪施加的力 \(\mathbf f\)（0.012 m/N），紫色箭头是力矩 \(\mathbf m\)（0.04 m/(N·m)），都画在工具原点上。右侧每条力矩条：红色竖线是上限，条底部的细线是其中重力 \(g(\mathbf q)\) 的部分，整条是总力矩 \(\boldsymbol\tau\)；超限的条变红，对应关节在手臂上出现红圈。读数里 \(J_b^\top\mathbf F_b-J_s^\top\mathbf F_s\) 是两种写法的差，应在 \(10^{-13}\) 量级。</span>
       
     </figcaption>
   </figure>
@@ -279,7 +279,7 @@
     </div>
     <div class="fig-controls" id="m-ctl"></div>
     <figcaption class="fig-cap">
-      <span data-lang="zh">横轴是离基座轴线的水平距离 \(r\)，纵轴是高度 \(z\)；基座在左侧。色块越亮负载越大；没有色块的地方不可达或关节超出转角限位。拖动圆圈选择手爪位置，手臂以侧视图画出。负载质点偏离工具原点 \(d\)（沿工具 y 轴，水平时这就是垂直于纸面的方向，所以偏心只让滚转关节 4、6 受力，不改变平面内的力矩）。"电机规格"把所有关节力矩上限一起乘上一个系数。</span>
+      <span data-lang="zh">横轴是离基座轴线的水平距离 \(r\)，纵轴是高度 \(z\)；基座在左侧。色块的青色越浓，负载越大；没有色块的地方不可达或关节超出转角限位。拖动圆圈选择手爪位置，手臂以侧视图画出。负载质点偏离工具原点 \(d\)（沿工具 y 轴，水平时这就是垂直于纸面的方向，所以偏心只让滚转关节 4、6 受力，不改变平面内的力矩）。"电机规格"把所有关节力矩上限一起乘上一个系数。</span>
       
     </figcaption>
   </figure>
@@ -289,7 +289,7 @@
 
   <h3><span data-lang="zh">三维的力椭球与对偶</span></h3>
   <div data-lang="zh">
-    <p><a href="../part1/3-4-robot-jacobian.html">3.4 节</a>在平面里画过：关节速度的单位球 \(\|\dot{\boldsymbol\theta}\|\le1\) 经 \(J\) 映成手爪速度椭圆（半轴 \(\sigma_i\)），单位关节力矩球 \(\|\boldsymbol\tau\|\le1\) 经 \(J^\top\) 的"逆"映成力椭圆（半轴 \(1/\sigma_i\)，方向相同）。三维里把 \(J\) 换成线速度部分 \(J_v\in\mathbb R^{3\times6}\)（点 \(\mathbf p\) 的速度：\(J_v=J_{s,\text{lin}}-[\mathbf p]_\times J_{s,\text{ang}}\)），得到两个椭球：<b>速度椭球</b>（琥珀）和<b>力椭球</b>（紫）。长轴的方向正好相反：手爪<em>容易动</em>的方向<em>出不了大力</em>，<em>难动</em>的方向<em>顶得住大力</em>。手臂拉直时 \(\sigma_{\min}\to0\)：速度椭球被压成一个盘，力椭球拉成一根针，沿手臂方向，<b>结构本身承担载荷，电机几乎不出力</b>（3.4 节"速度与力"）。</p>
+    <p><a href="../part1/3-4-robot-jacobian.html">3.4 节</a>在平面里画过：关节速度的单位球 \(\|\dot{\boldsymbol\theta}\|\le1\) 经 \(J\) 映成手爪速度椭圆（半轴 \(\sigma_i\)），单位关节力矩球 \(\|\boldsymbol\tau\|\le1\) 经 \(J^\top\) 的"逆"映成力椭圆（半轴 \(1/\sigma_i\)，方向相同）。三维里把 \(J\) 换成线速度部分 \(J_v\in\mathbb R^{3\times6}\)（点 \(\mathbf p\) 的速度：\(J_v=J_{s,\text{lin}}-[\mathbf p]_\times J_{s,\text{ang}}\)），得到两个椭球：<b>速度椭球</b>（琥珀）和<b>力椭球</b>（紫）。两者主轴相同，但一个的长轴正是另一个的短轴：手爪<em>容易动</em>的方向<em>出不了大力</em>，<em>难动</em>的方向<em>顶得住大力</em>。手臂拉直时 \(\sigma_{\min}\to0\)：速度椭球被压成一个盘，力椭球拉成一根针，沿手臂方向，<b>结构本身承担载荷，电机几乎不出力</b>（3.4 节"速度与力"）。</p>
     <p>切换到"转动"：用 \(J_\omega\)（角速度部分）得到角速度椭球和力矩椭球。注意单位：\(J_v\) 是 m/rad，\(J_\omega\) 是无量纲，不能把两块拼成 6×6 再做 SVD（3.4 节误区 4），所以平动与转动要分开看，或者先用一个特征长度做归一化。</p>
   </div>
   
@@ -306,7 +306,7 @@
     </figcaption>
   </figure>
   <ul class="tasks">
-    <li data-task="needle"><span><span data-lang="zh">在"平动"模式下，把手臂拉到近乎伸直（\(\sigma_{\min}&lt;0.12\)，用"拉直"预设，或把 \(q_3\) 调到接近 0）。力椭球变成了什么形状？沿哪个方向？</span></span></li>
+    <li data-task="needle"><span><span data-lang="zh">在"平动"模式下，把手臂拉到近乎伸直（\(\sigma_{\min}&lt;0.12\)，用"拉直"预设，或把 \(q_3\) 和 \(q_5\) 都调到接近 0，让工具也与手臂对齐）。力椭球变成了什么形状？沿哪个方向？</span></span></li>
   </ul>
 
   <div class="callout view">
@@ -379,7 +379,7 @@
   <p data-lang="zh">不用 \(J\) 也能算关节力矩：从末端往基座逐节做力和力矩的平衡。设 \(\mathbf F_i\) 是连杆 \(i-1\) 通过关节 \(i\) 施加给连杆 \(i\) 的 wrench（在 {i} 系里），\(\mathbf F_{n+1}\) 是手爪施加给环境的 wrench。静止时连杆 \(i\) 受 \(\mathbf F_i\)、反作用 \(-\mathbf F_{i+1}\)（换到 {i} 系）和重力，三者平衡：</p>
   
   <div class="math-card">
-  $$ \mathbf F_i=\operatorname{Ad}_{T_{i+1,i}}^{\!\top}\mathbf F_{i+1}+\mathbf F^{\text{grav}}_i,\qquad \tau_i=\mathbf F_i^\top\mathbf A_i,\qquad i=n,\dots,1 . $$
+  $$ \mathbf F_i=\operatorname{Ad}_{T_{i+1,i}}^{\!\top}\mathbf F_{i+1}+\mathbf F^{\text{g}}_i,\qquad \tau_i=\mathbf F_i^\top\mathbf A_i,\qquad i=n,\dots,1 . $$
   </div>
   <p data-lang="zh">其中 \(\mathbf F^{\text{g}}_i\) 是支撑连杆 \(i\) 自重所需的 wrench（重力 wrench 的反号）；\(\mathbf A_i\) 是关节 \(i\) 在 {i} 系里的螺旋轴，\(\tau_i=\mathbf F_i^\top\mathbf A_i\) 取的是关节能传递的那个分量：电机只承担 wrench 在自己轴上的投影，其余五个分量由轴承的约束反力承担（与上面的"互易"同一回事）。这就是牛顿–欧拉逆动力学的静态特例，<a href="8-2-newton-euler.html">8.2</a> 加上加速度项就是完整算法。</p>
   
@@ -417,7 +417,7 @@
     <div class="fig-row" style="padding:10px 16px;border-top:1px solid var(--border);display:grid;gap:6px"><div class="katex-live" id="g-tex"></div><div class="readout" id="g-read"></div></div>
     <div class="fig-controls" id="g-ctl"></div>
     <figcaption class="fig-cap">
-      <span data-lang="zh">原始读数 = 接触 + 重力（传感器系，参考点为传感器原点）。四列依次是原始读数、重力模型、补偿后的读数、真实的接触 wrench；力的条满幅为 ±20 N，力矩的条满幅为 ±3 N·m。侧视图里灰色箭头是重力（0.04 m/N），琥珀色是环境推在工具尖端上的力，红蓝线是传感器的 x、z 轴。图只画了倾角，"滚转"绕工具轴转动，只改变 \(f_x,f_y\) 的分配。</span>
+      <span data-lang="zh">原始读数 = 接触 + 重力（传感器系，参考点为传感器原点）。四列依次是原始读数、重力模型、补偿后的读数、真实的接触 wrench；力的条满幅为 ±20 N，力矩的条满幅为 ±3 N·m。侧视图里中性色（与工具同色）的箭头是重力（0.04 m/N），琥珀色是环境推在工具尖端上的力，红蓝线是传感器的 x、z 轴。图只画了倾角，"滚转"绕工具轴转动，只改变 \(f_x,f_y\) 的分配。</span>
       
     </figcaption>
   </figure>
@@ -806,13 +806,16 @@ R101.onReady(function () {
     }
     const cq = document.getElementById('a-cq'), cf = document.getElementById('a-cf'), cp = document.getElementById('a-cp'), cpre = document.getElementById('a-cpre');
     const qs = ARM.limits.map((lim, i) => ui.slider(cq, { zh: `q${i + 1} (rad)`, en: `q${i + 1} (rad)`, min: lim[0], max: lim[1], step: 0.01, value: st.q[i], fmt: x => M.fmt(x, 2), onInput: v => { st.q[i] = v; user(); } }));
-    const fs = [0, 1, 2, 3, 4, 5].map(i => ui.slider(cf, { zh: (i < 3 ? 'm' : 'f') + 'xyz'[i % 3] + (i < 3 ? ' (N·m)' : ' (N)'), en: (i < 3 ? 'm' : 'f') + 'xyz'[i % 3] + (i < 3 ? ' (N·m)' : ' (N)'), min: i < 3 ? -25 : -100, max: i < 3 ? 25 : 100, step: i < 3 ? 0.5 : 1, value: st.F[i], fmt: x => M.fmt(x, i < 3 ? 1 : 0), onInput: v => { st.F[i] = v; user(); } }));
+    // wide slider ranges: a wrench whose components stay within (25 N·m, 100 N) still fits after re-expressing it in the other axes
+    // (|component| ≤ norm ≤ √3 × 25, √3 × 100). The axes switch never clamps st.F; the readout shows the exact values.
+    const FMAX = [45, 175];
+    const fs = [0, 1, 2, 3, 4, 5].map(i => ui.slider(cf, { zh: (i < 3 ? 'm' : 'f') + 'xyz'[i % 3] + (i < 3 ? ' (N·m)' : ' (N)'), en: (i < 3 ? 'm' : 'f') + 'xyz'[i % 3] + (i < 3 ? ' (N·m)' : ' (N)'), min: -FMAX[i < 3 ? 0 : 1], max: FMAX[i < 3 ? 0 : 1], step: i < 3 ? 0.5 : 1, value: st.F[i], fmt: x => M.fmt(x, i < 3 ? 1 : 0), onInput: v => { st.F[i] = v; user(); } }));
     const mps = ui.slider(cp, { zh: '负载 m (kg)', en: 'payload m (kg)', min: 0, max: 12, step: 0.1, value: st.mp, fmt: x => M.fmt(x, 1), onInput: v => { st.mp = v; user(); } });
     const offs = ui.slider(cp, { zh: '负载偏心 d (m)', en: 'payload offset d (m)', min: 0, max: 0.3, step: 0.01, value: st.off, fmt: x => M.fmt(x, 2), onInput: v => { st.off = v; user(); } });
     const segF = ui.seg(document.getElementById('a-seg'), [{ value: 'tool', zh: '工具轴', en: 'tool axes' }, { value: 'base', zh: '基座轴', en: 'base axes' }], st.frame, v => {
       const C = calc(), nF = v === 'tool' ? C.Ft : C.Fw;       // same physical wrench, re-expressed (point stays at the tool origin)
       const had = M.norm(C.Ft) > 0.5;
-      st.frame = v; st.F = nF.map((x, i) => M.clamp(x, i < 3 ? -25 : -100, i < 3 ? 25 : 100)); fs.forEach((s, i) => s.set(st.F[i]));
+      st.frame = v; st.F = nF.slice();   // never clamp: clamping would change the physical wrench fs.forEach((s, i) => s.set(st.F[i]));
       user(); if (had) done('frames');
     });
     const setAll = p => {
@@ -956,7 +959,7 @@ R101.onReady(function () {
     const tex = document.getElementById('e-tex'), read = document.getElementById('e-read');
     function sync() {
       const C = calc(), s = C.sig, lin = st.mode === 'lin', u1 = lin ? 'm/s' : 'rad/s', u2 = lin ? 'N' : 'N·m';
-      R101.tex(tex, `\\begin{gathered}${lin ? 'J_vJ_v' : 'J_\\omega J_\\omega'}^\\top=U\\,\\mathrm{diag}(\\cv{\\sigma_i^2})\\,U^\\top\\\\ \\cw{1/\\sigma_i}=\\text{force semi-axes}\\end{gathered}`);
+      R101.tex(tex, `\\begin{gathered}${lin ? 'J_vJ_v' : 'J_\\omega J_\\omega'}^\\top=U\\,\\mathrm{diag}(\\cv{\\sigma_i^2})\\,U^\\top\\\\ \\cw{1/\\sigma_i}=\\text{${lin ? R101.t('力椭球的半轴', 'force semi-axes') : R101.t('力矩椭球的半轴', 'moment semi-axes')}}\\end{gathered}`);
       read.innerHTML = `σ = (${s.map(x => M.fmt(x, 3)).join(', ')}) ${L('(' + u1 + ' 每单位关节速度)', '(' + u1 + ' per unit joint rate)')}<br>` +
         `1/σ = (${s.map(x => (x > 1e-3 ? M.fmt(1 / x, 2) : '>1000')).join(', ')}) ${u2}/(N·m)<br>` +
         `${L('条件数', 'condition number')} σ₁/σ₃ = <b>${s[2] > 1e-6 ? M.fmt(s[0] / s[2], 1) : '>10⁶'}</b>` +
@@ -994,8 +997,9 @@ R101.onReady(function () {
       P.arrow(S, M.add(S, M.scale(d, 0.2)), { color: 'k', width: 2.6, head: 9, label: 'z', labelSize: 12 });
       P.point(com, { color: 'text-2', r: 4 + st.mt * 1.4, stroke: 'canvas' });
       P.arrow(com, [com[0], com[1] - 0.04 * st.mt * G], { color: 'text-2', width: 3, label: 'm g', labelSize: 12, labelOffset: [8, 4] });
-      if (st.fp > 0.1) P.arrow(M.sub(tip, M.scale(d, 0.04 * st.fp + 0.01)), M.sub(tip, M.scale(d, 0.01)), { color: 'v', width: 3.4 });
-      if (st.fp > 0.1) P.text(R101.t('接触力', 'contact'), M.sub(tip, M.scale(d, 0.04 * st.fp)), { offset: [10, 0], color: 'v', size: 11, bold: true });
+      // the environment pushes on the tip back toward the sensor (−z_s): the arrow comes from outside the tip
+      if (st.fp > 0.1) P.arrow(M.add(tip, M.scale(d, 0.04 * st.fp + 0.01)), M.add(tip, M.scale(d, 0.01)), { color: 'v', width: 3.4 });
+      if (st.fp > 0.1) P.text(R101.t('接触力', 'contact'), M.add(tip, M.scale(d, 0.04 * st.fp)), { offset: [10, 0], color: 'v', size: 11, bold: true });
       P.point(tip, { color: 'v', r: 4 });
     }
     const panel = document.getElementById('g-panel');

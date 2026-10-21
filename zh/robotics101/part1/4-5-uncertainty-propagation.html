@@ -144,7 +144,7 @@
     </div>
     <div class="fig-controls" id="d1-controls"></div>
     <figcaption class="fig-cap">
-      <span data-lang="zh">下方<span class="cx">青色钟形</span>是输入 \(\mathcal N(\mu, \sigma^2)\)（拖动底部圆点移动 \(\mu\)）。白色细线是 40 个样本的"路径"。右侧<span class="cx">青色直方图</span>是 3000 个样本的真实输出分布；<span class="cv">黄色曲线</span>是用切线线性化得到的高斯 \(\mathcal N(f(\mu), f'(\mu)^2\sigma^2)\)。<span class="cv">黄色虚线</span>是切线；右侧<b>白点</b>是 \(f(\mu)\)，<span class="cx">青色标记</span>是真实输出均值。</span>
+      <span data-lang="zh">下方<span class="cx">青色钟形</span>是输入 \(\mathcal N(\mu, \sigma^2)\)（拖动底部圆点移动 \(\mu\)）。灰色细线是 40 个样本的"路径"。右侧<span class="cx">青色直方图</span>是 3000 个样本的真实输出分布；<span class="cv">黄色曲线</span>是用切线线性化得到的高斯 \(\mathcal N(f(\mu), f'(\mu)^2\sigma^2)\)。<span class="cv">黄色虚线</span>是切线；右侧<b>空心圆</b>是 \(f(\mu)\)，<span class="cx">青色标记</span>是真实输出均值。</span>
       
     </figcaption>
   </figure>
@@ -184,7 +184,7 @@
       <div class="small" id="lin-msg"></div>
     </div>
     <figcaption class="fig-cap">
-      <span data-lang="zh">400 个样本点（青色）在左右两图里是<b>同一批点</b>，右图里每个点是 \(A\mathbf x_i\)。<span class="cv">黄色实线</span>是公式 \(A\Sigma A^\top\) 画出的 1σ、2σ 椭圆；<span class="cw">紫色虚线</span>是左图 1σ 椭圆的每个点乘以 \(A\) 的像，两者重合。</span>
+      <span data-lang="zh">800 个样本点（青色）在左右两图里是<b>同一批点</b>，右图里每个点是 \(A\mathbf x_i\)。<span class="cv">黄色实线</span>是公式 \(A\Sigma A^\top\) 画出的 1σ、2σ 椭圆；<span class="cw">紫色虚线</span>是左图 1σ 椭圆的每个点乘以 \(A\) 的像，两者重合。</span>
       
     </figcaption>
   </figure>
@@ -306,7 +306,7 @@
   </figure>
   <ul class="tasks">
     <li data-task="arm-sing"><span><span data-lang="zh">把手臂拉直（\(|q_2| &lt; 5°\)）：椭圆塌成一条垂直于手臂的细线，\(\det J \to 0\)。</span></span></li>
-    <li data-task="arm-round"><span><span data-lang="zh">弯成约 90°（\(|q_2|\) 在 80° 到 100° 之间）：椭圆最圆，手爪在两个方向上的误差都差不多。</span></span></li>
+    <li data-task="arm-round"><span><span data-lang="zh">找出让椭圆<b>最圆</b>的弯曲角：使短轴/长轴超过 0.75。对这两节连杆（0.5 m 与 0.4 m），它在 \(|q_2| \approx 130°\) 附近，而不是直觉上的 90°（90° 时只有 0.41）。</span></span></li>
   </ul>
 
   <h3><span data-lang="zh">(b) 移动机器人：里程计漂移</span></h3>
@@ -330,7 +330,7 @@
     </div>
     <div class="fig-controls" id="dr-controls"></div>
     <figcaption class="fig-cap">
-      <span data-lang="zh"><b>白色实线</b>是理想（无噪声）轨迹；<span class="cx">青色细线</span>是 40 条带噪声的轨迹，青色点是全部 300 条在当前时刻的位置；<span class="cv">黄色椭圆</span>是协方差递推在当前时刻给出的位置 2σ 椭圆，淡黄色轮廓是之前每隔 2 秒的椭圆；椭圆里的短线是航向 ±2σ。读数里的"覆盖率"是点云落入当前 2σ 椭圆的比例，理论值（二维高斯）是 86.5%。</span>
+      <span data-lang="zh"><b>中性色粗实线</b>是理想（无噪声）轨迹（虚线是它的完整路线）；<span class="cx">青色细线</span>是 40 条带噪声的轨迹，青色点是全部 300 条在当前时刻的位置；<span class="cv">黄色椭圆</span>是协方差递推在当前时刻给出的位置 2σ 椭圆，淡黄色轮廓是之前每隔 2 秒的椭圆；椭圆里的短线是航向 ±2σ。读数里的"覆盖率"是点云落入当前 2σ 椭圆的比例，理论值（二维高斯）是 86.5%。</span>
       
     </figcaption>
   </figure>
@@ -770,13 +770,12 @@ R101.onReady(function () {
       const J = Jm(), d = M.det2(J), S = M.mscale(M.mul(J, M.T(J)), sq() * sq()), e = M.eigSym2(S);
       R101.tex(t1, `\\Sigma_p = \\sigma_q^2\\,J J^\\top = ${M.texMat(M.mscale(S, 1e4), 2)}\\times 10^{-4}`);
       R101.tex(t2, `\\det J = l_1 l_2 \\sin q_2 = ${M.tex(d, 3)}`);
-      read.innerHTML = `q₁ = <b>${M.fmt(q1 * 180 / Math.PI, 0)}°</b>, q₂ = <b>${M.fmt(q2 * 180 / Math.PI, 0)}°</b><br>σ ${L('主/次', 'major/minor')} = <b class="cv">${M.fmt(Math.sqrt(Math.max(e.l1, 0)) * 1000, 1)}</b> / <b class="cv">${M.fmt(Math.sqrt(Math.max(e.l2, 0)) * 1000, 1)}</b> mm`;
+      read.innerHTML = `q₁ = <b>${M.fmt(q1 * 180 / Math.PI, 0)}°</b>, q₂ = <b>${M.fmt(q2 * 180 / Math.PI, 0)}°</b><br>σ ${L('主/次', 'major/minor')} = <b class="cv">${M.fmt(Math.sqrt(Math.max(e.l1, 0)) * 1000, 1)}</b> / <b class="cv">${M.fmt(Math.sqrt(Math.max(e.l2, 0)) * 1000, 1)}</b> mm<br>${L('短轴/长轴', 'minor/major')} = <b>${M.fmt(Math.sqrt(Math.max(e.l2, 0) / Math.max(e.l1, 1e-12)), 2)}</b>`;
       const sing = Math.abs(Math.sin(q2)) < 0.09;
       msg.innerHTML = sing ? L('奇异位形：J 的两列平行，手爪沿手臂方向"动不了"，那个方向的不确定性消失，椭圆塌成线。', 'Singular configuration: the two columns of J are parallel, the hand cannot move along the arm, its uncertainty in that direction vanishes and the ellipse collapses to a line.')
         : L('拖动肘部和手爪，观察椭圆的朝向与形状怎样随构型变化。', 'Drag the elbow and the hand and watch the ellipse change with the configuration.');
       if (touched && sing) R101.done('arm-sing');
-      const a2 = Math.abs(q2) * 180 / Math.PI;
-      if (touched && a2 >= 80 && a2 <= 100) R101.done('arm-round');
+      if (touched && !sing && e.l2 / e.l1 > 0.75 * 0.75) R101.done('arm-round');
       P.invalidate();
     }
     R101.on('lang', sync);

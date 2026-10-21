@@ -147,15 +147,15 @@
     </div>
     <div class="fig-controls" id="p1-controls"></div>
     <figcaption class="fig-cap">
-      <span data-lang="zh">顶部是走廊（<span class="cx">蓝块</span> = 门，白点 = 真实机器人）。中间一行是粒子：<span class="cx">青</span> = 预测后，<span class="cw">紫</span> = 加权后（点越大、竖线越长，权重越高），<span class="cv">黄</span> = 重采样后（等权重）。<span class="cw">紫色长条</span>是累积权重，竖直的刻度是重采样的指针，细线连到被选中的粒子。底部柱状图是"由粒子估计的每格概率"，可以和 4.7 节的直方图滤波对比。</span>
+      <span data-lang="zh">顶部是走廊（<span class="ck">蓝块</span> = 门，可拖动的大圆点 = 真实机器人）。中间一行是粒子：<span class="cx">青</span> = 预测后，<span class="cw">紫</span> = 加权后（点越大、竖线越长，权重越高），<span class="cv">黄</span> = 重采样后（等权重）。<span class="cw">紫色长条</span>是累积权重，竖直的刻度是重采样的指针，细线连到被选中的粒子。底部柱状图是"由粒子估计的每格概率"，可以和 4.7 节的直方图滤波对比。</span>
       
     </figcaption>
   </figure>
   <div class="tasks-title"><span data-lang="zh">试一试</span></div>
   <ul class="tasks">
-    <li data-task="pf-multi"><span><span data-lang="zh"><b>多峰</b>：重置后"加权"再"重采样"（若读到"门"效果最明显）：粒子集中在几扇门前，估计出至少两个相距 5 m 以上、各占 15% 以上的簇。</span></span></li>
+    <li data-task="pf-multi"><span><span data-lang="zh"><b>多峰</b>：先把机器人拖到一扇门（蓝块）上，"重置"，再"加权"（应读到"门"）、"重采样"：粒子集中到几扇门前，出现至少两个相距 5 m 以上、各占 18% 以上质量的簇（簇 = 一格加左右相邻两格）。如果读到的是"墙"，重置后再试一次。</span></span></li>
     <li data-task="pf-localize"><span><span data-lang="zh"><b>定位成功</b>：交替"移动 → 加权 → 重采样"，让真实位置 ±1 m 内的粒子占 90% 以上。</span></span></li>
-    <li data-task="pf-deplete"><span><span data-lang="zh"><b>粒子太少</b>：把粒子数调到 12 个以下，反复重采样：看看会不会"一个粒子也没落在真实位置附近"，滤波器还一脸自信。</span></span></li>
+    <li data-task="pf-deplete"><span><span data-lang="zh"><b>粒子太少</b>：把粒子数调到 12 个以下，切到"多项式重采样"，不移动，反复"加权 → 重采样"：看看会不会"一个粒子也没落在真实位置附近"，滤波器还一脸自信（一格里聚了 60% 以上的粒子）。</span></span></li>
   </ul>
   <div class="callout key">
     <div class="ct"><span data-lang="zh">核心洞见</span></div>
@@ -168,7 +168,7 @@
 <section class="step" id="play">
   <h2><span class="n">3</span><span data-lang="zh">动手玩：重采样本身也会"伤"粒子</span></h2>
   <div data-lang="zh">
-    <p>重采样有一个副作用：每次都是<b>有放回</b>抽样，高权重的粒子被复制，别的粒子消失，粒子群里<b>不同的"祖先"</b>越来越少。即使<b>没有任何新信息</b>（所有权重相等），只要你每一步都重采样，多样性也会像"遗传漂变"那样一代代流失，最后所有粒子都是同一个祖先的拷贝。这叫<b>粒子退化 / 粒子耗尽 (particle depletion)</b>。</p>
+    <p>重采样有一个副作用：每次都是<b>有放回</b>抽样，高权重的粒子被复制，别的粒子消失，粒子群里<b>不同的"祖先"</b>越来越少。即使<b>没有任何新信息</b>（所有权重相等），只要你每一步都重采样，多样性也会像"遗传漂变"那样一代代流失，最后所有粒子都是同一个祖先的拷贝。这叫<b>粒子贫化 / 粒子耗尽 (sample impoverishment / particle depletion)</b>。注意它和"权重退化"（少数粒子占去全部权重）不是一回事：权重退化靠重采样来治，粒子贫化却是重采样造成的。</p>
     <p>FIG 2 把每一代粒子画成一行，从上往下是时间。起初粒子均匀铺在 \([0,10]\) 上，没有运动、没有观测，只做重采样，看看有多少个不同的祖先能活下来。</p>
   </div>
   
@@ -185,7 +185,7 @@
     </div>
     <div class="fig-controls" id="p2-controls"></div>
     <figcaption class="fig-cap">
-      <span data-lang="zh">每一行是一代粒子（纵轴向下是时间），每个点是一个粒子，<b>颜色按它最初的祖先编号</b>，所以同色的点是同一个祖先的后代。右侧曲线是"不同祖先数 / N"。<b>"总是重采样"</b>每代都做多项式重采样；<b>"仅当 N_eff &lt; N/2"</b>只在权重严重不均时才重采样。"弱观测"模式每代加一次很弱的观测（一个宽高斯），权重略不均匀。</span>
+      <span data-lang="zh">每一行是一代粒子（纵轴向下是时间），每个点是一个粒子，画在它<b>最初祖先的位置</b>上，相邻的祖先颜色不同，所以一列同色的点就是同一个祖先的后代。右侧曲线是"不同祖先数 / N"。<b>"总是重采样"</b>每代都做多项式重采样；<b>"仅当 N_eff &lt; N/2"</b>只在权重严重不均时才重采样。"弱观测"模式每代加一次很弱的观测（一个宽高斯），权重略不均匀。</span>
       
     </figcaption>
   </figure>
@@ -212,7 +212,7 @@
   <div class="math-card">
   $$ \text{1. predict:}\quad \hl{part}{x_k^{[i]}} \sim p\big(x_k \mid x_{k-1}^{[i]},\,u_k\big) $$
   $$ \text{2. weight:}\quad \hl{wt}{w_k^{[i]}} \;\propto\; w_{k-1}^{[i]}\;p\big(z_k \mid x_k^{[i]}\big),\qquad \sum_i w_k^{[i]}=1 $$
-  $$ \text{3. resample (if } \hl{neff}{N_{\mathrm{eff}}}=1\Big/\textstyle\sum_i (w_k^{[i]})^2 < \tfrac N2 \text{):}\quad \text{draw } N \text{ indices } \propto w_k^{[i]};\;\; w_k^{[i]}\leftarrow 1/N $$
+  $$ \text{3. resample (if } N_{\mathrm{eff}}=1\Big/\textstyle\sum_i (w_k^{[i]})^2 < \tfrac N2 \text{):}\quad \text{draw } N \text{ indices } \propto w_k^{[i]};\;\; w_k^{[i]}\leftarrow 1/N $$
   </div>
   <p data-lang="zh">这个版本叫<b>自举粒子滤波 (bootstrap filter)</b>，是最简单的一种。</p>
   
@@ -221,7 +221,7 @@
   <p data-lang="zh">我们想从 \(\mathrm{bel}(x_k)\propto p(z_k\mid x_k)\int p(x_k\mid x_{k-1},u_k)\,\mathrm{bel}(x_{k-1})\,dx_{k-1}\) 里抽样，它直接抽不出来。但"预测"步骤恰好提供了一个<b>容易抽的提议分布</b>：先按旧信念抽 \(x_{k-1}\)，再按运动模型抽 \(x_k\)，得到的分布就是 \(\mathrm{bel}^-(x_k)\)。按 4.9 节的重要性采样，权重 = 目标 ÷ 提议：</p>
   
   <div class="math-card">$$ w \;=\; \frac{\text{target}}{\text{proposal}} \;=\; \frac{p(z_k\mid x_k)\,\mathrm{bel}^-(x_k)}{\mathrm{bel}^-(x_k)} \;=\; \hl{wt}{p(z_k\mid x_k)}. $$</div>
-  <p data-lang="zh">于是"加权"的就是传感器模型。重采样则是把一组带权样本转成等权样本，防止 FIG 2 之前出现的权重退化（少数粒子占去全部权重）。当 \(N\to\infty\)，估计收敛到真实后验，误差按 \(1/\sqrt N\) 下降。</p>
+  <p data-lang="zh">于是"加权"的就是传感器模型。重采样则是把一组带权样本转成等权样本，防止权重退化（少数粒子占去全部权重）。当 \(N\to\infty\)，估计收敛到真实后验，误差按 \(1/\sqrt N\) 下降。</p>
   
 
   <h3><span data-lang="zh">系统重采样</span></h3>
@@ -254,7 +254,7 @@
     </div>
     <div class="fig-controls" id="mc-controls"></div>
     <figcaption class="fig-cap">
-      <span data-lang="zh"><span class="cv">黄色小点</span>是粒子（带朝向刻度），白点是<b>真实机器人</b>（<b>可拖动</b>，等于绑架），<span class="cw">紫线</span>是它的 8 束测距，<span class="cx">青色</span>是加权平均得到的估计位姿，红线是估计与真值的误差。灰色是已知地图，右下角的小方块打破了对称。"随机注入"每次重采样时把 5% 的粒子换成随机位姿。</span>
+      <span data-lang="zh"><span class="cv">黄色小点</span>是粒子（带朝向刻度），带朝向短线的大圆点是<b>真实机器人</b>（<b>可拖动</b>，等于绑架），<span class="cw">紫线</span>是它的 8 束测距，<span class="cx">青色</span>是加权平均得到的估计位姿，红线是估计与真值的误差。灰色是已知地图，右下角的小方块打破了对称。"随机注入"每次重采样时把 5% 的粒子换成随机位姿。</span>
       
     </figcaption>
   </figure>
@@ -267,7 +267,7 @@
   </ul>
   <div class="callout robot">
     <div class="ct"><span data-lang="zh">真实系统里</span></div>
-    <p data-lang="zh">ROS 导航栈里的 <b>AMCL</b> 就是这样的滤波器：状态 \((x,y,\theta)\)，运动模型来自里程计，观测模型来自激光对占据栅格地图的匹配（似然场模型）。它会根据 \(N_{\mathrm{eff}}\) 和平均似然的变化自适应地改变粒子数（KLD 采样），并在平均似然突然下降时注入随机粒子（这就是 FIG 3 的"随机注入"，对应增广 MCL）。仓库 AGV 常常遇到"整排货架长得一样"的歧义，靠多峰信念和多走几步来消除。</p>
+    <p data-lang="zh">ROS 导航栈里的 <b>AMCL</b> 就是这样的滤波器：状态 \((x,y,\theta)\)，运动模型来自里程计，观测模型来自激光对占据栅格地图的匹配（似然场模型）。它用 KLD 采样自适应地决定粒子数（粒子占据的状态空间格子越多，就用越多粒子），并在短期平均似然相对长期平均似然突然下降时注入随机粒子（这就是 FIG 3 的"随机注入"，对应增广 MCL）。仓库 AGV 常常遇到"整排货架长得一样"的歧义，靠多峰信念和多走几步来消除。</p>
     
   </div>
 </section>
@@ -444,7 +444,7 @@ R101.onReady(function () {
       for (let i = 0; i < K; i++) {
         const x = PL + i * CW;
         P.poly([[x, ty], [x + CW, ty], [x + CW, ty + th], [x, ty + th]], { stroke: 'grid-2', width: 1 });
-        if (isDoorCell(i)) P.poly([[x + CW * 0.2, ty + 2], [x + CW * 0.8, ty + 2], [x + CW * 0.8, ty + th * 0.85], [x + CW * 0.2, ty + th * 0.85]], { fill: 'x', fillAlpha: 0.55, stroke: 'x', width: 1.2 });
+        if (isDoorCell(i)) P.poly([[x + CW * 0.2, ty + 2], [x + CW * 0.8, ty + 2], [x + CW * 0.8, ty + th * 0.85], [x + CW * 0.2, ty + th * 0.85]], { fill: 'k', fillAlpha: 0.55, stroke: 'k', width: 1.2 });
       }
       P.point([gx(l, truth), ty + th * 0.4], { color: 'text', r: Math.min(10, CW * 0.3), stroke: 'canvas', strokeWidth: 2 });
       // particle row
@@ -501,7 +501,9 @@ R101.onReady(function () {
     function sync() {
       const m = new Array(K).fill(0); xs.forEach((x, i) => { m[Math.floor(x)] += ws[i]; });
       const near = xs.reduce((a, x, i) => a + (Math.abs(x - truth) <= 1 ? ws[i] : 0), 0);
-      const peaks = []; for (let i = 0; i < K; i++) if (m[i] > 0.15 && (i === 0 || m[i] >= m[i - 1]) && (i === K - 1 || m[i] >= m[i + 1])) peaks.push(i);
+      // clusters: mass of a cell plus its two neighbours; peaks are local maxima of that
+      const cm = m.map((v, i) => (m[i - 1] || 0) + v + (m[i + 1] || 0));
+      const peaks = []; for (let i = 0; i < K; i++) if (cm[i] > 0.18 && (i === 0 || cm[i] >= cm[i - 1]) && (i === K - 1 || cm[i] >= cm[i + 1])) peaks.push(i);
       const distinct = new Set(xs.map(x => x.toFixed(6))).size;
       rd.innerHTML = `N = <b>${N}</b> · ${L('步数', 'steps')} = <b>${steps}</b><br>N<sub>eff</sub> = <b>${M.fmt(neff(), 1)}</b> / ${N}<br>${L('真实位置 ±1 m 内的质量', 'mass within ±1 m of truth')} = <b>${M.fmt(100 * near, 0)}%</b><br>${L('不同位置的粒子数', 'distinct particle positions')} = <b>${distinct}</b>` + (zDoor == null ? '' : `<br>${L('上次读数', 'last reading')}: <b>${zDoor ? L('门', 'door') : L('墙', 'wall')}</b>`);
       R101.tex(tx, phase === 'pred' ? `x^{[i]}\\sim p(x\\mid x^{[i]},u)` : phase === 'weighted' ? `\\hl{wt}{w^{[i]}}\\propto p(z\\mid x^{[i]})` : phase === 'resampled' ? `\\text{pointers } u_j=u_0+j/N` : `\\mathrm{bel}\\approx\\{x^{[i]},w^{[i]}\\}_{i=1}^{N}`);
@@ -510,7 +512,7 @@ R101.onReady(function () {
         : phase === 'weighted' ? L('加权完：粒子没动，但门里的更大、更长。下一步"重采样"让它们兑现成疏密。', 'Weighted: nothing moved, but those inside doors are bigger and longer. "Resample" cashes that in as density.')
         : L(`重采样完：粒子等权重，疏密就是信念。${method === 'mul' ? '（多项式重采样的指针是随机的。）' : ''}`, `Resampled: equal weights; particle density is the belief.${method === 'mul' ? ' (Multinomial pointers are random.)' : ''}`);
       slA.set(ac);
-      if (phase === 'resampled' && peaks.length >= 2 && peaks[peaks.length - 1] - peaks[0] >= 5) R101.done('pf-multi');
+      if (phase === 'resampled' && zDoor === true && peaks.length >= 2 && peaks[peaks.length - 1] - peaks[0] >= 5) R101.done('pf-multi');
       if (steps > 0 && phase === 'resampled' && near >= 0.9) R101.done('pf-localize');
       if (N <= 12 && phase === 'resampled' && near < 0.01 && Math.max(...m) > 0.6) R101.done('pf-deplete');
       P.invalidate();
@@ -523,7 +525,7 @@ R101.onReady(function () {
   (function () {
     const GMAX = 60, rng = M.rng(97);
     let N = 50, mode = 'every', info = 'none', gen = 0, rows = [], anc = [], touchedRun = false;
-    const palette = i => `hsl(${(i * 137.508) % 360}, 70%, 58%)`;
+    const PAL = ['i', 'j', 'k', 'v', 'w', 'x'], palette = i => PAL[i % PAL.length];   // neighbouring ancestors get different named colours
     let w;
     const pos0 = []; // initial positions
     function init() {
@@ -551,7 +553,7 @@ R101.onReady(function () {
       P.line([PL, Y(GMAX + 0.5)], [PL + pw, Y(GMAX + 0.5)], { color: 'axis', width: 1 });
       [0, 20, 40, 60].forEach(g => P.textPx(String(g), PL - 8, P.H - Y(g), { align: 'right', size: 10.5, color: 'text-2' }));
       P.textPx(tr('代数 ↓', 'generation ↓'), 4, 10, { size: 11, color: 'text-2' });
-      P.textPx(tr('粒子位置（颜色 = 最初的祖先）', 'particle position (color = original ancestor)'), PL + 70, 10, { size: 11, color: 'text-2' });
+      P.textPx(tr('最初祖先的位置（同列同色 = 同一祖先）', 'original ancestor\'s position (one coloured column = one ancestor)'), PL + 70, 10, { size: 11, color: 'text-2' });
       rows.forEach((r, g) => r.forEach(a => P.point([X(pos0[a]), Y(g)], { color: palette(a), r: Math.max(1.2, Math.min(3.2, rh * 0.45)) })));
       // diversity curve
       const cx0 = P.W - PR + 30, cw = PR - 44;
@@ -575,7 +577,7 @@ R101.onReady(function () {
     function sync() {
       const last = rows[rows.length - 1], d = new Set(last).size;
       rd.innerHTML = `N = <b>${N}</b> · ${L('代数', 'generation')} = <b>${gen}</b><br>${L('不同祖先数', 'distinct ancestors')} = <b>${d}</b> (${M.fmt(100 * d / N, 0)}%)<br>${L('重采样次数', 'resamples done')} = <b>${resCount}</b><br>N<sub>eff</sub> = <b>${M.fmt(1 / w.reduce((a, b) => a + b * b, 0), 1)}</b>`;
-      R101.tex(tx, `\\hl{neff}{N_{\\mathrm{eff}}}=1\\Big/\\sum_i (w^{[i]})^2`);
+      R101.tex(tx, `N_{\\mathrm{eff}}=1\\Big/\\sum_i (w^{[i]})^2`);
       msg.innerHTML = gen === 0 ? L('点"跑到 60 代"。', 'Press "Run to 60".')
         : d === 1 ? `<span style="color:var(--c-bad)">${L('只剩一个祖先：所有粒子是同一个粒子的拷贝。', 'One ancestor left: every particle is a copy of the same one.')}</span>`
         : L(`${d} 个祖先还活着。${mode === 'every' ? '每一代都在重采样，多样性只降不升。' : '只有权重严重不均时才重采样。'}`, `${d} ancestors survive. ${mode === 'every' ? 'Resampling happens every generation, so diversity only goes down.' : 'Resampling happens only when the weights get badly uneven.'}`);

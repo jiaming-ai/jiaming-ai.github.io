@@ -418,8 +418,8 @@
       </div>
     </div>
     <figcaption class="fig-cap">
-      <span data-lang="zh">拖动琥珀色速度 <span class="cv">v</span>（被限制在速度圆内）或紫色目标 <span class="cw">G</span>。速度圆上的小点是候选速度：绿色得分为正，红色为负，点越大得分越极端，圆环标出最优的那个。</span>
-      <span data-lang="en">Drag the amber velocity <span class="cv">v</span> (clamped to the speed circle) or the purple goal <span class="cw">G</span>. The dots on the speed circle are candidate velocities: green has a positive score, red a negative one, bigger dots mean more extreme scores, and the ring marks the best candidate.</span>
+      <span data-lang="zh">拖动琥珀色速度 <span class="cv">v</span>（被限制在速度圆内）或紫色目标 <span class="cw">G</span>。速度圆上的小点是候选速度：绿色得分为正，红色为负，点越大得分越极端，圆环标出最优的方向 \(\hat{\mathbf g}\)（它不一定恰好落在某个候选点上）。</span>
+      <span data-lang="en">Drag the amber velocity <span class="cv">v</span> (clamped to the speed circle) or the purple goal <span class="cw">G</span>. The dots on the speed circle are candidate velocities: green has a positive score, red a negative one, bigger dots mean more extreme scores, and the ring marks the best possible direction, \(\hat{\mathbf g}\) (not necessarily one of the candidate dots).</span>
     </figcaption>
   </figure>
   <ul class="tasks">
@@ -496,7 +496,7 @@
       <button class="opt"><span data-lang="zh">在：\(\hat{\mathbf h}\cdot\mathbf d = 2 > 0\)</span><span data-lang="en">Yes: \(\hat{\mathbf h}\cdot\mathbf d = 2 > 0\)</span></button>
       <button class="opt"><span data-lang="zh">在：\(\hat{\mathbf h}\cdot\mathbf d = 2 > \cos 30° \approx 0.87\)</span><span data-lang="en">Yes: \(\hat{\mathbf h}\cdot\mathbf d = 2 > \cos 30° \approx 0.87\)</span></button>
     </div>
-    <div class="explain"><span data-lang="zh">\(|\mathbf d| = \sqrt{4 + 2.25} = 2.5\)，阈值是 \(2.5\cos 30° \approx 2.165\)，而 \(\hat{\mathbf h}\cdot\mathbf d = 2\)，不够。直接验证：物体方向与朝向的夹角是 \(\arctan(1.5/2) \approx 36.9° > 30°\)。点积为正只说明在 90° 以内；第三个选项忘了乘 \(|\mathbf d|\)。</span><span data-lang="en">\(|\mathbf d| = \sqrt{4 + 2.25} = 2.5\), so the threshold is \(2.5\cos 30° \approx 2.165\), while \(\hat{\mathbf h}\cdot\mathbf d = 2\) falls short. Check directly: the object's bearing is \(\arctan(1.5/2) \approx 36.9° > 30°\). A positive dot product only means "within 90°", and the third option forgot to multiply by \(|\mathbf d|\).</span></div>
+    <div class="explain"><span data-lang="zh">\(|\mathbf d| = \sqrt{4 + 2.25} = 2.5\)，阈值是 \(2.5\cos 30° \approx 2.165\)，而 \(\hat{\mathbf h}\cdot\mathbf d = 2\)，不够。直接验证：物体方向与朝向的夹角是 \(\arctan(1.5/2) \approx 36.9° > 30°\)。点积为正只说明在 90° 以内；选项 C 忘了乘 \(|\mathbf d|\)。</span><span data-lang="en">\(|\mathbf d| = \sqrt{4 + 2.25} = 2.5\), so the threshold is \(2.5\cos 30° \approx 2.165\), while \(\hat{\mathbf h}\cdot\mathbf d = 2\) falls short. Check directly: the object's bearing is \(\arctan(1.5/2) \approx 36.9° > 30°\). A positive dot product only means "within 90°", and option C forgot to multiply by \(|\mathbf d|\).</span></div>
   </div>
 
   <div class="quiz" data-answer="3">

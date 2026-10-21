@@ -222,8 +222,8 @@
     </div>
     <div class="fig-controls" id="trk-controls"></div>
     <figcaption class="fig-cap">
-      <span data-lang="zh">图例：<b>白/黑实线</b>与小车 = 真实位置；<span class="cw">紫点</span> = GPS 读数（空心 = 没被用上）；<span class="cv">黄线与黄带</span> = 估计值与 ±2σ 范围；<span class="cx">青色</span> = 刚预测完、还没更新的信念。真实的随机加速度约 0.4 m/s²，但小车还会被缓冲器弹、被"巡航"拉回 1.5 m/s，匀速模型其实是错的。所以表现最好的 Q 往往比 0.4 大：<b>Q 不只代表噪声，也替你的模型误差买单</b>。</span>
-      <span data-lang="en">Legend: <b>solid white/black line</b> and the cart = true position; <span class="cw">purple dots</span> = GPS readings (hollow = never used); <span class="cv">amber line and band</span> = estimate and ±2σ; <span class="cx">cyan</span> = a belief that has been predicted but not yet updated. The true random acceleration is about 0.4 m/s², but the cart is also bounced by bumpers and pulled back to a 1.5 m/s "cruise", so the constant-velocity model is actually wrong. That is why the best Q is usually larger than 0.4: <b>Q pays not only for noise but also for your model's mistakes</b>.</span>
+      <span data-lang="zh">图例：<b>不带颜色的实线</b>与小车 = 真实位置；<span class="cw">紫点</span> = GPS 读数（空心 = 没被用上）；<span class="cv">黄线与黄带</span> = 估计值与 ±2σ 范围；<span class="cx">青色</span> = 刚预测完、还没更新的信念。真实的随机加速度约 0.4 m/s²，但小车还会被缓冲器弹、被"巡航"拉回 1.5 m/s，匀速模型其实是错的。所以表现最好的 Q 往往比 0.4 大：<b>Q 不只代表噪声，也替你的模型误差买单</b>。</span>
+      <span data-lang="en">Legend: the <b>plain (uncoloured) solid line</b> and the cart = true position; <span class="cw">purple dots</span> = GPS readings (hollow = never used); <span class="cv">amber line and band</span> = estimate and ±2σ; <span class="cx">cyan</span> = a belief that has been predicted but not yet updated. The true random acceleration is about 0.4 m/s², but the cart is also bounced by bumpers and pulled back to a 1.5 m/s "cruise", so the constant-velocity model is actually wrong. That is why the best Q is usually larger than 0.4: <b>Q pays not only for noise but also for your model's mistakes</b>.</span>
     </figcaption>
   </figure>
 
@@ -914,6 +914,12 @@ R101.onReady(function () {
         if (Math.hypot(po.x[0] - x[0], po.x[1] - x[1]) > 0.04) P.arrow(q(x[0], x[1]), q(po.x[0], po.x[1]), { color: 'v', width: hl === 'K' ? 4.5 : 2.2, head: 9 });
         const yi = V0 + 0.35, emI = hl === 'innov';
         if (Math.abs(z - x[0]) > 0.05) P.arrow(q(x[0], yi), q(z, yi), { color: 'w', width: emI ? 3.5 : 1.6, dash: [5, 4], head: 8 });
+      }
+      // innovation covariance S = HP⁻Hᵀ + R (hover): the ±2√S range of the expected measurement
+      if (hl === 'S') {
+        const sS = Math.sqrt(Pm[0][0] + sz * sz), yS = V0 + 0.7;
+        P.line(q(x[0] - 2 * sS, yS), q(x[0] + 2 * sS, yS), { color: 'w', width: 7, alpha: 0.75 });
+        P.text('±2√S', q(x[0] + 2 * sS, yS), { offset: [6, 0], size: 11.5, color: 'w', bold: true });
       }
       // marginal bars
       const sp = Math.sqrt(sc.P[0][0]), sv = Math.sqrt(sc.P[1][1]);

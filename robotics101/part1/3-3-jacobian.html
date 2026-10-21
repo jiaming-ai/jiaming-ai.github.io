@@ -107,7 +107,7 @@
   </p>
   <div class="lesson-meta">
     <span class="chip"><span data-lang="zh">约 25 分钟</span><span data-lang="en">~25 min</span></span>
-    <span class="chip"><span data-lang="zh">前置：1.3 矩阵即变换 · 2.1 导数 · 3.1 偏导</span><span data-lang="en">Prereqs: 1.3 Matrices as Maps · 2.1 Derivatives · 3.1 Partials</span></span>
+    <span class="chip"><span data-lang="zh">前置：<a href="1-3-matrix-as-transformation.html">1.3</a> 矩阵即变换 · <a href="2-1-derivative.html">2.1</a> 导数 · <a href="3-1-partial-derivatives.html">3.1</a> 偏导</span><span data-lang="en">Prereqs: <a href="1-3-matrix-as-transformation.html">1.3</a> Matrices as Maps · <a href="2-1-derivative.html">2.1</a> Derivatives · <a href="3-1-partial-derivatives.html">3.1</a> Partials</span></span>
     <span class="chip"><span data-lang="zh">5 个交互</span><span data-lang="en">5 interactives</span></span>
   </div>
   <ul class="toc-steps" id="step-toc"></ul>
@@ -419,7 +419,7 @@
       <button class="opt">\(\begin{bmatrix}2&0\\2&1\end{bmatrix}\)</button>
       <button class="opt">\(\begin{bmatrix}1&0\\2&1\end{bmatrix}\)</button>
     </div>
-    <div class="explain"><span data-lang="zh">第 1 行是 \(f_1 = x^2\) 的偏导 \((2x,\,0)\)，第 2 行是 \(f_2 = xy\) 的偏导 \((y,\,x)\)。代入 \((1,2)\) 得 \(\begin{bmatrix}2&0\\2&1\end{bmatrix}\)。第一个选项是它的转置，正是"行列搞反"的错误。</span><span data-lang="en">Row 1 holds the partials of \(f_1 = x^2\): \((2x,\,0)\). Row 2 holds those of \(f_2 = xy\): \((y,\,x)\). At \((1,2)\) that gives \(\begin{bmatrix}2&0\\2&1\end{bmatrix}\). The first option is its transpose, the classic rows-versus-columns mix-up.</span></div>
+    <div class="explain"><span data-lang="zh">第 1 行是 \(f_1 = x^2\) 的偏导 \((2x,\,0)\)，第 2 行是 \(f_2 = xy\) 的偏导 \((y,\,x)\)。代入 \((1,2)\) 得 \(\begin{bmatrix}2&0\\2&1\end{bmatrix}\)。选项 A 是它的转置，正是"行列搞反"的错误。</span><span data-lang="en">Row 1 holds the partials of \(f_1 = x^2\): \((2x,\,0)\). Row 2 holds those of \(f_2 = xy\): \((y,\,x)\). At \((1,2)\) that gives \(\begin{bmatrix}2&0\\2&1\end{bmatrix}\). Option A is its transpose, the classic rows-versus-columns mix-up.</span></div>
   </div>
 
   <div class="quiz" data-answer="0">
@@ -452,7 +452,7 @@
       <button class="opt">\(J_g(\mathbf p)\,J_f(\mathbf p)\)</button>
       <button class="opt">\(J_g(f(\mathbf p)) + J_f(\mathbf p)\)</button>
     </div>
-    <div class="explain"><span data-lang="zh">链式法则：后做的 \(g\) 在左边，而且要在 \(f(\mathbf p)\) 处求值。第三个选项把求值点弄错了，第一个选项顺序反了（维度通常也对不上：\(J_g\) 是 2×3，\(J_f\) 是 3×3）。</span><span data-lang="en">Chain rule: \(g\), applied last, goes on the left, and it is evaluated at \(f(\mathbf p)\). The third option uses the wrong evaluation point; the first has the order reversed (and the shapes usually do not even match: \(J_g\) is 2×3, \(J_f\) is 3×3).</span></div>
+    <div class="explain"><span data-lang="zh">链式法则：后做的 \(g\) 在左边，而且要在 \(f(\mathbf p)\) 处求值。选项 C 把求值点弄错了，选项 A 顺序反了（维度通常也对不上：\(J_g\) 是 2×3，\(J_f\) 是 3×3）。</span><span data-lang="en">Chain rule: \(g\), applied last, goes on the left, and it is evaluated at \(f(\mathbf p)\). Option C uses the wrong evaluation point; option A has the order reversed (and the shapes usually do not even match: \(J_g\) is 2×3, \(J_f\) is 3×3).</span></div>
   </div>
 </section>
 
