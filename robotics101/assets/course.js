@@ -63,10 +63,12 @@
   R.on('theme', () => { colorCache = null; });
 
   /* ---------- syllabus helpers ---------- */
-  R.pagePath = p => `part1/${p.n.replace('.', '-')}-${p.slug}.html`;
+  // parts with `chapters` have lesson pages, kept in <part.dir>/<n with '.'→'-'>-<slug>.html
+  const partOf = n => S().parts.find(pt => pt.chapters && pt.chapters.some(ch => ch.pages.some(p => p.n === n)));
+  R.pagePath = p => `${(p.part || partOf(p.n)).dir}/${p.n.replace('.', '-')}-${p.slug}.html`;
   R.allPages = () => {
     const out = [];
-    S().parts[0].chapters.forEach(ch => ch.pages.forEach(p => out.push(Object.assign({ ch }, p))));
+    S().parts.forEach(pt => (pt.chapters || []).forEach(ch => ch.pages.forEach(p => out.push(Object.assign({ ch, part: pt }, p)))));
     return out;
   };
   const L = (zh, en) => FIXED ? `<span data-lang="zh">${zh}</span>` : `<span data-lang="zh">${zh}</span><span data-lang="en">${en}</span>`;
@@ -84,7 +86,7 @@
     const top = document.createElement('header');
     top.className = 'r101-top';
     let crumb = '';
-    if (cur) crumb = L(`Part I · ${cur.ch.zh} · ${cur.n}`, `Part I · ${cur.ch.en} · ${cur.n}`);
+    if (cur) crumb = L(`Part ${cur.part.id} · ${cur.ch.zh} · ${cur.n}`, `Part ${cur.part.id} · ${cur.ch.en} · ${cur.n}`);
     else if (body.dataset.crumbZh) crumb = L(body.dataset.crumbZh, body.dataset.crumbEn);
     top.innerHTML = `
       <button class="r101-iconbtn r101-menu-btn" aria-label="Menu">☰</button>
@@ -102,22 +104,24 @@
     // sidebar
     const side = document.getElementById('r101-side');
     if (side) {
-      const p1 = syl.parts[0];
       let h = `<a href="${root}/index.html" style="display:block;padding:6px 8px;font-weight:600;color:var(--fg)">${L('课程总览', 'Course overview')}</a>`;
-      h += `<div class="part-title">Part I · ${L(p1.zh, p1.en)}</div>`;
-      h += `<a href="${root}/part1/index.html" style="display:block;padding:4px 8px;color:var(--fg-2)">${L('本部分导览', 'Part overview')}</a>`;
-      p1.chapters.forEach(ch => {
-        const open = cur ? cur.ch === ch : false;
-        h += `<details${open ? ' open' : ''}><summary>${ch.n}. ${L(ch.zh, ch.en)}</summary><ol>`;
-        ch.pages.forEach(p => {
-          const title = L(p.zh, p.en);
-          if (p.ready) h += `<li><a href="${root}/${R.pagePath(p)}"${cur && cur.n === p.n ? ' class="current"' : ''}><span class="num">${p.n}</span><span>${title}</span></a></li>`;
-          else h += `<li><span class="soon" title="Coming soon"><span class="num">${p.n}</span><span>${title}</span></span></li>`;
+      syl.parts.forEach(pt => {
+        if (!pt.chapters || !pt.chapters.some(ch => ch.pages.some(p => p.ready))) {
+          h += `<div class="part-title">Part ${pt.id}</div><a class="later" href="${root}/index.html#part-${pt.id}"><span>${L(pt.zh, pt.en)}</span><span class="tag">Soon</span></a>`;
+          return;
+        }
+        h += `<div class="part-title">Part ${pt.id} · ${L(pt.zh, pt.en)}</div>`;
+        h += `<a href="${root}/${pt.dir}/index.html" style="display:block;padding:4px 8px;color:var(--fg-2)">${L('本部分导览', 'Part overview')}</a>`;
+        pt.chapters.forEach(ch => {
+          const open = cur ? cur.ch === ch : false;
+          h += `<details${open ? ' open' : ''}><summary>${ch.n}. ${L(ch.zh, ch.en)}</summary><ol>`;
+          ch.pages.forEach(p => {
+            const title = L(p.zh, p.en);
+            if (p.ready) h += `<li><a href="${root}/${R.pagePath(Object.assign({ part: pt }, p))}"${cur && cur.n === p.n ? ' class="current"' : ''}><span class="num">${p.n}</span><span>${title}</span></a></li>`;
+            else h += `<li><span class="soon" title="Coming soon"><span class="num">${p.n}</span><span>${title}</span></span></li>`;
+          });
+          h += `</ol></details>`;
         });
-        h += `</ol></details>`;
-      });
-      syl.parts.slice(1).forEach(p => {
-        h += `<div class="part-title">Part ${p.id}</div><a class="later" href="${root}/index.html#part-${p.id}"><span>${L(p.zh, p.en)}</span><span class="tag">Soon</span></a>`;
       });
       side.innerHTML = h;
       side.addEventListener('click', e => { if (e.target.closest('a')) body.classList.remove('side-open'); });
@@ -145,7 +149,7 @@
       const next = pages.slice(idx + 1).find(p => p.ready);
       const cell = (p, dir) => p
         ? `<a class="${dir}" href="${root}/${R.pagePath(p)}"><span class="dir">${dir === 'prev' ? L('← 上一节', '← Previous') : L('下一节 →', 'Next →')}</span><span>${p.n} ${L(p.zh, p.en)}</span></a>`
-        : `<a class="${dir}" href="${root}/part1/index.html"><span class="dir">${dir === 'prev' ? '←' : '→'}</span><span>${L('Part I 导览', 'Part I overview')}</span></a>`;
+        : `<a class="${dir}" href="${root}/${cur.part.dir}/index.html"><span class="dir">${dir === 'prev' ? '←' : '→'}</span><span>${L(`Part ${cur.part.id} 导览`, `Part ${cur.part.id} overview`)}</span></a>`;
       const pg = document.createElement('nav');
       pg.className = 'pager';
       pg.innerHTML = cell(prev, 'prev') + cell(next, 'next');

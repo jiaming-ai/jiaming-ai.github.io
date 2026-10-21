@@ -1,11 +1,11 @@
 /* Robotics for Beginners — syllabus.
    Single source of truth for the sidebar, the course map and prev/next links.
-   A page with `ready: true` has a live file at part1/<num with '.'→'-'>-<slug>.html. */
+   A page with `ready: true` has a live file at <part.dir>/<num with '.'→'-'>-<slug>.html (part1/…, part2/…); chapter numbers run on across parts. */
 window.R101_SYLLABUS = {
   title: { zh: 'Robotics for Beginners', en: 'Robotics for Beginners' },
   parts: [
     {
-      id: 'I', status: 'live',
+      id: 'I', status: 'live', dir: 'part1',
       zh: '数学基础', en: 'Mathematical Foundations',
       subZh: '线性代数、微积分、概率、李群与优化：机器人学的共同语言',
       subEn: 'Linear algebra, calculus, probability, Lie groups and optimization: the shared language of robotics',
@@ -83,21 +83,31 @@ window.R101_SYLLABUS = {
       ]
     },
     {
-      id: 'II', status: 'soon',
+      id: 'II', status: 'live', dir: 'part2',
       zh: '机器人本体：运动学与动力学', en: 'Robot Mechanics: Kinematics & Dynamics',
       subZh: '连杆、关节、twist 与 wrench：机器人如何运动，又如何被驱动',
       subEn: 'Links, joints, twists and wrenches: how robots move and how they are driven',
-      groups: [
-        { zh: '结构与运动学', en: 'Structure & kinematics', topics: [
-          ['连杆、关节与自由度', 'Links, joints & degrees of freedom'], ['构型空间', 'Configuration space'],
-          ['正运动学：DH 参数与 PoE', 'Forward kinematics: DH vs. PoE'], ['速度运动学：twist 与雅可比', 'Velocity kinematics: twists & Jacobians'],
-          ['逆运动学：解析与数值', 'Inverse kinematics: analytic & numerical'], ['静力学与 wrench', 'Statics & wrenches'] ] },
-        { zh: '动力学', en: 'Dynamics', topics: [
-          ['拉格朗日动力学', 'Lagrangian dynamics'], ['牛顿-欧拉递推', 'Recursive Newton–Euler'], ['质量矩阵与科氏力', 'Mass matrix & Coriolis terms'],
-          ['接触与摩擦', 'Contact & friction'] ] },
-        { zh: '机器人形态', en: 'Embodiments', topics: [
-          ['移动机器人与非完整约束', 'Mobile robots & nonholonomic constraints'], ['足式与人形机器人基础', 'Legged & humanoid basics'],
-          ['抓取与灵巧手', 'Grasping & dexterous hands'], ['执行器与传感器', 'Actuators & sensors'] ] }
+      chapters: [
+        { n: 7, zh: '结构与运动学', en: 'Structure & Kinematics', pages: [
+          { n: '7.1', slug: 'links-joints-dof', zh: '连杆、关节与自由度', en: 'Links, Joints & Degrees of Freedom', ready: true },
+          { n: '7.2', slug: 'configuration-space', zh: '构型空间', en: 'Configuration Space', ready: true },
+          { n: '7.3', slug: 'forward-kinematics', zh: '正运动学：DH 参数与 PoE', en: 'Forward Kinematics: DH vs. PoE', ready: true, star: true },
+          { n: '7.4', slug: 'velocity-kinematics', zh: '速度运动学：twist 与雅可比', en: 'Velocity Kinematics: Twists & Jacobians', ready: true, star: true },
+          { n: '7.5', slug: 'inverse-kinematics', zh: '逆运动学：解析与数值', en: 'Inverse Kinematics: Analytic & Numerical', ready: true, star: true },
+          { n: '7.6', slug: 'statics-wrenches', zh: '静力学与 wrench', en: 'Statics & Wrenches', ready: true }
+        ]},
+        { n: 8, zh: '动力学', en: 'Dynamics', pages: [
+          { n: '8.1', slug: 'lagrangian', zh: '拉格朗日动力学', en: 'Lagrangian Dynamics', ready: true, star: true },
+          { n: '8.2', slug: 'newton-euler', zh: '牛顿-欧拉递推', en: 'Recursive Newton–Euler', ready: true },
+          { n: '8.3', slug: 'mass-matrix-coriolis', zh: '质量矩阵与科氏力', en: 'Mass Matrix & Coriolis Terms', ready: true },
+          { n: '8.4', slug: 'contact-friction', zh: '接触与摩擦', en: 'Contact & Friction', ready: true }
+        ]},
+        { n: 9, zh: '机器人形态', en: 'Embodiments', pages: [
+          { n: '9.1', slug: 'mobile-nonholonomic', zh: '移动机器人与非完整约束', en: 'Mobile Robots & Nonholonomic Constraints', ready: true },
+          { n: '9.2', slug: 'legged-humanoid', zh: '足式与人形机器人基础', en: 'Legged & Humanoid Basics', ready: true },
+          { n: '9.3', slug: 'grasping-hands', zh: '抓取与灵巧手', en: 'Grasping & Dexterous Hands', ready: true },
+          { n: '9.4', slug: 'actuators-sensors', zh: '执行器与传感器', en: 'Actuators & Sensors', ready: true }
+        ]}
       ]
     },
     {

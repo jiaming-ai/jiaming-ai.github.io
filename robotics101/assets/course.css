@@ -332,7 +332,7 @@ button { font: inherit; color: inherit; }
 .compare { width: 100%; border-collapse: collapse; margin: 18px 0; font-size: 15px; }
 .compare th, .compare td { border: 1px solid var(--border); padding: 9px 12px; vertical-align: top; text-align: left; }
 .compare th { background: var(--bg-3); font-weight: 600; }
-.table-wrap { overflow-x: auto; }
+.table-wrap { overflow-x: auto; position: relative; }
 
 /* ---------- quiz ---------- */
 .quiz { border: 1px solid var(--border); border-radius: 12px; padding: 16px 18px; margin: 18px 0; background: var(--bg-2); }

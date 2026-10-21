@@ -238,7 +238,7 @@
     axes(o = {}) {
       const m = this.m, c = this.ctx, p = m.pad, W = this.W, H = this.H;
       const nice = (range, target) => { const raw = range / target, e = Math.pow(10, Math.floor(Math.log10(raw))), f = raw / e; return (f < 1.5 ? 1 : f < 3.5 ? 2 : f < 7.5 ? 5 : 10) * e; };
-      const lab = v => { const s = String(parseFloat(v.toPrecision(6))); return s.replace('-', '−'); };
+      const lab = v => { if (Math.abs(v) < 1e-12) v = 0; const s = String(parseFloat(v.toPrecision(6))); return s.replace('-', '−'); };
       const sx = o.xstep || nice(m.xr[1] - m.xr[0], Math.max(3, Math.round((W - p.l - p.r) / 90)));
       const sy = o.ystep || nice(m.yr[1] - m.yr[0], Math.max(3, Math.round((H - p.t - p.b) / 50)));
       const X0 = this.X(m.xr[0]), X1 = this.X(m.xr[1]), Y0 = this.Y(m.yr[0] * m.ky), Y1 = this.Y(m.yr[1] * m.ky);

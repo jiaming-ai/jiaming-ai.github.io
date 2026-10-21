@@ -373,19 +373,21 @@ def page_spec(rel, doc, lang="en"):
         title = en_title
         course_name = T("Robotics for Beginners", "具身智能入门")
         crumbs = [home_crumb, (course_name, page_url("robotics101/index.html", lang))]
-        if rel == "robotics101/part1/index.html":
+        part_index = re.match(r"robotics101/(part\d+)/index\.html$", rel)
+        part_dir = rel.split("/")[1]
+        if part_index:
             nodes = [{"@type": "CollectionPage", "url": url, "name": en_title, "description": desc,
                       "isPartOf": {"@type": "Course", "@id": SITE + "/robotics101/#course"}, "author": person_ref(),
                       "inLanguage": in_lang}]
             crumbs.append((en_title.split(" · ")[0], url))
         else:
-            part = read("robotics101/part1/index.html")
-            part_title = (body_attr(part, key) or "Part I").split(" · ")[0]
+            part = read("robotics101/%s/index.html" % part_dir)
+            part_title = (body_attr(part, key) or "Part").split(" · ")[0]
             nodes = [{"@type": "LearningResource", "name": en_title, "description": desc, "url": url,
                       "learningResourceType": T("Interactive lesson", "交互式课程"),
                       "isPartOf": {"@type": "Course", "@id": SITE + "/robotics101/#course"},
                       "author": person_ref(), "inLanguage": in_lang, "isAccessibleForFree": True}]
-            crumbs += [(part_title, page_url("robotics101/part1/index.html", lang)), (en_title.split(" · ")[0], url)]
+            crumbs += [(part_title, page_url("robotics101/%s/index.html" % part_dir, lang)), (en_title.split(" · ")[0], url)]
         nodes.append(breadcrumb(crumbs))
     else:
         raise SystemExit("no SEO spec for " + rel)

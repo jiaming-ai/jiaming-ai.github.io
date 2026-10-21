@@ -7,6 +7,8 @@ robotics101/
   index.html                 course home: philosophy, conventions, full course map
   part1/index.html           Part I overview: dependency graph, chapters, learning routes
   part1/<n>-<slug>.html      one lesson per file, e.g. 1-3-matrix-as-transformation.html
+  part2/index.html           Part II overview (chapters 7–9: structure & kinematics, dynamics, embodiments)
+  part2/<n>-<slug>.html      Part II lessons, e.g. 7-5-inverse-kinematics.html (chapter numbers run on across parts)
   assets/
     syllabus.js              single source of truth for the outline (sidebar, maps, prev/next)
     course.css               layout, components, light/dark tokens, math color code
@@ -15,12 +17,14 @@ robotics101/
     viz2d.js                 R101.Plane2D — 2D math canvas with draggable handles
                              (also `fit` / `axes` / `clip` for anisotropic data plots: `const m = P.fit([x0,x1],[y0,y1]); P.axes(); P.path(pts.map(m.pt))`)
     viz3d.js                 R101.View3D — z-up orbit 3D canvas (painter's algorithm)
+    robot.js                 R101.Robot — Part II kinematics: planar chains, the preset spatial 6R arm (`Robot.arm6`, PoE),
+                             Ad / jacSpace / jacBody / ikStep, drawing helpers; also adds solve / inv / det / eigSym / dls to R101.M
 ```
 
 ## Adding a lesson
 1. Copy an existing lesson (e.g. `part1/1-3-matrix-as-transformation.html`) and keep its `<head>`, body attributes, layout wrapper and script tags.
 2. Set `data-page`, `data-title-zh`, `data-title-en` on `<body>`.
-3. Mark the page `ready: true` in `assets/syllabus.js` — the sidebar, course map, Part overview and prev/next links update automatically.
+3. Mark the page `ready: true` in `assets/syllabus.js` — the sidebar, course map, Part overview and prev/next links update automatically. Each part has a `dir` (`part1`, `part2`); a lesson lives in `<dir>/<n with '.'→'-'>-<slug>.html` and its `data-page` is the lesson number.
 4. Run `python3 tools/seo/build.py` from the repo root: it adds the SEO block (canonical, hreflang, JSON-LD), generates the Chinese-only twin under `zh/robotics101/`, and updates `sitemap.xml`. Give the lesson a `<p class="lede">` with a `data-lang="zh"` span: its text becomes the Chinese meta description.
 
 ## Lesson anatomy
