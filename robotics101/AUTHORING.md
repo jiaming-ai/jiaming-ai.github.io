@@ -13,6 +13,10 @@ robotics101/
   part3/<n>-<slug>.html      Part III lessons, e.g. 11-1-epipolar.html
   part4/index.html           Part IV overview (chapters 13–15: feedback control, motion planning, state estimation & mapping)
   part4/<n>-<slug>.html      Part IV lessons, e.g. 14-1-graph-search-astar.html
+  part5/index.html           Part V overview (chapters 16–21: learning from data, architectures, self-supervised, generative models, RL, special topics)
+  part5/<n>-<slug>.html      Part V lessons, e.g. 19-6-diffusion-models.html
+  part6/index.html           Part VI overview (chapters 22–25: imitation learning, robot RL, model-based methods, landmark works)
+  part6/<n>-<slug>.html      Part VI lessons, e.g. 22-2-act-diffusion-policy.html
   assets/
     syllabus.js              single source of truth for the outline (sidebar, maps, prev/next)
     course.css               layout, components, light/dark tokens, math color code
@@ -25,12 +29,14 @@ robotics101/
                              Ad / jacSpace / jacBody / ikStep, drawing helpers
     vision.js                R101.Vision — Part III camera geometry: OpenCV-style camera model, lookAt, project / ray / backproject, distortion,
                              frustum drawing, test scenes, DLT homography / projection, 8-point E and F, triangulation, Kabsch, RANSAC; adds M.svd / M.nullvec
+    nn.js                    R101.NN — Parts V/VI: small dense networks trained live (mlp, backward with input grads, Adam/SGD, MSE/Huber/CE/BCE,
+                             clone / soft target updates, seeded RNG); also loads in node for checking quoted training numbers
 ```
 
 ## Adding a lesson
 1. Copy an existing lesson (e.g. `part1/1-3-matrix-as-transformation.html`) and keep its `<head>`, body attributes, layout wrapper and script tags.
 2. Set `data-page`, `data-title-zh`, `data-title-en` on `<body>`.
-3. Mark the page `ready: true` in `assets/syllabus.js` — the sidebar, course map, Part overview and prev/next links update automatically. Each part has a `dir` (`part1` … `part4`); a lesson lives in `<dir>/<n with '.'→'-'>-<slug>.html` and its `data-page` is the lesson number.
+3. Mark the page `ready: true` in `assets/syllabus.js` — the sidebar, course map, Part overview and prev/next links update automatically. Each part has a `dir` (`part1` … `part6`); a lesson lives in `<dir>/<n with '.'→'-'>-<slug>.html` and its `data-page` is the lesson number.
 4. Run `python3 tools/seo/build.py` from the repo root: it adds the SEO block (canonical, hreflang, JSON-LD), generates the Chinese-only twin under `zh/robotics101/`, and updates `sitemap.xml`. Give the lesson a `<p class="lede">` with a `data-lang="zh"` span: its text becomes the Chinese meta description.
 
 ## Lesson anatomy

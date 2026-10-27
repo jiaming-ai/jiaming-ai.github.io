@@ -1,6 +1,6 @@
 /* Robotics for Beginners — syllabus.
    Single source of truth for the sidebar, the course map and prev/next links.
-   A page with `ready: true` has a live file at <part.dir>/<num with '.'→'-'>-<slug>.html (part1/…, part2/…, part4/…); chapter numbers run on across parts. */
+   A page with `ready: true` has a live file at <part.dir>/<num with '.'→'-'>-<slug>.html (part1/ … part6/); chapter numbers run on across parts. */
 window.R101_SYLLABUS = {
   title: { zh: 'Robotics for Beginners', en: 'Robotics for Beginners' },
   parts: [
@@ -168,43 +168,78 @@ window.R101_SYLLABUS = {
       ]
     },
     {
-      id: 'V', status: 'soon',
+      id: 'V', status: 'live', dir: 'part5',
       zh: '机器学习基础', en: 'Machine Learning Foundations',
       subZh: '从监督学习到生成模型与强化学习：现代机器人学习的工具箱',
       subEn: 'From supervised learning to generative models and RL: the toolbox of modern robot learning',
-      groups: [
-        { zh: '基础与架构', en: 'Basics & architectures', topics: [
-          ['损失、泛化与正则化', 'Losses, generalization & regularization'], ['反向传播', 'Backpropagation'],
-          ['MLP 与 CNN', 'MLPs & CNNs'], ['RNN 与状态空间模型', 'RNNs & state-space models'], ['Transformer 与 Attention', 'Transformers & attention'],
-          ['图神经网络 GNN', 'Graph neural networks'], ['Tokenization（含动作 token 化）', 'Tokenization (incl. action tokens)'] ] },
-        { zh: '监督、无监督与自监督', en: 'Supervised, unsupervised & self-supervised', topics: [
-          ['回归与分类', 'Regression & classification'], ['聚类与 PCA', 'Clustering & PCA'], ['Autoencoder', 'Autoencoders'],
-          ['对比学习：SimCLR、CLIP', 'Contrastive learning: SimCLR, CLIP'], ['Masked modeling 与 JEPA', 'Masked modeling & JEPA'] ] },
-        { zh: '生成模型', en: 'Generative models', topics: [
-          ['VAE', 'VAEs'], ['GAN', 'GANs'], ['Normalizing Flow', 'Normalizing flows'], ['自回归模型', 'Autoregressive models'],
-          ['Energy-based 模型', 'Energy-based models'], ['扩散 / Score-based 模型', 'Diffusion & score-based models'], ['Flow Matching', 'Flow matching'] ] },
-        { zh: '强化学习', en: 'Reinforcement learning', topics: [
-          ['MDP 与 Bellman 方程', 'MDPs & Bellman equations'], ['Value-based 方法', 'Value-based methods'], ['Policy gradient', 'Policy gradients'],
-          ['Actor-Critic：PPO、SAC', 'Actor-critic: PPO, SAC'], ['Offline RL', 'Offline RL'], ['逆强化学习与偏好学习', 'Inverse RL & preference learning'] ] },
-        { zh: '专题', en: 'Special topics', topics: [
-          ['预训练与微调（LoRA）', 'Pre-training & fine-tuning (LoRA)'], ['Scaling law', 'Scaling laws'], ['不确定性估计', 'Uncertainty estimation'],
-          ['多任务与元学习', 'Multi-task & meta-learning'] ] }
+      chapters: [
+        { n: 16, zh: '从数据中学习', en: 'Learning from Data', pages: [
+          { n: '16.1', slug: 'regression-classification', zh: '回归与分类', en: 'Regression & Classification', ready: true },
+          { n: '16.2', slug: 'losses-generalization', zh: '损失、泛化与正则化', en: 'Losses, Generalization & Regularization', ready: true },
+          { n: '16.3', slug: 'backpropagation', zh: '反向传播', en: 'Backpropagation', ready: true, star: true }
+        ]},
+        { n: 17, zh: '网络架构', en: 'Network Architectures', pages: [
+          { n: '17.1', slug: 'mlp-cnn', zh: 'MLP 与 CNN', en: 'MLPs & CNNs', ready: true },
+          { n: '17.2', slug: 'rnn-ssm', zh: 'RNN 与状态空间模型', en: 'RNNs & State-Space Models', ready: true },
+          { n: '17.3', slug: 'transformers-attention', zh: 'Transformer 与 Attention', en: 'Transformers & Attention', ready: true, star: true },
+          { n: '17.4', slug: 'graph-neural-networks', zh: '图神经网络 GNN', en: 'Graph Neural Networks', ready: true },
+          { n: '17.5', slug: 'tokenization', zh: 'Tokenization（含动作 token 化）', en: 'Tokenization (incl. Action Tokens)', ready: true }
+        ]},
+        { n: 18, zh: '无监督与自监督学习', en: 'Unsupervised & Self-Supervised Learning', pages: [
+          { n: '18.1', slug: 'clustering-pca', zh: '聚类与 PCA', en: 'Clustering & PCA', ready: true },
+          { n: '18.2', slug: 'autoencoders', zh: '自编码器 Autoencoder', en: 'Autoencoders', ready: true },
+          { n: '18.3', slug: 'contrastive-learning', zh: '对比学习：SimCLR 与 CLIP', en: 'Contrastive Learning: SimCLR & CLIP', ready: true, star: true },
+          { n: '18.4', slug: 'masked-modeling-jepa', zh: 'Masked Modeling 与 JEPA', en: 'Masked Modeling & JEPA', ready: true }
+        ]},
+        { n: 19, zh: '生成模型', en: 'Generative Models', pages: [
+          { n: '19.1', slug: 'vae', zh: '变分自编码器 VAE', en: 'Variational Autoencoders', ready: true },
+          { n: '19.2', slug: 'gan', zh: '生成对抗网络 GAN', en: 'Generative Adversarial Networks', ready: true },
+          { n: '19.3', slug: 'normalizing-flows', zh: 'Normalizing Flow', en: 'Normalizing Flows', ready: true },
+          { n: '19.4', slug: 'autoregressive-models', zh: '自回归模型', en: 'Autoregressive Models', ready: true },
+          { n: '19.5', slug: 'energy-based-models', zh: 'Energy-based 模型', en: 'Energy-Based Models', ready: true },
+          { n: '19.6', slug: 'diffusion-models', zh: '扩散与 Score-based 模型', en: 'Diffusion & Score-Based Models', ready: true, star: true },
+          { n: '19.7', slug: 'flow-matching', zh: 'Flow Matching', en: 'Flow Matching', ready: true, star: true }
+        ]},
+        { n: 20, zh: '强化学习', en: 'Reinforcement Learning', pages: [
+          { n: '20.1', slug: 'mdp-bellman', zh: 'MDP 与 Bellman 方程', en: 'MDPs & Bellman Equations', ready: true },
+          { n: '20.2', slug: 'value-based-methods', zh: 'Value-based 方法：Q-learning 与 DQN', en: 'Value-Based Methods: Q-Learning & DQN', ready: true },
+          { n: '20.3', slug: 'policy-gradients', zh: '策略梯度', en: 'Policy Gradients', ready: true },
+          { n: '20.4', slug: 'actor-critic-ppo-sac', zh: 'Actor-Critic：PPO 与 SAC', en: 'Actor-Critic: PPO & SAC', ready: true, star: true },
+          { n: '20.5', slug: 'offline-rl', zh: '离线强化学习 Offline RL', en: 'Offline RL', ready: true },
+          { n: '20.6', slug: 'inverse-rl-preferences', zh: '逆强化学习与偏好学习', en: 'Inverse RL & Preference Learning', ready: true }
+        ]},
+        { n: 21, zh: '专题', en: 'Special Topics', pages: [
+          { n: '21.1', slug: 'pretraining-finetuning', zh: '预训练与微调（LoRA）', en: 'Pre-training & Fine-tuning (LoRA)', ready: true },
+          { n: '21.2', slug: 'scaling-laws', zh: 'Scaling Law', en: 'Scaling Laws', ready: true },
+          { n: '21.3', slug: 'uncertainty-estimation', zh: '不确定性估计', en: 'Uncertainty Estimation', ready: true },
+          { n: '21.4', slug: 'multitask-meta-learning', zh: '多任务与元学习', en: 'Multi-Task & Meta-Learning', ready: true }
+        ]}
       ]
     },
     {
-      id: 'VI', status: 'soon',
+      id: 'VI', status: 'live', dir: 'part6',
       zh: '机器人学习：方法与经典工作', en: 'Robot Learning: Methods & Classic Works',
       subZh: '模仿学习、强化学习与 model-based 方法，以及塑造了这个领域的经典工作',
       subEn: 'Imitation, reinforcement and model-based learning, and the works that shaped the field',
-      groups: [
-        { zh: '方法', en: 'Methods', topics: [
-          ['模仿学习：BC、DAgger', 'Imitation learning: BC, DAgger'], ['ACT 与 Diffusion Policy', 'ACT & Diffusion Policy'],
-          ['机器人强化学习与 sim-to-real', 'Robot RL & sim-to-real'], ['域随机化', 'Domain randomization'] ] },
-        { zh: 'Model-based 方法', en: 'Model-based methods', topics: [
-          ['学习动力学模型', 'Learning dynamics models'], ['PILCO、PETS、MBPO', 'PILCO, PETS, MBPO'], ['Dreamer 与 TD-MPC', 'Dreamer & TD-MPC'],
-          ['学习模型 + MPC', 'Learned models + MPC'] ] },
-        { zh: '数据与经典工作', en: 'Data & landmark works', topics: [
-          ['遥操作与数据采集：ALOHA、UMI', 'Teleoperation & data: ALOHA, UMI'], ['经典工作时间线（可交互）', 'Interactive timeline of landmark works'] ] }
+      chapters: [
+        { n: 22, zh: '模仿学习与数据', en: 'Imitation Learning & Data', pages: [
+          { n: '22.1', slug: 'bc-dagger', zh: '模仿学习：BC 与 DAgger', en: 'Imitation Learning: BC & DAgger', ready: true, star: true },
+          { n: '22.2', slug: 'act-diffusion-policy', zh: 'ACT 与 Diffusion Policy', en: 'ACT & Diffusion Policy', ready: true, star: true },
+          { n: '22.3', slug: 'teleoperation-data', zh: '遥操作与数据采集：ALOHA、UMI', en: 'Teleoperation & Data Collection: ALOHA, UMI', ready: true }
+        ]},
+        { n: 23, zh: '机器人强化学习', en: 'Robot Reinforcement Learning', pages: [
+          { n: '23.1', slug: 'robot-rl-sim-to-real', zh: '机器人强化学习与 sim-to-real', en: 'Robot RL & Sim-to-Real', ready: true, star: true },
+          { n: '23.2', slug: 'domain-randomization', zh: '域随机化', en: 'Domain Randomization', ready: true }
+        ]},
+        { n: 24, zh: 'Model-based 方法', en: 'Model-Based Methods', pages: [
+          { n: '24.1', slug: 'learning-dynamics-models', zh: '学习动力学模型', en: 'Learning Dynamics Models', ready: true },
+          { n: '24.2', slug: 'pilco-pets-mbpo', zh: 'PILCO、PETS 与 MBPO', en: 'PILCO, PETS & MBPO', ready: true },
+          { n: '24.3', slug: 'dreamer-td-mpc', zh: 'Dreamer 与 TD-MPC', en: 'Dreamer & TD-MPC', ready: true },
+          { n: '24.4', slug: 'learned-models-mpc', zh: '学习模型 + MPC', en: 'Learned Models + MPC', ready: true }
+        ]},
+        { n: 25, zh: '经典工作', en: 'Landmark Works', pages: [
+          { n: '25.1', slug: 'landmark-timeline', zh: '经典工作时间线（可交互）', en: 'An Interactive Timeline of Landmark Works', ready: true }
+        ]}
       ]
     },
     {
