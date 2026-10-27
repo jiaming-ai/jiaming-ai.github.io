@@ -1,6 +1,6 @@
 /* Robotics for Beginners — syllabus.
    Single source of truth for the sidebar, the course map and prev/next links.
-   A page with `ready: true` has a live file at <part.dir>/<num with '.'→'-'>-<slug>.html (part1/…, part2/…); chapter numbers run on across parts. */
+   A page with `ready: true` has a live file at <part.dir>/<num with '.'→'-'>-<slug>.html (part1/…, part2/…, part4/…); chapter numbers run on across parts. */
 window.R101_SYLLABUS = {
   title: { zh: 'Robotics for Beginners', en: 'Robotics for Beginners' },
   parts: [
@@ -140,19 +140,31 @@ window.R101_SYLLABUS = {
       ]
     },
     {
-      id: 'IV', status: 'soon',
+      id: 'IV', status: 'live', dir: 'part4',
       zh: '经典规划、控制与状态估计', en: 'Classical Planning, Control & Estimation',
       subZh: '让机器人知道自己在哪、该去哪、怎么稳稳地过去',
       subEn: 'Knowing where the robot is, where to go, and how to get there reliably',
-      groups: [
-        { zh: '控制', en: 'Control', topics: [
-          ['PID', 'PID'], ['状态空间与稳定性', 'State space & stability'], ['LQR', 'LQR'], ['模型预测控制 MPC', 'Model Predictive Control'],
-          ['阻抗与导纳控制', 'Impedance & admittance control'], ['操作空间控制', 'Operational-space control'], ['全身控制 (QP)', 'Whole-body control (QP)'] ] },
-        { zh: '规划', en: 'Planning', topics: [
-          ['图搜索与 A*', 'Graph search & A*'], ['采样式规划：PRM、RRT、RRT*', 'Sampling-based planning: PRM, RRT, RRT*'],
-          ['轨迹优化：CHOMP、TrajOpt', 'Trajectory optimization: CHOMP, TrajOpt'], ['任务与运动规划 TAMP', 'Task & motion planning'] ] },
-        { zh: '状态估计', en: 'State estimation', topics: [
-          ['视觉 / 惯性里程计', 'Visual / inertial odometry'], ['SLAM 与位姿图', 'SLAM & pose graphs'], ['地图表示', 'Map representations'] ] }
+      chapters: [
+        { n: 13, zh: '反馈控制', en: 'Feedback Control', pages: [
+          { n: '13.1', slug: 'pid', zh: 'PID 控制', en: 'PID Control', ready: true, star: true },
+          { n: '13.2', slug: 'state-space-stability', zh: '状态空间与稳定性', en: 'State Space & Stability', ready: true },
+          { n: '13.3', slug: 'lqr', zh: 'LQR：最优状态反馈', en: 'LQR: Optimal State Feedback', ready: true },
+          { n: '13.4', slug: 'mpc', zh: '模型预测控制 MPC', en: 'Model Predictive Control', ready: true, star: true },
+          { n: '13.5', slug: 'impedance-admittance', zh: '阻抗与导纳控制', en: 'Impedance & Admittance Control', ready: true },
+          { n: '13.6', slug: 'operational-space', zh: '操作空间控制', en: 'Operational-Space Control', ready: true },
+          { n: '13.7', slug: 'whole-body-control', zh: '全身控制（QP）', en: 'Whole-Body Control (QP)', ready: true }
+        ]},
+        { n: 14, zh: '运动规划', en: 'Motion Planning', pages: [
+          { n: '14.1', slug: 'graph-search-astar', zh: '图搜索与 A*', en: 'Graph Search & A*', ready: true, star: true },
+          { n: '14.2', slug: 'sampling-based-planning', zh: '采样式规划：PRM、RRT、RRT*', en: 'Sampling-Based Planning: PRM, RRT, RRT*', ready: true, star: true },
+          { n: '14.3', slug: 'chomp-trajopt', zh: '轨迹优化：CHOMP 与 TrajOpt', en: 'Trajectory Optimization: CHOMP & TrajOpt', ready: true },
+          { n: '14.4', slug: 'tamp', zh: '任务与运动规划 TAMP', en: 'Task & Motion Planning', ready: true }
+        ]},
+        { n: 15, zh: '状态估计与建图', en: 'State Estimation & Mapping', pages: [
+          { n: '15.1', slug: 'visual-inertial-odometry', zh: '视觉 / 惯性里程计', en: 'Visual & Inertial Odometry', ready: true },
+          { n: '15.2', slug: 'slam-pose-graphs', zh: 'SLAM 与位姿图', en: 'SLAM & Pose Graphs', ready: true, star: true },
+          { n: '15.3', slug: 'map-representations', zh: '地图表示', en: 'Map Representations', ready: true }
+        ]}
       ]
     },
     {
