@@ -7,6 +7,7 @@
         "venueShort": "Preprint 2026",
         "links": {
             "paper": "https://www.preprints.org/manuscript/202610.2747",
+            "PDF": "agentic-robotics/agentic-robotics-survey.pdf",
             "project": "agentic-robotics/"
         },
         "selected": true,
