@@ -273,13 +273,15 @@ def article_node(p, with_context=False):
     node = {
         "@type": "ScholarlyArticle", "name": p["title"], "headline": p["title"],
         "author": [person_ref() if a == NAME else {"@type": "Person", "name": a} for a in authors],
-        "datePublished": str(p["year"]),
+        "datePublished": p.get("datePublished", str(p["year"])),
         "publication": {"@type": "PublicationEvent", "name": p["venue"]},
         "inLanguage": "en", "isAccessibleForFree": True,
     }
     url = pub_url(p)
     if url:
         node["url"] = url
+    if p.get("doi"):
+        node["identifier"] = {"@type": "PropertyValue", "propertyID": "DOI", "value": p["doi"]}
     same = list(pub_abs_links(p).values())
     if same:
         node["sameAs"] = same
@@ -349,6 +351,16 @@ def page_spec(rel, doc, lang="en"):
                   "isPartOf": {"@type": "Blog", "url": blog_url, "name": T("Jiaming Wang: Blog", "Jiaming Wang 的博客")}},
                  breadcrumb([home_crumb, (T("Blog", "博客"), blog_url), (head_t, url)])]
         nodes[0] = {k: v for k, v in nodes[0].items() if v}
+    elif rel == "agentic-robotics/index.html":
+        pub = next(p for p in PUBS if p["title"].startswith("A Survey of Agentic Robotics:"))
+        node = article_node(pub)
+        node.update({"url": url, "mainEntityOfPage": url, "description": desc,
+                     "license": "https://creativecommons.org/licenses/by/4.0/",
+                     "encoding": {"@type": "MediaObject", "encodingFormat": "application/pdf",
+                                  "contentUrl": SITE + "/agentic-robotics/agentic-robotics-survey.pdf"}})
+        node["sameAs"] = [u for u in node.get("sameAs", []) if u != url]
+        nodes = [node, breadcrumb([home_crumb, ("Research", SITE + "/pages/research.html"), ("Agentic Robotics Survey", url)])]
+        og_type = "article"
     elif rel == "ecrom/index.html":
         pub = next(p for p in PUBS if p["title"].startswith("Retrospective Open-Vocabulary Memory"))
         node = article_node(pub)
@@ -733,7 +745,7 @@ def bump_assets():
 def main():
     if "--bump" in sys.argv:
         bump_assets()
-    pages = CORE_PAGES + [p["rel"] for p in POSTS] + course_pages() + ["ecrom/index.html"]
+    pages = CORE_PAGES + [p["rel"] for p in POSTS] + course_pages() + ["ecrom/index.html", "agentic-robotics/index.html"]
     for rel in pages:
         apply_block(rel)
     apply_pubs("index.html", True, "")

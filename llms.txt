@@ -32,7 +32,7 @@ Chinese edition: every main page has a Chinese-only twin under https://jiaming.i
 
 ## Selected publications
 
-- [A Survey of Agentic Robotics: Toward Continual Self-Improvement](https://www.alphaxiv.org/abs/2610.rsi-agentic-robotics): Jiaming Wang, Yuhua Jiang, Zhengcheng Shen, Harold Soh. Preprint, 2026
+- [A Survey of Agentic Robotics: Toward Continual Self-Improvement](https://jiaming.im/agentic-robotics/): Jiaming Wang, Yuhua Jiang, Zhengcheng Shen, Harold Soh. Preprints.org, 2026
 - [Retrospective Open-Vocabulary Memory for Long-Term Object Search](https://jiaming.im/ecrom/): Jiaming Wang, Zhiwei Xue, Jizhuo Chen, Shiqi Peng, Harold Soh. arXiv preprint (under review), 2026
 - [Learning Social Navigation from Internet Videos in the Policy State Space](https://jiaming.im/VideoSocNav/): Jiaming Wang, Duc Thang Nguyen, Jizhuo Chen, Volodymyr Shcherbyna, Diwen Liu, Zhengcheng Shen, Harold Soh. arXiv preprint (under review), 2026
 - [How to Better Train VLAs: Lessons Learned From the REAL-I Challenge at ICRA 2026](https://arxiv.org/abs/2609.13679): Jiaming Wang, Jizhuo Chen, Diwen Liu, Wang Song, Qiang Wang, Jie Ren, Chao Fu, Dingkun Zhu, Minchi Ruan, Hongtong Li, Yuhua Jiang, Zhiwei Xue, Yongping Pan, Harold Soh. arXiv preprint, 2026 (Winner, REAL-I Challenge @ ICRA 2026)
