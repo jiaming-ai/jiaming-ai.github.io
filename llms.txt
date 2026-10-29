@@ -23,6 +23,7 @@ Chinese edition: every main page has a Chinese-only twin under https://jiaming.i
 
 ## Blog posts
 
+- [Your Critic May Learn to Give Up Before Your Robot Learns to Pick Up](https://jiaming.im/pages/blog/critic-curriculum.html): A curriculum shapes the evidence a critic learns from. Train near the frontier of competence so progress remains distinguishable from failure. (2026-10-29)
 - [Robot Policies Need the Right Memory, Not an 8K Context Window](https://jiaming.im/pages/blog/robot-memory.html): RoboTTT, WAM-TTT, and RoboSSM show that long context matters only when history becomes usable state—through task-relevant information, aligned meta-training, and memory matched to its timescale. (2026-07-29)
 - [How We Won IEEE ICRA Robotics Challenges Two Years in a Row](https://jiaming.im/pages/blog/how-to-win.html): Lessons from winning ICRA navigation and manipulation challenges: start from the problem, decompose it from first principles, and test the assumptions that matter. (2026-07-26)
 - [OpenGEN-1: Reconstructing GEN-1 from First Principles](https://jiaming.im/pages/blog/opengen.html): A first-principles reconstruction of GEN-1 as a physical foundation model trained on streams of interaction, with a proposed architecture, objective, data scale, and real-time inference system. (2026-07-26)

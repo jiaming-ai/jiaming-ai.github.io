@@ -5,8 +5,18 @@
   <link href="https://jiaming.im/feed.xml" rel="self"/>
   <link href="https://jiaming.im/pages/blog.html"/>
   <id>https://jiaming.im/</id>
-  <updated>2026-07-29T00:00:00Z</updated>
+  <updated>2026-10-29T00:00:00Z</updated>
   <author><name>Jiaming Wang</name></author>
+  <entry>
+    <title>Your Critic May Learn to Give Up Before Your Robot Learns to Pick Up</title>
+    <link href="https://jiaming.im/pages/blog/critic-curriculum.html"/>
+    <id>https://jiaming.im/pages/blog/critic-curriculum.html</id>
+    <updated>2026-10-29T00:00:00Z</updated>
+    <summary>A curriculum shapes the evidence a critic learns from. Train near the frontier of competence so progress remains distinguishable from failure.</summary>
+    <author><name>Jiaming Wang</name></author>
+    <category term="Technical"/>
+    <category term="Research"/>
+  </entry>
   <entry>
     <title>Robot Policies Need the Right Memory, Not an 8K Context Window</title>
     <link href="https://jiaming.im/pages/blog/robot-memory.html"/>
