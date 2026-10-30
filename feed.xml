@@ -5,8 +5,18 @@
   <link href="https://jiaming.im/feed.xml" rel="self"/>
   <link href="https://jiaming.im/pages/blog.html"/>
   <id>https://jiaming.im/</id>
-  <updated>2026-10-29T00:00:00Z</updated>
+  <updated>2026-10-30T00:00:00Z</updated>
   <author><name>Jiaming Wang</name></author>
+  <entry>
+    <title>CROSS: Our Most Robust Mapping Yet</title>
+    <link href="https://jiaming.im/pages/blog/cross-tracking.html"/>
+    <id>https://jiaming.im/pages/blog/cross-tracking.html</id>
+    <updated>2026-10-30T00:00:00Z</updated>
+    <summary>Mapping through darkness, glare, fast motion and sharp turns: a 59-second CROSS demo with real robot footage and benchmark comparisons.</summary>
+    <author><name>Jiaming Wang</name></author>
+    <category term="Technical"/>
+    <category term="Research"/>
+  </entry>
   <entry>
     <title>Your Critic May Learn to Give Up Before Your Robot Learns to Pick Up</title>
     <link href="https://jiaming.im/pages/blog/critic-curriculum.html"/>
